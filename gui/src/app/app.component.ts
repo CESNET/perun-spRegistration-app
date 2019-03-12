@@ -16,6 +16,7 @@ export class AppComponent implements OnInit {
 
   lastScreenWidth: number;
 
+  minWidth = 768;
   sidebarMode = 'side';
   currentUrl: string;
 
@@ -45,14 +46,14 @@ export class AppComponent implements OnInit {
   @HostListener('window:resize', ['$event'])
   getScreenSize(event?) {
 
-    if (window.innerWidth > 576) {
+    if (window.innerWidth > this.minWidth) {
       this.sideBarOpened = true;
       this.sidebarMode = 'side';
-    } else if (this.lastScreenWidth > 576) {
+    } else if (this.lastScreenWidth > this.minWidth) {
       this.sideBarOpened = false;
     }
 
-    if (window.innerWidth <= 576) {
+    if (window.innerWidth <= this.minWidth) {
       this.sidebarMode = 'over';
     }
 
