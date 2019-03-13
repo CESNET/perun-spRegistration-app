@@ -8,10 +8,9 @@ import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
 import cz.metacentrum.perun.spRegistration.persistence.models.Facility;
 import cz.metacentrum.perun.spRegistration.persistence.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.persistence.models.Request;
-import cz.metacentrum.perun.spRegistration.persistence.models.RequestApproval;
+import cz.metacentrum.perun.spRegistration.persistence.models.RequestSignature;
 import cz.metacentrum.perun.spRegistration.persistence.rpc.PerunConnector;
 import cz.metacentrum.perun.spRegistration.service.AdminService;
-import cz.metacentrum.perun.spRegistration.service.Mails;
 import cz.metacentrum.perun.spRegistration.service.ServiceUtils;
 import cz.metacentrum.perun.spRegistration.service.exceptions.CannotChangeStatusException;
 import cz.metacentrum.perun.spRegistration.service.exceptions.InternalErrorException;
@@ -21,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,7 +142,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public boolean approveTransferToProduction(Long requestId, Long userId) throws InternalErrorException, UnauthorizedActionException {
+	public boolean approveTransferToProduction(Long requestId, Long userId) throws InternalErrorException, UnauthorizedActionException, RPCException {
 		log.debug("approveTransferToProduction(requestId: {}, userId: {})", requestId, userId);
 		if (requestId == null || userId == null) {
 			log.error("Illegal input - requestId: {}, userId: {}", requestId, userId);
@@ -161,13 +159,14 @@ public class AdminServiceImpl implements AdminService {
 		}
 
 		boolean res = Utils.updaterequestAndNotifyUser(requestManager, request, RequestStatus.APPROVED, messagesProperties, adminsAttr);
+		finishRequestApproved(request);
 
 		log.debug("approveTransferToProduction returns: {}", res);
 		return res;
 	}
 
 	@Override
-	public List<RequestApproval> getApprovalsOfProductionTransfer(Long requestId, Long userId) throws UnauthorizedActionException {
+	public List<RequestSignature> getApprovalsOfProductionTransfer(Long requestId, Long userId) throws UnauthorizedActionException {
 		log.debug("getApprovalsOfProductionTransfer(requestId: {}, userId: {})", requestId, userId);
 		if (userId == null || requestId == null) {
 			log.error("Illegal input - requestId: {}, userId: {} " , requestId, userId);
@@ -177,7 +176,7 @@ public class AdminServiceImpl implements AdminService {
 			throw new UnauthorizedActionException("User is not authorized to view approvals");
 		}
 
-		List<RequestApproval> result = requestManager.getApprovalsForRequest(requestId);
+		List<RequestSignature> result = requestManager.getRequestSignatures(requestId);
 		log.debug("getApprovalsOfProductionTransfer returns: {}", result);
 		return result;
 	}
@@ -274,6 +273,8 @@ public class AdminServiceImpl implements AdminService {
 				return updateFacilityInPerun(request);
 			case DELETE_FACILITY:
 				return deleteFacilityFromPerun(request);
+			case MOVE_TO_PRODUCTION:
+				return moveToProduction(request);
 		}
 
 		return false;
@@ -362,6 +363,23 @@ public class AdminServiceImpl implements AdminService {
 
 		log.debug("deleteFacilityFromPerun returns: {}", result);
 		return result;
+	}
+
+	private boolean moveToProduction(Request request) throws RPCException {
+		log.debug("requestMoveToProduction({})", request);
+		log.info("Updating facility attributes");
+		boolean res;
+		PerunAttribute testSp = perunConnector.getFacilityAttribute(
+				request.getFacilityId(), appConfig.getTestSpAttribute());
+		testSp.setValue(false);
+		res = perunConnector.setFacilityAttribute(request.getFacilityId(), testSp.toJsonForPerun().toString());
+		PerunAttribute displayOnList = perunConnector.getFacilityAttribute(
+				request.getFacilityId(), appConfig.getShowOnServicesListAttribute());
+		displayOnList.setValue(true);
+		res = res && perunConnector.setFacilityAttribute(request.getFacilityId(), displayOnList.toJsonForPerun().toString());
+
+		log.debug("requestMoveToProduction returns: {}", res);
+		return res;
 	}
 
 	private Long extractFacilityIdFromRequest(Request request) {

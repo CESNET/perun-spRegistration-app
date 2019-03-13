@@ -9,8 +9,12 @@ const routes: Routes = [
     component: FacilitiesOverviewComponent
   },
   {
-    path: 'detail/:id',
-    component: FacilitiesDetailComponent
+      path: 'detail/:id',
+      component: FacilitiesDetailComponent
+  },
+  {
+    path: '**',
+    redirectTo: '/notFound'
   }
 ];
 

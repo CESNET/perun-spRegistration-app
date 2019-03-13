@@ -6,7 +6,8 @@ import cz.metacentrum.perun.spRegistration.persistence.managers.impl.RequestMana
 import cz.metacentrum.perun.spRegistration.persistence.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.persistence.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.persistence.models.Request;
-import cz.metacentrum.perun.spRegistration.persistence.models.RequestApproval;
+import cz.metacentrum.perun.spRegistration.persistence.models.RequestSignature;
+import cz.metacentrum.perun.spRegistration.persistence.models.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +17,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -42,44 +45,24 @@ public class RequestManagerTests {
 	private PerunAttribute attr2;
 	private Request req1;
 	private Request req2;
-	private RequestApproval approval1;
-	private RequestApproval approval2;
+	private RequestSignature approval1;
+	private User fakeUser;
 
 	@Before
 	public void setUp() {
 		def1 = new PerunAttributeDefinition(1L, "attr_1", "namespace1", "desc1", "java.lang.String", "attr1", true, "facility", "attributeDefinition");
 		def2 = new PerunAttributeDefinition(2L, "attr_2", "namespace2", "desc2", "java.lang.Boolean", "attr2", true, "facility", "attributeDefinition");
 
+		prepareFakeUser();
 		prepareAttributes();
 		prepareRequests();
+		prepareApprovals();
 
 		Long req1Id = requestManager.createRequest(req1);
 		req1.setReqId(req1Id);
 
 		Long req2Id = requestManager.createRequest(req2);
 		req2.setReqId(req2Id);
-
-		prepareApprovals();
-		requestManager.addSignature(approval1.getRequestId(), approval1.getSignerId(),
-				approval1.getSignerName(), approval1.getSignerInput(), approval1.getSignedAt());
-		requestManager.addSignature(approval2.getRequestId(), approval2.getSignerId(),
-				approval2.getSignerName(), approval2.getSignerInput(), approval2.getSignedAt());
-	}
-
-	private void prepareApprovals() {
-		approval1 = new RequestApproval();
-		approval1.setSignerId(1L);
-		approval1.setRequestId(req1.getReqId());
-		approval1.setSignerName("test_user");
-		approval1.setSignerInput("test_approval");
-		approval1.setSignedAt(Timestamp.valueOf("2019-01-01 10:00:00.00"));
-
-		approval2 = new RequestApproval();
-		approval2.setSignerId(2L);
-		approval2.setRequestId(req1.getReqId());
-		approval2.setSignerName("test_user2");
-		approval2.setSignerInput("test_approval2");
-		approval2.setSignedAt(Timestamp.valueOf("2019-01-01 10:00:00.00"));
 	}
 
 	private void prepareAttributes() {
@@ -114,6 +97,30 @@ public class RequestManagerTests {
 		req2.setModifiedBy(2L);
 		req2.setAttributes(Collections.singletonMap(attr2.getFullName(), attr2));
 		req2.setReqUserId(2L);
+	}
+
+	private void prepareApprovals() {
+		LocalDateTime now = LocalDateTime.now();
+		approval1 = new RequestSignature();
+		approval1.setFacilityId(2L);
+		approval1.setLink("/link");
+		approval1.setHash("hash");
+		approval1.setSignerId(fakeUser.getId());
+		approval1.setSignerName(fakeUser.getFullName());
+		approval1.setSignerEmail(fakeUser.getEmail());
+		approval1.setValidUntil(now.plusDays(10));
+	}
+
+	private void prepareFakeUser() {
+		fakeUser = new User(
+				1L,
+				"title_before",
+				"Test",
+				"Middle",
+				"User",
+				"title_after"
+		);
+		fakeUser.setEmail("testUser@somewhere.com");
 	}
 
 	@Test
@@ -227,33 +234,44 @@ public class RequestManagerTests {
 	}
 
 	@Test
-	public void addSignature() {
-		RequestApproval newApproval = new RequestApproval();
-		newApproval.setRequestId(1L);
-		newApproval.setSignerId(3L);
-		newApproval.setSignerName("test_user_new");
-		newApproval.setSignerInput("test_input_new");
-		newApproval.setSignedAt(Timestamp.valueOf("2019-01-01 10:00:00.00"));
-
-		boolean result = requestManager.addSignature(newApproval.getRequestId(), newApproval.getSignerId(),
-				newApproval.getSignerName(), newApproval.getSignerInput(), newApproval.getSignedAt());
-		assertTrue("Addition of signature should return true", result);
-
-		List<RequestApproval> approvals = requestManager.getApprovalsForRequest(req1.getReqId());
-		assertNotNull("Should find one approval but null collection returned", approvals);
-		assertTrue("Result set should contain at least one approval", approvals.size() > 0);
-		assertEquals("Result set should contain exactly three approvals", 3, approvals.size());
-		assertThat("Result does not contain expected item", approvals, hasItems(approval1, approval2, newApproval));
+	public void storeApprovalLink() {
+		boolean res = requestManager.storeApprovalLink(approval1.getSignerEmail(), approval1.getHash(),
+				approval1.getFacilityId(), approval1.getLink(), approval1.getValidUntil());
+		assertTrue("Storing link should return true", res);
 	}
 
 	@Test
-	public void getApprovalsForRequest() {
-		List<RequestApproval> approvals = requestManager.getApprovalsForRequest(req1.getReqId());
+	public void addSignature() {
+		requestManager.storeApprovalLink(approval1.getSignerEmail(), approval1.getHash(),
+				approval1.getFacilityId(), approval1.getLink(), approval1.getValidUntil());
+		LocalDateTime now = LocalDateTime.now();
 
-		assertNotNull("Should find one approval but null collection returned", approvals);
-		assertTrue("Result set should contain at least one approval", approvals.size() > 0);
-		assertEquals("Result set should contain exactly two approvals", 2, approvals.size());
-		assertThat("Result does not contain expected item", approvals, hasItems(approval1, approval2));
+		boolean res = requestManager.addSignature(approval1.getFacilityId(), approval1.getHash(), fakeUser, now);
+		approval1.setSignedAt(now);
+
+		List<RequestSignature> found = requestManager.getRequestSignatures(approval1.getFacilityId());
+
+		assertTrue("Storing signature should return true", res);
+		assertNotNull("Found cannot be null", found);
+		assertTrue("Should find at least one signature", found.size() > 0);
+		assertEquals("Only one approval should be in DB", 1, found.size());
+		assertEquals("Approvals are not the same", approval1, found.get(0));
+	}
+
+	@Test
+	public void getRequestSignatures() {
+		requestManager.storeApprovalLink(approval1.getSignerEmail(), approval1.getHash(),
+				approval1.getFacilityId(), approval1.getLink(), approval1.getValidUntil());
+		LocalDateTime now = LocalDateTime.now();
+		requestManager.addSignature(approval1.getFacilityId(), approval1.getHash(), fakeUser, now);
+		approval1.setSignedAt(now);
+
+		List<RequestSignature> res = requestManager.getRequestSignatures(approval1.getFacilityId());
+
+		assertNotNull("Result cannot be null", res);
+		assertTrue("Should find at least one signature", res.size() > 0);
+		assertEquals("Only one approval should be in DB", 1, res.size());
+		assertEquals("Approvals are not the same", approval1, res.get(0));
 	}
 
 }

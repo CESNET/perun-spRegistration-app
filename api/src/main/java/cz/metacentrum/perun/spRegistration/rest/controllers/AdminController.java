@@ -3,7 +3,8 @@ package cz.metacentrum.perun.spRegistration.rest.controllers;
 import cz.metacentrum.perun.spRegistration.persistence.models.Facility;
 import cz.metacentrum.perun.spRegistration.persistence.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.persistence.models.Request;
-import cz.metacentrum.perun.spRegistration.persistence.models.RequestApproval;
+import cz.metacentrum.perun.spRegistration.persistence.models.RequestSignature;
+import cz.metacentrum.perun.spRegistration.persistence.models.User;
 import cz.metacentrum.perun.spRegistration.service.AdminService;
 import cz.metacentrum.perun.spRegistration.service.exceptions.SpRegistrationApiException;
 import org.slf4j.Logger;
@@ -17,112 +18,102 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
-@SessionAttributes("userId")
+@SessionAttributes("user")
 public class AdminController {
 
 	private static final Logger log = LoggerFactory.getLogger(AdminController.class);
-	private AdminService adminService;
+	private final AdminService adminService;
 
 	@Autowired
 	public AdminController(AdminService adminService) {
 		this.adminService = adminService;
 	}
 
-	@RequestMapping(path = "/api")
-	public void start(HttpServletRequest request) {
-		//TODO: delete method, only for testing purposes
-		request.getSession().setAttribute("userId", 62692L);
-	}
-
 	@RequestMapping(path = "/api/allFacilities", method = RequestMethod.GET)
-	public List<Facility> allFacilities(@SessionAttribute("userId") Long userId) throws SpRegistrationApiException {
-		log.debug("allFacilities({})", userId);
+	public List<Facility> allFacilities(@SessionAttribute("user") User user) throws SpRegistrationApiException {
+		log.debug("allFacilities({})", user.getId());
 		try {
-			return adminService.getAllFacilities(userId);
+			return adminService.getAllFacilities(user.getId());
 		} catch (Exception e) {
 			throw new SpRegistrationApiException(e);
 		}
 	}
 
 	@RequestMapping(path = "/api/allRequests", method = RequestMethod.GET)
-	public List<Request> allRequests(@SessionAttribute("userId") Long userId) throws SpRegistrationApiException {
-		log.debug("allRequests({})", userId);
+	public List<Request> allRequests(@SessionAttribute("user") User user) throws SpRegistrationApiException {
+		log.debug("allRequests({})", user.getId());
 		try {
-			return adminService.getAllRequests(userId);
+			return adminService.getAllRequests(user.getId());
 		} catch (Exception e) {
 			throw new SpRegistrationApiException(e);
 		}
 	}
 
-	@RequestMapping(path = "/api/approve/{requestId}", method = RequestMethod.POST)
-	public boolean approveRequest(@SessionAttribute("userId") Long userId,
-								  @PathVariable("requestId") Long requestId) throws SpRegistrationApiException {
-		log.debug("approveRequest(userId: {}, requestId: {})", userId, requestId);
+
+	@RequestMapping(path = "/api/approve/{requestId}")
+	public boolean approveRequest(@SessionAttribute("user") User user,
+							   @PathVariable("requestId") Long requestId) throws SpRegistrationApiException {
+		log.debug("approveRequest(user: {}, requestId: {})", user.getId(), requestId);
 		try {
-			return adminService.approveRequest(requestId, userId);
+			return adminService.approveRequest(requestId, user.getId());
 		} catch (Exception e) {
 			throw new SpRegistrationApiException(e);
 		}
 	}
 
-	@RequestMapping(path = "/api/reject/{requestId}", method = RequestMethod.POST)
-	public boolean rejectRequest(@SessionAttribute("userId") Long userId,
-								 @PathVariable("requestId") Long requestId,
-								 @RequestBody String message) throws SpRegistrationApiException {
-		log.debug("rejectRequest(userId: {}, requestId: {}, message: {})", userId, requestId, message);
+	@RequestMapping(path = "/api/reject/{requestId}")
+	public boolean rejectRequest(@SessionAttribute("user") User user, @PathVariable("requestId") Long requestId,
+								@RequestBody String message) throws SpRegistrationApiException {
+		log.debug("rejectRequest(user: {}, requestId: {}, message: {})", user.getId(), requestId, message);
 		try {
-			return adminService.rejectRequest(requestId, userId, message);
+			return adminService.rejectRequest(requestId, user.getId(), message);
 		} catch (Exception e) {
 			throw new SpRegistrationApiException(e);
 		}
 	}
 
-	@RequestMapping(path = "/api/askForChanges/{requestId}", method = RequestMethod.POST)
-	public boolean askForChanges(@SessionAttribute("userId") Long userId,
-								 @PathVariable("requestId") Long requestId,
-								 @RequestBody List<PerunAttribute> attributes) throws SpRegistrationApiException {
-		log.debug("askForChanges(userId: {}, requestId: {}, attributes: {})", userId, requestId, attributes);
+	@RequestMapping(path = "/api/askForChanges/{requestId}")
+	public boolean askForChanges(@SessionAttribute("user") User user, @PathVariable("requestId") Long requestId,
+								@RequestBody List<PerunAttribute> attributes) throws SpRegistrationApiException {
+		log.debug("askForChanges(user: {}, requestId: {}, attributes: {})", user.getId(), requestId, attributes);
 		try {
-			return adminService.askForChanges(requestId, userId, attributes);
+			return adminService.askForChanges(requestId, user.getId(), attributes);
 		} catch (Exception e) {
 			throw new SpRegistrationApiException(e);
 		}
 	}
 
-	@RequestMapping(path = "/api/viewApprovals/{requestId}", method = RequestMethod.GET)
-	public List<RequestApproval> getApprovals(@SessionAttribute("userId") Long userId,
-											  @PathVariable("requestId") Long requestId) throws SpRegistrationApiException {
-		log.debug("getApprovals(userId: {}, requestId: {})", userId, requestId);
+	@RequestMapping(path = "/api/viewApprovals/{requestId}")
+	public List<RequestSignature> getApprovals(@SessionAttribute("user") User user,
+											   @PathVariable("requestId") Long requestId) throws SpRegistrationApiException {
+		log.debug("getApprovals(user: {}, requestId: {})", user.getId(), requestId);
 		try {
-			return adminService.getApprovalsOfProductionTransfer(requestId, userId);
+			return adminService.getApprovalsOfProductionTransfer(requestId, user.getId());
 		} catch (Exception e) {
 			throw new SpRegistrationApiException(e);
 		}
 	}
 
-	@RequestMapping(path = "/api/addAdmins/{facilityId}", method = RequestMethod.POST)
-	public boolean addAdmins(@SessionAttribute("userId") Long userId,
-							 @PathVariable("facilityId") Long facilityId,
-							 @RequestBody List<Long> admins) throws SpRegistrationApiException {
-		log.debug("addAdmins(userId: {}, facilityId: {}, admins: {})", userId, facilityId, admins);
+	@RequestMapping(path = "/api/addAdmins/{facilityId}")
+	public boolean addAdmins(@SessionAttribute("user") User user, @PathVariable("facilityId") Long facilityId,
+							@RequestBody List<Long> admins) throws SpRegistrationApiException {
+		log.debug("addAdmins(user: {}, facilityId: {}, admins: {})", user.getId(), facilityId, admins);
 		try {
-			return adminService.addAdmins(userId, facilityId, admins);
+			return adminService.addAdmins(user.getId(), facilityId, admins);
 		} catch (Exception e) {
 			throw new SpRegistrationApiException(e);
 		}
 	}
 
-	@RequestMapping(path = "/api/removeAdmins/{facilityId}", method = RequestMethod.POST)
-	public boolean removeAdmins(@SessionAttribute("userId") Long userId,
-								@PathVariable("facilityId") Long facilityId,
-								@RequestBody List<Long> admins) throws SpRegistrationApiException {
-		log.debug("removeAdmins(userId: {}, facilityId: {}, admins: {})", userId, facilityId, admins);
+	@RequestMapping(path = "/api/removeAdmins/{facilityId}")
+	public boolean removeAdmins(@SessionAttribute("user") User user, @PathVariable("facilityId") Long facilityId,
+							   @RequestBody List<Long> admins) throws SpRegistrationApiException {
+		log.debug("removeAdmins(user: {}, facilityId: {}, admins: {})", user.getId(), facilityId, admins);
 		try {
-			return adminService.removeAdmins(userId, facilityId, admins);
+			return adminService.removeAdmins(user.getId(), facilityId, admins);
 		} catch (Exception e) {
 			throw new SpRegistrationApiException(e);
 		}

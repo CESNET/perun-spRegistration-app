@@ -39,7 +39,7 @@ public class Utils {
 		Properties en = appConfig.getEnLocale();
 		Properties cs = appConfig.getCsLocale();
 		boolean isCsDisabled = cs.isEmpty();
-		log.debug("Locales enabled: EN - {}, CS - ", true, !isCsDisabled);
+		log.debug("Locales enabled: EN - {}, CS - {}", true, !isCsDisabled);
 
 		for (String prop: props.stringPropertyNames()) {
 			if (! prop.contains(ATTR_NAME)) {

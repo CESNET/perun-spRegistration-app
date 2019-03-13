@@ -3,10 +3,11 @@ package cz.metacentrum.perun.spRegistration.persistence.managers;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestStatus;
 import cz.metacentrum.perun.spRegistration.persistence.models.Request;
-import cz.metacentrum.perun.spRegistration.persistence.models.RequestApproval;
+import cz.metacentrum.perun.spRegistration.persistence.models.RequestSignature;
+import cz.metacentrum.perun.spRegistration.persistence.models.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -88,31 +89,16 @@ public interface RequestManager {
 	 */
 	List<Request> getAllRequestsByFacilityIds(Set<Long> facilityIds);
 
-	/**
-	 * Add signature of transferring to the production approval to the request
-	 * @param requestId id of request for transfer
-	 * @param userId id of signing user
-	 * @param fullName full name of signing user from Perun
-	 * @param approvalName name entered by signing user
-	 * @return true if all went OK, false otherwise.
-	 */
-	boolean addSignature(Long requestId, Long userId, String fullName, String approvalName);
-
-	/**
-	 * Add signature of transferring to the production approval to the request
-	 * @param requestId id of request for transfer
-	 * @param userId id of signing user
-	 * @param signerName full name of signing user from Perun
-	 * @param signerInput name entered by signing user
-	 * @param signedAt time when signature has been made
-	 * @return true if all went OK, false otherwise.
-	 */
-	boolean addSignature(Long requestId, Long userId, String signerName, String signerInput, Timestamp signedAt);
+	//TODO: javadoc
+	boolean addSignature(Long facilityId, String hash, User user, LocalDateTime signedAt);
 
 	/**
 	 * Get all approvals for transferring of service into production environment
 	 * @param requestId id of transfer request
 	 * @return List of associated approvals
 	 */
-	List<RequestApproval> getApprovalsForRequest(Long requestId);
+	List<RequestSignature> getRequestSignatures(Long requestId);
+
+	//TODO: javadoc
+	boolean storeApprovalLink(String authority, String hash, Long facilityId, String link, LocalDateTime validUntil);
 }

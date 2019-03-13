@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule, PreloadAllModules } from '@angular/router';
 import {MainMenuComponent} from "./main-menu/main-menu.component";
 import {NotFoundPageComponent} from "./shared/not-found-page/not-found-page.component";
+import {NotAuthorizedPageComponent} from "./shared/not-authorized-page/not-authorized-page.component";
 import {LoginComponent} from "./login/login.component";
 
 const routes: Routes = [
@@ -22,9 +23,18 @@ const routes: Routes = [
     component: NotFoundPageComponent
   },
   {
+    path: 'notAuthorized',
+    component: NotAuthorizedPageComponent
+  },
+  {
+    path: '**',
+    redirectTo: '/notFound'
+  },
+  {
     path: 'login',
-    component: LoginComponent,
+    component: LoginComponent
   }
+
 ];
 
 @NgModule({

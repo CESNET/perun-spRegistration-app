@@ -16,38 +16,28 @@
     <packaging>war</packaging>
 
     <name>SpRegistration API</name>
-    <description>Api layer of spRegistration application</description>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>1.8</java.version>
-    </properties>
+    <description>Backend part of SpRegistration Application</description>
 
     <dependencies>
-        <!-- SPRING -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-        </dependency>
-
-        <!-- javax mail -->
+         <!-- MAIL -->
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
-            <version>1.5.0-b01</version>
+            <version>${javax.mail.version}</version>
         </dependency>
 
         <!-- JSON -->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20180813</version>
+            <version>${org.json.version}</version>
         </dependency>
 
         <!-- PostgreSQL driver -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <version>${org.postgresql.version}</version>
         </dependency>
 
         <!-- H2 driver -->
@@ -64,12 +54,10 @@
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
-
     </dependencies>
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -90,8 +78,6 @@
                     <warName>spRegApp</warName>
                 </configuration>
             </plugin>
-
-
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
@@ -102,10 +88,11 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/classes/resources/</outputDirectory>
+                            <outputDirectory>${project.build.directory}/classes/resources</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${project.parent.basedir}/gui/dist/service-creation/</directory>
+                                    <filtering>true</filtering>
                                 </resource>
                             </resources>
                         </configuration>
@@ -115,5 +102,4 @@
         </plugins>
         <finalName>spreg</finalName>
     </build>
-
 </project>

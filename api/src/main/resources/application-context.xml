@@ -7,27 +7,34 @@
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
 
     <context:component-scan base-package="cz.metacentrum.perun.spRegistration"/>
-    <context:property-placeholder properties-ref="properties" />
+    <context:property-placeholder properties-ref="properties" order="1" ignore-unresolvable="true" />
+    <context:property-placeholder properties-ref="facilityServiceAttributes" order="2" />
 
     <bean id="defaultProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="properties">
             <props>
                 <prop key="jdbc.driver">org.postgresql.Driver</prop>
-                <prop key="jdbc.url">jdbc:postgresql://cloud69b.cerit-sc.cz/spregistration</prop>
+                <prop key="jdbc.url">jdbc:postgresql://127.0.0.1:5432/spregistration</prop>
                 <prop key="jdbc.username">spreg</prop>
                 <prop key="jdbc.password">spreg123</prop>
                 <prop key="rpc.url">https://perun-dev.cesnet.cz/ba/rpc/</prop>
                 <prop key="rpc.user">XYZ</prop>
                 <prop key="rpc.password">XYZ</prop>
                 <prop key="admins">62692,0,0</prop>
-                <prop key="attr.idpAttribute.name">urn:perun:facility:attribute-def:def:proxyIdentifiers</prop>
                 <prop key="attr.idpAttribute.value">XYZ</prop>
-                <prop key="attr.testSp.name">urn:perun:facility:attribute-def:def:isTestSp</prop>
-                <prop key="attr.showOnServicesList.name">urn:perun:facility:attribute-def:def:isTestSp</prop>
+                <prop key="attr.userEmail.name">urn:perun:user:attribute-def:def:preferredMail</prop>
                 <prop key="attr.facilityAdmins.name">urn:perun:facility:attribute-def:def:administratorContact</prop>
+                <prop key="extSource.proxy.entityId">https://login.cesnet.cz/idp/</prop>
                 <prop key="oidc.isEnabled">true</prop>
                 <prop key="langs">en,cs</prop>
-                <prop key="signingAuthorities">auth1@mail.not,auth2@mail.not</prop>
+                <prop key="app.footer.html"/>
+                <prop key="app.header.html"/>
+                <prop key="app.header.title">Registration of SP - dev</prop>
+                <prop key="app.header.logo">https://perun.cesnet.cz/signpost/images/perun_3.png</prop>
+                <prop key="approval.confirmationPeriod.days">30</prop>
+                <prop key="approval.confirmationPeriod.hours">0</prop>
+                <prop key="approval.specify.authorities.enabled">true</prop>
+                <prop key="hash.salt">kn15aokn@~lpq~nW!vYXm</prop>
             </props>
         </property>
     </bean>
@@ -39,17 +46,18 @@
                 <value>file:///etc/perun-spRegistration/appConfig.properties</value>
             </list>
         </property>
-        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="ignoreResourceNotFound" value="false"/>
     </bean>
+
 
     <bean id="facilityServiceAttributes" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="properties">
             <props>
-                <!--DO NOT DISPLAY-->
+                <!--DO NOT DISPLAY AND EDIT-->
                 <prop key="proxyIdentifiers.attrName">urn:perun:facility:attribute-def:def:proxyIdentifiers</prop>
                 <prop key="proxyIdentifiers.isDisplayed">false</prop>
                 <prop key="proxyIdentifiers.isEditable">false</prop>
-                <prop key="showOnServicesList.attrName">urn:perun:facility:attribute-def:def:showOnServiceList</prop>
+                <prop key="showOnServicesList.attrName">urn:perun:facility:attribute-def:def:isTestSp</prop>
                 <prop key="showOnServicesList.isDisplayed">false</prop>
                 <prop key="showOnServicesList.isEditable">false</prop>
                 <prop key="isTestSp.attrName">urn:perun:facility:attribute-def:def:isTestSp</prop>
@@ -201,6 +209,7 @@
                 <prop key="approval.message">User %USER_INFO% has asked for approval of request %REQUEST_ID%</prop>
                 <prop key="production.authorities.subject">Approve transfer to production: %SERVICE_NAME%</prop>
                 <prop key="production.authorities.message">For approval of moving service %SERVICE_NAME% to production visit %APPROVAL_LINK%</prop>
+                <prop key="moveToProduction.authorities">user1@email.com,user2@email.com,user3@email.com</prop>
             </props>
         </property>
         <property name="locations">
@@ -236,14 +245,23 @@
     <bean id="appConfig" class="cz.metacentrum.perun.spRegistration.persistence.configs.AppConfig">
         <property name="connector" ref="connector" />
         <property name="admins" value="#{'${admins}'.split('\s*,\s*')}" />
-        <property name="idpAttribute" value="${attr.idpAttribute.name}" />
+        <property name="idpAttribute" value="${proxyIdentifiers.attrName}" />
         <property name="idpAttributeValue" value="${attr.idpAttribute.value}" />
-        <property name="testSpAttribute" value="${attr.testSp.name}" />
-        <property name="showOnServicesListAttribute" value="${attr.showOnServicesList.name}" />
+        <property name="testSpAttribute" value="${isTestSp.attrName}" />
+        <property name="showOnServicesListAttribute" value="${showOnServicesList.attrName}" />
         <property name="adminsAttr" value="${attr.facilityAdmins.name}" />
+        <property name="userEmailAttr" value="${attr.userEmail.name}" />
+        <property name="extSourceProxy" value="${extSource.proxy.entityId}" />
         <property name="oidcEnabled" value="${oidc.isEnabled}" />
         <property name="langs" value="#{'${langs}'.split('\s*,\s*')}" />
-        <property name="signingAuthorities" value="#{'${signingAuthorities}'.split('\s*,\s*')}" />
+        <property name="footerHTML" value="${app.footer.html}" />
+        <property name="headerHTML" value="${app.header.html}" />
+        <property name="headerTitle" value="${app.header.title}" />
+        <property name="headerLogo" value="${app.header.logo}" />
+        <property name="confirmationPeriodDays" value="${approval.confirmationPeriod.days}" />
+        <property name="confirmationPeriodHours" value="${approval.confirmationPeriod.hours}" />
+        <property name="specifyAuthoritiesEnabled" value="${approval.specify.authorities.enabled}" />
+        <property name="hashSalt" value="${hash.salt}" />
     </bean>
 
     <bean id="facilityServiceConfig" class="cz.metacentrum.perun.spRegistration.persistence.configs.AttrsConfig">

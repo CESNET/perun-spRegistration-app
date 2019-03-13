@@ -26,8 +26,9 @@
                 </app-request-creation-step>
               </mat-step>
               <mat-step>
-                <!--<ng-template matStepLabel>Done</ng-template>-->
-                You are now done.
+                <div class="mb-3">
+                  {{"REQUESTS.NEW_LAST_STEP_HEADER" | translate}}
+                </div>
                 <div>
                 <button mat-raised-button>
                   {{"REQUESTS.NEW_PREVIOUS_STEP" | translate}}
@@ -36,7 +37,7 @@
                     class="ml-2"
                     type="submit"
                     mat-raised-button
-                    color="primary"
+                    color="accent"
                     (click)="submitRequest()">
                     {{"REQUESTS.REQUEST_SUBMIT" | translate}}
                   </button>

@@ -21,14 +21,42 @@
     </parent>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- DEPENDENCIES VERSIONS -->
+        <java.version>1.8</java.version>
         <frontend-plugin.version>1.6</frontend-plugin.version>
         <node.version>v8.4.0</node.version>
         <npm.version>5.3.0</npm.version>
-        <java.version>1.8</java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <org.json.version>20180813</org.json.version>
+        <org.postgresql.version>42.2.5</org.postgresql.version>
+        <spring.jdbc.version>5.1.5.RELEASE</spring.jdbc.version>
+        <javax.mail.version>1.5.0-b01</javax.mail.version>
+
+        <!-- APP PROPERTIES -->
+        <server.port>8080</server.port>
+        <server.contextPath>/spreg</server.contextPath>
+        <angular.build.profile>--prod</angular.build.profile>
+        <angular.deploy.url>--deploy-url=${server.contextPath}/</angular.deploy.url>
+        <angular.base.href>--base-href=${server.contextPath}/</angular.base.href>
+        <logging.path>/var/log/perun-spreg</logging.path>
+        <logging.file>perun-spreg.debug</logging.file>
+        <dev.enabled>false</dev.enabled>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>spring-releases</id>
+            <url>https://repo.spring.io/libs-release</url>
+        </repository>
+    </repositories>
+
     <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${spring.jdbc.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -44,27 +72,37 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>spring-releases</id>
-            <url>https://repo.spring.io/libs-release</url>
-        </repository>
-    </repositories>
+<!--    <profiles>-->
+<!--        <profile>-->
+<!--            <id>prod</id>-->
+<!--            <activation>-->
+<!--                <property>-->
+<!--                    <name>prod</name>-->
+<!--                    <value>True</value>-->
+<!--                </property>-->
+<!--            </activation>-->
+<!--            <properties>-->
+<!--                <server.port>8080</server.port>-->
+<!--                <server.contextPath>/spreg</server.contextPath>-->
+<!--            </properties>-->
+<!--        </profile>-->
+<!--        <profile>-->
+<!--            <id>dev</id>-->
+<!--            <activation>-->
+<!--                <activeByDefault>true</activeByDefault>-->
+<!--            </activation>-->
+<!--            <properties>-->
+<!--                <server.port>8081</server.port>-->
+<!--                <server.contextPath/>-->
+<!--                <angular.build.profile/>-->
+<!--                <dev.enabled>true</dev.enabled>-->
+<!--            </properties>-->
+<!--        </profile>-->
+<!--    </profiles>-->
 
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
-
-    <!-- Perun project info -->
+    <!-- Project info -->
     <name>perun-spRegistration</name>
-    <description>Web application for registering Service Providers into Perun using GWT and Bootstrap3.</description>
+    <description>Web application for registering Service Providers into Perun</description>
 
     <organization>
         <name>CESNET, z.s.p.o.</name>
@@ -76,9 +114,9 @@
     <url>http://perun-aai.org</url>
 
     <scm>
-        <connection>scm:git:https://github.com/pajavyskocil/perun-spRegistration.git</connection>
-        <url>scm:git:https://github.com/pajavyskocil/perun-spRegistration.git</url>
-        <developerConnection>scm:git:https://github.com/pajavyskocil/perun-spRegistration.git</developerConnection>
+        <connection>scm:git:https://github.com/CESNET/perun-spRegistration.git</connection>
+        <url>scm:git:https://github.com/CESNET/perun-spRegistration.git</url>
+        <developerConnection>scm:git:https://github.com/CESNET/perun-spRegistration.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 

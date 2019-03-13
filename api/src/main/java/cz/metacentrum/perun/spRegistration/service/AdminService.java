@@ -4,13 +4,12 @@ import cz.metacentrum.perun.spRegistration.persistence.exceptions.RPCException;
 import cz.metacentrum.perun.spRegistration.persistence.models.Facility;
 import cz.metacentrum.perun.spRegistration.persistence.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.persistence.models.Request;
-import cz.metacentrum.perun.spRegistration.persistence.models.RequestApproval;
+import cz.metacentrum.perun.spRegistration.persistence.models.RequestSignature;
 import cz.metacentrum.perun.spRegistration.service.exceptions.CannotChangeStatusException;
 import cz.metacentrum.perun.spRegistration.service.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.service.exceptions.UnauthorizedActionException;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Service layer with methods specific for Admins.
@@ -61,7 +60,7 @@ public interface AdminService {
 	 * @param userId ID of user (ADMIN) approving the request.
 	 * @return True if everything went OK.
 	 */
-	boolean approveTransferToProduction(Long requestId, Long userId) throws InternalErrorException, UnauthorizedActionException;
+	boolean approveTransferToProduction(Long requestId, Long userId) throws InternalErrorException, UnauthorizedActionException, RPCException;
 
 	/**
 	 * Get approvals for request to transfer to production.
@@ -69,7 +68,7 @@ public interface AdminService {
 	 * @param userId ID of user (ADMIN) displaying the approvals.
 	 * @return List of approvals.
 	 */
-	List<RequestApproval> getApprovalsOfProductionTransfer(Long requestId, Long userId) throws UnauthorizedActionException;
+	List<RequestSignature> getApprovalsOfProductionTransfer(Long requestId, Long userId) throws UnauthorizedActionException;
 
 	/**
 	 * Get all requests stored in system.

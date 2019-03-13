@@ -237,18 +237,31 @@ public class PerunConnectorRpc implements PerunConnector {
 	}
 
 	@Override
-	public User getRichUser(Long userId) throws RPCException {
-		log.debug("getRichUser({})", userId);
-		if (userId == null) {
+	public User getUserWithEmail(String extLogin, String extSourceName, String userEmailAttr) throws RPCException {
+		log.debug("getUserWithEmail({})", extLogin);
+		if (extLogin == null || extLogin.isEmpty()) {
 			throw new IllegalArgumentException("userId is null");
 		}
 		Map<String, Object> params = new LinkedHashMap<>();
-		params.put("user", userId);
 
-		JSONObject res = makeRpcCallForObject(USERS_MANAGER, "getRichUser", params);
-		User user = MapperUtils.mapUser(res, true);
+		params.put("extSourceName", extSourceName);
+		params.put("extLogin", extLogin);
 
-		log.debug("getRichUser returns: {}", user);
+		JSONObject res = makeRpcCallForObject(USERS_MANAGER, "getUserByExtSourceNameAndExtLogin", params);
+		if (res == null) {
+			throw new RPCException("Should not found more than one user");
+		}
+		User user = MapperUtils.mapUser(res, false);
+		params.clear();
+		params.put("user", user.getId().intValue());
+		params.put("attributeName", userEmailAttr);
+
+		JSONObject attr = makeRpcCallForObject(ATTRIBUTES_MANAGER, "getAttribute", params);
+		PerunAttribute attribute = MapperUtils.mapAttribute(attr);
+
+		user.setEmail(attribute.valueAsString(false));
+
+		log.debug("getUserWithEmail returns: {}", user);
 		return user;
 	}
 
@@ -335,11 +348,18 @@ public class PerunConnectorRpc implements PerunConnector {
 		//make the call
 		try {
 			JsonNode response = restTemplate.postForObject(actionUrl, map, JsonNode.class);
-			return prettyPrintJsonString(response);
+			if (response != null) {
+				return prettyPrintJsonString(response);
+			} else {
+				return null;
+			}
 		} catch (HttpClientErrorException ex) {
-			MediaType contentType = ex.getResponseHeaders().getContentType();
+			MediaType contentType = null;
+			if (ex.getResponseHeaders() != null) {
+				contentType = ex.getResponseHeaders().getContentType();
+			}
 			String body = ex.getResponseBodyAsString();
-			if ("json".equals(contentType.getSubtype())) {
+			if (contentType != null && "json".equals(contentType.getSubtype())) {
 				try {
 					new ObjectMapper().readValue(body, JsonNode.class).path("message").asText();
 				} catch (IOException e) {
@@ -348,7 +368,7 @@ public class PerunConnectorRpc implements PerunConnector {
 			} else {
 				log.error(ex.getMessage());
 			}
-			throw new RPCException("cannot connect to Perun RPC", ex);
+			throw new RPCException("cannot connect to Perun RPC: {}" + ex.getMessage() , ex);
 		} catch (IOException e) {
 			log.error("cannot parse response to String", e);
 			throw new RPCException("cannot connect to Perun RPC", e);

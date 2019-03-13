@@ -1,14 +1,15 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import {NavigationEnd, Router} from "@angular/router";
 import { HostListener } from "@angular/core";
+import {UsersService} from "./core/services/users.service";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
 
   sideBarOpened = false;
 
@@ -17,7 +18,10 @@ export class AppComponent {
   sidebarMode = 'side';
   currentUrl: string;
 
+  userLoggedIn = false;
+
   constructor(
+    private userService: UsersService,
     private translate: TranslateService,
     private router: Router
   ) {
@@ -47,5 +51,19 @@ export class AppComponent {
     }
 
     this.lastScreenWidth = window.innerWidth;
+  }
+
+  closeSideBar() {
+      if (this.sidebarMode == 'over') {
+          this.sideBarOpened = false;
+      }
+  }
+
+  ngOnInit(): void {
+    if (!this.userLoggedIn) {
+      this.userService.login().subscribe(() => {
+        this.userLoggedIn = true;
+      });
+    }
   }
 }

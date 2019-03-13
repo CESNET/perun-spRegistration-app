@@ -22,8 +22,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -78,9 +83,9 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public Long createFacilityChangesRequest(Long facilityId, Long userId, List<PerunAttribute> attributes)
 			throws UnauthorizedActionException, RPCException, InternalErrorException {
-		log.debug("createFacilityChangesRequest(facility: {}, userId: {}, attributes: {})");
+		log.debug("createFacilityChangesRequest(facility: {}, userId: {}, attributes: {})", facilityId, userId, attributes);
 		if (facilityId == null || userId == null || attributes == null) {
-			log.error("Illegal input - facilityId: {}, userId: {}, attributes: {}" + facilityId, userId, attributes);
+			log.error("Illegal input - facilityId: {}, userId: {}, attributes: {}", facilityId, userId, attributes);
 			throw new IllegalArgumentException("Illegal input - facilityId: " + facilityId + ", userId: " + userId + ", attributes: " + attributes);
 		} else if (! isFacilityAdmin(facilityId, userId)) {
 			log.error("User is not registered as facility admin, cannot create request");
@@ -228,9 +233,9 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Long moveToProduction(Long facilityId, Long userId)
+	public Long requestMoveToProduction(Long facilityId, Long userId, List<String> authorities)
 			throws UnauthorizedActionException, InternalErrorException, RPCException {
-		log.debug("moveToProduction(facilityId: {}, userId: {})", facilityId, userId);
+		log.debug("requestMoveToProduction(facilityId: {}, userId: {}, authorities: {})", facilityId, userId, authorities);
 		if (facilityId == null || userId == null) {
 			log.error("Illegal input - facilityId: {}, userId: {}", facilityId, userId);
 			throw new IllegalArgumentException("Illegal input - facilityId: " + facilityId + ", userId: " + userId);
@@ -263,42 +268,41 @@ public class UserServiceImpl implements UserService {
 			throw new InternalErrorException("Could not create request");
 		}
 
-		boolean res = Mails.transferToProductionUserNotify(req.getReqId(), req.getFacilityName(), req.getAdmins(appConfig.getAdminsAttr()), messagesProperties);
+		boolean res = Mails.transferToProductionUserNotify(req.getReqId(), req.getFacilityName(),
+				req.getAdmins(appConfig.getAdminsAttr()), messagesProperties);
 		if (!res) {
 			log.error("sending notification to user FAILED");
 		}
-		//TODO: generate approval link
-		List<String> authorities = appConfig.getSigningAuthorities();
-		res = Mails.authoritiesApproveProductionTransferNotify(null, req.getFacilityName(), authorities, messagesProperties);
-		if (!res) {
-			log.error("sending notification to authorities FAILED");
+
+		Map<String, String> authsWithLinks = generateLinksForAuthorities(authorities, req);
+
+		for (Map.Entry<String, String> entry: authsWithLinks.entrySet()) {
+			String mailAuthority = entry.getKey();
+			String mailLink = entry.getValue();
+			res = Mails.authoritiesApproveProductionTransferNotify(mailLink, req.getFacilityName(), mailAuthority, messagesProperties);
+			if (!res) {
+				log.error("sending notification to authority: {} FAILED", mailAuthority);
+			}
 		}
 
-		log.debug("moveToProduction returns: {}", req.getReqId());
+		log.debug("requestMoveToProduction returns: {}", req.getReqId());
 		return req.getReqId();
 	}
 
 	@Override
-	public boolean signTransferToProduction(Long requestId, Long userId, String personInput) throws InternalErrorException, RPCException {
-		log.debug("signTransferToProduction(requestId: {}, userId: {}, approvalName: {})");
-		if (requestId == null || userId == null) {
-			log.error("Illegal input - requestId: {}, userId: {}", requestId, userId);
-			throw new IllegalArgumentException("Illegal input - requestId: " + requestId + ", userId: " + userId);
+	public Facility getFacilityDetailsForSignature(Long facilityId) throws RPCException {
+		return perunConnector.getFacilityById(facilityId);
+	}
+
+	@Override
+	public boolean signTransferToProduction(Long facilityId, String hash, User user) {
+		log.debug("signTransferToProduction(facilityId: {}, hash: {}, user: {})", facilityId, hash, user);
+		if (facilityId == null || hash == null || user == null) {
+			log.error("Illegal input - facilityId: {}, hash: {}, userId: {}", facilityId, hash, user);
+			throw new IllegalArgumentException("Illegal input - facilityId: " + facilityId + ", hash: " + hash + ", userId: " + user);
 		}
 
-		Request request = requestManager.getRequestByReqId(requestId);
-		if (request == null) {
-			log.debug("Could not retrieve request for id: {}", requestId);
-			throw new InternalErrorException("Could not retrieve request for id: " + requestId);
-		}
-
-		User signer = perunConnector.getRichUser(userId);
-		if (signer == null) {
-			log.error("Could not find user in Perun for id: {}", userId);
-			throw new InternalErrorException("Could not find user in Perun for id: " + userId);
-		}
-
-		boolean result = requestManager.addSignature(requestId, userId, signer.getFullName(), personInput);
+		boolean result = requestManager.addSignature(facilityId, hash, user, LocalDateTime.now());
 
 		log.debug("signTransferToProduction returns: {}", result);
 		return result;
@@ -341,6 +345,8 @@ public class UserServiceImpl implements UserService {
 
 		Map<String, PerunAttribute> attrs = perunConnector.getFacilityAttributes(facilityId);
 		facility.setAttrs(attrs);
+		boolean inTest = attrs.get(appConfig.getTestSpAttribute()).valueAsBoolean(false);
+		facility.setTestEnv(inTest);
 
 		log.debug("getDetailedFacility returns: {}", facility);
 		return facility;
@@ -380,14 +386,7 @@ public class UserServiceImpl implements UserService {
 		return result;
 	}
 
-	@Override
-	public Request getRequestDetailsForSignature(Long requestId) throws InternalErrorException {
-		log.debug("getRequestDetailsForSignature({})", requestId);
-		Request res = fetchRequestAndValidate(requestId);
-
-		log.debug("getRequestDetailsForSignature returns: {}", res);
-		return res;
-	}
+	/* PRIVATE METHODS */
 
 	private Request createRequest(Long facilityId, Long userId, List<PerunAttribute> attributes) throws InternalErrorException {
 		Map<String, PerunAttribute> convertedAttributes = ServiceUtils.transformListToMap(attributes, appConfig);
@@ -473,5 +472,26 @@ public class UserServiceImpl implements UserService {
 		if (!res) {
 			log.error("sending notification to user FAILED");
 		}
+	}
+
+	private Map<String, String> generateLinksForAuthorities(List<String> authorities, Request request) {
+		if (authorities == null || authorities.isEmpty()) {
+			String prop = messagesProperties.getProperty("moveToProduction.authorities");
+			authorities = Arrays.asList(prop.split(","));
+		}
+
+		Map<String, String> linksMap = new HashMap<>();
+		for (String authority: authorities) {
+			String hashBase = request.hashCode() + authority + appConfig.getHashSalt();
+			String hash = Base64.getEncoder().encodeToString(hashBase.getBytes());
+			String link = "";
+			LocalDateTime now = LocalDateTime.now();
+			LocalDateTime validUntil = now.plusDays(appConfig.getConfirmationPeriodDays())
+					.plusHours(appConfig.getConfirmationPeriodHours());
+			requestManager.storeApprovalLink(authority, hash, request.getFacilityId(), link, validUntil);
+			linksMap.put(authority, link);
+		}
+
+		return linksMap;
 	}
 }

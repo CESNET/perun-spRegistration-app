@@ -19,20 +19,28 @@ public class AppConfig {
 
 	private String idpAttribute;
 	private String idpAttributeValue;
-	private String testSpAttribute;
-	private String adminsAttr;
+		private String adminsAttr;
 	private Set<Long> admins;
-	private Map<String, PerunAttributeDefinition> perunAttributeDefinitionsMap = new HashMap<>();
+	private String extSourceProxy;
+	private String userEmailAttr;
+	private final Map<String, PerunAttributeDefinition> perunAttributeDefinitionsMap = new HashMap<>();
 	private boolean oidcEnabled;
 	private List<String> langs = new ArrayList<>();
 
-	private Properties enLocale = new Properties();
-	private Properties csLocale = new Properties();
+	private final Properties enLocale = new Properties();
+	private final Properties csLocale = new Properties();
 
 	private PerunConnector connector;
 	private String showOnServicesListAttribute;
-
-	private List<String> signingAuthorities = new ArrayList<>();
+	private String testSpAttribute;
+	private String footerHTML;
+	private String headerLogo;
+	private String headerTitle;
+	private String headerHTML;
+	private long confirmationPeriodDays;
+	private long confirmationPeriodHours;
+	private String hashSalt;
+	private boolean specifyAuthoritiesEnabled;
 
 	public AppConfig() {
 		Resource enLang = new ClassPathResource("localization.properties");
@@ -113,8 +121,92 @@ public class AppConfig {
 		return perunAttributeDefinitionsMap;
 	}
 
-	public void setPerunAttributeDefinitionsMap(Map<String, PerunAttributeDefinition> perunAttributeDefinitionsMap) {
-		this.perunAttributeDefinitionsMap = perunAttributeDefinitionsMap;
+	public String getAdminsAttr() {
+		return adminsAttr;
+	}
+
+	public void setAdminsAttr(String adminsAttr) {
+		this.adminsAttr = adminsAttr;
+	}
+
+	public String getExtSourceProxy() {
+		return extSourceProxy;
+	}
+
+	public void setExtSourceProxy(String extSourceProxy) {
+		this.extSourceProxy = extSourceProxy;
+	}
+
+	public String getUserEmailAttr() {
+		return userEmailAttr;
+	}
+
+	public void setUserEmailAttr(String userEmailAttr) {
+		this.userEmailAttr = userEmailAttr;
+	}
+
+	public String getFooterHTML() {
+		return footerHTML;
+	}
+
+	public void setFooterHTML(String footerHTML) {
+		this.footerHTML = footerHTML;
+	}
+
+	public String getHeaderLogo() {
+		return headerLogo;
+	}
+
+	public void setHeaderLogo(String headerLogo) {
+		this.headerLogo = headerLogo;
+	}
+
+	public String getHeaderTitle() {
+		return headerTitle;
+	}
+
+	public void setHeaderTitle(String headerTitle) {
+		this.headerTitle = headerTitle;
+	}
+
+	public String getHeaderHTML() {
+		return headerHTML;
+	}
+
+	public void setHeaderHTML(String headerHTML) {
+		this.headerHTML = headerHTML;
+	}
+
+	public void setConfirmationPeriodDays(long confirmationPeriodDays) {
+		this.confirmationPeriodDays = confirmationPeriodDays;
+	}
+
+	public long getConfirmationPeriodDays() {
+		return confirmationPeriodDays;
+	}
+
+	public void setConfirmationPeriodHours(long confirmationPeriodHours) {
+		this.confirmationPeriodHours = confirmationPeriodHours;
+	}
+
+	public long getConfirmationPeriodHours() {
+		return confirmationPeriodHours;
+	}
+
+	public void setHashSalt(String hashSalt) {
+		this.hashSalt = hashSalt;
+	}
+
+	public String getHashSalt() {
+		return hashSalt;
+	}
+
+	public void setSpecifyAuthoritiesEnabled(boolean specifyAuthoritiesEnabled) {
+		this.specifyAuthoritiesEnabled = specifyAuthoritiesEnabled;
+	}
+
+	public boolean getSpecifyAuthoritiesEnabled() {
+		return specifyAuthoritiesEnabled;
 	}
 
 	@Override
@@ -125,13 +217,22 @@ public class AppConfig {
 				", testSpAttribute='" + testSpAttribute + '\'' +
 				", adminsAttr='" + adminsAttr + '\'' +
 				", admins=" + admins +
+				", userEmailAttr=" + userEmailAttr +
+				", extSourceProxy=" + extSourceProxy +
 				", perunAttributeDefinitionsMap=" + perunAttributeDefinitionsMap +
 				", oidcEnabled=" + oidcEnabled +
 				", langs=" + langs +
 				", enLocale=" + enLocale +
 				", csLocale=" + csLocale +
 				", connector=" + connector +
-				", showOnServicesListAttribute='" + showOnServicesListAttribute + '\'' +
+				", footerHTML='" + footerHTML + '\'' +
+				", headerLogo='" + headerLogo + '\'' +
+				", headerTitle='" + headerTitle + '\'' +
+				", headerHTML='" + headerHTML + '\'' +
+				", confirmationPeriodDays='" + confirmationPeriodDays + '\'' +
+				", confirmationPeriodHours='" + confirmationPeriodHours + '\'' +
+				", hashSalt'" + hashSalt + '\'' +
+				", specifyAuthoritiesEnabled='" + specifyAuthoritiesEnabled + '\'' +
 				'}';
 	}
 
@@ -151,21 +252,5 @@ public class AppConfig {
 
 	public boolean isAdmin (Long userId) {
 		return admins.contains(userId);
-	}
-
-	public void setAdminsAttr(String adminsAttr) {
-		this.adminsAttr = adminsAttr;
-	}
-
-	public String getAdminsAttr() {
-		return adminsAttr;
-	}
-
-	public void setSigningAuthorities(List<String> signingAuthorities) {
-		this.signingAuthorities = signingAuthorities;
-	}
-
-	public List<String> getSigningAuthorities() {
-		return signingAuthorities;
 	}
 }

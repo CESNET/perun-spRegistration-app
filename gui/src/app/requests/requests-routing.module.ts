@@ -21,6 +21,10 @@ const routes: Routes = [
   {
     path: 'detail/:id',
     component: RequestDetailComponent
+  },
+  {
+    path: '**',
+    redirectTo: '/notFound'
   }
 ];
 

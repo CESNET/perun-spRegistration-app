@@ -101,11 +101,11 @@ public class User extends PerunEntity {
 
 	public static User fromPerunJson(JSONObject json) {
 		Long id = json.getLong("id");
-		String firstName = json.getString("firstName");
-		String middleName = json.getString("middleName");
-		String lastName = json.getString("lastName");
-		String titleBefore = json.getString("titleBefore");
-		String titleAfter = json.getString("titleAfter");
+		String firstName = json.optString("firstName", "");
+		String middleName = json.optString("middleName", "");
+		String lastName = json.optString("lastName", "");
+		String titleBefore = json.optString("titleBefore", "");
+		String titleAfter = json.optString("titleAfter", "");
 
 		return new User(id, firstName, middleName, lastName, titleBefore, titleAfter);
 	}

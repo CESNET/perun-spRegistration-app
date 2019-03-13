@@ -1,5 +1,8 @@
 {
   "TITLE": "Service registration",
+  "NOT_FOUND_PAGE_TITLE": "Requested content does not exist.",
+  "NOT_AUTHORIZED_PAGE_TITLE": "You are not allowed to access this content.",
+  "HOME_PAGE" : "Home",
   "LOGIN_MESSAGE": "For continuing to the application, please login.",
   "LOGIN": "Login",
   "ERROR": {
@@ -54,7 +57,8 @@
     "REQUEST_DETAIL_ITEM_VALUE" : "Value",
     "REQUEST_DETAIL_REJECT": "Reject",
     "REQUEST_DETAIL_REQUEST_CHANGES": "Request changes",
-    "REQUEST_DETAIL_APPROVE": "Approve"
+    "REQUEST_DETAIL_APPROVE": "Approve",
+    "NEW_LAST_STEP_HEADER" : "That's all we need to know! You can now submit the request."
   },
   "FACILITIES": {
     "TITLE": "Facilities",

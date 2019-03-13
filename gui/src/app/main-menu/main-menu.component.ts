@@ -7,15 +7,11 @@ import {RequestsService} from "../core/services/requests.service";
   templateUrl: './main-menu.component.html',
   styleUrls: ['./main-menu.component.scss']
 })
-export class MainMenuComponent implements OnInit {
+export class MainMenuComponent {
 
   requestsIcon = faEnvelopeOpen;
   facilitiesIcon = faDatabase;
   newRequestIcon = faPlus;
 
   value = "asdf";
-
-  constructor(private requestsService : RequestsService) { }
-
-  ngOnInit(): void {}
 }

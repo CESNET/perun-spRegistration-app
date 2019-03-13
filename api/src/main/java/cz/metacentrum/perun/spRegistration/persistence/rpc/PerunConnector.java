@@ -107,10 +107,12 @@ public interface PerunConnector {
 
 	/**
 	 * Get user from Perun.
-	 * @param userId ID of user.
+	 * @param extLogin sub from OIDC.
+	 * @param extSourceName Perun extSource that has been used for login (entityId of Proxy)
+	 * @param userEmailAttr user email.
 	 * @return Retrieved user object.
 	 */
-	User getRichUser(Long userId) throws RPCException;
+	User getUserWithEmail(String extLogin, String extSourceName, String userEmailAttr) throws RPCException;
 
 	/**
 	 * Add user as an admin (manager) of facility.

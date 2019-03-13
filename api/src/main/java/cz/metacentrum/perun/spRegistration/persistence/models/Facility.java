@@ -17,6 +17,7 @@ public class Facility extends PerunEntity {
 
 	private String name;
 	private String description;
+	private boolean testEnv;
 	private Map<String, PerunAttribute> attrs = new HashMap<>();
 
 	public Facility(Long id) {
@@ -43,6 +44,14 @@ public class Facility extends PerunEntity {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public boolean isTestEnv() {
+		return testEnv;
+	}
+
+	public void setTestEnv(boolean testEnv) {
+		this.testEnv = testEnv;
 	}
 
 	public Map<String, PerunAttribute> getAttrs() {
@@ -76,12 +85,15 @@ public class Facility extends PerunEntity {
 		return new Facility(id, name, description);
 	}
 
+
+
 	@Override
 	public String toString() {
 		return "Facility{" +
 				super.toString() +
 				", name='" + name + '\'' +
 				", description='" + description + '\'' +
+				", testEnv='" + testEnv + '\'' +
 				", attrs=" + attrs +
 				'}';
 	}

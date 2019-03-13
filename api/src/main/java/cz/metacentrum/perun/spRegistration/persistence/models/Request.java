@@ -171,6 +171,11 @@ public class Request {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(reqId, status, action, reqUserId);
+		long res = 31 * reqId;
+		res *= 31 * action.hashCode();
+		res *= 31 * status.hashCode();
+		if (facilityId!= null) res *= 31 * facilityId;
+
+		return (int) res;
 	}
 }

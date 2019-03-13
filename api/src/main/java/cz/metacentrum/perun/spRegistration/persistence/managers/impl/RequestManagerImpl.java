@@ -4,19 +4,25 @@ import cz.metacentrum.perun.spRegistration.persistence.configs.AppConfig;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestStatus;
 import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
-import cz.metacentrum.perun.spRegistration.persistence.mappers.RequestApprovalMapper;
+import cz.metacentrum.perun.spRegistration.persistence.mappers.RequestSignatureMapper;
 import cz.metacentrum.perun.spRegistration.persistence.mappers.RequestMapper;
 import cz.metacentrum.perun.spRegistration.persistence.models.Request;
-import cz.metacentrum.perun.spRegistration.persistence.models.RequestApproval;
+import cz.metacentrum.perun.spRegistration.persistence.models.RequestSignature;
+import cz.metacentrum.perun.spRegistration.persistence.models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.datetime.joda.LocalDateTimeParser;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -29,11 +35,11 @@ public class RequestManagerImpl implements RequestManager {
 	private static final String APPROVALS_TABLE = " approvals ";
 
 	private RequestMapper requestMapper;
-	private RequestApprovalMapper requestApprovalMapper;
+	private final RequestSignatureMapper REQUEST_SIGNATURE_MAPPER;
 	private NamedParameterJdbcTemplate jdbcTemplate;
 
 	public RequestManagerImpl() {
-		requestApprovalMapper = new RequestApprovalMapper();
+		REQUEST_SIGNATURE_MAPPER = new RequestSignatureMapper();
 	}
 
 	public void setAppConfig(AppConfig config) {
@@ -196,6 +202,9 @@ public class RequestManagerImpl implements RequestManager {
 	@Override
 	public List<Request> getAllRequestsByFacilityIds(Set<Long> facilityIds) {
 		log.debug("getAllRequestsByFacilityIds({})", facilityIds);
+		if (facilityIds == null || facilityIds.isEmpty()) {
+			return new ArrayList<>();
+		}
 		String query = "SELECT * FROM" + REQUESTS_TABLE + "WHERE facility_id IN (:ids)";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
@@ -208,44 +217,61 @@ public class RequestManagerImpl implements RequestManager {
 	}
 
 	@Override
-	public boolean addSignature(Long requestId, Long userId, String fullName, String approvalName) {
-		log.debug("addSignature(requestId: {}, userId: {}, fullName: {}, approvalName: {})");
-		boolean result = addSignature(requestId, userId, fullName, approvalName, null);
-		log.debug("addSignature returns: {}", result);
-		return result;
+	public boolean addSignature(Long facilityId, String hash, User user, LocalDateTime signedAt) {
+		log.debug("addSignature(facilityId: {}, hash: {}, user: {}, signedAt: {})", facilityId, hash, user, signedAt);
+		String query = "UPDATE" + APPROVALS_TABLE +
+				"SET user_id = :user_id, user_name = :user_name, signed_at = :signed_at " +
+				"WHERE facility_id = :fac_id AND hash = :hash";
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("user_id", user.getId());
+		params.addValue("user_name", user.getFullName());
+		params.addValue("user_email", user.getEmail());
+		params.addValue("signed_at", Timestamp.valueOf(signedAt));
+		params.addValue("fac_id", facilityId);
+		params.addValue("hash", hash);
+
+		int res = jdbcTemplate.update(query, params);
+
+		if (res == 1) {
+			log.debug("addSignature returns: {}", true);
+			return true;
+		}
+
+		//todo Exception?
+		return false;
 	}
 
 	@Override
-	public boolean addSignature(Long requestId, Long userId, String signerName, String signerInput, Timestamp signedAt) {
-		log.debug("addSignature(requestId: {}, userId: {}, signerName: {}, signerInput: {})");
-		String query = "INSERT INTO" + APPROVALS_TABLE +
-				"(request_id, signer_id, signer_name, signer_input, signed_at) " +
-				"VALUES (:req_id, :signer_id, :signer_name, :signer_input, :signed_at)";
+	public List<RequestSignature> getRequestSignatures(Long facilityId) {
+		log.debug("getRequestSignatures({})", facilityId);
+		String query = "SELECT * FROM" + APPROVALS_TABLE + "WHERE facility_id = :fac_id";
 		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("req_id", requestId);
-		params.addValue("signer_id", userId);
-		params.addValue("signer_name", signerName);
-		params.addValue("signer_input", signerInput);
-		if (signedAt != null) {
-			params.addValue("signed_at", signedAt);
-		}
+		params.addValue("fac_id", facilityId);
+
+		List<RequestSignature> approvals = jdbcTemplate.query(query, params, REQUEST_SIGNATURE_MAPPER);
+
+		log.debug("getRequestSignatures returns: {}", approvals);
+		return approvals;
+	}
+
+	@Override
+	public boolean storeApprovalLink(String authority, String hash, Long facilityId, String link, LocalDateTime validUntil) {
+		log.debug("storeApprovalLink(authority: {}, hash {}, facilityId: {}, link: {}, validUntil: {})",
+				authority, hash, facilityId, link, validUntil);
+		String query = "INSERT INTO" + APPROVALS_TABLE +
+				"(facility_id, link, hash, user_email, valid_until) " +
+				"VALUES (:fac_id, :link, :hash, :user_email, :valid_until)";
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("fac_id", facilityId);
+		params.addValue("link", link);
+		params.addValue("hash", hash);
+		params.addValue("user_email", authority);
+		params.addValue("valid_until", Timestamp.valueOf(validUntil));
 
 		jdbcTemplate.update(query, params);
 
-		log.debug("addSignature returns: {}", true);
+		log.debug("storeApprovalLink returns: {}", true);
 		return true;
 	}
 
-	@Override
-	public List<RequestApproval> getApprovalsForRequest(Long requestId) {
-		log.debug("getApprovalsForRequest({})", requestId);
-		String query = "SELECT * FROM" + APPROVALS_TABLE + "WHERE request_id = :req_id";
-		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("req_id", requestId);
-
-		List<RequestApproval> approvals = jdbcTemplate.query(query, params, requestApprovalMapper);
-
-		log.debug("getApprovalsForRequest returns: {}", approvals);
-		return approvals;
-	}
 }

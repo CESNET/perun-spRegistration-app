@@ -17,10 +17,12 @@ create table requests
 
 create table approvals
 (
-	request_id bigint not null
-	  references requests on update cascade on delete cascade,
-	signer_id bigint not null,
-	signer_name varchar not null,
-	signer_input varchar not null,
-	signed_at timestamp default now() not null
+	facility_id bigint not null,
+	link varchar,
+	hash varchar,
+	user_id bigint,
+	user_email varchar,
+	user_name varchar,
+	valid_until timestamp,
+	signed_at timestamp,
 );

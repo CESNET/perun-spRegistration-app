@@ -8,6 +8,8 @@
 /gui/dist
 /gui/tmp
 /gui/out-tsc
+/out
+/gui/src/main
 
 # Gui dependencies
 /gui/node_modules
@@ -29,6 +31,8 @@
 
 # Log file
 *.log
+*.debug
+*.gz
 
 # BlueJ files
 *.ctxt

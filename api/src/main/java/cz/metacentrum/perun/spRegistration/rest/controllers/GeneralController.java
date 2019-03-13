@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
@@ -16,6 +17,7 @@ import java.util.List;
 public class GeneralController {
 
 	private static final Logger log = LoggerFactory.getLogger(GeneralController.class);
+
 	private final Config config;
 
 	@Autowired
@@ -61,5 +63,35 @@ public class GeneralController {
 	public boolean isUserAdmin(@SessionAttribute("userId") Long userId) {
 		log.debug("isUserAdmin()");
 		return config.getAppConfig().isAdmin(userId);
+	}
+
+	@RequestMapping(path = "/api/config/footer", method = RequestMethod.GET)
+	public String getAppFooter() {
+		log.debug("getAppFooter()");
+		return config.getAppConfig().getFooterHTML();
+	}
+
+	@RequestMapping(path = "/api/config/logo", method = RequestMethod.GET)
+	public String getHeaderLogo() {
+		log.debug("getHeaderLogo()");
+		return config.getAppConfig().getHeaderLogo();
+	}
+
+	@RequestMapping(path = "/api/config/headerLabel", method = RequestMethod.GET)
+	public String getHeaderLabel() {
+		log.debug("getHeaderLabel()");
+		return config.getAppConfig().getHeaderTitle();
+	}
+
+	@RequestMapping(path = "/api/config/header", method = RequestMethod.GET)
+	public String getHeader() {
+		log.debug("getHeader()");
+		return config.getAppConfig().getHeaderHTML();
+	}
+
+	@RequestMapping(path = "/api/config/specifyAuthoritiesEnabled", method = RequestMethod.GET)
+	public boolean getSpecifyAuthoritiesEnabled() {
+		log.debug("getSpecifyAuthoritiesEnabled()");
+		return config.getAppConfig().getSpecifyAuthoritiesEnabled();
 	}
 }
