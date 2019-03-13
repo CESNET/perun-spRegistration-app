@@ -13,11 +13,6 @@ export class RequestsService {
     private apiService: ApiService
   ) { }
 
-  //TODO delete THIS!!!
-  login() {
-    return this.apiService.get('');
-  }
-
   getAllRequests(): Observable<Request[]> {
     return this.apiService.get('/allRequests');
   }

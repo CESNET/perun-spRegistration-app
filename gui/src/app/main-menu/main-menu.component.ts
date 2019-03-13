@@ -17,8 +17,5 @@ export class MainMenuComponent implements OnInit {
 
   constructor(private requestsService : RequestsService) { }
 
-  ngOnInit(): void {
-    //TODO remove this
-    this.requestsService.login().subscribe(r => console.log(r));
-  }
+  ngOnInit(): void {}
 }

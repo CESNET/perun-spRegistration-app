@@ -1,5 +1,7 @@
 {
   "TITLE": "Service registration",
+  "LOGIN_MESSAGE": "For continuing to the application, please login.",
+  "LOGIN": "Login",
   "ERROR": {
     "GENERAL_ERROR_TITLE": "Something went wrong.",
     "SERVER_DOWN": "Server is currently offline. Please try it again later."
