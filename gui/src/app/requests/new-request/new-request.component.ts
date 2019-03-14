@@ -38,6 +38,7 @@ export class NewRequestComponent implements OnInit {
   applicationItemGroups: ApplicationItem[][];
 
   ngOnInit() {
+
     // this.requestsService.login().subscribe();
 
     this.configService.isOidcEnabled().subscribe(isEnabled => {
