@@ -6,13 +6,16 @@ import cz.metacentrum.perun.spRegistration.persistence.models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class ConfigController {
@@ -66,28 +69,14 @@ public class ConfigController {
 		return config.getAppConfig().isAdmin(user.getId());
 	}
 
-	@RequestMapping(path = "/api/config/footer", method = RequestMethod.GET)
-	public String getAppFooter() {
-		log.debug("getAppFooter()");
-		return config.getAppConfig().getFooterHTML();
-	}
+	@GetMapping(path = "/api/config/pageConfig")
+	public Map<String, String> getPageConfig() {
+		Map<String, String> pageConfig = new HashMap<>();
+		pageConfig.put("logoUrl", config.getAppConfig().getHeaderLogo());
+		pageConfig.put("headerLabel", config.getAppConfig().getHeaderTitle());
+		pageConfig.put("footerHtml", config.getAppConfig().getFooterHTML());
 
-	@RequestMapping(path = "/api/config/logo", method = RequestMethod.GET)
-	public String getHeaderLogo() {
-		log.debug("getHeaderLogo()");
-		return config.getAppConfig().getHeaderLogo();
-	}
-
-	@RequestMapping(path = "/api/config/headerLabel", method = RequestMethod.GET)
-	public String getHeaderLabel() {
-		log.debug("getHeaderLabel()");
-		return config.getAppConfig().getHeaderTitle();
-	}
-
-	@RequestMapping(path = "/api/config/header", method = RequestMethod.GET)
-	public String getHeader() {
-		log.debug("getHeader()");
-		return config.getAppConfig().getHeaderHTML();
+		return pageConfig;
 	}
 
 	@RequestMapping(path = "/api/config/specifyAuthoritiesEnabled", method = RequestMethod.GET)

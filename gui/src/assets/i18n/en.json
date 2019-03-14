@@ -47,6 +47,7 @@
     "NEW_PREVIOUS_STEP": "Previous",
     "REQUEST_SAVE": "Save",
     "SUCCESSFULLY_SUBMITTED_MESSAGE": "Request has been submitted.",
+    "SUCCESSFULLY_SUBMITTED_ACTION": "Show",
     "REQUEST_DETAIL_TITLE" : "Request #",
     "REQUEST_DETAIL_STATUS" : "Status: ",
     "REQUEST_DETAIL_EDITED" : "Edited on: ",

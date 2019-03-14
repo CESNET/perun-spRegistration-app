@@ -18,16 +18,12 @@ const routes: Routes = [
     loadChildren: './facilities/facilities.module#FacilitiesModule'
   },
   {
-    path: 'notFound',
-    component: NotFoundPageComponent
-  },
-  {
     path: 'notAuthorized',
     component: NotAuthorizedPageComponent
   },
   {
     path: '**',
-    redirectTo: '/notFound'
+    component: NotFoundPageComponent
   }
 ];
 

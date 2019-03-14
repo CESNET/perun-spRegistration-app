@@ -4,6 +4,7 @@ import {NavigationEnd, Router} from "@angular/router";
 import { HostListener } from "@angular/core";
 import {UsersService} from "./core/services/users.service";
 import {ConfigService} from "./core/services/config.service";
+import {PageConfig} from "./core/models/PageConfig";
 
 @Component({
   selector: 'app-root',
@@ -13,6 +14,7 @@ import {ConfigService} from "./core/services/config.service";
 export class AppComponent implements OnInit {
 
   sideBarOpened = false;
+  loading = true;
 
   lastScreenWidth: number;
 
@@ -20,15 +22,21 @@ export class AppComponent implements OnInit {
   sidebarMode = 'side';
   currentUrl: string;
 
-  userLoggedIn = false;
+  static pageConfig: PageConfig;
+  static userAdmin: boolean;
 
-  isAdmin : boolean;
+  logoUrl : String = '';
+  appTitle : String = '';
+  footerHtml : String = '<div></div>';
+
+  userLoggedIn = false;
+  isAdmin = false;
 
   constructor(
+    private configService: ConfigService,
     private userService: UsersService,
     private translate: TranslateService,
-    private router: Router,
-    private configService: ConfigService
+    private router: Router
   ) {
     this.getScreenSize();
 
@@ -39,8 +47,6 @@ export class AppComponent implements OnInit {
     router.events.subscribe((_: NavigationEnd) => {
       this.currentUrl = this.router.url;
     });
-
-    //configService.isUserAdmin().subscribe(bool => this.isAdmin = bool);
   }
 
   @HostListener('window:resize', ['$event'])
@@ -70,8 +76,29 @@ export class AppComponent implements OnInit {
     if (!this.userLoggedIn) {
       this.userService.login().subscribe(() => {
         this.userLoggedIn = true;
+
+        this.userService.isUserAdmin().subscribe(value => {
+          AppComponent.userAdmin = value;
+
+          this.configService.getPageConfig().subscribe(pageConfig => {
+              AppComponent.pageConfig = pageConfig;
+              this.appTitle = pageConfig.headerLabel;
+              this.logoUrl = pageConfig.logoUrl;
+              this.footerHtml = pageConfig.footerHtml;
+
+              this.isAdmin = AppComponent.userAdmin;
+              this.loading = false;
+          });
+        });
       });
     }
-    this.configService.isUserAdmin().subscribe(bool => this.isAdmin = bool);
+  }
+
+  public static isUserAdmin() : boolean {
+    return this.userAdmin;
+  }
+
+  public static getPageConfig() : PageConfig {
+    return this.pageConfig;
   }
 }

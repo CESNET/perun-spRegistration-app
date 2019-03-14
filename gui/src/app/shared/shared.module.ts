@@ -5,15 +5,13 @@ import {SortableColumnComponent} from "./layout/sortable-column.component";
 import {TranslateModule} from '@ngx-translate/core';
 import {PerunFooterComponent} from './layout/perun-footer/perun-footer.component';
 import {FontAwesomeModule} from "@fortawesome/angular-fontawesome";
-import {PerunHeaderComponent} from "./layout/perun-header/perun-header.component";
-import {PerunSidebarComponent} from "./layout/perun-sidebar/perun-sidebar.component";
 import {RouterModule} from "@angular/router";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {
   MatButtonModule,
   MatCheckboxModule, MatDialogModule, MatFormFieldModule,
   MatIconModule,
-  MatInputModule,
+  MatInputModule, MatProgressBarModule,
   MatProgressSpinnerModule,
   MatRadioModule,
   MatSelectModule,
@@ -31,6 +29,7 @@ import { NotAuthorizedPageComponent } from './not-authorized-page/not-authorized
 @NgModule({
   imports: [
     RouterModule,
+    MatProgressBarModule,
     CommonModule,
     FontAwesomeModule,
     FormsModule,
@@ -55,8 +54,6 @@ import { NotAuthorizedPageComponent } from './not-authorized-page/not-authorized
   declarations: [
     SortableColumnComponent,
     SortableTableDirective,
-    PerunHeaderComponent,
-    PerunSidebarComponent,
     PerunFooterComponent,
     ErrorDialogComponent,
     NotFoundPageComponent,
@@ -67,8 +64,6 @@ import { NotAuthorizedPageComponent } from './not-authorized-page/not-authorized
     SortableColumnComponent,
     SortableTableDirective,
     TranslateModule,
-    PerunHeaderComponent,
-    PerunSidebarComponent,
     PerunFooterComponent,
     FormsModule,
     MatSelectModule,
@@ -86,7 +81,8 @@ import { NotAuthorizedPageComponent } from './not-authorized-page/not-authorized
     MatSidenavModule,
     MatStepperModule,
     MatFormFieldModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatProgressBarModule
   ],
   entryComponents: [
     ErrorDialogComponent

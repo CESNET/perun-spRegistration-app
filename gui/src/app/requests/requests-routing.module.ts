@@ -4,6 +4,7 @@ import {RequestsOverviewComponent} from "./requests-overview/requests-overview.c
 import {NewRequestComponent} from "./new-request/new-request.component";
 import {RequestDetailComponent} from "./request-detail/request-detail.component";
 import {AllRequestsComponent} from "./all-requests/all-requests.component";
+import {NotFoundPageComponent} from "../shared/not-found-page/not-found-page.component";
 
 const routes: Routes = [
   {
@@ -24,7 +25,7 @@ const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: '/notFound'
+    component: NotFoundPageComponent
   }
 ];
 

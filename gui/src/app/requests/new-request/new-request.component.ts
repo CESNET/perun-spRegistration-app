@@ -6,6 +6,7 @@ import {MatSnackBar} from "@angular/material";
 import {TranslateService} from "@ngx-translate/core";
 import {PerunAttribute} from "../../core/models/PerunAttribute";
 import {RequestCreationStepComponent} from "./request-creation-step/request-creation-step.component";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-new-request',
@@ -18,7 +19,8 @@ export class NewRequestComponent implements OnInit {
     private configService: ConfigService,
     private requestsService: RequestsService,
     private snackBar: MatSnackBar,
-    private translate: TranslateService) { }
+    private translate: TranslateService,
+    private router: Router) { }
 
   @ViewChildren(RequestCreationStepComponent)
   steps: QueryList<RequestCreationStepComponent>;
@@ -34,6 +36,7 @@ export class NewRequestComponent implements OnInit {
   // translations
   errorText : string;
   successfullySubmittedText: string;
+  successActionText: string;
 
   applicationItemGroups: ApplicationItem[][];
 
@@ -52,6 +55,8 @@ export class NewRequestComponent implements OnInit {
       .subscribe(value => this.errorText = value);
     this.translate.get('REQUESTS.SUCCESSFULLY_SUBMITTED_MESSAGE')
       .subscribe(value => this.successfullySubmittedText = value);
+    this.translate.get('REQUESTS.SUCCESSFULLY_SUBMITTED_ACTION')
+      .subscribe(value => this.successActionText = value);
   }
 
   revealForm() {
@@ -97,11 +102,14 @@ export class NewRequestComponent implements OnInit {
     console.log(perunAttributes);
 
     this.requestsService.createRegistrationRequest(perunAttributes).subscribe(requestId => {
-      this.snackBar.open(this.successfullySubmittedText, null, {duration: 6000});
-    }, error => {
-      console.log("Error");
-      console.log(error);
-    })
+      let snackBarRef = this.snackBar
+        .open(this.successfullySubmittedText, this.successActionText, {duration: 6000, verticalPosition: "top"});
+
+      snackBarRef.onAction().subscribe(() => {
+        this.router.navigate(['/requests/detail/' + requestId]);
+      });
+      this.router.navigate(['/']);
+    });
   }
 
   /**
