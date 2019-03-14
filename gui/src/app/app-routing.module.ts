@@ -33,7 +33,12 @@ const routes: Routes = [
   {
     path: '**',
     redirectTo: '/notFound'
+  },
+  {
+    path: 'login',
+    component: LoginComponent
   }
+
 ];
 
 @NgModule({
