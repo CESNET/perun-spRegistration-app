@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ConfigService } from "../core/services/config.service";
+import {UsersService} from "../core/services/users.service";
 
 @Component({
   selector: 'app-login',
@@ -8,13 +8,13 @@ import { ConfigService } from "../core/services/config.service";
 })
 export class LoginComponent implements OnInit {
 
-  constructor(private confService: ConfigService) { }
+  constructor(private userService: UsersService) { }
 
   ngOnInit() {
   }
 
   login() : void{
-    this.confService.login();
+    this.userService.login();
   }
 
 }

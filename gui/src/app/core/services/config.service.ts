@@ -33,8 +33,4 @@ export class ConfigService {
     //todo type real in url
     return this.apiService.get('/config/footer');
   }
-
-  login() : void{
-    this.apiService.get('/setUser');
-  }
 }
