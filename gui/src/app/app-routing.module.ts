@@ -11,6 +11,10 @@ const routes: Routes = [
     component: MainMenuComponent,
   },
   {
+    path: 'login',
+    component: LoginComponent,
+  },
+  {
     path: 'requests',
     loadChildren: './requests/requests.module#RequestsModule'
   },
@@ -29,10 +33,6 @@ const routes: Routes = [
   {
     path: '**',
     redirectTo: '/notFound'
-  },
-  {
-    path: 'login',
-    component: LoginComponent,
   }
 ];
 

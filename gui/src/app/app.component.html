@@ -17,7 +17,8 @@
                class="perun-sidenav"
                [(opened)]="sideBarOpened"
                [fixedInViewport]="true"
-               [fixedTopGap]="64">
+               [fixedTopGap]="64"
+               [hidden]="currentUrl !== undefined && currentUrl === '/login'">
     <ul class="navbar-nav">
       <li class="nav-item p-2" [class.active]="currentUrl !== undefined && currentUrl === '/'">
         <a class="no-hover-decoration" routerLink="" (click)="closeSideBar()">
