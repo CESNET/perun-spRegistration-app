@@ -4,7 +4,6 @@ import {RequestsOverviewComponent} from "./requests-overview/requests-overview.c
 import {NewRequestComponent} from "./new-request/new-request.component";
 import {RequestDetailComponent} from "./request-detail/request-detail.component";
 import {AllRequestsComponent} from "./all-requests/all-requests.component";
-import {RequestEditComponent} from "./request-edit/request-edit.component";
 import {NotFoundPageComponent} from "../shared/not-found-page/not-found-page.component";
 
 const routes: Routes = [
@@ -24,10 +23,6 @@ const routes: Routes = [
     path: 'detail/:id',
     component: RequestDetailComponent
   },
-    {
-        path: 'editRequest/:id',
-        component: RequestEditComponent
-    },
   {
     path: '**',
     component: NotFoundPageComponent
