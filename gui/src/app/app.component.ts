@@ -73,25 +73,19 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (!this.userLoggedIn) {
-      this.userService.login().subscribe(() => {
-        this.userLoggedIn = true;
+    this.userService.isUserAdmin().subscribe(value => {
+      AppComponent.userAdmin = value;
 
-        this.userService.isUserAdmin().subscribe(value => {
-          AppComponent.userAdmin = value;
+      this.configService.getPageConfig().subscribe(pageConfig => {
+          AppComponent.pageConfig = pageConfig;
+          this.appTitle = pageConfig.headerLabel;
+          this.logoUrl = pageConfig.logoUrl;
+          this.footerHtml = pageConfig.footerHtml;
 
-          this.configService.getPageConfig().subscribe(pageConfig => {
-              AppComponent.pageConfig = pageConfig;
-              this.appTitle = pageConfig.headerLabel;
-              this.logoUrl = pageConfig.logoUrl;
-              this.footerHtml = pageConfig.footerHtml;
-
-              this.isAdmin = AppComponent.userAdmin;
-              this.loading = false;
-          });
-        });
+          this.isAdmin = AppComponent.userAdmin;
+          this.loading = false;
       });
-    }
+    });
   }
 
   public static isUserAdmin() : boolean {

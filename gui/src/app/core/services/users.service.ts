@@ -11,10 +11,6 @@ export class UsersService {
       private apiService: ApiService
   ) { }
 
-  login() {
-      return this.apiService.get('/setUser');
-  }
-
   isUserAdmin() : Observable<boolean> {
       return this.apiService.get('/config/isUserAdmin');
   }
