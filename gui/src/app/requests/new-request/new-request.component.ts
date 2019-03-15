@@ -103,7 +103,7 @@ export class NewRequestComponent implements OnInit {
 
     this.requestsService.createRegistrationRequest(perunAttributes).subscribe(requestId => {
       let snackBarRef = this.snackBar
-        .open(this.successfullySubmittedText, this.successActionText, {duration: 6000, verticalPosition: "top"});
+        .open(this.successfullySubmittedText, this.successActionText, {duration: 6000});
 
       snackBarRef.onAction().subscribe(() => {
         this.router.navigate(['/requests/detail/' + requestId]);
