@@ -3,10 +3,10 @@ package cz.metacentrum.perun.spRegistration.persistence.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestStatus;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -127,14 +127,14 @@ public class Request {
 	 * @return JSON with attributes.
 	 */
 	@JsonIgnore
-	public List<String> getAttributesAsJsonForPerun() {
+	public JSONArray getAttributesAsJsonArrayForPerun() {
 		if (attributes == null || attributes.isEmpty()) {
 			return null;
 		}
 
-		List<String> res = new ArrayList<>();
+		JSONArray res = new JSONArray();
 		for (PerunAttribute a: attributes.values()) {
-			res.add(a.toJsonForPerun().toString());
+			res.put(a.toJson());
 		}
 
 		return res;

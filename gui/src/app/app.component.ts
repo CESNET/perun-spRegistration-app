@@ -3,6 +3,8 @@ import { TranslateService } from '@ngx-translate/core';
 import {NavigationEnd, Router} from "@angular/router";
 import { HostListener } from "@angular/core";
 import {UsersService} from "./core/services/users.service";
+import {ConfigService} from "./core/services/config.service";
+import {PageConfig} from "./core/models/PageConfig";
 
 @Component({
   selector: 'app-root',
@@ -12,15 +14,26 @@ import {UsersService} from "./core/services/users.service";
 export class AppComponent implements OnInit {
 
   sideBarOpened = false;
+  loading = true;
 
   lastScreenWidth: number;
 
+  minWidth = 768;
   sidebarMode = 'side';
   currentUrl: string;
 
+  static pageConfig: PageConfig;
+  static userAdmin: boolean;
+
+  logoUrl : String = '';
+  appTitle : String = '';
+  footerHtml : String = '<div></div>';
+
   userLoggedIn = false;
+  isAdmin = false;
 
   constructor(
+    private configService: ConfigService,
     private userService: UsersService,
     private translate: TranslateService,
     private router: Router
@@ -39,14 +52,14 @@ export class AppComponent implements OnInit {
   @HostListener('window:resize', ['$event'])
   getScreenSize(event?) {
 
-    if (window.innerWidth > 576) {
+    if (window.innerWidth > this.minWidth) {
       this.sideBarOpened = true;
       this.sidebarMode = 'side';
-    } else if (this.lastScreenWidth > 576) {
+    } else if (this.lastScreenWidth > this.minWidth) {
       this.sideBarOpened = false;
     }
 
-    if (window.innerWidth <= 576) {
+    if (window.innerWidth <= this.minWidth) {
       this.sidebarMode = 'over';
     }
 
@@ -60,10 +73,26 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (!this.userLoggedIn) {
-      this.userService.login().subscribe(() => {
-        this.userLoggedIn = true;
+    this.userService.isUserAdmin().subscribe(value => {
+      AppComponent.userAdmin = value;
+
+      this.configService.getPageConfig().subscribe(pageConfig => {
+          AppComponent.pageConfig = pageConfig;
+          this.appTitle = pageConfig.headerLabel;
+          this.logoUrl = pageConfig.logoUrl;
+          this.footerHtml = pageConfig.footerHtml;
+
+          this.isAdmin = AppComponent.userAdmin;
+          this.loading = false;
       });
-    }
+    });
+  }
+
+  public static isUserAdmin() : boolean {
+    return this.userAdmin;
+  }
+
+  public static getPageConfig() : PageConfig {
+    return this.pageConfig;
   }
 }

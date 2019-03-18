@@ -271,7 +271,7 @@ public class AdminCommandsCommandsServiceImpl implements AdminCommandsService {
 		log.info("Creating facility");
 		facility.setName(newName);
 		facility.setDescription(newDesc);
-		facility = perunConnector.createFacilityInPerun(facility.toJsonString());
+		facility = perunConnector.createFacilityInPerun(facility.toJson());
 
 		if (facility == null) {
 			log.error("Creating facility in Perun failed");
@@ -281,7 +281,7 @@ public class AdminCommandsCommandsServiceImpl implements AdminCommandsService {
 		request.setFacilityId(facility.getId());
 
 		log.info("Setting facility attributes");
-		boolean result = perunConnector.setFacilityAttributes(request.getFacilityId(), request.getAttributesAsJsonForPerun());
+		boolean result = perunConnector.setFacilityAttributes(request.getFacilityId(), request.getAttributesAsJsonArrayForPerun());
 
 		log.debug("registerNewFacilityToPerun returns: {}", result);
 		return result;
@@ -300,7 +300,7 @@ public class AdminCommandsCommandsServiceImpl implements AdminCommandsService {
 		}
 
 		log.info("Setting facility attributes");
-		boolean result = perunConnector.setFacilityAttributes(request.getFacilityId(), request.getAttributesAsJsonForPerun());
+		boolean result = perunConnector.setFacilityAttributes(request.getFacilityId(), request.getAttributesAsJsonArrayForPerun());
 
 		String newName = request.getFacilityName();
 		String newDesc = request.getFacilityDescription();
@@ -320,7 +320,7 @@ public class AdminCommandsCommandsServiceImpl implements AdminCommandsService {
 
 		if (changed) {
 			log.debug("Updating facility name and/or description");
-			perunConnector.updateFacilityInPerun(actualFacility.toJsonString());
+			perunConnector.updateFacilityInPerun(actualFacility.toJson());
 		}
 
 		log.debug("updateFacilityInPerun returns: {}", result);
@@ -348,11 +348,11 @@ public class AdminCommandsCommandsServiceImpl implements AdminCommandsService {
 		PerunAttribute testSp = perunConnector.getFacilityAttribute(
 				request.getFacilityId(), appConfig.getTestSpAttribute());
 		testSp.setValue(false);
-		res = perunConnector.setFacilityAttribute(request.getFacilityId(), testSp.toJsonForPerun().toString());
+		res = perunConnector.setFacilityAttribute(request.getFacilityId(), testSp.toJson());
 		PerunAttribute displayOnList = perunConnector.getFacilityAttribute(
 				request.getFacilityId(), appConfig.getShowOnServicesListAttribute());
 		displayOnList.setValue(true);
-		res = res && perunConnector.setFacilityAttribute(request.getFacilityId(), displayOnList.toJsonForPerun().toString());
+		res = res && perunConnector.setFacilityAttribute(request.getFacilityId(), displayOnList.toJson());
 
 		log.debug("requestMoveToProduction returns: {}", res);
 		return res;

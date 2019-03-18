@@ -118,7 +118,7 @@ public class PerunAttribute {
 		}
 	}
 
-	public JSONObject toJsonForPerun() {
+	public JSONObject toJson() {
 		JSONObject json = definition.toJson();
 		putValue(json, "value", definition.getType(), false);
 

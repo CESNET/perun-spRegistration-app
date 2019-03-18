@@ -13,11 +13,16 @@ public class PerunAttributeDefinition extends PerunEntity {
 	private String type;
 	private String displayName;
 	private boolean writable;
+	private boolean unique;
 	private String entity;
-	private String beanName;
+	private final String beanName = "Attribute";
+	private String baseFriendlyName;
+	private String friendlyNameParameter;
+
 
 	public PerunAttributeDefinition(Long id, String friendlyName, String namespace, String description, String type,
-									String displayName, boolean writable, String entity, String beanName) {
+									String displayName, boolean writable, boolean unique, String entity,
+									String baseFriendlyName, String friendlyNameParameter) {
 		super(id);
 		this.friendlyName = friendlyName;
 		this.namespace = namespace;
@@ -25,8 +30,10 @@ public class PerunAttributeDefinition extends PerunEntity {
 		this.type = type;
 		this.displayName = displayName;
 		this.writable = writable;
+		this.unique = unique;
 		this.entity = entity;
-		this.beanName = beanName;
+		this.baseFriendlyName = baseFriendlyName;
+		this.friendlyNameParameter = friendlyNameParameter;
 	}
 
 	public static PerunAttributeDefinition fromPerunJson(JSONObject jsonObject) {
@@ -37,11 +44,13 @@ public class PerunAttributeDefinition extends PerunEntity {
 		String type = jsonObject.getString("type");
 		String displayName = jsonObject.getString("displayName");
 		boolean writable = jsonObject.getBoolean("writable");
+		boolean unique = jsonObject.getBoolean("unique");
 		String entity = jsonObject.getString("entity");
-		String beanName = jsonObject.getString("beanName");
+		String baseFriendlyName = jsonObject.getString("baseFriendlyName");
+		String friendlyNameParameter = jsonObject.getString("friendlyNameParameter");
 
 		return new PerunAttributeDefinition(id, friendlyName, namespace, description, type, displayName, writable,
-				entity, beanName);
+				unique, entity, baseFriendlyName, friendlyNameParameter);
 	}
 
 	public String getFriendlyName() {
@@ -104,8 +113,28 @@ public class PerunAttributeDefinition extends PerunEntity {
 		return beanName;
 	}
 
-	public void setBeanName(String beanName) {
-		this.beanName = beanName;
+	public boolean isUnique() {
+		return unique;
+	}
+
+	public void setUnique(boolean unique) {
+		this.unique = unique;
+	}
+
+	public String getBaseFriendlyName() {
+		return baseFriendlyName;
+	}
+
+	public void setBaseFriendlyName(String baseFriendlyName) {
+		this.baseFriendlyName = baseFriendlyName;
+	}
+
+	public String getFriendlyNameParameter() {
+		return friendlyNameParameter;
+	}
+
+	public void setFriendlyNameParameter(String friendlyNameParameter) {
+		this.friendlyNameParameter = friendlyNameParameter;
 	}
 
 	public JSONObject toJson() {
@@ -119,6 +148,9 @@ public class PerunAttributeDefinition extends PerunEntity {
 		res.put("writable", writable);
 		res.put("entity", entity);
 		res.put("beanName", beanName);
+		res.put("unique", unique);
+		res.put("baseFriendlyName", baseFriendlyName);
+		res.put("friendlyNameParameter", friendlyNameParameter);
 
 		return res;
 	}
@@ -131,15 +163,17 @@ public class PerunAttributeDefinition extends PerunEntity {
 	@Override
 	public String toString() {
 		return "PerunAttributeDefinition{" +
-				super.toString() +
-				", friendlyName='" + friendlyName + '\'' +
+				"friendlyName='" + friendlyName + '\'' +
 				", namespace='" + namespace + '\'' +
 				", description='" + description + '\'' +
 				", type='" + type + '\'' +
 				", displayName='" + displayName + '\'' +
 				", writable=" + writable +
+				", unique=" + unique +
 				", entity='" + entity + '\'' +
 				", beanName='" + beanName + '\'' +
+				", baseFriendlyName='" + baseFriendlyName + '\'' +
+				", friendlyNameParameter='" + friendlyNameParameter + '\'' +
 				'}';
 	}
 

@@ -103,7 +103,7 @@ public class UserApiController {
 
 	@RequestMapping(path = "/api/askApproval/{requestId}")
 	public boolean askForApproval(@SessionAttribute("user") User user,
-								 @PathVariable("requestId") Long requestId) throws SpRegistrationApiException {
+								  @PathVariable("requestId") Long requestId) throws SpRegistrationApiException {
 		log.debug("askForApproval(user: {}, requestId: {})", user.getId(), requestId);
 		try {
 			return service.askForApproval(requestId, user.getId());

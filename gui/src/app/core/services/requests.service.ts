@@ -32,4 +32,20 @@ export class RequestsService {
   getRequest(id: number): Observable<Request> {
     return this.apiService.get(`/request/${id}`);
   }
+
+  approveRequest(id: number): Observable<boolean>{
+    return this.apiService.get(`/approve/${id}`);
+  }
+
+  rejectRequest(id: number): Observable<boolean>{
+    return this.apiService.post(`/reject/${id}`);
+  }
+
+  askForChanges(id: number, attributes: Iterable<PerunAttribute>): Observable<boolean>{
+    return this.apiService.post(`/askForChanges/${id}`, attributes);
+  }
+
+  askForApproval(id: number ): Observable<boolean> {
+    return this.apiService.get(`/askApproval/${id}`);
+  }
 }

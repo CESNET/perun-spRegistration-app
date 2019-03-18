@@ -5,6 +5,8 @@ import cz.metacentrum.perun.spRegistration.persistence.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.persistence.models.Facility;
 import cz.metacentrum.perun.spRegistration.persistence.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.persistence.models.User;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;
@@ -22,14 +24,14 @@ public interface PerunConnector {
 	 * @param facilityJson JSON of facility to be created.
 	 * @return Created facility.
 	 */
-	Facility createFacilityInPerun(String facilityJson) throws RPCException;
+	Facility createFacilityInPerun(JSONObject facilityJson) throws RPCException;
 
 	/**
 	 * Update existing facility in Perun.
 	 * @param facilityJson JSON of facility to be created.
 	 * @return Updated facility.
 	 */
-	Facility updateFacilityInPerun(String facilityJson) throws RPCException;
+	Facility updateFacilityInPerun(JSONObject facilityJson) throws RPCException;
 
 	/**
 	 * Delete facility from Perun.
@@ -95,7 +97,7 @@ public interface PerunConnector {
 	 * @param attrJson JSON representation of attribute.
 	 * @return True if everything went OK.
 	 */
-	boolean setFacilityAttribute(Long facilityId, String attrJson) throws RPCException;
+	boolean setFacilityAttribute(Long facilityId, JSONObject attrJson) throws RPCException;
 
 	/**
 	 * Set attributes for facility in Perun.
@@ -103,7 +105,7 @@ public interface PerunConnector {
 	 * @param attrsJsons List of JSON representations of attributes.
 	 * @return True if everything went OK.
 	 */
-	boolean setFacilityAttributes(Long facilityId, List<String> attrsJsons) throws RPCException;
+	boolean setFacilityAttributes(Long facilityId, JSONArray attrsJsons) throws RPCException;
 
 	/**
 	 * Get user from Perun.

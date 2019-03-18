@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.spRegistration.persistence.models;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -66,15 +64,18 @@ public class Facility extends PerunEntity {
 	 * Convert object to JSON representation
 	 * @return JSON String
 	 */
-	public String toJsonString() {
-		ObjectMapper mapper = new ObjectMapper();
-		String json = null;
-		try {
-			json = mapper.writeValueAsString(this);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+	public JSONObject toJson() {
+		JSONObject res = new JSONObject();
+		if (this.getId() == null) {
+			res.put("id", JSONObject.NULL);
+		} else {
+			res.put("id", getId());
 		}
-		return "{ \"facility\" : " + json + " }";
+		res.put("name", name);
+		res.put("description", description);
+		res.put("beanName", "facility");
+
+		return res;
 	}
 
 	public static Facility fromPerunJson(JSONObject json) {
@@ -84,8 +85,6 @@ public class Facility extends PerunEntity {
 
 		return new Facility(id, name, description);
 	}
-
-
 
 	@Override
 	public String toString() {

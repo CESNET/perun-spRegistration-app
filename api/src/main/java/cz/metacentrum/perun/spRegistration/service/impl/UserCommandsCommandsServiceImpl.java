@@ -122,12 +122,17 @@ public class UserCommandsCommandsServiceImpl implements UserCommandsService {
 		if (requestId == null || userId == null || attributes == null) {
 			log.error("Illegal input - requestId: {}, userId: {}, attributes: {}", requestId, userId, attributes);
 			throw new IllegalArgumentException("Illegal input - requestId: " + requestId + ", userId: " + userId + ", attributes: " + attributes);
-		} else if (! isAdminInRequest(requestId, userId)) {
-			log.error("User is not registered as admin in request, cannot update it");
-			throw new UnauthorizedActionException("User is not registered as admin in request, cannot update it");
 		}
 
 		Request request = fetchRequestAndValidate(requestId);
+
+		if (request == null) {
+			log.error("Could not retrieve request for id: {}", requestId);
+			throw new InternalErrorException("Could not retrieve request for id: " + requestId);
+		} else if (! isAdminInRequest(request.getReqUserId(), userId)) {
+			log.error("User is not registered as admin in request, cannot update it");
+			throw new UnauthorizedActionException("User is not registered as admin in request, cannot update it");
+		}
 
 		log.debug("updating request");
 		Map<String, PerunAttribute> convertedAttributes = ServiceUtils.transformListToMap(attributes, appConfig);
@@ -151,15 +156,16 @@ public class UserCommandsCommandsServiceImpl implements UserCommandsService {
 		log.debug("askForApproval(requestId: {}, userId: {})", requestId, userId);
 		if (requestId == null || userId == null) {
 			throw new IllegalArgumentException("Illegal input - requestId: " + requestId + ", userId: " + userId);
-		} else if (! isAdminInRequest(requestId, userId)) {
-			throw new UnauthorizedActionException("User is not registered as admin in request, cannot ask for approval");
 		}
 
 		Request request = requestManager.getRequestByReqId(requestId);
+
 		if (request == null) {
 			log.error("Could not retrieve request for id: {}", requestId);
 			throw new InternalErrorException("Could not retrieve request for id: " + requestId);
-		} else if (! RequestStatus.NEW.equals(request.getStatus()) ||
+		} else if (! isAdminInRequest(request.getReqUserId(), userId)) {
+			throw new UnauthorizedActionException("User is not registered as admin in request, cannot ask for approval");
+		} else if (! RequestStatus.NEW.equals(request.getStatus()) &&
 			! RequestStatus.WFC.equals(request.getStatus())) {
 			throw new CannotChangeStatusException("Cannot ask for approval, request not marked as NEW nor WAITING_FOR_CHANGES");
 		}
@@ -178,12 +184,17 @@ public class UserCommandsCommandsServiceImpl implements UserCommandsService {
 		if (requestId == null || userId == null) {
 			log.error("Illegal input - requestId: {}, userId: {}", requestId, userId);
 			throw new IllegalArgumentException("Illegal input - requestId: " + requestId + ", userId: " + userId);
-		} else if (! isAdminInRequest(requestId, userId)) {
-			log.error("User is not registered as admin in request, cannot cancel it");
-			throw new UnauthorizedActionException("User is not registered as admin in request, cannot cancel it");
 		}
 
 		Request request = fetchRequestAndValidate(requestId);
+
+		if (request == null) {
+			log.error("Could not retrieve request for id: {}", requestId);
+			throw new InternalErrorException("Could not retrieve request for id: " + requestId);
+		} else if (! isAdminInRequest(request.getReqUserId(), userId)) {
+			log.error("User is not registered as admin in request, cannot cancel it");
+			throw new UnauthorizedActionException("User is not registered as admin in request, cannot cancel it");
+		}
 
 		switch (request.getStatus()) {
 			case APPROVED:
@@ -209,15 +220,15 @@ public class UserCommandsCommandsServiceImpl implements UserCommandsService {
 		if (requestId == null || userId == null) {
 			log.error("Illegal input - requestId: {}, userId: {}", requestId, userId);
 			throw new IllegalArgumentException("Illegal input - requestId: " + requestId + ", userId: " + userId);
-		} else if (! isAdminInRequest(requestId, userId)) {
-			log.error("User is not registered as admin in request, cannot renew it");
-			throw new UnauthorizedActionException("User is not registered as admin in request, cannot renew it");
 		}
 
 		Request request = requestManager.getRequestByReqId(requestId);
 		if (request == null) {
 			log.error("Could not retrieve request for id: {}", requestId);
 			throw new InternalErrorException("Could not retrieve request for id: " + requestId);
+		} else if (! isAdminInRequest(request.getReqUserId(), userId)) {
+			log.error("User is not registered as admin in request, cannot renew it");
+			throw new UnauthorizedActionException("User is not registered as admin in request, cannot renew it");
 		} else if (! RequestStatus.WFC.equals(request.getStatus())) {
 			log.error("Cannot ask for renew, request not marked as WAITING_FOR_CANCEL");
 			throw new CannotChangeStatusException("Cannot ask for renew, request not marked as WAITING_FOR_CANCEL");
@@ -316,11 +327,10 @@ public class UserCommandsCommandsServiceImpl implements UserCommandsService {
 		if (requestId == null || userId == null) {
 			log.error("Illegal input - requestId: {}, userId: {}", requestId, userId);
 			throw new IllegalArgumentException("Illegal input - requestId: " + requestId + ", userId: " + userId);
-		} else if (!isAdminInRequest(request.getReqUserId(), userId)) {
+		} else if (!appConfig.isAdmin(userId) && !isAdminInRequest(request.getReqUserId(), userId)) {
 			log.error("User cannot view request, user is not a requester");
 			throw new UnauthorizedActionException("User cannot view request, user is not a requester");
 		}
-
 
 		log.debug("getDetailedRequest returns: {}", request);
 		return request;

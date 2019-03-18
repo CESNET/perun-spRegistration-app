@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from "./api.service";
-import { Observable } from "rxjs";
+import {Observable, of} from "rxjs";
 import {ApplicationItem} from "../models/ApplicationItem";
+import {PageConfig} from "../models/PageConfig";
 
 @Injectable({
   providedIn: 'root'
@@ -24,13 +25,11 @@ export class ConfigService {
     return this.apiService.get('/config/oidcInputs');
   }
 
-  getHeader() : Observable<string>{
-    //todo type real in url
-    return this.apiService.get('/config/header');
+  getPageConfig() : Observable<PageConfig> {
+      return this.apiService.get('/config/pageConfig');
   }
 
-  getFooter() : Observable<string>{
-    //todo type real in url
-    return this.apiService.get('/config/footer');
+  isUserAdmin() : Observable<boolean> {
+    return this.apiService.get('/config/isUserAdmin');
   }
 }

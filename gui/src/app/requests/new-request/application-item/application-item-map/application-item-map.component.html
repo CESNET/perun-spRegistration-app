@@ -15,10 +15,6 @@
             add_box
           </mat-icon>
         </button>
-        <div>
-          <hr class="hr">
-          <p class="p">{{translatedDescription}}</p>
-        </div>
         <div class="mr-5">
           <div *ngFor="let value of values; let i = index; trackBy: customTrackBy" class="d-flex mb-1">
             <mat-form-field class="w-100 ml-3 mr-2">
@@ -52,6 +48,9 @@
               </mat-icon>
             </button>
           </div>
+        <div>
+          <p class="p">{{translatedDescription}}</p>
+        </div>
         </div>
       </div>
     </form>

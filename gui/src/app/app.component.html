@@ -1,15 +1,20 @@
-<mat-toolbar color="primary" class="fixed-top mat-elevation-z4">
-  <button mat-icon-button
-          class="mr-2 no-focus-outline d-block d-sm-none"
-          (click)="sidenav.toggle()">
-    <mat-icon>
-      menu
-    </mat-icon>
-  </button>
-  <a routerLink="" class="site-title">
-   {{ 'TITLE' | translate}}
-  </a>
-</mat-toolbar>
+<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+<div *ngIf="!loading">
+  <mat-toolbar color="primary" class="fixed-top mat-elevation-z4">
+    <mat-toolbar-row>
+      <button mat-icon-button
+              class="mr-2 no-focus-outline d-block d-md-none"
+              (click)="sidenav.toggle()">
+        <mat-icon>
+          menu
+        </mat-icon>
+      </button>
+      <img [src]="logoUrl" class="logo" alt="logo"/>
+      <a routerLink="" class="site-title ml-2">
+       {{ appTitle }}
+      </a>
+    </mat-toolbar-row>
+  </mat-toolbar>
 
 <mat-sidenav-container>
   <mat-sidenav #sidenav
@@ -62,21 +67,14 @@
     </ul>
   </mat-sidenav>
 
-  <mat-sidenav-content class="example-container">
-    <div class="row mr-0 ml-0">
-      <div class="col-12 col-xl-11 p-0 pr-lg-5 pl-lg-5">
-        <router-outlet></router-outlet>
+    <mat-sidenav-content class="content-container">
+      <div class="row mr-0 ml-0">
+        <div class="col-12 col-xl-11 p-0 pr-lg-5 pl-lg-5">
+          <router-outlet></router-outlet>
+        </div>
       </div>
-    </div>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
 
-<app-perun-footer></app-perun-footer>
-
-<!--<div class="container-fluid pt-5 p-lg-5">-->
-    <!--<div class="row flex-xl-nowrap">-->
-      <!--<div class="col-12 perun-content">-->
-        <!--<router-outlet></router-outlet>-->
-      <!--</div>-->
-    <!--</div>-->
-<!--</div>-->
+  <div [innerHTML]="footerHtml"></div>
+</div>

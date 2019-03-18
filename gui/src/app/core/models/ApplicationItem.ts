@@ -9,4 +9,5 @@ export interface ApplicationItem {
   type: string;
   allowedKeys: string[];
   allowedValues: string[];
+  comment: string;
 }

@@ -48,8 +48,12 @@ public class RequestManagerTests {
 
 	@Before
 	public void setUp() {
-		def1 = new PerunAttributeDefinition(1L, "attr_1", "namespace1", "desc1", "java.lang.String", "attr1", true, "facility", "attributeDefinition");
-		def2 = new PerunAttributeDefinition(2L, "attr_2", "namespace2", "desc2", "java.lang.Boolean", "attr2", true, "facility", "attributeDefinition");
+		def1 = new PerunAttributeDefinition(1L, "attr_1", "namespace1", "desc1",
+				"java.lang.String", "attr1", true, false, "facility",
+				"baseFriendlyName", "friendlyNameParameter");
+		def2 = new PerunAttributeDefinition(2L, "attr_2", "namespace2", "desc2",
+				"java.lang.Boolean", "attr2", true, false, "facility",
+				"baseFriendlyName", "friendlyNameParameter");
 
 		prepareFakeUser();
 		prepareAttributes();
