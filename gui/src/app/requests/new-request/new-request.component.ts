@@ -32,6 +32,7 @@ export class NewRequestComponent implements OnInit {
   oidcEnabled: boolean;
   loading = true;
   selected = "";
+  snackBarDurationMs = 8000;
 
   // translations
   errorText : string;
@@ -104,7 +105,7 @@ export class NewRequestComponent implements OnInit {
 
     this.requestsService.createRegistrationRequest(perunAttributes).subscribe(requestId => {
       let snackBarRef = this.snackBar
-        .open(this.successfullySubmittedText, this.successActionText, {duration: 6000});
+        .open(this.successfullySubmittedText, this.successActionText, {duration: this.snackBarDurationMs});
 
       snackBarRef.onAction().subscribe(() => {
         this.router.navigate(['/requests/detail/' + requestId]);

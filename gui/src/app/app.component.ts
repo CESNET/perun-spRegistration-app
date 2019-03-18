@@ -17,6 +17,8 @@ export class AppComponent implements OnInit {
   onPageWhereSideBarIsHihhen = false;
   loading = true;
 
+  static supportedLangs : Array<string> = ['en', 'cs'];
+
   lastScreenWidth: number;
 
   minWidth = 768;
@@ -45,10 +47,14 @@ export class AppComponent implements OnInit {
   ) {
     this.getScreenSize();
 
-    translate.setDefaultLang('en');
+    let browserLang = translate.getBrowserLang();
 
-    // TODO remove on production
-    translate.use('en');
+    if (!AppComponent.supportedLangs.includes(browserLang)) {
+      translate.setDefaultLang('en');
+    } else {
+      translate.setDefaultLang(browserLang);
+    }
+
     router.events.subscribe((_: NavigationEnd) => {
       this.currentUrl = this.router.url;
     });

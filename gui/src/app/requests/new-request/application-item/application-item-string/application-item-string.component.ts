@@ -43,9 +43,7 @@ export class ApplicationItemStringComponent implements RequestItem, OnInit {
   }
 
   ngOnInit(): void {
-    let browserLang = this.translate.getBrowserLang();
-    //TODO remove
-    browserLang = 'en';
+    let browserLang = this.translate.getDefaultLang();
     this.translatedDescription = this.applicationItem.description[browserLang];
     this.translatedName = this.applicationItem.displayName[browserLang];
   }
