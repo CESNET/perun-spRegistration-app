@@ -34,7 +34,6 @@ export class RequestDetailComponent implements OnInit {
 
     loading = true;
     request: Request;
-    //signatures: RequestSignature[];
     sign: string;
 
     @ViewChild('input')
@@ -64,9 +63,7 @@ export class RequestDetailComponent implements OnInit {
         for(let sign of signatures){
           this.sign += sign.name + " (" + new Date(sign.signedAt).toLocaleString() + "), ";
         }
-        if(this.sign == ""){
-          this.translate.get("REQUESTS.SIGN_REQUEST_NO_SIGN").subscribe(value => this.sign = value);
-        } else{
+        if(this.sign != ""){
           this.sign = this.sign.slice(0, this.sign.length - 2);
         }
       });

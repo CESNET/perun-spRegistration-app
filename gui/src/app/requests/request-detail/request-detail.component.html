@@ -13,7 +13,12 @@
       {{'REQUESTS.REQUEST_DETAIL_EDITED' | translate}}{{request.modifiedAt | date}}
       <br/>
       <div *ngIf="request.action == 'MOVE_TO_PRODUCTION'">
-        {{'REQUESTS.USERS_WHO_SIGNED' | translate}}{{sign}}
+        <div *ngIf="sign == '' ">
+          {{'REQUESTS.SIGN_REQUEST_NO_SIGN' | translate}}
+        </div>
+        <div *ngIf="sign != '' ">
+          {{'REQUESTS.USERS_WHO_SIGNED' | translate}}{{sign}}
+        </div>
       </div>
 
       <h4 class="mt-4">{{'REQUESTS.REQUEST_DETAIL_ITEMS' | translate}}</h4>
