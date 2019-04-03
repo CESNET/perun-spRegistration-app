@@ -64,6 +64,8 @@
     "REQUEST_ERROR" : "Some error happened",
     "SET_REQUEST_WFA" : "Set status to Waiting for approval",
     "EDIT_REQUEST" : "Edit",
+    "USERS_WHO_SIGNED": "Users who signed this request: ",
+    "SIGN_REQUEST_NO_SIGN": "This request was not signed by anyone yet",
     "STATUSPIPE": {
       "APPROVED": "Approved",
       "REJECTED": "Rejected",

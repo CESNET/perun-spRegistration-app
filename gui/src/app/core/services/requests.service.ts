@@ -3,6 +3,7 @@ import { ApiService } from "./api.service";
 import { Observable } from "rxjs";
 import { Request } from "../models/Request";
 import {PerunAttribute} from "../models/PerunAttribute";
+import {RequestSignature} from "../models/RequestSignature";
 
 @Injectable({
   providedIn: 'root'
@@ -47,5 +48,9 @@ export class RequestsService {
 
   askForApproval(id: number ): Observable<boolean> {
     return this.apiService.get(`/askApproval/${id}`);
+  }
+
+  getSignatures(id: number): Observable<RequestSignature[]> {
+    return this.apiService.get(`/viewApprovals/${id}`);
   }
 }

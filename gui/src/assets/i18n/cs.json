@@ -64,6 +64,8 @@
     "REQUEST_ERROR" : "Něco se pokazilo",
     "SET_REQUEST_WFA" : "Změnit stav na 'Čeká na schválení'",
     "EDIT_REQUEST" : "Upravit",
+    "USERS_WHO_SIGNED": "Uživatelé, kteří podepsali tuto žádost: ",
+    "SIGN_REQUEST_NO_SIGN": "Tato žádost ještě nebyla nikým podepsána",
     "STATUSPIPE": {
       "APPROVED": "Schváleno",
       "REJECTED": "Zamítnuto",
