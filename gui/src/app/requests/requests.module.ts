@@ -15,6 +15,8 @@ import { RequestDetailComponent } from './request-detail/request-detail.componen
 import { RequestItemValuePipe } from './request-item-value.pipe';
 import { AllRequestsComponent } from './all-requests/all-requests.component';
 import {RequestCreationStepComponent} from "./new-request/request-creation-step/request-creation-step.component";
+import { RequestStatusPipe } from './request-status.pipe';
+import { RequestActionPipe } from './request-action.pipe';
 
 @NgModule({
   imports: [
@@ -34,7 +36,9 @@ import {RequestCreationStepComponent} from "./new-request/request-creation-step/
     RequestDetailComponent,
     RequestItemValuePipe,
     RequestCreationStepComponent,
-    AllRequestsComponent
+    AllRequestsComponent,
+    RequestStatusPipe,
+    RequestActionPipe
   ]
 })
 export class RequestsModule { }

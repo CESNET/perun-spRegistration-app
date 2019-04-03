@@ -6,9 +6,8 @@
         {{'REQUESTS.REQUEST_DETAIL_TITLE' | translate}}{{request.reqId}}
       </h2>
       {{'REQUESTS.REQUEST_DETAIL_STATUS' | translate}}
-      <!--<span [className]="request.status === 'NEW' ? 'new-request' : ''">-->
       <span>
-        {{request.status | translate}}
+        {{request.status | requestStatusPipe}}
       </span>
       <br/>
       {{'REQUESTS.REQUEST_DETAIL_EDITED' | translate}}{{request.modifiedAt | date}}

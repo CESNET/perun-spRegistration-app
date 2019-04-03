@@ -63,7 +63,19 @@
     "REQUEST_CHANGES_COMMENT" : "Comment",
     "REQUEST_ERROR" : "Some error happened",
     "SET_REQUEST_WFA" : "Set status to Waiting for approval",
-    "EDIT_REQUEST" : "Edit"
+    "EDIT_REQUEST" : "Edit",
+    "STATUSPIPE": {
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "WFA": "Waiting for approval",
+      "WFC": "Waiting for changes"
+    },
+    "ACTIONPIPE": {
+      "REGISTER_NEW_SP": "Register new SP",
+      "UPDATE_FACILITY": "Update facility",
+      "DELETE_FACILITY" : "Delete facility",
+      "MOVE_TO_PRODUCTION": "Move to production"
+    }
   },
   "FACILITIES": {
     "TITLE": "Facilities",

@@ -63,7 +63,19 @@
     "REQUEST_CHANGES_COMMENT" : "Komentář",
     "REQUEST_ERROR" : "Něco se pokazilo",
     "SET_REQUEST_WFA" : "Změnit stav na 'Čeká na schválení'",
-    "EDIT_REQUEST" : "Upravit"
+    "EDIT_REQUEST" : "Upravit",
+    "STATUSPIPE": {
+      "APPROVED": "Schváleno",
+      "REJECTED": "Zamítnuto",
+      "WFA": "Čeká na schválení",
+      "WFC": "Čeká na změny"
+    },
+    "ACTIONPIPE": {
+      "REGISTER_NEW_SP": "Registrace nové SP",
+      "UPDATE_FACILITY": "Upravit facility",
+      "DELETE_FACILITY" : "Smazat facility",
+      "MOVE_TO_PRODUCTION": "Přesunout do produkce"
+    }
   },
   "FACILITIES": {
     "TITLE": "Facility",
