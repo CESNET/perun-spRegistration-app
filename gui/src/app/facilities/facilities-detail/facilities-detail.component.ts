@@ -35,7 +35,7 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
 
   loading = true;
   facility: Facility;
-
+  
   isUserAdmin: boolean;
 
   private mapAttributes() {
@@ -51,6 +51,7 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
       this.facilitiesService.getFacility(params['id']).subscribe(facility => {
         this.facility = facility;
         this.mapAttributes();
+        this.isUserAdmin = AppComponent.isUserAdmin();
         this.loading = false;
       }, error => {
         this.loading = false;

@@ -122,7 +122,8 @@
     "ADD_FACILITY_ADMINS_SUBMITED": "Žádosti byly odeslány na zadané emaily",
     "ADD_ADMINS_TITLE_1": "Přidat adminy k facility #",
     "ADD_ADMINS_DESCRIPTION": "Vyplňte emaily uživatelů, kteří se mají stát adminy",
-    "ADD_ADMIN_SIGN_TITLE": "Chcete se se stát facility adminem?",
-    "ADD_ADMIN_SIGN_SUBMIT": "Ano, chci se stát facility adminem"
+    "ADD_ADMIN_SIGN_TITLE": "Chcete se se stát facility adminem",
+    "ADD_ADMIN_SIGN_SUBMIT": "Ano, chci se stát facility adminem",
+    "ADD_ADMIN_SUCCES": "Stal jste se adminem"
   }
 }

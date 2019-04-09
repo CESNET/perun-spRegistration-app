@@ -124,7 +124,8 @@
     "ADD_FACILITY_ADMINS_SUBMITED": "Request was send to given emails",
     "ADD_ADMINS_TITLE_1": "Add admins to facility #",
     "ADD_ADMINS_DESCRIPTION": "Fill in form below with emails of desired users",
-    "ADD_ADMIN_SIGN_TITLE": "Do you really want to become an admin of facility?",
-    "ADD_ADMIN_SIGN_SUBMIT": "Yes, I want to become facility admin"
+    "ADD_ADMIN_SIGN_TITLE": "Do you really want to become an admin of facility",
+    "ADD_ADMIN_SIGN_SUBMIT": "Yes, I want to become facility admin",
+    "ADD_ADMIN_SUCCES": "You were added as admin"
   }
 }

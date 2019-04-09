@@ -44,20 +44,21 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover-dark"></tr>
       </table>
+
       <div class="mt-4">
-        <div class="pull-right">
         <button class="ml-2" mat-raised-button color="warn" (click)="openDeleteDialog()">
           {{'FACILITIES.DELETE_FACILITY' | translate}}
         </button>
-        <button class="ml-2" mat-raised-button (click)="editFacility()">
-          {{'FACILITIES.EDIT_FACILITY' | translate}}
-        </button>
-        <button class="ml-2" mat-raised-button (click)="addFacilityAdmin()">
-          {{'FACILITIES.ADD_ADMIN' | translate}}
-        </button>
-        <button class="ml-2" mat-raised-button (click)="editAdmins()">
-          {{'FACILITIES.EDIT_ADMIN' | translate}}
-        </button>
+        <div class="pull-right">
+          <button class="ml-2" mat-raised-button (click)="addFacilityAdmin()">
+            {{'FACILITIES.ADD_ADMIN' | translate}}
+          </button>
+          <button class="ml-2" mat-raised-button (click)="editAdmins()">
+            {{'FACILITIES.EDIT_ADMIN' | translate}}
+          </button>
+          <button class="ml-2" mat-raised-button color="accent" (click)="editFacility()">
+            {{'FACILITIES.EDIT_FACILITY' | translate}}
+          </button>
         </div>
       </div>
     </div>

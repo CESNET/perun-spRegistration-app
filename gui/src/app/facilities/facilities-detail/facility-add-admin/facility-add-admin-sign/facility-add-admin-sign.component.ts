@@ -4,7 +4,6 @@ import {FacilitiesService} from "../../../../core/services/facilities.service";
 import {MatSnackBar} from "@angular/material";
 import {TranslateService} from "@ngx-translate/core";
 import {Subscription} from "rxjs";
-import {Facility} from "../../../../core/models/Facility";
 
 @Component({
   selector: 'app-facility-add-admin-sign',
@@ -25,11 +24,15 @@ export class FacilityAddAdminSignComponent implements OnInit {
   loading = true;
 
   private hash : string;
-  //private facility: Facility;
+  private facility: string;
 
   ngOnInit() {
     this.sub = this.route.queryParams.subscribe(params => {
-      this.hash = params.hash;
+      this.hash = params.code;
+      this.facility = params.facilityName;
+      if(this.hash == null || this.facility == null){
+        this.router.navigate(['/notFound']);
+      }
       this.loading = false;
     }, error => {
       this.loading = false;
@@ -44,14 +47,14 @@ export class FacilityAddAdminSignComponent implements OnInit {
   addAdmin(): void{
     this.facilitiesService.addAdminConfirm(this.hash).subscribe(response => {
       if (response) {
-        this.translate.get('FACILITIES.ADD_ADMIN').subscribe(successMessage => {
+        this.translate.get('FACILITIES.ADD_ADMIN_SUCCES').subscribe(successMessage => {
           let snackBarRef = this.snackBar
             .open(successMessage, null, {duration: 5000});
 
           this.router.navigate(['/']);
         });
       } else {
-        this.router.navigate(['/**']);
+        this.router.navigate(['/notFound']);
       }
     });
   }

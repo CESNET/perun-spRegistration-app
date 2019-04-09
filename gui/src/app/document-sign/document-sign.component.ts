@@ -29,16 +29,21 @@ export class DocumentSignComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.sub = this.route.queryParams.subscribe(params => {
-      this.hash = params.hash;
-      this.facilitiesService.getRequestDetailsWithHash(this.hash).subscribe(request =>{
-        this.facilitiesService.getFacility(request.facilityId).subscribe(facility => {
-          this.facility = facility;
-          this.loading = false;
-        }, error => {
-          this.loading = false;
-          console.log(error);
+      if(params.code){
+        this.hash = params.code;
+        this.facilitiesService.getRequestDetailsWithHash(this.hash).subscribe(request =>{
+          this.facilitiesService.getFacility(request.facilityId).subscribe(facility => {
+            this.facility = facility;
+            this.loading = false;
+          }, error => {
+            this.loading = false;
+            console.log(error);
+          });
         });
-      });
+      }
+      else{
+        this.router.navigate(['/notFound']);
+      }
     });
   }
 
