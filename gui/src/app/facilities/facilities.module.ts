@@ -8,6 +8,8 @@ import { FacilitiesDetailComponent } from './facilities-detail/facilities-detail
 import {FacilityAttributeValuePipe} from "./facility-attribute-value.pipe";
 import { FacilityMoveToProductionComponent } from './facilities-detail/facility-move-to-production/facility-move-to-production.component';
 import { FacilitiesDetailDialogComponent } from './facilities-detail/facilities-detail-dialog/facilities-detail-dialog.component';
+import { FacilityAddAdminComponent } from './facilities-detail/facility-add-admin/facility-add-admin.component';
+import { FacilityAddAdminSignComponent } from './facilities-detail/facility-add-admin/facility-add-admin-sign/facility-add-admin-sign.component';
 
 @NgModule({
   imports: [
@@ -23,7 +25,9 @@ import { FacilitiesDetailDialogComponent } from './facilities-detail/facilities-
     FacilitiesDetailDialogComponent
   ],
   entryComponents: [
-    FacilitiesDetailDialogComponent
+    FacilitiesDetailDialogComponent,
+    FacilityAddAdminComponent,
+    FacilityAddAdminSignComponent
   ]
 })
 export class FacilitiesModule { }

@@ -49,7 +49,7 @@ export class DocumentSignComponent implements OnInit, OnDestroy {
   approveRequest(): void{
     this.facilitiesService.signApprovalForProduction(this.hash).subscribe(req => {
       this.translate.get('FACILITIES.DOCUMENT_SIGN_SUCCESS').subscribe(successMessage => {
-        this.translate.get('FACILITIES.DOCUMENT_SIGN_GO_TO_FACILITY_DETAIL').subscribe(goToFacilityMessage =>{
+        this.translate.get('FACILITIES.GO_TO_FACILITY_DETAIL').subscribe(goToFacilityMessage =>{
           let snackBarRef = this.snackBar
             .open(successMessage, goToFacilityMessage, {duration: 5000});
 

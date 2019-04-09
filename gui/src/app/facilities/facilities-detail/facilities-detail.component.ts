@@ -89,7 +89,7 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
   }
 
   addFacilityAdmin():void{
-
+    this.router.navigateByUrl('facilities/addAdmin/' + this.facility.id );
   }
 
   editAdmins(): void{

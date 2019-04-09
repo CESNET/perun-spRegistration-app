@@ -16,7 +16,7 @@
               {{email}}
               <mat-icon matChipRemove>cancel</mat-icon>
             </mat-chip>
-            <input placeholder="{{'FACILITIES.MOVE_TO_PRODUCTION_EMAIL_DESCRIPTION' | translate}}"
+            <input placeholder="{{'FACILITIES.EMAIL_DESCRIPTION' | translate}}"
                    [matChipInputFor]="chipList"
                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                    [matChipInputAddOnBlur]="true"
@@ -29,7 +29,7 @@
 
       <div class="pull-right">
         <button class="ml-2" mat-raised-button color="accent" (click)="moveToProduction()">
-          {{'FACILITIES.MOVE_TO_PRODUCTION_SUBMIT_BUTTON' | translate}}
+          {{'FACILITIES.SUBMIT_BUTTON' | translate}}
         </button>
       </div>
 

@@ -37,7 +37,15 @@ export class FacilitiesService {
     return this.apiService.post('/moveToProduction/approve', hash);
   }
 
-  removeFacility(id: number): Observable<number>{
+  removeFacility(id: number): Observable<number> {
     return this.apiService.post('/remove/' + id);
+  }
+
+  addAdmins(id: number, emails: string[]): Observable<boolean> {
+    return this.apiService.post('/addAdmins/' + id, emails);
+  }
+
+  addAdminConfirm(hash: string): Observable<boolean> {
+    return this.apiService.post('/addAdmin/confirm', hash);
   }
 }

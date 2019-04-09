@@ -54,7 +54,7 @@ export class FacilityMoveToProductionComponent implements OnInit, OnDestroy {
     }
 
     if(this.emailEnabled && this.emails.length == 0){
-      this.translate.get('FACILITIES.MOVE_TO_PRODUCTION_EMAIL_ERROR_FILL').subscribe(result => {
+      this.translate.get('FACILITIES.EMAIL_ERROR_FILL').subscribe(result => {
         this.snackBar.open(result, null, {duration: 5000});
       });
       return;
@@ -88,14 +88,14 @@ export class FacilityMoveToProductionComponent implements OnInit, OnDestroy {
     let EMAIL_REGEXP = /^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i;
 
     if (value.length <= 5 || !EMAIL_REGEXP.test(value)) {
-        this.translate.get('FACILITIES.MOVE_TO_PRODUCTION_EMAIL_ERROR_CORRECT').subscribe(result => {
+        this.translate.get('FACILITIES.EMAIL_ERROR_CORRECT').subscribe(result => {
           this.snackBar.open(result, null, {duration: 5000});
         });
     } else{
        this.emails.push(value);
-       if (input) {
-           input.value = '';
-       }
+         if (input) {
+             input.value = '';
+         }
     }
   }
 
