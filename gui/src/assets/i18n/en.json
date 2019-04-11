@@ -58,6 +58,7 @@
     "REQUEST_DETAIL_ITEMS" : "Requested items:",
     "REQUEST_DETAIL_ITEM_NAME" : "Name",
     "REQUEST_DETAIL_ITEM_VALUE" : "Value",
+    "REQUEST_DETAIL_DATE" : "Date",
     "REQUEST_DETAIL_REJECT": "Reject",
     "REQUEST_DETAIL_REQUEST_CHANGES": "Request changes",
     "REQUEST_DETAIL_APPROVE": "Approve",
@@ -66,7 +67,7 @@
     "REQUEST_ERROR" : "Some error happened",
     "SET_REQUEST_WFA" : "Set status to Waiting for approval",
     "EDIT_REQUEST" : "Edit request",
-    "USERS_WHO_SIGNED": "Users who signed this request: ",
+    "USERS_WHO_SIGNED": "Users who signed this request",
     "SIGN_REQUEST_NO_SIGN": "This request was not signed by anyone yet",
     "STATUSPIPE": {
       "APPROVED": "Approved",

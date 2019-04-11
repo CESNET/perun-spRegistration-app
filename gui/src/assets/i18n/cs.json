@@ -56,6 +56,7 @@
     "REQUEST_DETAIL_ITEMS" : "Požadované položky:",
     "REQUEST_DETAIL_ITEM_NAME" : "Jméno",
     "REQUEST_DETAIL_ITEM_VALUE" : "Hodnota",
+    "REQUEST_DETAIL_DATE" : "Datum",
     "REQUEST_DETAIL_REJECT": "Zamítnout",
     "REQUEST_DETAIL_REQUEST_CHANGES": "Vyžádat změny",
     "REQUEST_DETAIL_APPROVE": "Schválit",
@@ -64,7 +65,7 @@
     "REQUEST_ERROR" : "Něco se pokazilo",
     "SET_REQUEST_WFA" : "Změnit stav na 'Čeká na schválení'",
     "EDIT_REQUEST" : "Upravit žádost",
-    "USERS_WHO_SIGNED": "Uživatelé, kteří podepsali tuto žádost: ",
+    "USERS_WHO_SIGNED": "Uživatelé, kteří podepsali tuto žádost ",
     "SIGN_REQUEST_NO_SIGN": "Tato žádost ještě nebyla nikým podepsána",
     "STATUSPIPE": {
       "APPROVED": "Schváleno",

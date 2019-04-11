@@ -22,7 +22,8 @@ import {
   MatToolbarModule,
   MatTooltipModule,
   MatExpansionModule,
-  MatChipsModule, MatMenuModule
+  MatChipsModule, MatMenuModule,
+  MatBadgeModule
 } from "@angular/material";
 import { ErrorDialogComponent } from './error-dialog/error-dialog.component';
 import { NotFoundPageComponent } from './not-found-page/not-found-page.component';
@@ -54,7 +55,8 @@ import { NotAuthorizedPageComponent } from './not-authorized-page/not-authorized
     MatDialogModule,
     MatExpansionModule,
     MatChipsModule,
-    MatMenuModule
+    MatMenuModule,
+    MatBadgeModule
   ],
   declarations: [
     SortableColumnComponent,
@@ -91,7 +93,10 @@ import { NotAuthorizedPageComponent } from './not-authorized-page/not-authorized
     ReactiveFormsModule,
     MatProgressBarModule,
     MatChipsModule,
-    MatMenuModule
+    MatMenuModule,
+    MatMenuModule,
+    UserFullNamePipe,
+    MatBadgeModule
   ],
   entryComponents: [
     ErrorDialogComponent

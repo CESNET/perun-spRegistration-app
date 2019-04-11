@@ -13,12 +13,35 @@
       {{'REQUESTS.REQUEST_DETAIL_EDITED' | translate}}{{request.modifiedAt | date}}
       <br/>
       <div *ngIf="request.action == 'MOVE_TO_PRODUCTION'">
-        <div *ngIf="sign == '' ">
-          {{'REQUESTS.SIGN_REQUEST_NO_SIGN' | translate}}
-        </div>
-        <div *ngIf="sign != '' ">
-          {{'REQUESTS.USERS_WHO_SIGNED' | translate}}{{sign}}
-        </div>
+        <mat-accordion hideToggle="true">
+          <mat-expansion-panel [disabled]="expansionPanelDisabled" class="shadow-none">
+            <mat-expansion-panel-header collapsedHeight="auto" expandedHeight="auto" class="pl-0" (click)="changeArrow()">
+              <mat-panel-title>
+                <div *ngIf="expansionPanelDisabled" class="font-italic">
+                  {{'REQUESTS.SIGN_REQUEST_NO_SIGN' | translate}}
+                </div>
+                <div *ngIf="!expansionPanelDisabled" class="pt-2">
+                  <mat-icon inline="true">{{icon  ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}</mat-icon>
+                  <span [matBadge]="signatures.length" matBadgeColor="accent" matBadgeOverlap="false" matBadgeSize="medium" matBadgePosition="above after">{{'REQUESTS.USERS_WHO_SIGNED' | translate}}   </span>
+                </div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <table mat-table [dataSource]="signatures" class="w-100">
+              <ng-container matColumnDef="name" >
+                <th mat-header-cell *matHeaderCellDef> {{'REQUESTS.REQUEST_DETAIL_ITEM_NAME' | translate}}</th>
+                <td mat-cell *matCellDef="let sign"> {{sign.name}} </td>
+              </ng-container>
+
+              <ng-container matColumnDef="signedAt">
+                <th mat-header-cell *matHeaderCellDef> {{'REQUESTS.REQUEST_DETAIL_DATE' | translate}} </th>
+                <td mat-cell *matCellDef="let sign"> {{sign.signedAt | date:'medium'}} </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="columns" class="h-50"></tr>
+              <tr mat-row *matRowDef="let row; columns: columns;" class="h-50"></tr>
+            </table>
+          </mat-expansion-panel>
+        </mat-accordion>
       </div>
 
       <h4 class="mt-4">{{'REQUESTS.REQUEST_DETAIL_ITEMS' | translate}}</h4>

@@ -35,7 +35,7 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
 
   loading = true;
   facility: Facility;
-  
+
   isUserAdmin: boolean;
 
   private mapAttributes() {
