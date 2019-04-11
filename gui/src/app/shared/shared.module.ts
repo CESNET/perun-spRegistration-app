@@ -27,7 +27,6 @@ import {
 import { ErrorDialogComponent } from './error-dialog/error-dialog.component';
 import { NotFoundPageComponent } from './not-found-page/not-found-page.component';
 import { NotAuthorizedPageComponent } from './not-authorized-page/not-authorized-page.component';
-import {UserFullNamePipe} from "./pipes/user-nav-info.pipe";
 
 @NgModule({
   imports: [
@@ -63,8 +62,7 @@ import {UserFullNamePipe} from "./pipes/user-nav-info.pipe";
     PerunFooterComponent,
     ErrorDialogComponent,
     NotFoundPageComponent,
-    NotAuthorizedPageComponent,
-    UserFullNamePipe
+    NotAuthorizedPageComponent
   ],
   exports: [
     FontAwesomeModule,
@@ -93,8 +91,7 @@ import {UserFullNamePipe} from "./pipes/user-nav-info.pipe";
     ReactiveFormsModule,
     MatProgressBarModule,
     MatChipsModule,
-    MatMenuModule,
-    UserFullNamePipe
+    MatMenuModule
   ],
   entryComponents: [
     ErrorDialogComponent

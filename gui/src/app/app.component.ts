@@ -15,7 +15,7 @@ import {User} from "./core/models/User";
 export class AppComponent implements OnInit {
 
   sideBarOpened = false;
-  onPageWhereSideBarIsHihhen = false;
+  onPageWhereSideBarIsHidden = false;
   loading = true;
 
   static supportedLangs : Array<string> = ['en', 'cs'];
@@ -64,7 +64,7 @@ export class AppComponent implements OnInit {
   @HostListener('window:resize', ['$event'])
   getScreenSize(event?) {
 
-    if (this.onPageWhereSideBarIsHihhen) {
+    if (this.onPageWhereSideBarIsHidden) {
       this.sideBarOpened = false;
       return;
     }
@@ -107,7 +107,7 @@ export class AppComponent implements OnInit {
 
     this.router.events.subscribe((val : NavigationEnd) => {
       if (val instanceof NavigationEnd) {
-        this.onPageWhereSideBarIsHihhen = AppComponent.sideNavHiddenOn.includes(val.urlAfterRedirects);
+        this.onPageWhereSideBarIsHidden = AppComponent.sideNavHiddenOn.includes(val.urlAfterRedirects);
         this.getScreenSize();
       }
     })

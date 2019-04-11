@@ -4,6 +4,7 @@ export interface User {
   middleName: string;
   lastName: string;
   titleAfter: string;
+  fullName: string;
   email: string;
   facilitiesWhereUserIsAdmin: number[];
   isAdmin: boolean;

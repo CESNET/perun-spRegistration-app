@@ -53,7 +53,7 @@ export class ApplicationItemMapComponent implements RequestItem, OnInit {
     this.noItemError = false;
   }
 
-  addValueNonEnpty(key: string, value: string){
+  addValueNonEmpty(key: string, value: string){
     this.values.push(value);
     this.keys.push(key);
     this.indexes.push(this.index++);
@@ -152,7 +152,7 @@ export class ApplicationItemMapComponent implements RequestItem, OnInit {
     if (this.applicationItem.oldValue != null){
       let map: Map<string, string> = this.applicationItem.oldValue;
       for (const [key, value] of Object.entries(map)) {
-        this.addValueNonEnpty(key, value);
+        this.addValueNonEmpty(key, value);
       }
     } else {
       if (this.applicationItem.allowedKeys != undefined && this.applicationItem.allowedKeys.length > 0) {

@@ -9,7 +9,7 @@
           placeholder="{{translatedName}}"
           [(ngModel)]="value"
           name="{{applicationItem.name}}"
-          required
+          [required]="applicationItem.required"
           type="text"
           id="{{applicationItem.name}}">
         <mat-hint>{{translatedDescription}}</mat-hint>
