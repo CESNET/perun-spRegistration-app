@@ -117,7 +117,7 @@
     "MOVE_TO_PRODUCTION_APPROVE": "Schválit žádost",
     "DOCUMENT_SIGN_TITLE": "Podepsání žádosti o přesun do produkce",
     "DOCUMENT_SIGN_SUCCESS": "Žádost byla podepsána",
-    "ARE_YOU_SURE_DELETE": "Jste si jistý, že chcete vymazat facility:"
+    "ARE_YOU_SURE_DELETE": "Jste si jistý, že chcete vymazat facility:",
     "GO_TO_FACILITY_DETAIL": "Přejít na detail facility",
     "MOVE_TO_PRODUCTION_IN_PROGRESS": "Žádost pro tuto facility čeká na schválení",
     "ADD_FACILITY_ADMINS_SUBMITED": "Žádosti byly odeslány na zadané emaily",

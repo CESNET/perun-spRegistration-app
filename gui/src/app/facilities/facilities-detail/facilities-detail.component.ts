@@ -4,7 +4,6 @@ import {Subscription} from "rxjs";
 import {FacilitiesService} from "../../core/services/facilities.service";
 import {Facility} from "../../core/models/Facility";
 import {PerunAttribute} from "../../core/models/PerunAttribute";
-import {FacilityAttributeValuePipe} from "../facility-attribute-value.pipe";
 import {AppComponent} from "../../app.component";
 import {MatDialog} from "@angular/material";
 import {FacilitiesDetailDialogComponent} from "./facilities-detail-dialog/facilities-detail-dialog.component";

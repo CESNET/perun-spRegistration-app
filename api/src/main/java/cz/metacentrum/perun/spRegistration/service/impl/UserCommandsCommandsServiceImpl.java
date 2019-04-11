@@ -580,7 +580,7 @@ public class UserCommandsCommandsServiceImpl implements UserCommandsService {
 	private JSONObject decryptRequestCode(String code)
 			throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException, MalformedCodeException {
 		cipher.init(Cipher.DECRYPT_MODE, appConfig.getSecret());
-		Base64.Decoder b64dec = Base64.getDecoder();
+		Base64.Decoder b64dec = Base64.getUrlDecoder();
 		byte[] decrypted = cipher.doFinal(b64dec.decode(code));
 		String objInString = new String(decrypted);
 
@@ -601,7 +601,7 @@ public class UserCommandsCommandsServiceImpl implements UserCommandsService {
 		object.put(REQUESTED_MAIL_KEY, requestedMail);
 
 		String strToEncrypt = object.toString();
-		Base64.Encoder b64enc = Base64.getEncoder();
+		Base64.Encoder b64enc = Base64.getUrlEncoder();
 		byte[] encrypted = cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8));
 		return b64enc.encodeToString(encrypted);
 	}
@@ -609,7 +609,7 @@ public class UserCommandsCommandsServiceImpl implements UserCommandsService {
 	private JSONObject decryptAddRemoveAdminCode(String code)
 			throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException, MalformedCodeException {
 		cipher.init(Cipher.DECRYPT_MODE, appConfig.getSecret());
-		Base64.Decoder b64dec = Base64.getDecoder();
+		Base64.Decoder b64dec = Base64.getUrlDecoder();
 		byte[] decrypted = cipher.doFinal(b64dec.decode(code));
 		String objInString = new String(decrypted);
 
@@ -630,7 +630,7 @@ public class UserCommandsCommandsServiceImpl implements UserCommandsService {
 		object.put(ACTION_KEY, action);
 
 		String strToEncrypt = object.toString();
-		Base64.Encoder b64enc = Base64.getEncoder();
+		Base64.Encoder b64enc = Base64.getUrlEncoder();
 		byte[] encrypted = cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8));
 		return b64enc.encodeToString(encrypted);
 	}

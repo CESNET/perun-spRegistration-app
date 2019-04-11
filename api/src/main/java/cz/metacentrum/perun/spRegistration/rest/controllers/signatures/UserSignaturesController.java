@@ -47,7 +47,6 @@ public class UserSignaturesController {
 		log.debug("signRequestGetData({})", code);
 		try {
 			code = URLDecoder.decode(code, StandardCharsets.UTF_8.toString());
-			code = code.replaceAll(" ", "+");
 			return service.getRequestDetailsForSignature(code);
 		} catch (Exception e) {
 			throw new SpRegistrationApiException(e);
@@ -63,7 +62,6 @@ public class UserSignaturesController {
 				code = code.substring(1, code.length() - 1);
 			}
 			code = URLDecoder.decode(code, StandardCharsets.UTF_8.toString());
-			code = code.replaceAll(" ", "+");
 			return service.signTransferToProduction(user, code);
 		} catch (Exception e) {
 			throw new SpRegistrationApiException(e);

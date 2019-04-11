@@ -60,7 +60,6 @@ public class UserFacilitiesController {
 				code = code.substring(1, code.length() - 1);
 			}
 			code = URLDecoder.decode(code, StandardCharsets.UTF_8.toString());
-			code = code.replaceAll(" ", "+");
 			return service.confirmAddAdmin(user, code);
 		} catch (Exception e) {
 			throw new SpRegistrationApiException(e);

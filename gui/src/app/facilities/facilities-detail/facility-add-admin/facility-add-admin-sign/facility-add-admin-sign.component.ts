@@ -24,7 +24,7 @@ export class FacilityAddAdminSignComponent implements OnInit {
   loading = true;
 
   private hash : string;
-  private facility: string;
+  facility: string;
 
   ngOnInit() {
     this.sub = this.route.queryParams.subscribe(params => {

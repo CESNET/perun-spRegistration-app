@@ -22,12 +22,12 @@ import { FacilityAddAdminSignComponent } from './facilities-detail/facility-add-
     FacilitiesDetailComponent,
     FacilityAttributeValuePipe,
     FacilityMoveToProductionComponent,
-    FacilitiesDetailDialogComponent
-  ],
-  entryComponents: [
     FacilitiesDetailDialogComponent,
     FacilityAddAdminComponent,
     FacilityAddAdminSignComponent
+  ],
+  entryComponents: [
+    FacilitiesDetailDialogComponent,
   ]
 })
 export class FacilitiesModule { }

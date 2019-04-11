@@ -95,7 +95,6 @@ import { NotAuthorizedPageComponent } from './not-authorized-page/not-authorized
     MatChipsModule,
     MatMenuModule,
     MatMenuModule,
-    UserFullNamePipe,
     MatBadgeModule
   ],
   entryComponents: [
