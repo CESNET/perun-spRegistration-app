@@ -1,20 +1,20 @@
 import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { Facility } from "../../core/models/Facility";
-import { FacilitiesService } from "../../core/services/facilities.service";
-import { Subscription } from "rxjs";
+import {FacilitiesService} from "../../core/services/facilities.service";
+import {Facility} from "../../core/models/Facility";
 import {MatSort, MatTableDataSource} from "@angular/material";
+import {Subscription} from "rxjs";
 
 @Component({
-  selector: 'app-facilities-overview',
-  templateUrl: './facilities-overview.component.html',
-  styleUrls: ['./facilities-overview.component.scss']
+  selector: 'app-all-facilities',
+  templateUrl: './all-facilities.component.html',
+  styleUrls: ['./all-facilities.component.scss']
 })
-export class FacilitiesOverviewComponent implements OnInit, OnDestroy {
+export class AllFacilitiesComponent implements OnInit, OnDestroy {
 
   constructor(private facilitiesService: FacilitiesService) { }
 
   @Input()
-  myFacilities: Facility[];
+  facilities: Facility[];
 
   @ViewChild(MatSort) set matSort(ms: MatSort) {
     this.sort = ms;
@@ -35,13 +35,13 @@ export class FacilitiesOverviewComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.facilitiesSubscription = this.facilitiesService.getMyFacilities().subscribe(facilities => {
+    this.facilitiesSubscription = this.facilitiesService.getAllFacilities().subscribe(facilities => {
       this.loading = false;
-      this.myFacilities = facilities;
+      this.facilities = facilities;
       this.dataSource = new MatTableDataSource<Facility>(facilities);
     }, error => {
-        this.loading = false;
-        console.log(error);
+      this.loading = false;
+      console.log(error);
     });
   }
 
