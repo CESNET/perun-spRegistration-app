@@ -381,7 +381,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	public Facility getDetailedFacility(Long facilityId, Long userId)
 			throws UnauthorizedActionException, ConnectorException, InternalErrorException {
 		log.trace("getDetailedFacility(facilityId: {}, userId: {})", facilityId, userId);
-		if (! isFacilityAdmin(facilityId, userId)) {
+		if (!appConfig.isAppAdmin(userId) && !isFacilityAdmin(facilityId, userId)) {
 			log.error("User cannot view facility, user is not an admin");
 			throw new UnauthorizedActionException("User cannot view facility, user is not an admin");
 		}
