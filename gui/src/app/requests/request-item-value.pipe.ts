@@ -6,15 +6,36 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class RequestItemValuePipe implements PipeTransform {
 
   transform(value: any, args?: any): any {
-    if (value instanceof Object && !(value instanceof Array)) {
-      let text = "";
-      for (let key of Object.keys(value)) {
-        if (text.length > 0) {
-          text += ', ';
+    if(value.toString() == 'true'){
+      return '<i class="material-icons">done</i>';
+    }
+    if(value.toString() == 'false'){
+      return '<i class="material-icons">clear</i>';
+    }
+    if(value instanceof Array){
+      let output = '';
+      for(let val of value){
+        if(val.toString().match("^(http|https)://")){
+          output += `<div><a target="_blank" href="${val}">${val}</a></div>`;
+        } else {
+          output += `<div>${val}</div>`;
         }
-        text += key + " : " + value[key];
       }
-      return text;
+      return output;
+    }
+    if(value instanceof Object){
+      let output = '';
+      for(let key of Object.keys(value)){
+        if(value[key].match("^(http|https)://")){
+          output += `<div>${key} :  <a target="_blank" href="${value[key]}">${value[key]}</a></div>`;
+        } else {
+          output += `<div>${key} :  ${value[key]}</div>`;
+        }
+      }
+      return output;
+    }
+    if(value.toString().match("^(http|https)://")){
+      return `<a target="_blank" href="${value}">${value}</a>`;
     }
     return value;
   }

@@ -17,25 +17,25 @@ export class RequestStatusPipe implements PipeTransform {
     switch(value) {
       case "APPROVED": {
         this.translate.get('REQUESTS.STATUSPIPE.APPROVED').subscribe(response =>{
-          this.returnData = response;
+          this.returnData = `<i class="material-icons green mb-0">done</i>${response}`;
         });
         break;
       }
       case "REJECTED": {
         this.translate.get('REQUESTS.STATUSPIPE.REJECTED').subscribe(response =>{
-          this.returnData = response;
+          this.returnData = `<i class="material-icons red">clear</i>${response}`;
         });
         break;
       }
-      case "WFA": {
+      case "WAITING_FOR_APPROVAL": {
         this.translate.get('REQUESTS.STATUSPIPE.WFA').subscribe(response =>{
-          this.returnData = response;
+          this.returnData = `<i class="material-icons orange ">hourglass_empty</i>${response}`;
         });
         break;
       }
-      case "WFC": {
+      case "WAITING_FOR_CHANGES": {
         this.translate.get('REQUESTS.STATUSPIPE.WFC').subscribe(response =>{
-          this.returnData = response;
+          this.returnData = `<i class="material-icons blue">cached</i>${response}`;
         });
         break;
       }

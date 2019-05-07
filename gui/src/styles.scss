@@ -86,6 +86,14 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 400 !important;
 }
 
+.mat-table {
+  table-layout: fixed !important;
+}
+
+.mat-cell {
+  padding-left: 8px !important;
+}
+
 th {
   font-weight: 400 !important;
 }
@@ -109,4 +117,21 @@ body {
   .mat-step-header:last-child {
     padding-right: 0 !important;
   }
+}
+
+.material-icons.orange {
+  color: #FB8C00;
+  vertical-align: bottom;
+}
+.material-icons.red {
+  color: #ff0000;
+  vertical-align: bottom;
+}
+.material-icons.green {
+  color: #38ff80;
+  vertical-align: bottom;
+}
+.material-icons.blue {
+  color: #6ed6ff;
+  vertical-align: bottom;
 }
