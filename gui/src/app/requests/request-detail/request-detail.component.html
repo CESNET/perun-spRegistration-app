@@ -6,9 +6,10 @@
         {{'REQUESTS.REQUEST_DETAIL_TITLE' | translate}}{{request.reqId}}
       </h2>
       {{'REQUESTS.REQUEST_DETAIL_STATUS' | translate}}
-      <span>
-        {{request.status | requestStatusPipe}}
-      </span>
+      <span [outerHTML]="request.status | requestStatusPipe"></span>
+      <br/>
+      {{'REQUESTS.REQUEST_DETAIL_ACTION' | translate}}
+      <span [outerHTML]="request.action | requestActionPipe"></span>
       <br/>
       {{'REQUESTS.REQUEST_DETAIL_EDITED' | translate}}{{request.modifiedAt | date}}
       <br/>
@@ -49,11 +50,13 @@
       <table mat-table [dataSource]="requestItems" class="w-100">
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef>{{'REQUESTS.REQUEST_DETAIL_ITEM_NAME' | translate}}</th>
-          <td mat-cell *matCellDef="let item">{{item.name}}</td>
+          <td mat-cell *matCellDef="let item" class="font-thick">{{item.name}}</td>
         </ng-container>
         <ng-container matColumnDef="value">
           <th mat-header-cell *matHeaderCellDef>{{'REQUESTS.REQUEST_DETAIL_ITEM_VALUE' | translate}}</th>
-          <td mat-cell *matCellDef="let item">{{item.value | requestItemValue}}</td>
+          <td mat-cell *matCellDef="let item">
+            <span [outerHTML]="item.value | requestItemValue"></span>
+          </td>
         </ng-container>
         <ng-container matColumnDef="comment">
           <th mat-header-cell *matHeaderCellDef>{{'REQUESTS.REQUEST_CHANGES_COMMENT' | translate}}</th>
