@@ -11,7 +11,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.io.IOException;
 
 /**
- * Utils class used by connectors.
+ * PersistenceUtils class used by connectors.
  *
  * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
  */

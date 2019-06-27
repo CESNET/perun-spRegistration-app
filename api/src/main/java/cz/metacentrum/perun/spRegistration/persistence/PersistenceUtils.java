@@ -29,9 +29,9 @@ import java.util.Properties;
  *
  * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
  */
-public class Utils {
+public class PersistenceUtils {
 
-	private static final Logger log = LoggerFactory.getLogger(Utils.class);
+	private static final Logger log = LoggerFactory.getLogger(PersistenceUtils.class);
 
 	private final static String ATTR_NAME = "attrName";
 	private final static String IS_DISPLAYED = "isDisplayed";

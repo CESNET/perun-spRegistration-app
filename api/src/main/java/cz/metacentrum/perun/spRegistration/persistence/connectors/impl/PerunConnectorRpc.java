@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.spRegistration.persistence.connectors.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import cz.metacentrum.perun.spRegistration.persistence.Utils;
+import cz.metacentrum.perun.spRegistration.persistence.PersistenceUtils;
 import cz.metacentrum.perun.spRegistration.persistence.connectors.ConnectorUtils;
 import cz.metacentrum.perun.spRegistration.persistence.connectors.PerunConnector;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.ConnectorException;
@@ -375,7 +375,7 @@ public class PerunConnectorRpc implements PerunConnector {
 			//sending post will always succeed and deliver the parameters
 			JsonNode response = restTemplate.postForObject(actionUrl, map, JsonNode.class);
 
-			String result = (response != null) ? Utils.prettyPrintJsonString(response) : null;
+			String result = (response != null) ? PersistenceUtils.prettyPrintJsonString(response) : null;
 			log.trace("makeRpcGetCall() returns: {}", result);
 			return result;
 		} catch (HttpClientErrorException ex) {
@@ -398,7 +398,7 @@ public class PerunConnectorRpc implements PerunConnector {
 			HttpEntity<byte[]> entity = prepareJsonBody(map);
 			JsonNode response = restTemplate.postForObject(actionUrl, entity, JsonNode.class);
 
-			String result = (response != null) ? Utils.prettyPrintJsonString(response) : null;
+			String result = (response != null) ? PersistenceUtils.prettyPrintJsonString(response) : null;
 			log.trace("makeRpcPostCall() returns: {}", result);
 			return result;
 		} catch (HttpClientErrorException ex) {
