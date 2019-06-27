@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.spRegistration.persistence.managers.impl;
 
+import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.persistence.configs.Config;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestStatus;
@@ -377,9 +378,10 @@ public class RequestManagerImpl implements RequestManager {
 			throws InternalErrorException {
 		log.trace("addSignature(requestId: {}, userId: {}, userName: {}, approved: {})",
 				requestId, userId, userName, approved);
-		if (requestId == null || userId == null || userName == null || userName.isEmpty()) {
-			log.error("Wrong parameters passed: (requestId: {}, user:Id {}, userName: {})", requestId, userId, userName);
-			throw new IllegalArgumentException();
+
+		if (Utils.checkParamsInvalid(requestId, userId, userId, code)) {
+			log.error("Wrong parameters passed: (requestId: {}, user:Id {}, userName: {}, code: {})", requestId, userId, userName, code);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 		
 		String query = new StringJoiner(" ")
@@ -397,30 +399,15 @@ public class RequestManagerImpl implements RequestManager {
 
 		if (updatedCount == 0) {
 			log.error("Zero approvals have been inserted");
-			throw new InternalErrorException("Zero approvals have been inserted");
+			throw new InternalErrorException(Utils.GENERIC_ERROR_MSG);
 		} else if (updatedCount > 1) {
 			log.error("Only one approval should have been inserted");
-			throw new InternalErrorException("Only one approval should have been inserted");
+			throw new InternalErrorException(Utils.GENERIC_ERROR_MSG);
 		}
 
-		query = new StringJoiner(" ")
-				.add("DELETE FROM").add(CODES_TABLE)
-				.add("WHERE code = :code")
-				.toString();
-		params = new MapSqlParameterSource();
-		params.addValue("code", code);
-
-		updatedCount = jdbcTemplate.update(query, params);
-
-		if (updatedCount == 0) {
-			log.error("Zero codes deleted");
-			throw new InternalErrorException("Zero codes deleted");
-		} else if (updatedCount > 1) {
-			log.error("Only one code should be deleted");
-			throw new InternalErrorException("Only one code should have been inserted");
-		}
+		deleteUsedCode(code);
 		
-		log.trace("addSignature returns: true");
+		log.trace("addSignature() returns: true");
 		return true;
 	}
 
@@ -428,8 +415,9 @@ public class RequestManagerImpl implements RequestManager {
 	@Transactional
 	public List<RequestSignature> getRequestSignatures(Long requestId) {
 		log.trace("getRequestSignatures({})", requestId);
-		if (requestId == null) {
-			log.error("Illegal parameters passed: requestId IS NULL");
+
+		if (Utils.checkParamsInvalid(requestId)) {
+			log.error("Illegal parameters passed: (requestId: {})", requestId);
 			throw new IllegalArgumentException();
 		}
 
@@ -444,10 +432,12 @@ public class RequestManagerImpl implements RequestManager {
 		List<RequestSignature> foundApprovals = jdbcTemplate.query(query, params, REQUEST_SIGNATURE_MAPPER);
 
 		log.trace("getRequestSignatures returns: {}", foundApprovals);
+
 		return foundApprovals;
 	}
 
 	@Override
+	@Transactional
 	public boolean validateCode(String code) {
 		log.trace("validateCode({})", code);
 
@@ -471,6 +461,7 @@ public class RequestManagerImpl implements RequestManager {
 	}
 
 	@Override
+	@Transactional
 	public int storeCodes(List<String> codes) throws InternalErrorException {
 		log.trace("storeCodes({})", codes);
 
@@ -509,5 +500,33 @@ public class RequestManagerImpl implements RequestManager {
 
 		log.trace("storeCodes() returns: {}", sum);
 		return sum;
+	}
+
+	private void deleteUsedCode(String code) throws InternalErrorException {
+		log.trace("deleteUsedCode({})", code);
+
+		if (Utils.checkParamsInvalid(code)) {
+			log.error("Wrong parameters passed: (code: {})", code);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
+		String query = new StringJoiner(" ")
+				.add("DELETE FROM").add(CODES_TABLE)
+				.add("WHERE code = :code")
+				.toString();
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("code", code);
+
+		int updatedCount = jdbcTemplate.update(query, params);
+
+		if (updatedCount == 0) {
+			log.error("Zero codes deleted, should delete at least one");
+			throw new InternalErrorException(Utils.GENERIC_ERROR_MSG);
+		} else if (updatedCount > 1) {
+			log.error("Only one code should be deleted, more deleted: {}", updatedCount);
+			throw new InternalErrorException(Utils.GENERIC_ERROR_MSG);
+		} else {
+			log.trace("deleteUsedCode() returns - codes deleted (void method)");
+		}
 	}
 }

@@ -67,14 +67,9 @@ public class UserSignaturesController {
 	{
 		log.trace("signRequestGetData({})", code);
 
-		if (code.startsWith("\"")) {
-			code = code.substring(1, code.length() - 1);
-		}
-		code = URLDecoder.decode(code, StandardCharsets.UTF_8.toString());
-
-		boolean canSign = service.validateCode(code);
-		if (!canSign) {
-			throw new IllegalAccessError("You have already signed this request");
+		code = decodeCode(code);
+		if (! service.validateCode(code)) {
+			throw new IllegalAccessError("You cannot sign the request, code is invalid");
 		}
 
 		Request request = service.getRequestDetailsForSignature(code);
@@ -84,11 +79,16 @@ public class UserSignaturesController {
 	}
 
 	@PostMapping(path = "/api/moveToProduction/approve")
-	public boolean approveProductionTransfer(@SessionAttribute("user") User user, @RequestBody String code)
+	public boolean approveProductionTransfer(@SessionAttribute("user") User user,
+											 @RequestBody String code)
 			throws UnsupportedEncodingException, BadPaddingException, ExpiredCodeException, IllegalBlockSizeException,
 			MalformedCodeException, InternalErrorException, InvalidKeyException
 	{
 		log.trace("approveProductionTransfer(user: {}, code: {})", user, code);
+
+		if (! service.validateCode(code)) {
+			throw new IllegalAccessError("You cannot sign the request, code is invalid");
+		}
 
 		boolean successful = signTransferToProduction(code, user, true);
 
@@ -97,11 +97,16 @@ public class UserSignaturesController {
 	}
 
 	@PostMapping(path = "/api/moveToProduction/reject")
-	public boolean rejectProductionTransfer(@SessionAttribute("user") User user, @RequestBody String code)
+	public boolean rejectProductionTransfer(@SessionAttribute("user") User user,
+											@RequestBody String code)
 			throws UnsupportedEncodingException, BadPaddingException, ExpiredCodeException, IllegalBlockSizeException,
 			MalformedCodeException, InternalErrorException, InvalidKeyException
 	{
 		log.trace("rejectProductionTransfer(user: {}, code: {})", user, code);
+
+		if (! service.validateCode(code)) {
+			throw new IllegalAccessError("You cannot sign the request, code is invalid");
+		}
 
 		boolean successful = signTransferToProduction(code, user, false);
 
@@ -122,14 +127,21 @@ public class UserSignaturesController {
 		return signaturesList;
 	}
 
+	/* PRIVATE METHODS */
+
 	private boolean signTransferToProduction(String code, User user, boolean approved) throws BadPaddingException,
 			ExpiredCodeException, IllegalBlockSizeException, MalformedCodeException, InternalErrorException,
 			InvalidKeyException, UnsupportedEncodingException
 	{
+		code = decodeCode(code);
+		return service.signTransferToProduction(user, code, approved);
+	}
+
+	private String decodeCode(String code) throws UnsupportedEncodingException {
 		if (code.startsWith("\"")) {
 			code = code.substring(1, code.length() - 1);
 		}
-		code = URLDecoder.decode(code, StandardCharsets.UTF_8.toString());
-		return service.signTransferToProduction(user, code, approved);
+
+		return URLDecoder.decode(code, StandardCharsets.UTF_8.toString());
 	}
 }

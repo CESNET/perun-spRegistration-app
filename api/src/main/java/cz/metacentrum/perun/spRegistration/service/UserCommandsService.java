@@ -74,7 +74,9 @@ public interface UserCommandsService {
 	 * @throws UnauthorizedActionException when user is not authorized to perform this action.
 	 */
 	Long requestMoveToProduction(Long facilityId, Long userId, List<String> authorities)
-			throws UnauthorizedActionException, InternalErrorException, ConnectorException, CreateRequestException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnsupportedEncodingException;
+			throws UnauthorizedActionException, InternalErrorException, ConnectorException,
+			CreateRequestException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException,
+			UnsupportedEncodingException;
 
 	/**
 	 * Get details of facility for the signatures interface
@@ -82,7 +84,9 @@ public interface UserCommandsService {
 	 * @return Fetched request object
 	 * @throws ConnectorException when some problem with Perun RPC has occurred.
 	 */
-	Request getRequestDetailsForSignature(String code) throws ConnectorException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, MalformedCodeException, ExpiredCodeException;
+	Request getRequestDetailsForSignature(String code)
+			throws ConnectorException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException,
+			MalformedCodeException, ExpiredCodeException;
 
 	/**
 	 * Add signature for transfer to production
@@ -91,7 +95,9 @@ public interface UserCommandsService {
 	 * @param approved TRUE if approved, FALSE if rejected
 	 * @return True if everything went OK
 	 */
-	boolean signTransferToProduction(User user, String code, boolean approved) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, MalformedCodeException, ExpiredCodeException, InternalErrorException;
+	boolean signTransferToProduction(User user, String code, boolean approved)
+			throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, MalformedCodeException,
+			ExpiredCodeException, InternalErrorException;
 
 	/**
 	 * Get approvals for request to transfer to production.
@@ -99,7 +105,8 @@ public interface UserCommandsService {
 	 * @param userId ID of user displaying the approvals.
 	 * @return List of approvals.
 	 */
-	List<RequestSignature> getApprovalsOfProductionTransfer(Long requestId, Long userId) throws UnauthorizedActionException, InternalErrorException;
+	List<RequestSignature> getApprovalsOfProductionTransfer(Long requestId, Long userId)
+			throws UnauthorizedActionException, InternalErrorException;
 
 	/**
 	 * Get all facilities from Perun where user is admin (manager).

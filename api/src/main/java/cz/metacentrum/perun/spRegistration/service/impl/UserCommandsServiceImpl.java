@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
+import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.persistence.configs.AppConfig;
 import cz.metacentrum.perun.spRegistration.persistence.configs.Config;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestAction;
@@ -266,7 +267,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 			throw new InternalErrorException("Could not retrieve facility for id: " + facilityId);
 		}
 
-		Map<String, PerunAttribute> filteredAttributes = filterAttributes(fac);
+		Map<String, PerunAttribute> filteredAttributes = filterNotNullAttributes(fac);
 
 		Request req = createRequest(facilityId, userId, RequestAction.MOVE_TO_PRODUCTION, filteredAttributes);
 		if (req == null) {
@@ -279,15 +280,17 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 			authorities = Arrays.asList(prop.split(","));
 		}
 
+		Map<String, String> authoritiesCodesMap = generateCodesForAuthorities(req, authorities);
+		Map<String, String> authoritiesLinksMap = generateLinksForAuthorities(authoritiesCodesMap, req);
+
 		boolean userNotificationSent = Mails.transferToProductionUserNotify(req.getReqId(), req.getFacilityName(),
 				req.getAdminContact(appConfig.getAdminsAttributeName()), messagesProperties);
+		int authoritiesNotificationSentCount = sendAuthoritiesNotifications(authoritiesLinksMap, req);
+		boolean successful = (userNotificationSent && (authoritiesNotificationSentCount == authorities.size()));
 
-		int authorityNotificationsSent = sendAuthoritiesNotifications(authorities, req);
-
-		boolean successful = userNotificationSent && (authorityNotificationsSent == authorities.size());
 		if (!successful) {
-			log.error("Some operations failed - userNotificationSent: {}, authorityNotificationsSent: {} out of {}",
-					userNotificationSent, authorityNotificationsSent, authorities.size());
+			log.error("Some operations failed - userNotificationSent: {}, authoritiesNotificationSentCount: {} out of {}",
+					userNotificationSent, authoritiesNotificationSentCount, authorities.size());
 		} else {
 			log.info("Request updated, notification sent to user, notifications sent to authorities");
 		}
@@ -298,17 +301,19 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 	@Override
 	public Request getRequestDetailsForSignature(String code) throws InvalidKeyException,
-			BadPaddingException, IllegalBlockSizeException, MalformedCodeException, ExpiredCodeException {
+			BadPaddingException, IllegalBlockSizeException, MalformedCodeException, ExpiredCodeException
+	{
 		log.trace("getRequestDetailsForSignature({})", code);
-		JSONObject decrypted = decryptRequestCode(code);
-		boolean isExpired = isExpiredCode(decrypted);
+
+		JSONObject decryptedCode = decryptRequestCode(code);
+		boolean isExpired = isExpiredCode(decryptedCode);
 
 		if (isExpired) {
-			log.error("User trying to approve request with expired code: {}", decrypted);
+			log.error("User trying to approve request with expired code: {}", decryptedCode);
 			throw new ExpiredCodeException("Code has expired");
 		}
 
-		Long requestId = decrypted.getLong(REQUEST_ID_KEY);
+		Long requestId = decryptedCode.getLong(REQUEST_ID_KEY);
 		log.debug("Fetching request for id: {}", requestId);
 		Request request = requestManager.getRequestById(requestId);
 
@@ -319,18 +324,24 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	@Override
 	public boolean signTransferToProduction(User user, String code, boolean approved)
 			throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, MalformedCodeException,
-			ExpiredCodeException, InternalErrorException {
+			ExpiredCodeException, InternalErrorException
+	{
 		log.trace("signTransferToProduction(user: {}, code: {})", user, code);
-		JSONObject decrypted = decryptRequestCode(code);
-		boolean isExpired = isExpiredCode(decrypted);
+
+		if (Utils.checkParamsInvalid(user, code)) {
+			log.error("Wrong parameters passed: (user: {}, code: {})", user, code);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
+		JSONObject decryptedCode = decryptRequestCode(code);
+		boolean isExpired = isExpiredCode(decryptedCode);
 
 		if (isExpired) {
-			log.error("User trying to approve request with expired code: {}", decrypted);
+			log.error("User trying to approve request with expired code: {}", decryptedCode);
 			throw new ExpiredCodeException("Code has expired");
 		}
 
-		Long requestId = decrypted.getLong(REQUEST_ID_KEY);
-		log.debug("Fetching request for id: {}", requestId);
+		Long requestId = decryptedCode.getLong(REQUEST_ID_KEY);
 		boolean signed = requestManager.addSignature(requestId, user.getId(), user.getName(), approved, code);
 
 		log.trace("signTransferToProduction returns: {}", signed);
@@ -339,9 +350,11 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 	@Override
 	public List<RequestSignature> getApprovalsOfProductionTransfer(Long requestId, Long userId)
-			throws UnauthorizedActionException, InternalErrorException {
+			throws UnauthorizedActionException, InternalErrorException
+	{
 		log.trace("getApprovalsOfProductionTransfer(requestId: {}, userId: {})", requestId, userId);
-		if (userId == null || requestId == null) {
+
+		if (Utils.checkParamsInvalid(requestId, userId)) {
 			log.error("Illegal input - requestId: {}, userId: {} " , requestId, userId);
 			throw new IllegalArgumentException("Illegal input - requestId: " + requestId + ", userId: " + userId);
 		}
@@ -349,13 +362,14 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		Request request = requestManager.getRequestById(requestId);
 		if (request == null) {
 			log.error("Could not retrieve request for id: {}", requestId);
-			throw new InternalErrorException("Could not retrieve request for id: " + requestId);
+			throw new InternalErrorException(Utils.GENERIC_ERROR_MSG);
 		} else if (!appConfig.isAppAdmin(userId) && !isAdminInRequest(request.getReqUserId(), userId)) {
-			log.error("User is not authorized to view approvals");
-			throw new UnauthorizedActionException("User is not authorized to view approvals");
+			log.error("User is not authorized to view approvals for request: {}", requestId);
+			throw new UnauthorizedActionException(Utils.GENERIC_ERROR_MSG);
 		}
 
 		List<RequestSignature> result = requestManager.getRequestSignatures(requestId);
+
 		log.trace("getApprovalsOfProductionTransfer returns: {}", result);
 		return result;
 	}
@@ -571,10 +585,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 			throw new IllegalArgumentException("Illegal argument - code is null or empty " + code);
 		}
 
-		boolean isValid = !isExpiredCode(decryptRequestCode(code));
-		if (isValid) {
-			isValid = requestManager.validateCode(code);
-		}
+		boolean isValid = (!isExpiredCode(decryptRequestCode(code)) && requestManager.validateCode(code));
 
 		log.trace("validateCode() returns: {}", isValid);
 		return isValid;
@@ -649,37 +660,36 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		return identifierAttr;
 	}
 
-	private Map<String, String> generateLinksForAuthorities(List<String> authorities, Request request)
-			throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException, UnsupportedEncodingException, ConnectorException, InternalErrorException {
-		log.trace("generateLinksForAuthorities(authorities: {}, request: {})", authorities, request);
+	private Map<String, String> generateLinksForAuthorities(Map<String, String> authorityCodeMap, Request request)
+			throws InvalidKeyException, UnsupportedEncodingException, ConnectorException
+	{
+		log.trace("generateLinksForAuthorities(authorityCodeMap: {}, request: {})", authorityCodeMap, request);
+
 		SecretKeySpec secret = appConfig.getSecret();
 		cipher.init(Cipher.ENCRYPT_MODE, secret);
 
 		Facility facility = perunConnector.getFacilityById(request.getFacilityId());
 
 		Map<String, String> linksMap = new HashMap<>();
-		List<String> codes = new ArrayList<>();
-		for (String authority: authorities) {
-			String code = createRequestCode(request.getReqId(), request.getFacilityId(), authority);
-			codes.add(code);
-			code = URLEncoder.encode(code, StandardCharsets.UTF_8.toString());
+
+		for (Map.Entry<String, String> entry : authorityCodeMap.entrySet()) {
+			String code = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.toString());
 			String link = appConfig.getSignaturesEndpointUrl()
 					.concat("?facilityName=").concat(facility.getName())
 					.concat("&code=").concat(code);
-			linksMap.put(authority, link);
+			linksMap.put(entry.getKey(), link);
 			log.debug("Generated code: {}", code); //TODO: remove
 		}
-
-		//TODO use result
-		requestManager.storeCodes(codes);
 
 		log.trace("generateLinksForAuthorities() returns: {}", linksMap);
 		return linksMap;
 	}
 
-	private JSONObject decryptRequestCode(String code)
-			throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException, MalformedCodeException {
+	private JSONObject decryptRequestCode(String code) throws InvalidKeyException, BadPaddingException,
+			IllegalBlockSizeException, MalformedCodeException
+	{
 		log.trace("decryptRequestCode({})", code);
+
 		cipher.init(Cipher.DECRYPT_MODE, appConfig.getSecret());
 		Base64.Decoder b64dec = Base64.getUrlDecoder();
 		byte[] decrypted = cipher.doFinal(b64dec.decode(code));
@@ -687,6 +697,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 		try {
 			JSONObject decryptedAsJson = new JSONObject(objInString);
+
 			log.trace("decryptRequestCode() returns: {}", decryptedAsJson);
 			return decryptedAsJson;
 		} catch (JSONException e) {
@@ -748,22 +759,24 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		return encoded;
 	}
 
-	private boolean isExpiredCode(JSONObject decrypted) {
-		log.trace("isExpiredCode({})", decrypted);
-		LocalDateTime createdAt = LocalDateTime.parse(decrypted.getString(CREATED_AT_KEY));
-		long daysValid = appConfig.getConfirmationPeriodDays();
-		long hoursValid = appConfig.getConfirmationPeriodHours();
-		LocalDateTime validUntil = createdAt.plusDays(daysValid).plusHours(hoursValid);
+	private boolean isExpiredCode(JSONObject codeInJson) {
+		log.trace("isExpiredCode({})", codeInJson);
+
+		long daysValidPeriod = appConfig.getConfirmationPeriodDays();
+		long hoursValidPeriod = appConfig.getConfirmationPeriodHours();
+
+		LocalDateTime createdAt = LocalDateTime.parse(codeInJson.getString(CREATED_AT_KEY));
+		LocalDateTime validUntil = createdAt.plusDays(daysValidPeriod).plusHours(hoursValidPeriod);
 
 		boolean isExpired = LocalDateTime.now().isAfter(validUntil);
+
 		log.trace("isExpiredCode() returns: {}", isExpired);
 		return isExpired;
 	}
 
-	private int sendAuthoritiesNotifications(List<String> authorities, Request req) throws IllegalBlockSizeException, BadPaddingException, ConnectorException, InvalidKeyException, UnsupportedEncodingException, InternalErrorException {
-		log.trace("sendAuthoritiesNotifications(authorities: {}, req: {})", authorities, req);
+	private int sendAuthoritiesNotifications(Map<String, String> authsWithLinks, Request req) {
+		log.trace("sendAuthoritiesNotifications(authsWithLinks: {}, req: {})", authsWithLinks, req);
 
-		Map<String, String> authsWithLinks = generateLinksForAuthorities(authorities, req);
 		int sent = 0;
 		for (Map.Entry<String, String> entry: authsWithLinks.entrySet()) {
 			String mailAuthority = entry.getKey();
@@ -810,8 +823,8 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		return sent;
 	}
 
-	private Map<String, PerunAttribute> filterAttributes(Facility facility) {
-		log.trace("filterAttributes({})", facility);
+	private Map<String, PerunAttribute> filterNotNullAttributes(Facility facility) {
+		log.trace("filterNotNullAttributes({})", facility);
 		Map<String, PerunAttribute> filteredAttributes = new HashMap<>();
 		for (Map.Entry<String, PerunAttribute> entry : facility.getAttrs().entrySet()) {
 			if (entry.getValue().getValue() != null) {
@@ -819,7 +832,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 			}
 		}
 
-		log.trace("filterAttributes() returns: {}", filteredAttributes);
+		log.trace("filterNotNullAttributes() returns: {}", filteredAttributes);
 		return filteredAttributes;
 	}
 
@@ -839,5 +852,22 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 				.collect(Collectors.toList()));
 
 		return keptAttrs;
+	}
+
+	private Map<String, String> generateCodesForAuthorities(Request request, List<String> authorities)
+			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException, InternalErrorException
+	{
+		List<String> codes = new ArrayList<>();
+		Map<String, String> authsCodesMap = new HashMap<>();
+
+		for (String authority : authorities) {
+			String code = createRequestCode(request.getReqId(), request.getFacilityId(), authority);
+			codes.add(code);
+			authsCodesMap.put(authority, code);
+		}
+
+		requestManager.storeCodes(codes);
+
+		return authsCodesMap;
 	}
 }
