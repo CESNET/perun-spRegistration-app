@@ -91,10 +91,6 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('auth/facilities/addAdmin/' + this.facility.id );
   }
 
-  editAdmins(): void{
-
-  }
-
   isUndefined(value) {
     //TODO: extract to one common method, also used in request-detail
     if (value === undefined || value === null) {
