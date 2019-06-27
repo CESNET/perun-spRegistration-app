@@ -49,6 +49,7 @@ public class RequestManagerTests {
 	private Request req2;
 	private RequestSignature approval1;
 	private User fakeUser;
+	private String code1;
 
 	@Before
 	public void setUp() throws CreateRequestException, InternalErrorException {
@@ -63,6 +64,8 @@ public class RequestManagerTests {
 		prepareAttributes();
 		prepareRequests();
 		prepareApprovals();
+
+		code1 = "code1";
 
 		Long req1Id = requestManager.createRequest(req1);
 		req1.setReqId(req1Id);
@@ -236,8 +239,24 @@ public class RequestManagerTests {
 	}
 
 	@Test
+	public void storeCodes() throws InternalErrorException {
+		int res = requestManager.storeCodes(Collections.singletonList(code1));
+		assertEquals("Should store only one code", 1, res);
+		assertTrue("Code should be valid", requestManager.validateCode(code1));
+	}
+
+	@Test
+	public void validateCode() throws InternalErrorException {
+		requestManager.storeCodes(Collections.singletonList(code1));
+		boolean res = requestManager.validateCode(code1);
+
+		assertTrue("Code should be valid", res);
+	}
+
+	@Test
 	public void addSignature() throws InternalErrorException {
-		boolean res = requestManager.addSignature(req1.getReqId(), fakeUser.getId(), fakeUser.getName(), true);
+		requestManager.storeCodes(Collections.singletonList(code1));
+		boolean res = requestManager.addSignature(req1.getReqId(), fakeUser.getId(), fakeUser.getName(), true, code1);
 
 		List<RequestSignature> found = requestManager.getRequestSignatures(req1.getReqId());
 
@@ -252,7 +271,8 @@ public class RequestManagerTests {
 
 	@Test
 	public void getRequestSignatures() throws InternalErrorException {
-		requestManager.addSignature(req1.getReqId(), fakeUser.getId(), fakeUser.getName(), true);
+		requestManager.storeCodes(Collections.singletonList(code1));
+		requestManager.addSignature(req1.getReqId(), fakeUser.getId(), fakeUser.getName(), true, code1);
 		approval1.setRequestId(req1.getReqId());
 
 		List<RequestSignature> res = requestManager.getRequestSignatures(approval1.getRequestId());

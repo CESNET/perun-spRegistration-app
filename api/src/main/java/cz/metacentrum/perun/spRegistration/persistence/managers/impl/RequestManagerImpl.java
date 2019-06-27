@@ -40,6 +40,7 @@ public class RequestManagerImpl implements RequestManager {
 	private static final Logger log = LoggerFactory.getLogger(RequestManagerImpl.class);
 	private static final String REQUESTS_TABLE = "requests";
 	private static final String APPROVALS_TABLE = "approvals";
+	private static final String CODES_TABLE = "signatureCodes";
 
 	private final RequestMapper REQUEST_MAPPER;
 	private final RequestSignatureMapper REQUEST_SIGNATURE_MAPPER;
@@ -372,7 +373,7 @@ public class RequestManagerImpl implements RequestManager {
 
 	@Override
 	@Transactional
-	public boolean addSignature(Long requestId, Long userId, String userName, boolean approved)
+	public boolean addSignature(Long requestId, Long userId, String userName, boolean approved, String code)
 			throws InternalErrorException {
 		log.trace("addSignature(requestId: {}, userId: {}, userName: {}, approved: {})",
 				requestId, userId, userName, approved);
@@ -401,6 +402,23 @@ public class RequestManagerImpl implements RequestManager {
 			log.error("Only one approval should have been inserted");
 			throw new InternalErrorException("Only one approval should have been inserted");
 		}
+
+		query = new StringJoiner(" ")
+				.add("DELETE FROM").add(CODES_TABLE)
+				.add("WHERE code = :code")
+				.toString();
+		params = new MapSqlParameterSource();
+		params.addValue("code", code);
+
+		updatedCount = jdbcTemplate.update(query, params);
+
+		if (updatedCount == 0) {
+			log.error("Zero codes deleted");
+			throw new InternalErrorException("Zero codes deleted");
+		} else if (updatedCount > 1) {
+			log.error("Only one code should be deleted");
+			throw new InternalErrorException("Only one code should have been inserted");
+		}
 		
 		log.trace("addSignature returns: true");
 		return true;
@@ -427,5 +445,69 @@ public class RequestManagerImpl implements RequestManager {
 
 		log.trace("getRequestSignatures returns: {}", foundApprovals);
 		return foundApprovals;
+	}
+
+	@Override
+	public boolean validateCode(String code) {
+		log.trace("validateCode({})", code);
+
+		if (code == null || code.isEmpty()) {
+			log.error("Illegal argument - code is null or empty: {}", code);
+			throw new IllegalArgumentException("Illegal argument - code is null or empty: " + code);
+		}
+
+		String query = new StringJoiner(" ")
+				.add("SELECT count(code) FROM").add(CODES_TABLE)
+				.add("WHERE code = :code")
+				.toString();
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("code", code);
+
+		Integer foundCodes = jdbcTemplate.queryForObject(query, params, Integer.class);
+		boolean isValid = ((foundCodes != null) && (foundCodes == 1));
+
+		log.trace("validateCode() returns: {}", isValid);
+		return isValid;
+	}
+
+	@Override
+	public int storeCodes(List<String> codes) throws InternalErrorException {
+		log.trace("storeCodes({})", codes);
+
+		if (codes == null || codes.isEmpty()) {
+			log.error("Illegal argument - codes is null or empty: {}", codes);
+			throw new IllegalArgumentException("Illegal argument - codes is null or empty: " + codes);
+		}
+
+		String query = new StringJoiner(" ")
+				.add("INSERT INTO").add(CODES_TABLE).add("(code)")
+				.add("VALUES (:code)")
+				.toString();
+
+		List<MapSqlParameterSource> batchArgs = new ArrayList<>();
+		for (String code: codes) {
+			MapSqlParameterSource parameters = new MapSqlParameterSource();
+			parameters.addValue("code", code);
+			batchArgs.add(parameters);
+		}
+
+		int[] insertedCodes = jdbcTemplate.batchUpdate(query, batchArgs.toArray(new MapSqlParameterSource[codes.size()]));
+		int sum = 0;
+		for (int i : insertedCodes) {
+			if (i != 1) {
+				log.error("Inserting code failed");
+				throw new InternalErrorException("Inserting code failed");
+			} else {
+				sum++;
+			}
+		}
+
+		if (sum != codes.size()) {
+			log.error("Expected {} inserts, made {}", codes.size(), sum);
+			throw new InternalErrorException("Expected " + codes.size() + " inserts, made " + sum);
+		}
+
+		log.trace("storeCodes() returns: {}", sum);
+		return sum;
 	}
 }

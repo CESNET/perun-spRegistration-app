@@ -247,8 +247,11 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 	@Override
 	public Long requestMoveToProduction(Long facilityId, Long userId, List<String> authorities)
-			throws UnauthorizedActionException, InternalErrorException, ConnectorException, CreateRequestException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnsupportedEncodingException {
+			throws UnauthorizedActionException, InternalErrorException, ConnectorException, CreateRequestException,
+			BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnsupportedEncodingException
+	{
 		log.trace("requestMoveToProduction(facilityId: {}, userId: {}, authorities: {})", facilityId, userId, authorities);
+
 		if (facilityId == null || userId == null) {
 			log.error("Illegal input - facilityId: {}, userId: {}", facilityId, userId);
 			throw new IllegalArgumentException("Illegal input - facilityId: " + facilityId + ", userId: " + userId);
@@ -328,7 +331,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 		Long requestId = decrypted.getLong(REQUEST_ID_KEY);
 		log.debug("Fetching request for id: {}", requestId);
-		boolean signed = requestManager.addSignature(requestId, user.getId(), user.getName(), approved);
+		boolean signed = requestManager.addSignature(requestId, user.getId(), user.getName(), approved, code);
 
 		log.trace("signTransferToProduction returns: {}", signed);
 		return signed;
@@ -559,6 +562,24 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		return added;
 	}
 
+	@Override
+	public boolean validateCode(String code) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, MalformedCodeException {
+		log.trace("validateCode({})", code);
+
+		if (code == null || code.isEmpty()) {
+			log.error("Illegal argument - code is null or empty: {}", code);
+			throw new IllegalArgumentException("Illegal argument - code is null or empty " + code);
+		}
+
+		boolean isValid = !isExpiredCode(decryptRequestCode(code));
+		if (isValid) {
+			isValid = requestManager.validateCode(code);
+		}
+
+		log.trace("validateCode() returns: {}", isValid);
+		return isValid;
+	}
+
 	/* PRIVATE METHODS */
 
 	private Request createRequest(Long facilityId, Long userId, List<PerunAttribute> attributes, RequestAction action)
@@ -629,7 +650,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	}
 
 	private Map<String, String> generateLinksForAuthorities(List<String> authorities, Request request)
-			throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException, UnsupportedEncodingException, ConnectorException {
+			throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException, UnsupportedEncodingException, ConnectorException, InternalErrorException {
 		log.trace("generateLinksForAuthorities(authorities: {}, request: {})", authorities, request);
 		SecretKeySpec secret = appConfig.getSecret();
 		cipher.init(Cipher.ENCRYPT_MODE, secret);
@@ -637,8 +658,10 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		Facility facility = perunConnector.getFacilityById(request.getFacilityId());
 
 		Map<String, String> linksMap = new HashMap<>();
+		List<String> codes = new ArrayList<>();
 		for (String authority: authorities) {
 			String code = createRequestCode(request.getReqId(), request.getFacilityId(), authority);
+			codes.add(code);
 			code = URLEncoder.encode(code, StandardCharsets.UTF_8.toString());
 			String link = appConfig.getSignaturesEndpointUrl()
 					.concat("?facilityName=").concat(facility.getName())
@@ -646,6 +669,9 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 			linksMap.put(authority, link);
 			log.debug("Generated code: {}", code); //TODO: remove
 		}
+
+		//TODO use result
+		requestManager.storeCodes(codes);
 
 		log.trace("generateLinksForAuthorities() returns: {}", linksMap);
 		return linksMap;
@@ -734,7 +760,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		return isExpired;
 	}
 
-	private int sendAuthoritiesNotifications(List<String> authorities, Request req) throws IllegalBlockSizeException, BadPaddingException, ConnectorException, InvalidKeyException, UnsupportedEncodingException {
+	private int sendAuthoritiesNotifications(List<String> authorities, Request req) throws IllegalBlockSizeException, BadPaddingException, ConnectorException, InvalidKeyException, UnsupportedEncodingException, InternalErrorException {
 		log.trace("sendAuthoritiesNotifications(authorities: {}, req: {})", authorities, req);
 
 		Map<String, String> authsWithLinks = generateLinksForAuthorities(authorities, req);

@@ -1,5 +1,6 @@
 drop table if exists requests cascade;
 drop table if exists approvals cascade;
+drop table if exists signatureCodes cascade;
 
 create table requests
 (
@@ -22,4 +23,9 @@ CREATE TABLE approvals
     name       TEXT   NOT NULL,
     signed_at  TIMESTAMP DEFAULT now(),
     approved   BOOLEAN
+);
+
+CREATE TABLE signatureCodes
+(
+    code    TEXT
 );

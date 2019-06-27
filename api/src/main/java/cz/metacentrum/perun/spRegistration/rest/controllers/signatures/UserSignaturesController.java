@@ -52,7 +52,7 @@ public class UserSignaturesController {
 			throws BadPaddingException, InvalidKeyException, ConnectorException, IllegalBlockSizeException,
 			UnsupportedEncodingException, InternalErrorException, CreateRequestException, UnauthorizedActionException 
 	{
-		log.debug("moveToProduction(user: {}, facilityId: {} authorities: {})", user.getId(), facilityId, authorities);
+		log.trace("moveToProduction(user: {}, facilityId: {} authorities: {})", user.getId(), facilityId, authorities);
 		
 		Long generatedId = service.requestMoveToProduction(facilityId, user.getId(), authorities);
 
@@ -65,11 +65,18 @@ public class UserSignaturesController {
 			throws BadPaddingException, ConnectorException, IllegalBlockSizeException, MalformedCodeException,
 			InvalidKeyException, ExpiredCodeException, UnsupportedEncodingException
 	{
-		log.debug("signRequestGetData({})", code);
+		log.trace("signRequestGetData({})", code);
+
 		if (code.startsWith("\"")) {
 			code = code.substring(1, code.length() - 1);
 		}
 		code = URLDecoder.decode(code, StandardCharsets.UTF_8.toString());
+
+		boolean canSign = service.validateCode(code);
+		if (!canSign) {
+			throw new IllegalAccessError("You have already signed this request");
+		}
+
 		Request request = service.getRequestDetailsForSignature(code);
 
 		log.trace("signRequestGetData() returns: {}", request);
@@ -81,8 +88,10 @@ public class UserSignaturesController {
 			throws UnsupportedEncodingException, BadPaddingException, ExpiredCodeException, IllegalBlockSizeException,
 			MalformedCodeException, InternalErrorException, InvalidKeyException
 	{
-		log.debug("approveProductionTransfer(user: {}, code: {})", user, code);
+		log.trace("approveProductionTransfer(user: {}, code: {})", user, code);
+
 		boolean successful = signTransferToProduction(code, user, true);
+
 		log.trace("approveProductionTransfer() returns: {}", successful);
 		return successful;
 	}
@@ -92,7 +101,8 @@ public class UserSignaturesController {
 			throws UnsupportedEncodingException, BadPaddingException, ExpiredCodeException, IllegalBlockSizeException,
 			MalformedCodeException, InternalErrorException, InvalidKeyException
 	{
-		log.debug("rejectProductionTransfer(user: {}, code: {})", user, code);
+		log.trace("rejectProductionTransfer(user: {}, code: {})", user, code);
+
 		boolean successful = signTransferToProduction(code, user, false);
 
 		log.trace("rejectProductionTransfer() returns: {}", successful);
@@ -102,15 +112,20 @@ public class UserSignaturesController {
 	@GetMapping(path = "/api/viewApprovals/{requestId}")
 	public List<RequestSignature> getApprovals(@SessionAttribute("user") User user,
 											   @PathVariable("requestId") Long requestId)
-			throws UnauthorizedActionException, InternalErrorException {
-		log.debug("getApprovals(user: {}, requestId: {})", user.getId(), requestId);
+			throws UnauthorizedActionException, InternalErrorException
+	{
+		log.trace("getApprovals(user: {}, requestId: {})", user.getId(), requestId);
 
 		List<RequestSignature> signaturesList = service.getApprovalsOfProductionTransfer(requestId, user.getId());
+
 		log.trace("getApprovals() returns: {}", signaturesList);
 		return signaturesList;
 	}
 
-	private boolean signTransferToProduction(String code, User user, boolean approved) throws BadPaddingException, ExpiredCodeException, IllegalBlockSizeException, MalformedCodeException, InternalErrorException, InvalidKeyException, UnsupportedEncodingException {
+	private boolean signTransferToProduction(String code, User user, boolean approved) throws BadPaddingException,
+			ExpiredCodeException, IllegalBlockSizeException, MalformedCodeException, InternalErrorException,
+			InvalidKeyException, UnsupportedEncodingException
+	{
 		if (code.startsWith("\"")) {
 			code = code.substring(1, code.length() - 1);
 		}

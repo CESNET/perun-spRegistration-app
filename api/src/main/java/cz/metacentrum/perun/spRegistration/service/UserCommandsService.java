@@ -159,4 +159,11 @@ public interface UserCommandsService {
 	 * @return True if everything went ok
 	 */
 	boolean confirmAddAdmin(User user, String code) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, MalformedCodeException, ExpiredCodeException, ConnectorException;
+
+	/**
+	 * Validate code for signature
+	 * @param code code to be validated
+	 * @return True if valid, false otherwise
+	 */
+	boolean validateCode(String code) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, MalformedCodeException;
 }

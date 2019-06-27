@@ -20,3 +20,8 @@ CREATE TABLE IF NOT EXISTS approvals
     signed_at  TIMESTAMP DEFAULT now(),
     approved   BOOLEAN
 );
+
+CREATE TABLE IF NOT EXISTS signatureCodes
+(
+    code    TEXT
+);
