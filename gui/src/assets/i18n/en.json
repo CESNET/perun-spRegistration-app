@@ -97,7 +97,8 @@
     "ARE_YOU_SURE_APPROVE": "Are you sure you want to approve this request?",
     "ARE_YOU_SURE_REJECT": "Are you sure you want to reject this request?",
     "ARE_YOU_SURE_SET_WFC": "Are you sure you want to set status to 'Waiting for changes'?",
-    "NO_COMMENT": "Value is OK"
+    "NO_COMMENT": "Value is OK",
+    "REQUEST_DETAIL_APPROVED": "Approved"
   },
   "FACILITIES": {
     "TITLE": "Facilities",
@@ -141,6 +142,9 @@
     "SUCCESSFULLY_SUBMITTED_MESSAGE": "Facility has been submitted",
     "SUCCESSFULLY_SUBMITTED_ACTION": "Show",
     "WRONGLY_FILLED_ITEM": "One or more fields are not filled correctly",
-    "ERROR_REQUEST_ALREADY_EXISTS": "Request to change this service already exists"
+    "ERROR_REQUEST_ALREADY_EXISTS": "Request to change this service already exists",
+    "ENV_TEST": "Test",
+    "ENV_PROD": "Production",
+    "MOVE_TO_PRODUCTION_REJECT": "Reject request"
   }
 }

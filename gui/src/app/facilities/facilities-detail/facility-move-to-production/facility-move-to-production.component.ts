@@ -68,7 +68,7 @@ export class FacilityMoveToProductionComponent implements OnInit, OnDestroy {
                 this.router.navigate(['/auth/requests/detail/' + reqid]);
             });
 
-            this.router.navigate(['/']);
+            this.router.navigate(['/auth']);
           });
         });
     });

@@ -24,6 +24,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -394,7 +395,7 @@ public class PerunConnectorRpc implements PerunConnector {
 		String actionUrl = perunRpcUrl + "/json/" + manager + '/' + method;
 
 		try {
-			HttpEntity<String> entity = prepareJsonBody(map);
+			HttpEntity<byte[]> entity = prepareJsonBody(map);
 			JsonNode response = restTemplate.postForObject(actionUrl, entity, JsonNode.class);
 
 			String result = (response != null) ? Utils.prettyPrintJsonString(response) : null;
@@ -408,7 +409,7 @@ public class PerunConnectorRpc implements PerunConnector {
 		}
 	}
 
-	private HttpEntity<String> prepareJsonBody(Map<String, Object> map) {
+	private HttpEntity<byte[]> prepareJsonBody(Map<String, Object> map) {
 		log.trace("prepareJsonBody({})", map);
 		JSONObject obj = new JSONObject();
 		for (Map.Entry<String, Object> entry: map.entrySet()) {
@@ -418,7 +419,7 @@ public class PerunConnectorRpc implements PerunConnector {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 
-		HttpEntity<String> result = new HttpEntity<>(obj.toString(), headers);
+		HttpEntity<byte[]> result = new HttpEntity<>(StandardCharsets.UTF_8.encode(obj.toString()).array(), headers);
 		log.trace("prepareJsonBody() returns: {}", result);
 		return result;
 	}

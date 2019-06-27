@@ -59,10 +59,10 @@ export class DocumentSignComponent implements OnInit, OnDestroy {
             .open(successMessage, goToFacilityMessage, {duration: 5000});
 
           snackBarRef.onAction().subscribe(() => {
-            this.router.navigate(['/facilities/detail/' + this.facility.id]);
+            this.router.navigate(['/auth/facilities/detail/' + this.facility.id]);
           });
 
-          this.router.navigate(['/']);
+          this.router.navigate(['/auth']);
         });
       });
     });
@@ -79,7 +79,7 @@ export class DocumentSignComponent implements OnInit, OnDestroy {
             this.router.navigate(['/auth/facilities/detail/' + this.facility.id]);
           });
 
-          this.router.navigate(['/']);
+          this.router.navigate(['/auth']);
         });
       });
     });

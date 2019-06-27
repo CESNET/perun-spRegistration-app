@@ -186,8 +186,8 @@
         <property name="confirmationPeriodHours" value="${approval.confirmationPeriod.hours}" />
         <property name="specifyAuthoritiesEnabled" value="${approval.allowToSpecifyOwn}" />
         <property name="secret" value="${secret}" />
-        <property name="signaturesEndpointUrl" value="${host.url}/sign"/>
-        <property name="adminsEndpoint" value="${host.url}/facilities/addAdmin/sign"/>
+        <property name="signaturesEndpointUrl" value="${host.url}/auth/sign"/>
+        <property name="adminsEndpoint" value="${host.url}/auth/facilities/addAdmin/sign"/>
         <property name="entityIdAttributeName" value="${entityID.attrName}"/>
         <property name="prodTransferAuthoritiesMailsMap" ref="prodTransferAuthoritiesMailsMapRef" />
     </bean>

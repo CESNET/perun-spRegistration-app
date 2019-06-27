@@ -104,7 +104,7 @@ export class FacilitiesEditComponent implements OnInit {
       snackBarRef.onAction().subscribe(() => {
         this.router.navigate(['/auth/requests/detail/' + requestId]);
       });
-      this.router.navigate(['/']);
+      this.router.navigate(['/auth']);
     });
   }
 

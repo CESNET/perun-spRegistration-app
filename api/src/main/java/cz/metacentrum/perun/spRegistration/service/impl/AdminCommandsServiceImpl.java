@@ -390,7 +390,8 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 		Map<String, PerunAttribute> attributeMap = prepareNewFacilityAttributes(false, true, null);
 		request.updateAttributes(attributeMap, true);
 
-		boolean updated = perunConnector.setFacilityAttributes(request.getFacilityId(), request.getAttributesAsJsonArrayForPerun());
+		boolean updated = perunConnector.setFacilityAttributes(request.getFacilityId(),
+				request.getAttributesAsJsonArrayForPerun());
 
 		log.trace("requestMoveToProduction returns: {}", updated);
 		return updated;

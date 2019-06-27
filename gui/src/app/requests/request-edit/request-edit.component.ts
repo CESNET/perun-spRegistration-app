@@ -87,7 +87,7 @@ export class RequestEditComponent implements OnInit {
       snackBarRef.onAction().subscribe(() => {
         this.router.navigate(['/auth/requests/detail/' + this.request.reqId]);
       });
-      this.router.navigate(['/']);
+      this.router.navigate(['/auth']);
     });
   }
 

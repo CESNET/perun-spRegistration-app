@@ -51,7 +51,7 @@ export class FacilityAddAdminSignComponent implements OnInit {
           let snackBarRef = this.snackBar
             .open(successMessage, null, {duration: 5000});
 
-          this.router.navigate(['/']);
+          this.router.navigate(['/auth']);
         });
       } else {
         this.router.navigate(['/notFound']);

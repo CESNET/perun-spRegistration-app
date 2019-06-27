@@ -58,7 +58,7 @@ export class FacilityAddAdminComponent implements OnInit {
               this.router.navigate(['/auth/facilities/detail/' + this.facility.id]);
             });
 
-            this.router.navigate(['/']);
+            this.router.navigate(['/auth']);
           });
         });
       }

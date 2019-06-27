@@ -95,7 +95,8 @@
     "ARE_YOU_SURE_APPROVE": "Jste si jistý, že chcete schvalit tuhle žádost?",
     "ARE_YOU_SURE_REJECT": "Jste si jistý, že chcete zamítnout tuhle žádost?",
     "NO_COMMENT": "Hodnota je v pořádku",
-    "ARE_YOU_SURE_SET_WFC": "Jste si jistý, že chcete vyžádát změny?"
+    "ARE_YOU_SURE_SET_WFC": "Jste si jistý, že chcete vyžádát změny?",
+    "REQUEST_DETAIL_APPROVED": "Potvrzení"
   },
   "FACILITIES": {
     "TITLE": "Služby",
@@ -138,6 +139,9 @@
     "SUCCESSFULLY_SUBMITTED_MESSAGE": "Služba byla uložena",
     "SUCCESSFULLY_SUBMITTED_ACTION": "Zobraz",
     "WRONGLY_FILLED_ITEM": "Jedno nebo víc polí není vyplněno správne",
-    "ERROR_REQUEST_ALREADY_EXISTS": "Pro tuhle službu, již existuje žádost na změnu jejího nastavení"
+    "ERROR_REQUEST_ALREADY_EXISTS": "Pro tuhle službu, již existuje žádost na změnu jejího nastavení",
+    "ENV_TEST": "Testovací",
+    "ENV_PROD": "Produkční",
+    "MOVE_TO_PRODUCTION_REJECT": "Zamítnout"
   }
 }

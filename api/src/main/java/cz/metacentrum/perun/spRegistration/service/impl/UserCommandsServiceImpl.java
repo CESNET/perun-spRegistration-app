@@ -271,6 +271,11 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 			throw new InternalErrorException("Could not create request");
 		}
 
+		if (authorities == null || authorities.isEmpty()) {
+			String prop = messagesProperties.getProperty("moveToProduction.authorities");
+			authorities = Arrays.asList(prop.split(","));
+		}
+
 		boolean userNotificationSent = Mails.transferToProductionUserNotify(req.getReqId(), req.getFacilityName(),
 				req.getAdminContact(appConfig.getAdminsAttributeName()), messagesProperties);
 
@@ -629,11 +634,6 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		SecretKeySpec secret = appConfig.getSecret();
 		cipher.init(Cipher.ENCRYPT_MODE, secret);
 
-		if (authorities == null || authorities.isEmpty()) {
-			String prop = messagesProperties.getProperty("moveToProduction.authorities");
-			authorities = Arrays.asList(prop.split(","));
-		}
-
 		Facility facility = perunConnector.getFacilityById(request.getFacilityId());
 
 		Map<String, String> linksMap = new HashMap<>();
@@ -736,6 +736,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 	private int sendAuthoritiesNotifications(List<String> authorities, Request req) throws IllegalBlockSizeException, BadPaddingException, ConnectorException, InvalidKeyException, UnsupportedEncodingException {
 		log.trace("sendAuthoritiesNotifications(authorities: {}, req: {})", authorities, req);
+
 		Map<String, String> authsWithLinks = generateLinksForAuthorities(authorities, req);
 		int sent = 0;
 		for (Map.Entry<String, String> entry: authsWithLinks.entrySet()) {
