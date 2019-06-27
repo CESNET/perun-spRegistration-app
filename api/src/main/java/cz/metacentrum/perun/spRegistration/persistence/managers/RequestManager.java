@@ -91,8 +91,10 @@ public interface RequestManager {
 
 	/**
 	 * Get id of active request for Facility.
-	 * @param facilityId Id of facility
-	 * @return Id of found request (request with status different than APPROVED/REJECTED), null otherwise
+	 * @param facilityId Id of Facility.
+	 * @return Id of found request (request with status different than APPROVED/REJECTED), NULL otherwise
+	 * @throws InternalErrorException Thrown when more than ONE active request found for Facility
+	 * @throws IllegalArgumentException Thrown when param "facilityId" is NULL.
 	 */
 	Long getActiveRequestIdByFacilityId(Long facilityId) throws InternalErrorException;
 
@@ -124,7 +126,18 @@ public interface RequestManager {
 	/**
 	 * Store generated codes for signatures
 	 * @param codes List of codes to be stored
-	 * @return
+	 * @return Number of codes stored.
+	 * @throws InternalErrorException Thrown when inserting codes fails.
+	 * @throws IllegalArgumentException Thrown when param "codes" is NULL or empty.
 	 */
 	int storeCodes(List<String> codes) throws InternalErrorException;
+
+	/**
+	 * Delete used code.
+	 * @param code Code to be deleted.
+	 * @return TRUE if code deleted, FALSE otherwise.
+	 * @throws InternalErrorException Thrown when more than one code has been deleted.
+	 * @throws IllegalArgumentException Thrown when code is NULL or empty.
+	 */
+	boolean deleteUsedCode(String code) throws InternalErrorException;
 }

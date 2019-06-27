@@ -35,7 +35,8 @@ public class AdminFacilitiesController {
 	public List<Facility> allFacilities(@SessionAttribute("user") User user)
 			throws ConnectorException, UnauthorizedActionException
 	{
-		log.debug("allFacilities({})", user.getId());
+		log.trace("allFacilities({})", user.getId());
+
 		List<Facility> facilityList = service.getAllFacilities(user.getId());
 
 		log.trace("allFacilities() returns: {}", facilityList);

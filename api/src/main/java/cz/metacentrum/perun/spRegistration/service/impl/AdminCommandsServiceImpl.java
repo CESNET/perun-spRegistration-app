@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
+import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.persistence.configs.AppConfig;
 import cz.metacentrum.perun.spRegistration.persistence.configs.MitreIdAttrsConfig;
 import cz.metacentrum.perun.spRegistration.persistence.connectors.MitreIdConnector;
@@ -65,7 +66,7 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 		log.trace("approveRequest(requestId: {}, userId: {})", requestId, userId);
 		if (requestId == null || userId == null) {
 			log.error("Illegal input - requestId: {}, userId: {}", requestId, userId);
-			throw new IllegalArgumentException("Illegal input - requestId: " + requestId + ", userId: " + userId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else if (! appConfig.isAppAdmin(userId)) {
 			log.error("User is not authorized to approve request");
 			throw new UnauthorizedActionException("User is not authorized to approve request");
@@ -109,7 +110,7 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 		log.trace("rejectRequest(requestId: {}, userId: {}, message: {})", requestId, userId, message);
 		if (requestId == null || userId == null) {
 			log.error("Illegal input - requestId: {}, userId: {}", requestId, userId);
-			throw new IllegalArgumentException("Illegal input - requestId: " + requestId + ", userId: " + userId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else if (! appConfig.isAppAdmin(userId)) {
 			log.error("User is not authorized to reject request");
 			throw new UnauthorizedActionException("User is not authorized to reject request");
@@ -154,7 +155,7 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 		log.trace("askForChanges(requestId: {}, userId: {}, attributes: {})", requestId, userId, attributes);
 		if (requestId == null || userId == null || attributes == null) {
 			log.error("Illegal input - requestId: {}, userId: {}, attributes: {}", requestId, userId, attributes);
-			throw new IllegalArgumentException("Illegal input - requestId: " + requestId + ", userId: " + userId + ", attributes: " + attributes);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else if (! appConfig.isAppAdmin(userId)) {
 			log.error("User is not authorized to ask for changes");
 			throw new UnauthorizedActionException("User is not authorized to ask for changes");
@@ -200,7 +201,7 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 		log.trace("getAllRequests({})", userId);
 		if (userId == null) {
 			log.error("Illegal input - userId is null");
-			throw new IllegalArgumentException("Illegal input - userId is null");
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else if (! appConfig.isAppAdmin(userId)) {
 			log.error("User cannot list all requests, user is not an admin");
 			throw new UnauthorizedActionException("User cannot list all requests, user is not an admin");
@@ -215,31 +216,41 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 	@Override
 	public List<Facility> getAllFacilities(Long userId) throws UnauthorizedActionException, ConnectorException {
 		log.trace("getAllFacilities({})", userId);
-		if (userId == null) {
-			log.error("Illegal input - userId is null");
-			throw new IllegalArgumentException("Illegal input - userId is null");
+
+		if (Utils.checkParamsInvalid(userId)) {
+			log.error("Wrong parameters passed: (userId: {})", userId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else if (! appConfig.isAppAdmin(userId)) {
 			log.error("User cannot list all facilities, user not an admin");
-			throw new UnauthorizedActionException("User cannot list all facilities, user not an admin");
+			throw new UnauthorizedActionException("User cannot list all facilities, user does not have role APP_ADMIN");
 		}
 
-		List<Facility> proxyFacilities = perunConnector.getFacilitiesByProxyIdentifier(appConfig.getProxyIdentifierAttributeName(),
-				appConfig.getProxyIdentifierAttributeValue());
+		List<Facility> proxyFacilities = perunConnector.getFacilitiesByProxyIdentifier(
+				appConfig.getProxyIdentifierAttributeName(), appConfig.getProxyIdentifierAttributeValue());
 		Map<Long, Facility> proxyFacilitiesMap = ServiceUtils.transformListToMapFacilities(proxyFacilities);
-		List<Facility> testFacilities = perunConnector.getFacilitiesByAttribute(appConfig.getIsTestSpAttributeName(), "true");
+
+		if (proxyFacilitiesMap == null || proxyFacilitiesMap.isEmpty()) {
+			return new ArrayList<>();
+		}
+
+		List<Facility> testFacilities = perunConnector.getFacilitiesByAttribute(
+				appConfig.getIsTestSpAttributeName(), "true");
 		Map<Long, Facility> testFacilitiesMap = ServiceUtils.transformListToMapFacilities(testFacilities);
 
-		for (Map.Entry<Long, Facility> entry: testFacilitiesMap.entrySet()) {
-			Long facId = entry.getKey();
-			if (proxyFacilitiesMap.containsKey(facId)) {
-				Facility testFacility = proxyFacilitiesMap.get(facId);
-				testFacility.setTestEnv(true);
-			}
+		if (testFacilitiesMap != null && !testFacilitiesMap.isEmpty()) {
+			testFacilitiesMap.forEach((facId, value) -> {
+				if (proxyFacilitiesMap.containsKey(facId)) {
+					Facility testFacility = proxyFacilitiesMap.get(facId);
+					testFacility.setTestEnv(true);
+				}
+			});
 		}
 
 		log.trace("getAllFacilities returns: {}", proxyFacilities);
 		return proxyFacilities;
 	}
+
+	/* PRIVATE METHODS */
 
 	private boolean processApprovedRequest(Request request) throws InternalErrorException, ConnectorException {
 		switch(request.getAction()) {
@@ -265,7 +276,7 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 
 		if (newName == null || newDesc == null) {
 			log.error("Cannot register facility without name and description");
-			throw new IllegalArgumentException("Cannot register facility without name and description");
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
 		log.info("Creating facility");
@@ -400,13 +411,13 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 	private Long extractFacilityIdFromRequest(Request request) {
 		if (request == null) {
 			log.error("Request is null");
-			throw new IllegalArgumentException("Request is null");
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
 		Long facilityId = request.getFacilityId();
 		if (facilityId == null) {
 			log.error("Request: {} does not have facilityId", request);
-			throw new IllegalArgumentException("Request: " + request.getReqId() + " does not have facilityId");
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
 		return facilityId;

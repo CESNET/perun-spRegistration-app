@@ -54,6 +54,10 @@ export class FacilitiesService {
     return this.apiService.post('/addAdmin/confirm', hash);
   }
 
+  addAdminReject(hash: string): Observable<boolean> {
+    return this.apiService.post('/addAdmin/reject', hash);
+  }
+
   changeFacility(id: number, perunAttributes: PerunAttribute[]): Observable<number>{
     return this.apiService.post('/changeFacility/' + id, perunAttributes);
   }

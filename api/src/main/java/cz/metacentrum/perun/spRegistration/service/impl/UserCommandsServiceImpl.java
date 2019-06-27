@@ -94,7 +94,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		log.trace("createRegistrationRequest(userId: {}, attributes: {})", userId, attributes);
 		if (userId == null || attributes == null) {
 			log.error("Illegal input - userId: {}, attributes: {}", userId, attributes);
-			throw new IllegalArgumentException("Illegal input - userId: " + userId + ", attributes: " + attributes);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
 		attributes.add(generateProxyIdentifierAttr());
@@ -124,7 +124,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		log.trace("createFacilityChangesRequest(facility: {}, userId: {}, attributes: {})", facilityId, userId, attributes);
 		if (facilityId == null || userId == null || attributes == null) {
 			log.error("Illegal input - facilityId: {}, userId: {}, attributes: {}", facilityId, userId, attributes);
-			throw new IllegalArgumentException("Illegal input - facilityId: " + facilityId + ", userId: " + userId + ", attributes: " + attributes);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else if (! isFacilityAdmin(facilityId, userId)) {
 			log.error("User is not registered as facility admin, cannot create request");
 			throw new UnauthorizedActionException("User is not registered as facility admin, cannot create request");
@@ -159,7 +159,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		log.trace("createRemovalRequest(userId: {}, facilityId: {})", userId, facilityId);
 		if (facilityId == null || userId == null) {
 			log.error("Illegal input - facilityId: {}, userId: {}", facilityId, userId);
-			throw new IllegalArgumentException("Illegal input - facilityId: " + facilityId + ", userId: " + userId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else if (! isFacilityAdmin(facilityId, userId)) {
 			log.error("User is not registered as facility admin, cannot create request");
 			throw new UnauthorizedActionException("User is not registered as facility admin, cannot create request");
@@ -167,21 +167,8 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 		List<String> attrsToFetch = new ArrayList<>(appConfig.getPerunAttributeDefinitionsMap().keySet());
 		Map<String, PerunAttribute> attrs = perunConnector.getFacilityAttributes(facilityId, attrsToFetch);
-		List<String> keptAttrs = initKeptAttrs();
-		if (ServiceUtils.isOidcAttributes(attrs, appConfig.getEntityIdAttributeName())) {
-			keptAttrs.addAll(config.getOidcInputs()
-					.stream()
-					.map(AttrInput::getName)
-					.collect(Collectors.toList())
-			);
-		} else {
-			keptAttrs.addAll(config.getSamlInputs()
-					.stream()
-					.map(AttrInput::getName)
-					.collect(Collectors.toList())
-			);
-		}
-
+		boolean isOidc = ServiceUtils.isOidcAttributes(attrs, appConfig.getEntityIdAttributeName());
+		List<String> keptAttrs = getAttrsToKeep(isOidc);
 		Map<String, PerunAttribute> facilityAttributes = ServiceUtils.filterFacilityAttrs(attrs, keptAttrs);
 
 		Request req = createRequest(facilityId, userId, RequestAction.DELETE_FACILITY, facilityAttributes);
@@ -255,7 +242,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 		if (facilityId == null || userId == null) {
 			log.error("Illegal input - facilityId: {}, userId: {}", facilityId, userId);
-			throw new IllegalArgumentException("Illegal input - facilityId: " + facilityId + ", userId: " + userId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else if (! isFacilityAdmin(facilityId, userId)) {
 			log.error("User is not registered as admin for facility, cannot ask for moving to production");
 			throw new UnauthorizedActionException("User is not registered as admin for facility, cannot ask for moving to production");
@@ -356,7 +343,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 		if (Utils.checkParamsInvalid(requestId, userId)) {
 			log.error("Illegal input - requestId: {}, userId: {} " , requestId, userId);
-			throw new IllegalArgumentException("Illegal input - requestId: " + requestId + ", userId: " + userId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
 		Request request = requestManager.getRequestById(requestId);
@@ -381,7 +368,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 		if (requestId == null || userId == null) {
 			log.error("Illegal input - requestId: {}, userId: {}", requestId, userId);
-			throw new IllegalArgumentException("Illegal input - requestId: " + requestId + ", userId: " + userId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
 		Request request = requestManager.getRequestById(requestId);
@@ -399,9 +386,14 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 	@Override
 	public Facility getDetailedFacility(Long facilityId, Long userId)
-			throws UnauthorizedActionException, ConnectorException, InternalErrorException {
+			throws UnauthorizedActionException, ConnectorException, InternalErrorException
+	{
 		log.trace("getDetailedFacility(facilityId: {}, userId: {})", facilityId, userId);
-		if (!appConfig.isAppAdmin(userId) && !isFacilityAdmin(facilityId, userId)) {
+
+		if (Utils.checkParamsInvalid(facilityId, userId)) {
+			log.error("Wrong parameters passed: (facilityId: {}, userId: {})", facilityId, userId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		} else if (! appConfig.isAppAdmin(userId) && ! isFacilityAdmin(facilityId, userId)) {
 			log.error("User cannot view facility, user is not an admin");
 			throw new UnauthorizedActionException("User cannot view facility, user is not an admin");
 		}
@@ -412,27 +404,13 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 			throw new InternalErrorException("Could not retrieve facility for id: " + facilityId);
 		}
 
-		log.debug("Getting active requests for facility: {}", facility.getName());
 		Long activeRequestId = requestManager.getActiveRequestIdByFacilityId(facilityId);
 		facility.setActiveRequestId(activeRequestId);
 
 		List<String> attrsToFetch = new ArrayList<>(appConfig.getPerunAttributeDefinitionsMap().keySet());
 		Map<String, PerunAttribute> attrs = perunConnector.getFacilityAttributes(facilityId, attrsToFetch);
-
-		List<String> keptAttrs = initKeptAttrs();
-		if (ServiceUtils.isOidcAttributes(attrs, appConfig.getEntityIdAttributeName())) {
-			keptAttrs.addAll(config.getOidcInputs()
-					.stream()
-					.map(AttrInput::getName)
-					.collect(Collectors.toList())
-			);
-		} else {
-			keptAttrs.addAll(config.getSamlInputs()
-					.stream()
-					.map(AttrInput::getName)
-					.collect(Collectors.toList())
-			);
-		}
+		boolean isOidc = ServiceUtils.isOidcAttributes(attrs, appConfig.getEntityIdAttributeName());
+		List<String> keptAttrs = getAttrsToKeep(isOidc);
 
 		facility.setAttrs(ServiceUtils.filterFacilityAttrs(attrs, keptAttrs));
 
@@ -462,7 +440,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		log.trace("getAllRequestsUserCanAccess({})", userId);
 		if (userId == null) {
 			log.error("userId is null");
-			throw new IllegalArgumentException("userId is null");
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
 		List<Request> requests = new ArrayList<>(requestManager.getAllRequestsByUserId(userId));
@@ -480,41 +458,37 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	@Override
 	public List<Facility> getAllFacilitiesWhereUserIsAdmin(Long userId) throws ConnectorException {
 		log.trace("getAllFacilitiesWhereUserIsAdmin({})", userId);
-		if (userId == null) {
-			log.error("userId is null");
-			throw new IllegalArgumentException("userId is null");
+
+		if (Utils.checkParamsInvalid(userId)) {
+			log.error("Wrong parameters passed: (userId: {})", userId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
+		List<Facility> proxyFacilities = perunConnector.getFacilitiesByProxyIdentifier(
+				appConfig.getProxyIdentifierAttributeName(), appConfig.getProxyIdentifierAttributeValue());
+		Map<Long, Facility> proxyFacilitiesMap = ServiceUtils.transformListToMapFacilities(proxyFacilities);
+		if (proxyFacilitiesMap == null || proxyFacilitiesMap.isEmpty()) {
+			return new ArrayList<>();
+		}
+
+		List<Facility> userFacilities = perunConnector.getFacilitiesWhereUserIsAdmin(userId);
+		if (userFacilities == null || userFacilities.isEmpty()) {
+			return new ArrayList<>();
+		}
+
+		List<Facility> testFacilities = perunConnector.getFacilitiesByAttribute(
+				appConfig.getIsTestSpAttributeName(), "true");
+		Map<Long, Facility> testFacilitiesMap = ServiceUtils.transformListToMapFacilities(testFacilities);
+		if (testFacilitiesMap == null) {
+			testFacilitiesMap = new HashMap<>();
 		}
 
 		List<Facility> filteredFacilities = new ArrayList<>();
-		List<Facility> proxyFacilities = perunConnector.getFacilitiesByProxyIdentifier(appConfig.getProxyIdentifierAttributeName(),
-				appConfig.getProxyIdentifierAttributeValue());
-		List<Facility> testFacilities = perunConnector.getFacilitiesByAttribute(appConfig.getIsTestSpAttributeName(), "true");
-		Map<Long, Facility> testFacilitiesMap = ServiceUtils.transformListToMapFacilities(testFacilities);
 
-		if (proxyFacilities == null) {
-			log.debug("No facilities found with proxy identifier: {}", appConfig.getProxyIdentifierAttributeValue());
-		} else {
-			List<Facility> userFacilities = perunConnector.getFacilitiesWhereUserIsAdmin(userId);
-
-			if (userFacilities == null) {
-				log.debug("No facilities found for user: {}", userId);
-			} else {
-				Map<Long, Facility> userFacilitiesMap = new HashMap<>();
-
-				for (Facility facility : userFacilities) {
-					userFacilitiesMap.put(facility.getId(), facility);
-				}
-
-				filteredFacilities.addAll(proxyFacilities.stream()
-						.filter(facility -> userFacilitiesMap.containsKey(facility.getId()))
-						.collect(Collectors.toList())
-				);
-			}
-		}
-
-		for (Facility f: filteredFacilities) {
-			if (testFacilitiesMap.containsKey(f.getId())) {
-				f.setTestEnv(true);
+		for (Facility f : userFacilities) {
+			if (proxyFacilitiesMap.containsKey(f.getId())) {
+				f.setTestEnv(testFacilitiesMap.containsKey(f.getId()));
+				filteredFacilities.add(f);
 			}
 		}
 
@@ -525,12 +499,13 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	@Override
 	public boolean addAdminsNotify(User user, Long facilityId, List<String> admins)
 			throws UnauthorizedActionException, ConnectorException, BadPaddingException, InvalidKeyException,
-			IllegalBlockSizeException, UnsupportedEncodingException, InternalErrorException {
+			IllegalBlockSizeException, UnsupportedEncodingException, InternalErrorException
+	{
 		log.trace("addAdminsNotify(user: {}, facilityId: {}, admins: {}", user, facilityId, admins);
-		if (user == null || user.getId() == null || facilityId == null || admins == null || admins.isEmpty()) {
-			log.error("Wrong parameters passed(user: {}, facilityId: {}, admins: {})", user, facilityId, admins);
-			throw new IllegalArgumentException("Wrong parameters passed(user: " + user + ", facilityId: " + facilityId
-					+ ", admins: " + admins +")");
+
+		if (Utils.checkParamsInvalid(user, facilityId, admins) || admins.isEmpty()) {
+			log.error("Wrong parameters passed (user: {}, facilityId: {}, admins: {})", user, facilityId, admins);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else if (! isFacilityAdmin(facilityId, user.getId())) {
 			log.error("User cannot request adding admins to facility, user is not an admin");
 			throw new UnauthorizedActionException("User cannot request adding admins to facility, user is not an admin");
@@ -542,7 +517,9 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 			throw new InternalErrorException("Could not find facility for id: " + facilityId);
 		}
 
-		int newAdminsNotificationsSent = sendAdminsNotifications(admins, facility);
+		Map<String, String> adminCodeMap = generateCodesForAdmins(admins, facilityId);
+		Map<String, String> adminLinkMap = generateLinksForAdmins(facilityId, adminCodeMap);
+		int newAdminsNotificationsSent = sendAdminsNotifications(adminLinkMap, facility);
 
 		boolean successful = (newAdminsNotificationsSent == admins.size());
 		if (!successful) {
@@ -559,30 +536,71 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	@Override
 	public boolean confirmAddAdmin(User user, String code)
 			throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, MalformedCodeException,
-			ExpiredCodeException, ConnectorException {
+			ExpiredCodeException, ConnectorException, InternalErrorException
+	{
 		log.debug("confirmAddAdmin({})", code);
-		JSONObject decrypted = decryptAddAdminCode(code);
-		boolean isExpired = isExpiredCode(decrypted);
 
-		if (isExpired) {
-			log.error("User trying to become admin with expired code: {}", decrypted);
-			throw new ExpiredCodeException("Code has expired");
+		if (Utils.checkParamsInvalid(user, code)) {
+			log.error("Wrong parameters passed: (user: {}, code: {})", user, code);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
+		JSONObject decrypted = decryptAddAdminCode(code);
+		boolean isValid = (!isExpiredCode(decrypted) && validateCode(code));
+
+		if (! isValid) {
+			log.error("User trying to become admin with invalid code: {}", decrypted);
+			throw new ExpiredCodeException("Code is invalid");
 		}
 
 		Long facilityId = decrypted.getLong(FACILITY_ID_KEY);
 		boolean added = perunConnector.addFacilityAdmin(facilityId, user.getId());
+		boolean deletedCode = requestManager.deleteUsedCode(code);
+		boolean successful = (added && deletedCode);
 
-		log.debug("confirmAddAdmin returns: {}", added);
+		if (!successful) {
+			log.error("some operations failed: added: {}, deletedCode: {}", added, deletedCode);
+		} else {
+			log.info("Admin added, code deleted");
+		}
+
+		log.debug("confirmAddAdmin returns: {}", successful);
 		return added;
+	}
+
+	@Override
+	public boolean rejectAddAdmin(User user, String code)
+			throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, MalformedCodeException,
+			ExpiredCodeException, InternalErrorException
+	{
+		log.debug("rejectAddAdmin({})", code);
+
+		if (Utils.checkParamsInvalid(user, code)) {
+			log.error("Wrong parameters passed: (user: {}, code: {})", user, code);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
+		JSONObject decrypted = decryptAddAdminCode(code);
+		boolean isValid = (!isExpiredCode(decrypted) && validateCode(code));
+
+		if (! isValid) {
+			log.error("User trying to become reject becoming with invalid code: {}", decrypted);
+			throw new ExpiredCodeException("Code is invalid");
+		}
+
+		boolean deletedCode = requestManager.deleteUsedCode(code);
+
+		log.debug("rejectAddAdmin returns: {}", deletedCode);
+		return deletedCode;
 	}
 
 	@Override
 	public boolean validateCode(String code) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, MalformedCodeException {
 		log.trace("validateCode({})", code);
 
-		if (code == null || code.isEmpty()) {
-			log.error("Illegal argument - code is null or empty: {}", code);
-			throw new IllegalArgumentException("Illegal argument - code is null or empty " + code);
+		if (Utils.checkParamsInvalid(code)) {
+			log.error("Wrong parameters passed: (code: {})", code);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
 		boolean isValid = (!isExpiredCode(decryptRequestCode(code)) && requestManager.validateCode(code));
@@ -625,8 +643,8 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	}
 
 	private boolean isFacilityAdmin(Long facilityId, Long userId) throws ConnectorException {
-		log.debug("isFacilityAdmin(facilityId: {}, userId: {})", facilityId, userId);
-		log.debug("fetching facilities where user with id: {} is admin from Perun", userId);
+		log.trace("isFacilityAdmin(facilityId: {}, userId: {})", facilityId, userId);
+
 		Set<Long> whereAdmin = perunConnector.getFacilityIdsWhereUserIsAdmin(userId);
 
 		if (whereAdmin == null || whereAdmin.isEmpty()) {
@@ -649,6 +667,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 	private PerunAttribute generateProxyIdentifierAttr() {
 		log.trace("generateProxyIdentifierAttr()");
+
 		String identifierAttrName = appConfig.getProxyIdentifierAttributeName();
 		String value = appConfig.getProxyIdentifierAttributeValue();
 
@@ -660,39 +679,16 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		return identifierAttr;
 	}
 
-	private Map<String, String> generateLinksForAuthorities(Map<String, String> authorityCodeMap, Request request)
-			throws InvalidKeyException, UnsupportedEncodingException, ConnectorException
-	{
-		log.trace("generateLinksForAuthorities(authorityCodeMap: {}, request: {})", authorityCodeMap, request);
-
-		SecretKeySpec secret = appConfig.getSecret();
-		cipher.init(Cipher.ENCRYPT_MODE, secret);
-
-		Facility facility = perunConnector.getFacilityById(request.getFacilityId());
-
-		Map<String, String> linksMap = new HashMap<>();
-
-		for (Map.Entry<String, String> entry : authorityCodeMap.entrySet()) {
-			String code = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.toString());
-			String link = appConfig.getSignaturesEndpointUrl()
-					.concat("?facilityName=").concat(facility.getName())
-					.concat("&code=").concat(code);
-			linksMap.put(entry.getKey(), link);
-			log.debug("Generated code: {}", code); //TODO: remove
-		}
-
-		log.trace("generateLinksForAuthorities() returns: {}", linksMap);
-		return linksMap;
-	}
-
 	private JSONObject decryptRequestCode(String code) throws InvalidKeyException, BadPaddingException,
 			IllegalBlockSizeException, MalformedCodeException
 	{
 		log.trace("decryptRequestCode({})", code);
 
-		cipher.init(Cipher.DECRYPT_MODE, appConfig.getSecret());
 		Base64.Decoder b64dec = Base64.getUrlDecoder();
+
+		cipher.init(Cipher.DECRYPT_MODE, appConfig.getSecret());
 		byte[] decrypted = cipher.doFinal(b64dec.decode(code));
+
 		String objInString = new String(decrypted);
 
 		try {
@@ -706,9 +702,10 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	}
 
 	private String createRequestCode(Long requestId, Long facilityId, String requestedMail)
-			throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException {
+			throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException
+	{
 		log.trace("createRequestCode(requestId: {}, facilityId: {}, requestedMail: {})", requestId, facilityId, requestedMail);
-		cipher.init(Cipher.ENCRYPT_MODE, appConfig.getSecret());
+
 		JSONObject object = new JSONObject();
 		object.put(REQUEST_ID_KEY, requestId);
 		object.put(FACILITY_ID_KEY, facilityId);
@@ -717,7 +714,10 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 		String strToEncrypt = object.toString();
 		Base64.Encoder b64enc = Base64.getUrlEncoder();
+
+		cipher.init(Cipher.ENCRYPT_MODE, appConfig.getSecret());
 		byte[] encrypted = cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8));
+
 		String encoded = b64enc.encodeToString(encrypted);
 
 		log.trace("createRequestCode() returns: {}", encoded);
@@ -725,11 +725,15 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	}
 
 	private JSONObject decryptAddAdminCode(String code)
-			throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException, MalformedCodeException {
+			throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException, MalformedCodeException
+	{
 		log.trace("decryptAddAdminCode({})", code);
-		cipher.init(Cipher.DECRYPT_MODE, appConfig.getSecret());
+
 		Base64.Decoder b64dec = Base64.getUrlDecoder();
+
+		cipher.init(Cipher.DECRYPT_MODE, appConfig.getSecret());
 		byte[] decrypted = cipher.doFinal(b64dec.decode(code));
+
 		String objInString = new String(decrypted);
 
 		try {
@@ -742,9 +746,10 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	}
 
 	private String createAddAdminCode(Long facilityId, String requestedMail)
-			throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException {
+			throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException
+	{
 		log.trace("createRequestCode(facilityId: {}, requestedMail: {})", facilityId, requestedMail);
-		cipher.init(Cipher.ENCRYPT_MODE, appConfig.getSecret());
+
 		JSONObject object = new JSONObject();
 		object.put(FACILITY_ID_KEY, facilityId);
 		object.put(CREATED_AT_KEY, LocalDateTime.now().toString());
@@ -752,7 +757,10 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 		String strToEncrypt = object.toString();
 		Base64.Encoder b64enc = Base64.getUrlEncoder();
+
+		cipher.init(Cipher.ENCRYPT_MODE, appConfig.getSecret());
 		byte[] encrypted = cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8));
+
 		String encoded = b64enc.encodeToString(encrypted);
 
 		log.trace("createRequestCode() returns: {}", encoded);
@@ -793,21 +801,11 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		return sent;
 	}
 
-	private int sendAdminsNotifications(List<String> admins, Facility facility) throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnsupportedEncodingException {
-		log.trace("sendAdminsNotifications(admins: {}, facility: {})", admins, facility);
-		Map<String, String> mailsMap = new HashMap<>();
-		for (String adminEmail: admins) {
-			String code = createAddAdminCode(facility.getId(), adminEmail);
-			code = URLEncoder.encode(code, StandardCharsets.UTF_8.toString());
-			String link = appConfig.getAdminsEndpoint()
-					.concat("?facilityName=").concat(facility.getName())
-					.concat("&code=").concat(code);
-			mailsMap.put(adminEmail, link);
-			log.debug("Generated code: {}", code); //TODO: remove
-		}
+	private int sendAdminsNotifications(Map<String, String> adminLinkMap, Facility facility) {
+		log.trace("sendAdminsNotifications(adminLinkMap: {}, facility: {})", adminLinkMap, facility);
 
 		int sent = 0;
-		for (Map.Entry<String, String> entry: mailsMap.entrySet()) {
+		for (Map.Entry<String, String> entry: adminLinkMap.entrySet()) {
 			String mailAdmin = entry.getKey();
 			String mailLink = entry.getValue();
 			boolean successful = Mails.adminAddRemoveNotify(entry.getValue(), facility.getName(), entry.getKey(),
@@ -836,20 +834,34 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		return filteredAttributes;
 	}
 
-	private List<String> initKeptAttrs() {
+	private List<String> getAttrsToKeep(boolean isOidc) {
 		List<String> keptAttrs = new ArrayList<>();
-		keptAttrs.addAll(config.getServiceInputs()
-				.stream()
+
+		keptAttrs.addAll(config.getServiceInputs().stream()
 				.map(AttrInput::getName)
 				.collect(Collectors.toList()));
-		keptAttrs.addAll(config.getOrganizationInputs()
-				.stream()
+
+		keptAttrs.addAll(config.getOrganizationInputs().stream()
 				.map(AttrInput::getName)
 				.collect(Collectors.toList()));
-		keptAttrs.addAll(config.getMembershipInputs()
-				.stream()
+
+		keptAttrs.addAll(config.getMembershipInputs().stream()
 				.map(AttrInput::getName)
 				.collect(Collectors.toList()));
+
+		if (isOidc) {
+			keptAttrs.addAll(config.getOidcInputs()
+					.stream()
+					.map(AttrInput::getName)
+					.collect(Collectors.toList())
+			);
+		} else {
+			keptAttrs.addAll(config.getSamlInputs()
+					.stream()
+					.map(AttrInput::getName)
+					.collect(Collectors.toList())
+			);
+		}
 
 		return keptAttrs;
 	}
@@ -857,6 +869,8 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	private Map<String, String> generateCodesForAuthorities(Request request, List<String> authorities)
 			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException, InternalErrorException
 	{
+		log.trace("generateCodesForAuthorities(request: {}, authorities: {})", request, authorities);
+
 		List<String> codes = new ArrayList<>();
 		Map<String, String> authsCodesMap = new HashMap<>();
 
@@ -868,6 +882,69 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 		requestManager.storeCodes(codes);
 
+		log.trace("generateCodesForAuthorities() returns: {}", authsCodesMap);
 		return authsCodesMap;
+	}
+
+	private Map<String, String> generateCodesForAdmins(List<String> admins, Long facilityId)
+			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException, InternalErrorException
+	{
+		log.trace("generateCodesForAdmins(facilityId: {}, admins: {})", facilityId, admins);
+
+		List<String> codes = new ArrayList<>();
+		Map<String, String> adminCodesMap = new HashMap<>();
+
+		for (String admin : admins) {
+			String code = createAddAdminCode(facilityId, admin);
+			codes.add(code);
+			adminCodesMap.put(admin, code);
+		}
+
+		requestManager.storeCodes(codes);
+
+		log.trace("generateCodesForAdmins() returns: {}", adminCodesMap);
+		return adminCodesMap;
+	}
+
+	private Map<String, String> generateLinksForAdmins(Long facilityId, Map<String, String> adminCodeMap)
+			throws ConnectorException, UnsupportedEncodingException
+	{
+		log.trace("generateLinksForAdmins(adminCodeMap: {}, facilityId: {})", adminCodeMap, facilityId);
+
+		Facility facility = perunConnector.getFacilityById(facilityId);
+		Map<String, String> linksMap = new HashMap<>();
+
+		for (Map.Entry<String, String> entry : adminCodeMap.entrySet()) {
+			String code = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.toString());
+			String link = appConfig.getAdminsEndpoint()
+					.concat("?facilityName=").concat(facility.getName())
+					.concat("&code=").concat(code);
+			linksMap.put(entry.getKey(), link);
+			log.debug("Generated code: {}", code); //TODO: remove
+		}
+
+		log.trace("generateLinksForAdmins() returns: {}", linksMap);
+		return linksMap;
+	}
+
+	private Map<String, String> generateLinksForAuthorities(Map<String, String> authorityCodeMap, Request request)
+			throws UnsupportedEncodingException, ConnectorException
+	{
+		log.trace("generateLinksForAuthorities(authorityCodeMap: {}, request: {})", authorityCodeMap, request);
+
+		Facility facility = perunConnector.getFacilityById(request.getFacilityId());
+		Map<String, String> linksMap = new HashMap<>();
+
+		for (Map.Entry<String, String> entry : authorityCodeMap.entrySet()) {
+			String code = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.toString());
+			String link = appConfig.getSignaturesEndpointUrl()
+					.concat("?facilityName=").concat(facility.getName())
+					.concat("&code=").concat(code);
+			linksMap.put(entry.getKey(), link);
+			log.debug("Generated code: {}", code); //TODO: remove
+		}
+
+		log.trace("generateLinksForAuthorities() returns: {}", linksMap);
+		return linksMap;
 	}
 }

@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.spRegistration.persistence.models;
 
+import cz.metacentrum.perun.spRegistration.Utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -167,7 +168,7 @@ public class PerunAttribute {
 	 * @return PerunAttribute or null
 	 */
 	public static PerunAttribute fromJsonOfPerun(JSONObject json) {
-		if (json == null || json.isEmpty() || json.equals(JSONObject.NULL)) {
+		if (Utils.checkParamsInvalid(json)) {
 			return null;
 		}
 

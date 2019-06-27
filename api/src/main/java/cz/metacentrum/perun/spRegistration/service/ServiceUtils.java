@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Utility class containing methods for services.
@@ -21,13 +22,20 @@ public class ServiceUtils {
 
 	public static final Logger log = LoggerFactory.getLogger(ServiceUtils.class);
 
+	/**
+	 * Transform list of facilities into Map, where key is ID, value is Facility object.
+	 *
+	 * @param list List to be transformed
+	 * @return NULL when input is NULL, empty Map when input is empty, List converted to Map otherwise.
+	 */
 	public static Map<Long, Facility> transformListToMapFacilities(List<Facility> list) {
-		Map<Long, Facility> convertedFacilities = new HashMap<>();
-		for (Facility f: list) {
-			convertedFacilities.put(f.getId(), f);
+		if (list == null) {
+			return null;
+		} else if (list.isEmpty()) {
+			return new HashMap<>();
+		} else {
+			return list.stream().collect(Collectors.toMap(Facility::getId, facility -> facility));
 		}
-
-		return convertedFacilities;
 	}
 
 	/**
@@ -48,13 +56,24 @@ public class ServiceUtils {
 	}
 
 	/**
-	 * Filter facility attributes and keep only ones with names in list
-	 * @param attrsMap attributes to be filtered
-	 * @param toKeep names of attributes that should be kept
-	 * @return filtered attributes as map
+	 * Filter facility attributes - keep only ones with name in list.
+	 * @param attrsMap Map of attributes to be filtered.
+	 * @param toKeep Names of attributes that should be kept.
+	 * @return NULL if param "attrsMap" or "toKeep" is NULL, empty map if param "attrsMap" or "toKeep" is empty,
+	 * Filtered map otherwise.
 	 */
 	public static Map<String, PerunAttribute> filterFacilityAttrs(Map<String, PerunAttribute> attrsMap, List<String> toKeep) {
 		log.trace("filterFacilityAttrs(attrsMap: {}, toKeep: {})", attrsMap, toKeep);
+		if (attrsMap == null) {
+			return null;
+		} else if (attrsMap.isEmpty()) {
+			return new HashMap<>();
+		} else if (toKeep == null) {
+			return null;
+		} else if (toKeep.isEmpty()) {
+			return new HashMap<>();
+		}
+
 		Map<String, PerunAttribute> filteredAttributes = new HashMap<>();
 		for (String keptAttr: toKeep) {
 			filteredAttributes.put(keptAttr, attrsMap.get(keptAttr));
@@ -107,6 +126,7 @@ public class ServiceUtils {
 	public static boolean isOidcAttributes(Map<String, PerunAttribute> attributes, String entityIdAttr) {
 		log.trace("isOidcAttributes(attributes: {})", attributes);
 		boolean isOidc = true;
+
 		if (attributes.containsKey(entityIdAttr)) {
 			isOidc = (null == attributes.get(entityIdAttr).getValue());
 		}

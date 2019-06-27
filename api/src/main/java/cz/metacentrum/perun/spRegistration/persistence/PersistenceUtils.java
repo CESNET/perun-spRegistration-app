@@ -2,6 +2,7 @@ package cz.metacentrum.perun.spRegistration.persistence;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.persistence.configs.AppConfig;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestStatus;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.ConnectorException;
@@ -198,7 +199,7 @@ public class PersistenceUtils {
 				mp, adminsAttr, request);
 
 		if (request == null) {
-			throw new IllegalArgumentException("Request cannot be null");
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
 		log.debug("sending mail notification");

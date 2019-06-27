@@ -44,10 +44,25 @@ export class FacilityAddAdminSignComponent implements OnInit {
     this.sub.unsubscribe();
   }
 
-  addAdmin(): void{
+  addAdminConfirm(): void{
     this.facilitiesService.addAdminConfirm(this.hash).subscribe(response => {
       if (response) {
         this.translate.get('FACILITIES.ADD_ADMIN_SUCCES').subscribe(successMessage => {
+          let snackBarRef = this.snackBar
+            .open(successMessage, null, {duration: 5000});
+
+          this.router.navigate(['/auth']);
+        });
+      } else {
+        this.router.navigate(['/notFound']);
+      }
+    });
+  }
+
+  addAdminReject(): void{
+    this.facilitiesService.addAdminReject(this.hash).subscribe(response => {
+      if (response) {
+        this.translate.get('FACILITIES.REJ_ADMIN_SUCCES').subscribe(successMessage => {
           let snackBarRef = this.snackBar
             .open(successMessage, null, {duration: 5000});
 

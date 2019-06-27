@@ -5,6 +5,7 @@ import cz.metacentrum.perun.spRegistration.persistence.exceptions.CreateRequestE
 import cz.metacentrum.perun.spRegistration.persistence.models.Request;
 import cz.metacentrum.perun.spRegistration.persistence.models.RequestSignature;
 import cz.metacentrum.perun.spRegistration.persistence.models.User;
+import cz.metacentrum.perun.spRegistration.rest.ApiUtils;
 import cz.metacentrum.perun.spRegistration.service.UserCommandsService;
 import cz.metacentrum.perun.spRegistration.service.exceptions.ExpiredCodeException;
 import cz.metacentrum.perun.spRegistration.service.exceptions.InternalErrorException;
@@ -67,7 +68,7 @@ public class UserSignaturesController {
 	{
 		log.trace("signRequestGetData({})", code);
 
-		code = decodeCode(code);
+		code = ApiUtils.decodeCode(code);
 		if (! service.validateCode(code)) {
 			throw new IllegalAccessError("You cannot sign the request, code is invalid");
 		}
@@ -133,15 +134,7 @@ public class UserSignaturesController {
 			ExpiredCodeException, IllegalBlockSizeException, MalformedCodeException, InternalErrorException,
 			InvalidKeyException, UnsupportedEncodingException
 	{
-		code = decodeCode(code);
+		code = ApiUtils.decodeCode(code);
 		return service.signTransferToProduction(user, code, approved);
-	}
-
-	private String decodeCode(String code) throws UnsupportedEncodingException {
-		if (code.startsWith("\"")) {
-			code = code.substring(1, code.length() - 1);
-		}
-
-		return URLDecoder.decode(code, StandardCharsets.UTF_8.toString());
 	}
 }

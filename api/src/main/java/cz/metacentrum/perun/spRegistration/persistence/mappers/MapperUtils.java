@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.spRegistration.persistence.mappers;
 
 import com.fasterxml.jackson.databind.node.NullNode;
+import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.persistence.models.Facility;
 import cz.metacentrum.perun.spRegistration.persistence.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.persistence.models.PerunAttributeDefinition;
@@ -27,40 +28,43 @@ public class MapperUtils {
 	/**
 	 * Map JSON response from Perun RPC to Facility object.
 	 * @param facilityJson JSON from Perun with facility.
-	 * @return Mapped Facility object or null.
+	 * @return Mapped Facility object.
+	 * @throws IllegalArgumentException Thrown when input is NULL, equal to JSONObject.NULL or empty.
 	 */
 	public static Facility mapFacility(JSONObject facilityJson) {
 		log.trace("mapFacility({})", facilityJson);
-		Facility facility;
 
-		if (facilityJson == null || facilityJson.isEmpty() || facilityJson.equals(JSONObject.NULL)) {
-			facility = null;
+		if (Utils.checkParamsInvalid(facilityJson)) {
+			log.error("Wrong parameters passed: (facilityJson: {})", facilityJson);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else {
-			facility = Facility.fromPerunJson(facilityJson);
-		}
+			Facility facility = Facility.fromPerunJson(facilityJson);
 
-		log.trace("mapFacility() returns: {}", facility);
-		return facility;
+			log.trace("mapFacility() returns: {}", facility);
+			return facility;
+		}
 	}
 
 	/**
 	 * Map JSON response from Perun RPC to List of Facilities.
 	 * @param facilitiesJson JSON from Perun with facilities.
-	 * @return Mapped List of Facility objects (filled or empty) or null.
+	 * @return Mapped List of Facility objects (filled or empty).
+	 * @throws IllegalArgumentException Thrown when input is NULL, equal to JSONObject.NULL or empty.
 	 */
 	public static List<Facility> mapFacilities(JSONArray facilitiesJson) {
 		log.trace("mapFacilities({})", facilitiesJson);
-		List<Facility> facilityList;
 
-		if (facilitiesJson == null || facilitiesJson.isEmpty() || facilitiesJson.equals(JSONObject.NULL)) {
-			facilityList = null;
-		} else {
-			facilityList = new ArrayList<>();
-			for (int i = 0; i < facilitiesJson.length(); i++) {
-				JSONObject facilityJson = facilitiesJson.getJSONObject(i);
-				Facility facility = Facility.fromPerunJson(facilityJson);
-				facilityList.add(facility);
-			}
+		List<Facility> facilityList = new ArrayList<>();
+
+		if (Utils.checkParamsInvalid(facilitiesJson)) {
+			log.error("Wrong parameters passed: (facilitiesJson: {})", facilitiesJson);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
+		for (int i = 0; i < facilitiesJson.length(); i++) {
+			JSONObject facilityJson = facilitiesJson.getJSONObject(i);
+			Facility facility = Facility.fromPerunJson(facilityJson);
+			facilityList.add(facility);
 		}
 
 		log.trace("mapFacilities() returns: {}", facilityList);
@@ -98,47 +102,49 @@ public class MapperUtils {
 	}
 
 	/**
-	 * Map JSON from Perun RPC to Map of Attributes (key = attribute name, value = attribute)
+	 * Map JSON from Perun RPC to Map of Attributes, where key = attribute name, value = attribute.
 	 * @param attrsJson JSON from Perun with attributes.
-	 * @return Map of Attributes (filled or empty) or null.
+	 * @return Map of Attributes (filled or empty).
+	 * @throws IllegalArgumentException Thrown when input is NULL, equal to JSONObject.NULL or empty.
 	 */
 	public static Map<String, PerunAttribute> mapAttributes(JSONArray attrsJson) {
 		log.trace("mapAttributes({})", attrsJson);
-		Map<String, PerunAttribute> stringPerunAttributeMap;
 
-		if (attrsJson == null || attrsJson.isEmpty() || attrsJson.equals(JSONObject.NULL)) {
-			stringPerunAttributeMap = null;
-		} else {
-			stringPerunAttributeMap = new HashMap<>();
-			for (int i = 0; i < attrsJson.length(); i++) {
-				JSONObject attrJson = attrsJson.getJSONObject(i);
-				PerunAttribute a = PerunAttribute.fromJsonOfPerun(attrJson);
-				if (a != null) {
-					PerunAttributeDefinition def = a.getDefinition();
-					a.setDefinition(def);
-					stringPerunAttributeMap.put(def.getFullName(), a);
-				}
+		if (Utils.checkParamsInvalid()) {
+			log.error("Wrong parameters passed: (attrsJson: {})", attrsJson);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
+		Map<String, PerunAttribute> attributesMap = new HashMap<>();
+		for (int i = 0; i < attrsJson.length(); i++) {
+			JSONObject attrJson = attrsJson.getJSONObject(i);
+			PerunAttribute a = PerunAttribute.fromJsonOfPerun(attrJson);
+			if (a != null) {
+				PerunAttributeDefinition def = a.getDefinition();
+				a.setDefinition(def);
+				attributesMap.put(def.getFullName(), a);
 			}
 		}
 
-		log.trace("mapAttributes() returns: {}", stringPerunAttributeMap);
-		return stringPerunAttributeMap;
+		log.trace("mapAttributes() returns: {}", attributesMap);
+		return attributesMap;
 	}
 
 	/**
 	 * Map JSON from Perun RPC to PerunAttribute.
 	 * @param attrJson JSON from Perun with attribute.
-	 * @return Mapped PerunAttribute object or null.
+	 * @return Mapped PerunAttribute object.
+	 * @throws IllegalArgumentException Thrown when input is NULL, equal to JSONObject.NULL or empty.
 	 */
 	public static PerunAttribute mapAttribute(JSONObject attrJson) {
 		log.trace("mapAttribute({})", attrJson);
-		PerunAttribute perunAttribute;
 
-		if (attrJson == null || attrJson.isEmpty() || attrJson.equals(JSONObject.NULL)) {
-			perunAttribute = null;
-		} else {
-			perunAttribute = PerunAttribute.fromJsonOfPerun(attrJson);
+		if (Utils.checkParamsInvalid(attrJson)) {
+			log.error("Wrong parameters passed: (attrJson: {})", attrJson);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
+
+		PerunAttribute perunAttribute = PerunAttribute.fromJsonOfPerun(attrJson);
 
 		log.trace("mapAttribute() returns: {}", perunAttribute);
 		return perunAttribute;

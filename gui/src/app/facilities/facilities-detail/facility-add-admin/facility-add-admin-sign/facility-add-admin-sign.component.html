@@ -7,8 +7,13 @@
       </h2>
 
       <div class="pull-right">
-        <button class="ml-2" mat-raised-button color="accent" (click)="addAdmin()">
+        <button class="ml-2" mat-raised-button color="accent" (click)="addAdminConfirm()">
           {{'FACILITIES.ADD_ADMIN_SIGN_SUBMIT' | translate}}
+        </button>
+      </div>
+      <div class="pull-right">
+        <button class="ml-2" mat-raised-button color="accent" (click)="addAdminReject()">
+          {{'FACILITIES.ADD_ADMIN_SIGN_REJECT' | translate}}
         </button>
       </div>
     </div>

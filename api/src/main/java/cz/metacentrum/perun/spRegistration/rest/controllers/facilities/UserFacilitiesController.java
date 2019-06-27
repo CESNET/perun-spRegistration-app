@@ -3,6 +3,7 @@ package cz.metacentrum.perun.spRegistration.rest.controllers.facilities;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.persistence.models.Facility;
 import cz.metacentrum.perun.spRegistration.persistence.models.User;
+import cz.metacentrum.perun.spRegistration.rest.ApiUtils;
 import cz.metacentrum.perun.spRegistration.service.UserCommandsService;
 import cz.metacentrum.perun.spRegistration.service.exceptions.ExpiredCodeException;
 import cz.metacentrum.perun.spRegistration.service.exceptions.InternalErrorException;
@@ -42,10 +43,9 @@ public class UserFacilitiesController {
 	}
 
 	@GetMapping(path = "/api/userFacilities")
-	public List<Facility> userFacilities(@SessionAttribute("user") User user)
-			throws ConnectorException
-	{
-		log.debug("userFacilities({})", user.getId());
+	public List<Facility> userFacilities(@SessionAttribute("user") User user) throws ConnectorException	{
+		log.trace("userFacilities({})", user.getId());
+
 		List<Facility> facilityList = service.getAllFacilitiesWhereUserIsAdmin(user.getId());
 
 		log.trace("userFacilities() returns: {}", facilityList);
@@ -59,7 +59,8 @@ public class UserFacilitiesController {
 			throws BadPaddingException, InvalidKeyException, ConnectorException, IllegalBlockSizeException,
 			UnsupportedEncodingException, InternalErrorException, UnauthorizedActionException
 	{
-		log.debug("addAdminsNotify(user: {}, facilityId: {}, adminEmails: {})", user.getId(), facilityId, adminEmails);
+		log.trace("addAdminsNotify(user: {}, facilityId: {}, adminEmails: {})", user.getId(), facilityId, adminEmails);
+
 		boolean successful = service.addAdminsNotify(user, facilityId, adminEmails);
 
 		log.trace("addAdmins() returns: {}", successful);
@@ -70,16 +71,29 @@ public class UserFacilitiesController {
 	public boolean addAdminConfirm(@SessionAttribute("user") User user,
 								   @RequestBody String code)
 			throws UnsupportedEncodingException, BadPaddingException, ExpiredCodeException, IllegalBlockSizeException,
-			MalformedCodeException, InvalidKeyException, ConnectorException
+			MalformedCodeException, InvalidKeyException, ConnectorException, InternalErrorException
 	{
-		log.debug("addAdminConfirm(user: {}, code: {})", user, code);
-		if (code.startsWith("\"")) {
-			code = code.substring(1, code.length() - 1);
-		}
-		code = URLDecoder.decode(code, StandardCharsets.UTF_8.toString());
+		log.trace("addAdminConfirm(user: {}, code: {})", user, code);
 
+		code = ApiUtils.decodeCode(code);
 		boolean successful = service.confirmAddAdmin(user, code);
+
 		log.trace("addAdminConfirm() returns: {}", successful);
+		return successful;
+	}
+
+	@PostMapping(path = "/api/addAdmin/reject")
+	public boolean addAdminReject(@SessionAttribute("user") User user,
+								   @RequestBody String code)
+			throws UnsupportedEncodingException, BadPaddingException, ExpiredCodeException, IllegalBlockSizeException,
+			MalformedCodeException, InvalidKeyException, InternalErrorException
+	{
+		log.trace("addAdminReject(user: {}, code: {})", user, code);
+
+		code = ApiUtils.decodeCode(code);
+		boolean successful = service.rejectAddAdmin(user, code);
+
+		log.trace("addAdminReject() returns: {}", successful);
 		return successful;
 	}
 
@@ -88,7 +102,7 @@ public class UserFacilitiesController {
 												  @PathVariable("facilityId") Long facilityId)
 			throws UnauthorizedActionException, InternalErrorException, ConnectorException
 	{
-		log.debug("getDetailedFacilityWithInputs(user: {}, facilityId: {})", user, facilityId);
+		log.trace("getDetailedFacilityWithInputs(user: {}, facilityId: {})", user, facilityId);
 		Facility facility = service.getDetailedFacilityWithInputs(facilityId, user.getId());
 
 		log.trace("getDetailedFacilityWithInputs() returns: {}", facility);

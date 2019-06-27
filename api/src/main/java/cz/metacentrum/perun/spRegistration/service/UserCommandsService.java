@@ -31,7 +31,8 @@ public interface UserCommandsService {
 	 * @param attributes Attributes set for SP (key = attribute name, value = attribute).
 	 * @return Generated request ID after storing to the DB.
 	 */
-	Long createRegistrationRequest(Long userId, List<PerunAttribute> attributes) throws InternalErrorException, CreateRequestException;
+	Long createRegistrationRequest(Long userId, List<PerunAttribute> attributes)
+			throws InternalErrorException, CreateRequestException;
 
 	/**
 	 * Create request for changes of SP (which already exists as facility in Perun).
@@ -40,6 +41,7 @@ public interface UserCommandsService {
 	 * @param attributes Attributes set for SP (key = attribute name, value = attribute).
 	 * @return Generated request ID after storing to the DB.
 	 * @throws UnauthorizedActionException when user is not authorized to perform this action.
+	 * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
 	 */
 	Long createFacilityChangesRequest(Long facilityId, Long userId, List<PerunAttribute> attributes)
 			throws UnauthorizedActionException, ConnectorException, InternalErrorException, CreateRequestException;
@@ -50,6 +52,7 @@ public interface UserCommandsService {
 	 * @param facilityId ID of facility in Perun.
 	 * @return Generated request ID after storing to the DB.
 	 * @throws UnauthorizedActionException when user is not authorized to perform this action.
+	 * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
 	 */
 	Long createRemovalRequest(Long userId, Long facilityId)
 			throws UnauthorizedActionException, ConnectorException, InternalErrorException, CreateRequestException;
@@ -82,7 +85,7 @@ public interface UserCommandsService {
 	 * Get details of facility for the signatures interface
 	 * @param code code
 	 * @return Fetched request object
-	 * @throws ConnectorException when some problem with Perun RPC has occurred.
+	 * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
 	 */
 	Request getRequestDetailsForSignature(String code)
 			throws ConnectorException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException,
@@ -111,7 +114,9 @@ public interface UserCommandsService {
 	/**
 	 * Get all facilities from Perun where user is admin (manager).
 	 * @param userId ID of user.
-	 * @return List of facilities.
+	 * @return List of facilities (empty or filled).
+	 * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
+	 * @throws IllegalArgumentException Thrown when param "userId" is NULL.
 	 */
 	List<Facility> getAllFacilitiesWhereUserIsAdmin(Long userId) throws ConnectorException;
 
@@ -119,6 +124,7 @@ public interface UserCommandsService {
 	 * Get all requests user can access (is requester or admin(manager) of facility)
 	 * @param userId ID of user.
 	 * @return List of requests.
+	 * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
 	 */
 	List<Request> getAllRequestsUserCanAccess(Long userId) throws ConnectorException;
 
@@ -136,9 +142,12 @@ public interface UserCommandsService {
 	 * @param facilityId ID of facility.
 	 * @param userId ID of user.
 	 * @return Found facility.
-	 * @throws UnauthorizedActionException when user is not authorized to perform this action.
+	 * @throws UnauthorizedActionException Thrown when user is not authorized to perform this action.
+	 * @throws ConnectorException Thrown when an error while communicating with Perun RPC occurs.
+	 * @throws IllegalArgumentException Thrown when param "facilityId" is NULL, when param "userId" is NULL.
 	 */
-	Facility getDetailedFacility(Long facilityId, Long userId) throws UnauthorizedActionException, ConnectorException, InternalErrorException;
+	Facility getDetailedFacility(Long facilityId, Long userId)
+			throws UnauthorizedActionException, ConnectorException, InternalErrorException;
 
 	/**
 	 * Get detailed facility.
@@ -150,22 +159,56 @@ public interface UserCommandsService {
 	Facility getDetailedFacilityWithInputs(Long facilityId, Long userId) throws UnauthorizedActionException, ConnectorException, InternalErrorException;
 
 	/**
-	 * Add users as admins (managers) for facility in Perun
-	 * @param user user performing the action
+	 * Add users as admins (managers) for facility in Perun.
+	 * @param user User performing the action
 	 * @param facilityId ID of facility in Perun.
 	 * @param admins List of emails to whom the notification should be sent
-	 * @return True if everything went OK.
+	 * @return TRUE if everything went OK, FALSE otherwise.
 	 * @throws UnauthorizedActionException when user is not authorized to perform this action.
+	 * @throws ConnectorException Thrown when an error while communicating with Perun RPC occurs.
+	 * @throws BadPaddingException Thrown when cannot generate code.
+	 * @throws InvalidKeyException Thrown when cannot generate code.
+	 * @throws IllegalBlockSizeException Thrown when cannot generate code.
+	 * @throws UnsupportedEncodingException Thrown when cannot generate code.
+	 * @throws InternalErrorException Thrown when cannot find Facility for given ID.
+	 * @throws IllegalArgumentException Thrown when param "user" is NULL, when param "facilityId" is NULL, when param
+	 * "admins" is NULL or empty.
 	 */
-	boolean addAdminsNotify(User user, Long facilityId, List<String> admins) throws UnauthorizedActionException, ConnectorException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnsupportedEncodingException, InternalErrorException;
+	boolean addAdminsNotify(User user, Long facilityId, List<String> admins)
+			throws UnauthorizedActionException, ConnectorException, BadPaddingException, InvalidKeyException,
+			IllegalBlockSizeException, UnsupportedEncodingException, InternalErrorException;
 
 	/**
-	 * Confirm request to be added or removed as a facility admin.
-	 * @param user user to be added or removed from facility admins
+	 * Confirm request to be added as a facility admin.
+	 * @param user user to be added or removed from facility admins.
 	 * @param code code generated for the approval
-	 * @return True if everything went ok
+	 * @return TRUE if everything went OK, FALSE otherwise.
+	 * @throws ConnectorException Thrown when an error while communicating with Perun RPC occurs.
+	 * @throws BadPaddingException Thrown when cannot decrypt code.
+	 * @throws InvalidKeyException Thrown when cannot decrypt code.
+	 * @throws IllegalBlockSizeException Thrown when cannot decrypt code.
+	 * @throws MalformedCodeException Thrown when cannot decrypt code.
+	 * @throws ExpiredCodeException Thrown when used code is expired.
+	 * @throws IllegalArgumentException Thrown when param "user" is NULL, when param "code" is NULL or empty.
 	 */
-	boolean confirmAddAdmin(User user, String code) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, MalformedCodeException, ExpiredCodeException, ConnectorException;
+	boolean confirmAddAdmin(User user, String code)
+			throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, MalformedCodeException,
+			ExpiredCodeException, ConnectorException, InternalErrorException;
+
+	/**
+	 * Reject request to be added as a facility admin.
+	 * @param user user to be added or removed from facility admins.
+	 * @param code code generated for the approval
+	 * @return TRUE if everything went OK, FALSE otherwise.
+	 * @throws BadPaddingException Thrown when cannot decrypt code.
+	 * @throws InvalidKeyException Thrown when cannot decrypt code.
+	 * @throws IllegalBlockSizeException Thrown when cannot decrypt code.
+	 * @throws MalformedCodeException Thrown when cannot decrypt code.
+	 * @throws ExpiredCodeException Thrown when used code is expired.
+	 * @throws IllegalArgumentException Thrown when param "user" is NULL, when param "code" is NULL or empty.
+	 */
+	boolean rejectAddAdmin(User user, String code) throws IllegalBlockSizeException, BadPaddingException,
+			InvalidKeyException, MalformedCodeException, ExpiredCodeException, InternalErrorException;
 
 	/**
 	 * Validate code for signature

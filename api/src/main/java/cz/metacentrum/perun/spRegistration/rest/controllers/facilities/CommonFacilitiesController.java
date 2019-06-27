@@ -37,7 +37,8 @@ public class CommonFacilitiesController {
 								   @PathVariable("facilityId") Long facilityId)
 			throws UnauthorizedActionException, InternalErrorException, ConnectorException
 	{
-		log.debug("facilityDetail(user(): {}, facilityId: {})", user.getId(), facilityId);
+		log.trace("facilityDetail(user(): {}, facilityId: {})", user.getId(), facilityId);
+
 		Facility facility = service.getDetailedFacility(facilityId, user.getId());
 
 		log.trace("facilityDetail() returns: {}", facility);
