@@ -2,7 +2,7 @@ package cz.metacentrum.perun.spRegistration.persistence;
 
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestStatus;
-import cz.metacentrum.perun.spRegistration.persistence.exceptions.CreateRequestException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.ActiveRequestExistsException;
 import cz.metacentrum.perun.spRegistration.persistence.managers.impl.RequestManagerImpl;
 import cz.metacentrum.perun.spRegistration.persistence.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.persistence.models.PerunAttributeDefinition;
@@ -52,7 +52,7 @@ public class RequestManagerTests {
 	private String code1;
 
 	@Before
-	public void setUp() throws CreateRequestException, InternalErrorException {
+	public void setUp() throws ActiveRequestExistsException, InternalErrorException {
 		def1 = new PerunAttributeDefinition(1L, "attr_1", "namespace1", "desc1",
 				"java.lang.String", "attr1", true, false, "facility",
 				"baseFriendlyName", "friendlyNameParameter");
@@ -129,7 +129,7 @@ public class RequestManagerTests {
 	}
 
 	@Test
-	public void createRequest() throws CreateRequestException, InternalErrorException {
+	public void createRequest() throws ActiveRequestExistsException, InternalErrorException {
 		Request request = new Request();
 		request.setAction(RequestAction.REGISTER_NEW_SP);
 		request.setStatus(RequestStatus.WAITING_FOR_APPROVAL);

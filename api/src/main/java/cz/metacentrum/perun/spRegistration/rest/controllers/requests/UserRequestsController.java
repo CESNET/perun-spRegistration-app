@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.spRegistration.rest.controllers.requests;
 
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.ConnectorException;
-import cz.metacentrum.perun.spRegistration.persistence.exceptions.CreateRequestException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.ActiveRequestExistsException;
 import cz.metacentrum.perun.spRegistration.persistence.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.persistence.models.Request;
 import cz.metacentrum.perun.spRegistration.persistence.models.User;
@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Controller handling USER actions related to Requests.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @RestController
 public class UserRequestsController {
@@ -38,24 +38,23 @@ public class UserRequestsController {
 	}
 
 	@GetMapping(path = "/api/userRequests")
-	public List<Request> userRequests(@SessionAttribute("user") User user)
-			throws ConnectorException
-	{
-		log.debug("userRequests({})", user.getId());
+	public List<Request> userRequests(@SessionAttribute("user") User user) throws ConnectorException {
+		log.trace("userRequests({})", user.getId());
 		
 		List<Request> requestList = service.getAllRequestsUserCanAccess(user.getId());
+
 		log.trace("userRequests() returns: {}", requestList);
 		return requestList;
 	}
 
 	@PostMapping(path = "/api/register")
 	public Long createRegistrationRequest(@SessionAttribute("user") User user,
-										  @RequestBody List<PerunAttribute> attributes)
-			throws CreateRequestException, InternalErrorException
+										  @RequestBody List<PerunAttribute> attributes) throws InternalErrorException
 	{
-		log.debug("createRegistrationRequest(user: {}, attributes: {})", user.getId(), attributes);
+		log.trace("createRegistrationRequest(user: {}, attributes: {})", user.getId(), attributes);
 		
 		Long generatedId = service.createRegistrationRequest(user.getId(), attributes);
+
 		log.trace("createRegistrationRequest() returns: {}", generatedId);
 		return generatedId;
 	}
@@ -64,12 +63,13 @@ public class UserRequestsController {
 	public Long createFacilityChangesRequest(@SessionAttribute("user") User user,
 											 @RequestBody List<PerunAttribute> attributes,
 											 @PathVariable("facilityId") Long facilityId)
-			throws ConnectorException, CreateRequestException, InternalErrorException, UnauthorizedActionException
+			throws ConnectorException, ActiveRequestExistsException, InternalErrorException, UnauthorizedActionException
 	{
-		log.debug("createFacilityChangesRequest(user: {}, facilityId: {}, attributes: {})", user.getId(),
+		log.trace("createFacilityChangesRequest(user: {}, facilityId: {}, attributes: {})", user.getId(),
 				facilityId, attributes);
 		
 		Long generatedId = service.createFacilityChangesRequest(facilityId, user.getId(), attributes);
+
 		log.trace("createFacilityChangesRequest() returns: {}", generatedId);
 		return generatedId;
 	}
@@ -77,11 +77,12 @@ public class UserRequestsController {
 	@PostMapping(path = "/api/remove/{facilityId}")
 	public Long createRemovalRequest(@SessionAttribute("user") User user,
 									 @PathVariable("facilityId") Long facilityId)
-			throws ConnectorException, CreateRequestException, InternalErrorException, UnauthorizedActionException
+			throws ConnectorException, ActiveRequestExistsException, InternalErrorException, UnauthorizedActionException
 	{
-		log.debug("createRemovalRequest(user: {}, facilityId: {})", user.getId(), facilityId);
+		log.trace("createRemovalRequest(user: {}, facilityId: {})", user.getId(), facilityId);
 		
 		Long generatedId = service.createRemovalRequest(user.getId(), facilityId);
+
 		log.trace("createRemovalRequest() returns: {}", generatedId);
 		return generatedId;
 	}
@@ -92,10 +93,11 @@ public class UserRequestsController {
 								 @RequestBody List<PerunAttribute> attributes)
 			throws InternalErrorException, UnauthorizedActionException
 	{
-		log.debug("updateRequest(user: {}, requestId: {}, attributes: {})", user.getId(), requestId, attributes);
+		log.trace("updateRequest(user: {}, requestId: {}, attributes: {})", user.getId(), requestId, attributes);
 		
-		boolean succesful = service.updateRequest(requestId, user.getId(), attributes);
-		log.trace("updateRequest() returns: {}", succesful);
-		return succesful;
+		boolean successful = service.updateRequest(requestId, user.getId(), attributes);
+
+		log.trace("updateRequest() returns: {}", successful);
+		return successful;
 	}
 }

@@ -3,7 +3,7 @@ package cz.metacentrum.perun.spRegistration.service.exceptions;
 /**
  * Exception thrown when user tries to perform action he/she is not authorized to perform.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class UnauthorizedActionException extends Exception {
 

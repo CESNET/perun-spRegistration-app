@@ -17,7 +17,7 @@ import javax.servlet.http.HttpSession;
 /**
  * Controller handling authentication
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @RestController
 public class AuthController {

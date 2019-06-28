@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Controller handling ADMIN actions related to Requests.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @RestController
 public class AdminRequestsController {
@@ -41,9 +41,10 @@ public class AdminRequestsController {
 	public List<Request> allRequests(@SessionAttribute("user") User user)
 			throws UnauthorizedActionException
 	{
-		log.debug("allRequests({})", user.getId());
+		log.trace("allRequests({})", user.getId());
 
 		List<Request> requestList = service.getAllRequests(user.getId());
+
 		log.trace("allRequests() returns: {}", requestList);
 		return requestList;
 	}
@@ -53,22 +54,23 @@ public class AdminRequestsController {
 								  @PathVariable("requestId") Long requestId)
 			throws ConnectorException, CannotChangeStatusException, InternalErrorException, UnauthorizedActionException
 	{
-		log.debug("approveRequest(user: {}, requestId: {})", user.getId(), requestId);
+		log.trace("approveRequest(user: {}, requestId: {})", user.getId(), requestId);
 		
 		boolean successful = service.approveRequest(requestId, user.getId());
+
 		log.trace("approveRequest() returns: {}", successful);
 		return successful;
 	}
 
 	@PostMapping(path = "/api/reject/{requestId}")
 	public boolean rejectRequest(@SessionAttribute("user") User user,
-								 @PathVariable("requestId") Long requestId,
-								 @RequestBody String message)
+								 @PathVariable("requestId") Long requestId)
 			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException
 	{
-		log.debug("rejectRequest(user: {}, requestId: {}, message: {})", user.getId(), requestId, message);
+		log.trace("rejectRequest(user: {}, requestId: {})", user.getId(), requestId);
 		
-		boolean successful = service.rejectRequest(requestId, user.getId(), message);
+		boolean successful = service.rejectRequest(requestId, user.getId());
+
 		log.trace("rejectRequest() returns: {}", successful);
 		return successful;
 	}
@@ -79,9 +81,10 @@ public class AdminRequestsController {
 								 @RequestBody List<PerunAttribute> attributes)
 			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException
 	{
-		log.debug("askForChanges(user: {}, requestId: {}, attributes: {})", user.getId(), requestId, attributes);
+		log.trace("askForChanges(user: {}, requestId: {}, attributes: {})", user.getId(), requestId, attributes);
 		
 		boolean successful = service.askForChanges(requestId, user.getId(), attributes);
+
 		log.trace("askForChanges() returns: {}", successful);
 		return successful;
 	}

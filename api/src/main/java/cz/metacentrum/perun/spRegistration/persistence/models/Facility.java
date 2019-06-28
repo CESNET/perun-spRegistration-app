@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.spRegistration.persistence.models;
 
+import cz.metacentrum.perun.spRegistration.Utils;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -9,7 +10,7 @@ import java.util.Objects;
 /**
  * Representation of Perun Facility.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class Facility extends PerunEntity {
 
@@ -93,8 +94,8 @@ public class Facility extends PerunEntity {
 	 * @return Facility object or null
 	 */
 	public static Facility fromPerunJson(JSONObject json) {
-		if (json == null || json.isEmpty() || json.equals(JSONObject.NULL)) {
-			return null;
+		if (Utils.checkParamsInvalid(json)) {
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
 		Long id = json.getLong("id");

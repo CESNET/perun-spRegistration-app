@@ -15,7 +15,7 @@ import java.util.Objects;
  * Class represents request made by user. It contains all the data that needs to be stored.
  * It also keeps track of the modification time.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class Request {
 
@@ -197,11 +197,7 @@ public class Request {
 			if (this.attributes.containsKey(entry.getKey())) {
 				PerunAttribute old = this.attributes.get(entry.getKey());
 				old.setValue(entry.getValue().getValue());
-				if (clearComment) {
-					old.setComment(null);
-				} else {
-					old.setComment(entry.getValue().getComment());
-				}
+				old.setComment(clearComment ? null : entry.getValue().getComment());
 			} else {
 				this.attributes.put(entry.getKey(), entry.getValue());
 				if (clearComment) {

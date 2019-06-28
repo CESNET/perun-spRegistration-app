@@ -4,7 +4,7 @@ import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.persistence.configs.Config;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestStatus;
-import cz.metacentrum.perun.spRegistration.persistence.exceptions.CreateRequestException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.ActiveRequestExistsException;
 import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
 import cz.metacentrum.perun.spRegistration.persistence.mappers.RequestMapper;
 import cz.metacentrum.perun.spRegistration.persistence.mappers.RequestSignatureMapper;
@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -33,7 +32,7 @@ import java.util.StringJoiner;
 /**
  * Implementation of Request Manager. Works with DB and Request objects.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @EnableTransactionManagement
 public class RequestManagerImpl implements RequestManager {
@@ -68,11 +67,11 @@ public class RequestManagerImpl implements RequestManager {
 
 	@Override
 	@Transactional
-	public Long createRequest(Request request) throws InternalErrorException, CreateRequestException {
+	public Long createRequest(Request request) throws InternalErrorException, ActiveRequestExistsException {
 		log.trace("createRequest({})", request);
 
-		if (request == null) {
-			log.error("Illegal parameters passed: request IS NULL");
+		if (Utils.checkParamsInvalid(request)) {
+			log.error("Wrong parameters passed: (request : {})", request);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
@@ -80,7 +79,7 @@ public class RequestManagerImpl implements RequestManager {
 			Long activeRequestId = getActiveRequestIdByFacilityId(request.getFacilityId());
 			if (activeRequestId != null) {
 				log.error("Active requests already exist for facilityId: {}", request.getFacilityId());
-				throw new CreateRequestException();
+				throw new ActiveRequestExistsException();
 			}
 		}
 
@@ -123,8 +122,9 @@ public class RequestManagerImpl implements RequestManager {
 	@Transactional
 	public boolean updateRequest(Request request) throws InternalErrorException {
 		log.trace("updateRequest({})", request);
-		if (request == null) {
-			log.error("Illegal parameters passed: request IS NULL");
+
+		if (Utils.checkParamsInvalid(request)) {
+			log.error("Wrong parameters passed: (request: {})", request);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 		
@@ -162,8 +162,9 @@ public class RequestManagerImpl implements RequestManager {
 	@Transactional
 	public boolean deleteRequest(Long reqId) throws InternalErrorException {
 		log.trace("deleteRequest({})", reqId);
-		if (reqId == null) {
-			log.error("Illegal parameters passed: reqId IS NULL");
+
+		if (Utils.checkParamsInvalid(reqId)) {
+			log.error("Wrong parameters passed: (reqId: {})", reqId);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
@@ -193,8 +194,9 @@ public class RequestManagerImpl implements RequestManager {
 	@Transactional
 	public Request getRequestById(Long reqId) {
 		log.trace("getRequestById({})", reqId);
-		if (reqId == null) {
-			log.error("Illegal parameters passed: reqId IS NULL");
+
+		if (Utils.checkParamsInvalid(reqId)) {
+			log.error("Wrong parameters passed: (reqId: {})", reqId);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 		
@@ -231,8 +233,9 @@ public class RequestManagerImpl implements RequestManager {
 	@Transactional
 	public List<Request> getAllRequestsByUserId(Long userId) {
 		log.trace("getAllRequestsByUserId({})", userId);
-		if (userId == null) {
-			log.error("Illegal parameters passed: userId IS NULL");
+
+		if (Utils.checkParamsInvalid(userId)) {
+			log.error("Wrong parameters passed: (userId: {})", userId);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 		
@@ -254,8 +257,9 @@ public class RequestManagerImpl implements RequestManager {
 	@Transactional
 	public List<Request> getAllRequestsByStatus(RequestStatus status) {
 		log.trace("getAllRequestsByStatus({})", status);
-		if (status == null) {
-			log.error("Illegal parameters passed: status IS NULL");
+
+		if (Utils.checkParamsInvalid(status)) {
+			log.error("Wrong parameters passed: (status: {})", status);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
@@ -277,8 +281,9 @@ public class RequestManagerImpl implements RequestManager {
 	@Transactional
 	public List<Request> getAllRequestsByAction(RequestAction action) {
 		log.trace("getAllRequestsByAction({})", action);
-		if (action == null) {
-			log.error("Illegal parameters passed: action IS NULL");
+
+		if (Utils.checkParamsInvalid(action)) {
+			log.error("Wrong parameters passed: (action: {})", action);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
@@ -300,8 +305,9 @@ public class RequestManagerImpl implements RequestManager {
 	@Transactional
 	public List<Request> getAllRequestsByFacilityId(Long facilityId) {
 		log.trace("getAllRequestsByFacilityId({})", facilityId);
-		if (facilityId == null) {
-			log.error("Illegal parameters passed: facilityId IS NULL");
+
+		if (Utils.checkParamsInvalid(facilityId)) {
+			log.error("Wrong parameters passed: (facilityId: {})", facilityId);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
@@ -323,8 +329,9 @@ public class RequestManagerImpl implements RequestManager {
 	@Transactional
 	public List<Request> getAllRequestsByFacilityIds(Set<Long> facilityIds) {
 		log.trace("getAllRequestsByFacilityIds({})", facilityIds);
-		if (facilityIds == null || facilityIds.isEmpty()) {
-			log.error("Illegal parameters passed: facilityIds IS NULL OR EMPTY: {}", facilityIds);
+
+		if (Utils.checkParamsInvalid(facilityIds) || facilityIds.isEmpty()) {
+			log.error("Wrong parameters passed: (facilityIds: {})", facilityIds);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
@@ -379,12 +386,14 @@ public class RequestManagerImpl implements RequestManager {
 	@Override
 	@Transactional
 	public boolean addSignature(Long requestId, Long userId, String userName, boolean approved, String code)
-			throws InternalErrorException {
+			throws InternalErrorException
+	{
 		log.trace("addSignature(requestId: {}, userId: {}, userName: {}, approved: {})",
 				requestId, userId, userName, approved);
 
 		if (Utils.checkParamsInvalid(requestId, userId, userId, code)) {
-			log.error("Wrong parameters passed: (requestId: {}, user:Id {}, userName: {}, code: {})", requestId, userId, userName, code);
+			log.error("Wrong parameters passed: (requestId: {}, user:Id {}, userName: {}, code: {})",
+					requestId, userId, userName, code);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 		
@@ -445,8 +454,8 @@ public class RequestManagerImpl implements RequestManager {
 	public boolean validateCode(String code) {
 		log.trace("validateCode({})", code);
 
-		if (code == null || code.isEmpty()) {
-			log.error("Illegal argument - code is null or empty: {}", code);
+		if (Utils.checkParamsInvalid(code)) {
+			log.error("Wrong parameters passed: (code: {})", code);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
@@ -469,8 +478,8 @@ public class RequestManagerImpl implements RequestManager {
 	public int storeCodes(List<String> codes) throws InternalErrorException {
 		log.trace("storeCodes({})", codes);
 
-		if (codes == null || codes.isEmpty()) {
-			log.error("Illegal argument - codes is null or empty: {}", codes);
+		if (Utils.checkParamsInvalid(codes) || codes.isEmpty()) {
+			log.error("Wrong arguments passed: (codes: {})", codes);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 

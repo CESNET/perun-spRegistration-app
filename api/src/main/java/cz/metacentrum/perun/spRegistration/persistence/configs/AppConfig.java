@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * Class with application configuration
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class AppConfig {
 

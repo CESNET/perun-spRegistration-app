@@ -3,7 +3,7 @@ package cz.metacentrum.perun.spRegistration.persistence.models;
 /**
  * Abstract class representing entity in Perun
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public abstract class PerunEntity {
 

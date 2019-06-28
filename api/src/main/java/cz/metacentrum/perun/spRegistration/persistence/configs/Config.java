@@ -12,7 +12,7 @@ import java.util.Properties;
 /**
  * Generic configuration class containing all other configuration classes.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class Config {
 
@@ -37,7 +37,7 @@ public class Config {
 	}
 
 	public void setFacilityServiceConfig(AttrsConfig facilityServiceConfig) {
-		log.debug("setting facility service config: {}", facilityServiceConfig);
+		log.trace("setting facility service config: {}", facilityServiceConfig);
 		this.facilityServiceConfig = facilityServiceConfig;
 		for (AttrInput a: facilityServiceConfig.getInputs()) {
 			inputMap.put(a.getName(), a);
@@ -45,7 +45,7 @@ public class Config {
 	}
 
 	public void setFacilityOrganizationConfig(AttrsConfig facilityOrganizationConfig) {
-		log.debug("setting facility organization config: {}", facilityOrganizationConfig);
+		log.trace("setting facility organization config: {}", facilityOrganizationConfig);
 		this.facilityOrganizationConfig = facilityOrganizationConfig;
 		for (AttrInput a: facilityOrganizationConfig.getInputs()) {
 			inputMap.put(a.getName(), a);
@@ -53,7 +53,7 @@ public class Config {
 	}
 
 	public void setFacilityMembershipConfig(AttrsConfig facilityMembershipConfig) {
-		log.debug("setting facility membership config: {}", facilityMembershipConfig);
+		log.trace("setting facility membership config: {}", facilityMembershipConfig);
 		this.facilityMembershipConfig = facilityMembershipConfig;
 		for (AttrInput a: facilityMembershipConfig.getInputs()) {
 			inputMap.put(a.getName(), a);
@@ -61,7 +61,7 @@ public class Config {
 	}
 
 	public void setFacilityOidcConfig(AttrsConfig facilityOidcConfig) {
-		log.debug("setting facility oidc config: {}", facilityOidcConfig);
+		log.trace("setting facility oidc config: {}", facilityOidcConfig);
 		this.facilityOidcConfig = facilityOidcConfig;
 		for (AttrInput a: facilityOidcConfig.getInputs()) {
 			inputMap.put(a.getName(), a);
@@ -69,7 +69,7 @@ public class Config {
 	}
 
 	public void setFacilitySamlConfig(AttrsConfig facilitySamlConfig) {
-		log.debug("setting facility saml config: {}", facilitySamlConfig);
+		log.trace("setting facility saml config: {}", facilitySamlConfig);
 		this.facilitySamlConfig = facilitySamlConfig;
 		for (AttrInput a: facilitySamlConfig.getInputs()) {
 			inputMap.put(a.getName(), a);
@@ -77,7 +77,7 @@ public class Config {
 	}
 
 	public void setMessagesConfig(Properties messagesConfig) {
-		log.debug("setting messages config: {}", messagesConfig);
+		log.trace("setting messages config: {}", messagesConfig);
 		this.messagesConfig = messagesConfig;
 	}
 

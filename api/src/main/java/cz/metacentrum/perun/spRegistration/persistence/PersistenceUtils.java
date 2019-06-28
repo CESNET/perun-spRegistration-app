@@ -28,7 +28,7 @@ import java.util.Properties;
 /**
  * Utility class for persistence layer
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class PersistenceUtils {
 
@@ -49,7 +49,7 @@ public class PersistenceUtils {
 	 * @param appConfig configuration for attributes
 	 * @param props properties file containing translations
 	 * @return List of initialized attributes
-	 * @throws ConnectorException When error while communicating with Perun occurs
+	 * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
 	 */
 	public static List<AttrInput> initializeAttributes(PerunConnector connector, AppConfig appConfig, Properties props) throws ConnectorException {
 		log.trace("Initializing attribute inputs - START");
@@ -108,6 +108,7 @@ public class PersistenceUtils {
 													 Properties mp, String adminsAttr) throws InternalErrorException {
 		log.trace("updateRequestAndNotifyUser(rm: {}, request: {}, newStatus: {}, mp:{}, adminsAttr: {})",
 				rm, request, newStatus, mp, adminsAttr);
+
 		boolean successful = updateRequest(rm, request, newStatus);
 
 		if (successful) {
@@ -126,6 +127,7 @@ public class PersistenceUtils {
 	 */
 	public static String prettyPrintJsonString(JsonNode jsonNode) throws IOException {
 		log.trace("prettyPrintJsonString({})", jsonNode);
+
 		if (jsonNode == null || jsonNode.isNull()) {
 			return null;
 		}
@@ -134,12 +136,14 @@ public class PersistenceUtils {
 		Object json = mapper.readValue(jsonNode.toString(), Object.class);
 
 		String prettyJsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
+
 		log.trace("prettyPrintJsonString() returns: {}", prettyJsonString);
 		return prettyJsonString;
 	}
 
 	private static void setAdditionalOptions(Properties props, AttrInput input, String prop) {
 		log.trace("setting additional options...");
+
 		String isRequiredProp = prop.replaceAll(ATTR_NAME, IS_REQUIRED);
 		if (props.containsKey(isRequiredProp)) {
 			boolean val = Boolean.parseBoolean(props.getProperty(isRequiredProp));
@@ -183,8 +187,16 @@ public class PersistenceUtils {
 		}
 	}
 
-	private static boolean updateRequest(RequestManager rm, Request request, RequestStatus newStatus) throws InternalErrorException {
+	private static boolean updateRequest(RequestManager rm, Request request, RequestStatus newStatus)
+			throws InternalErrorException
+	{
 		log.trace("updateRequest(rm: {}, request: {}, newStatus:{})", rm, request, newStatus);
+
+		if (Utils.checkParamsInvalid(rm, request, newStatus)) {
+			log.error("Wrong parameters passed: (rm: {}, request: {}, newStatus: {})", rm, request, newStatus);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		request.setStatus(newStatus);
 		request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
 
@@ -195,17 +207,16 @@ public class PersistenceUtils {
 	}
 
 	private static boolean updateRequestInDbAndNotifyUser(Properties mp, String adminsAttr, Request request) {
-		log.debug("updateRequestInDbAndNotifyUser(mp: {}, adminsAttr: {}, request: {})",
-				mp, adminsAttr, request);
+		log.trace("updateRequestInDbAndNotifyUser(mp: {}, adminsAttr: {}, request: {})", mp, adminsAttr, request);
 
-		if (request == null) {
+		if (Utils.checkParamsInvalid(request)) {
+			log.error("Wrong parameters passed: (request: {})", request);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
-		log.debug("sending mail notification");
 		boolean sentMails = Mails.requestStatusUpdateUserNotify(request.getReqId(), request.getStatus(), request.getAdminContact(adminsAttr), mp);
 
-		log.debug("updateRequestInDbAndNotifyUser() returns: {}", sentMails);
+		log.trace("updateRequestInDbAndNotifyUser() returns: {}", sentMails);
 		return sentMails;
 	}
 }

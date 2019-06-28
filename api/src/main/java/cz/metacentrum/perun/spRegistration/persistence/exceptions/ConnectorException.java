@@ -3,7 +3,7 @@ package cz.metacentrum.perun.spRegistration.persistence.exceptions;
 /**
  * Exception represents problem while working with Perun RPC or MitreID API
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class ConnectorException extends Exception {
 

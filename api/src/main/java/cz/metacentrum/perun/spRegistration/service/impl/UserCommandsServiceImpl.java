@@ -5,7 +5,7 @@ import cz.metacentrum.perun.spRegistration.persistence.configs.AppConfig;
 import cz.metacentrum.perun.spRegistration.persistence.configs.Config;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestStatus;
-import cz.metacentrum.perun.spRegistration.persistence.exceptions.CreateRequestException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.ActiveRequestExistsException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
 import cz.metacentrum.perun.spRegistration.persistence.models.AttrInput;
@@ -33,7 +33,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -56,7 +55,7 @@ import java.util.stream.Collectors;
 /**
  * Implementation of UserCommandsService.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @SuppressWarnings("Duplicates")
 @Service("userService")
@@ -90,28 +89,35 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	}
 
 	@Override
-	public Long createRegistrationRequest(Long userId, List<PerunAttribute> attributes) throws InternalErrorException, CreateRequestException {
+	public Long createRegistrationRequest(Long userId, List<PerunAttribute> attributes) throws InternalErrorException {
 		log.trace("createRegistrationRequest(userId: {}, attributes: {})", userId, attributes);
-		if (userId == null || attributes == null) {
-			log.error("Illegal input - userId: {}, attributes: {}", userId, attributes);
+
+		if (Utils.checkParamsInvalid(userId, attributes)) {
+			log.error("Wrong parameters passed: (userId: {}, attributes: {})", userId, attributes);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
 		attributes.add(generateProxyIdentifierAttr());
 
-		log.info("Creating request");
-		Request req = createRequest(null, userId, attributes, RequestAction.REGISTER_NEW_SP);
+		Request req = null;
+		try {
+			req = createRequest(null, userId, attributes, RequestAction.REGISTER_NEW_SP);
+		} catch (ActiveRequestExistsException e) {
+			//this cannot happen as the registration is for new service and thus facility id will be always null
+		}
+
 		if (req == null || req.getReqId() == null) {
 			log.error("Could not create request");
 			throw new InternalErrorException("Could not create request");
 		}
 
-		log.info("Sending mail notification");
 		boolean notificationSent = Mails.userCreateRequestNotify(req.getReqId(), req.getFacilityName(),
 				req.getAdminContact(appConfig.getAdminsAttributeName()), messagesProperties);
 
-		if (! notificationSent) {
+		if (!notificationSent) {
 			log.error("Some operations failed - notificationsSent: false");
+		} else {
+			log.info("Request created, notifications sent");
 		}
 
 		log.trace("createRegistrationRequest returns: {}", req.getReqId());
@@ -120,10 +126,13 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 	@Override
 	public Long createFacilityChangesRequest(Long facilityId, Long userId, List<PerunAttribute> attributes)
-			throws UnauthorizedActionException, ConnectorException, InternalErrorException, CreateRequestException {
+			throws UnauthorizedActionException, ConnectorException, InternalErrorException, ActiveRequestExistsException
+	{
 		log.trace("createFacilityChangesRequest(facility: {}, userId: {}, attributes: {})", facilityId, userId, attributes);
-		if (facilityId == null || userId == null || attributes == null) {
-			log.error("Illegal input - facilityId: {}, userId: {}, attributes: {}", facilityId, userId, attributes);
+
+		if (Utils.checkParamsInvalid(facilityId, userId, attributes)) {
+			log.error("Wrong parameters passed: (facilityId: {}, userId: {}, attributes: {})",
+					facilityId, userId, attributes);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else if (! isFacilityAdmin(facilityId, userId)) {
 			log.error("User is not registered as facility admin, cannot create request");
@@ -142,12 +151,13 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 			throw new InternalErrorException("Could not create request");
 		}
 
-		log.info("Sending mail notification");
 		boolean notificationSent = Mails.userCreateRequestNotify(req.getReqId(), req.getFacilityName(),
 				req.getAdminContact(appConfig.getAdminsAttributeName()), messagesProperties);
 
 		if (! notificationSent) {
 			log.error("Some operations failed - notificationsSent: false");
+		} else {
+			log.info("Request created, notifications sent");
 		}
 
 		log.trace("createFacilityChangesRequest returns: {}", req.getReqId());
@@ -155,10 +165,13 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	}
 
 	@Override
-	public Long createRemovalRequest(Long userId, Long facilityId) throws UnauthorizedActionException, ConnectorException, InternalErrorException, CreateRequestException {
+	public Long createRemovalRequest(Long userId, Long facilityId)
+			throws UnauthorizedActionException, ConnectorException, InternalErrorException, ActiveRequestExistsException
+	{
 		log.trace("createRemovalRequest(userId: {}, facilityId: {})", userId, facilityId);
-		if (facilityId == null || userId == null) {
-			log.error("Illegal input - facilityId: {}, userId: {}", facilityId, userId);
+
+		if (Utils.checkParamsInvalid(userId, facilityId)) {
+			log.error("Wrong parameters passed: (facilityId: {}, userId: {})", facilityId, userId);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else if (! isFacilityAdmin(facilityId, userId)) {
 			log.error("User is not registered as facility admin, cannot create request");
@@ -183,6 +196,8 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 		if (! notificationSent) {
 			log.error("Some operations failed - notificationsSent: false");
+		} else {
+			log.info("Request created, notifications sent");
 		}
 
 		log.trace("createRemovalRequest returns: {}", req.getReqId());
@@ -235,13 +250,13 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 	@Override
 	public Long requestMoveToProduction(Long facilityId, Long userId, List<String> authorities)
-			throws UnauthorizedActionException, InternalErrorException, ConnectorException, CreateRequestException,
+			throws UnauthorizedActionException, InternalErrorException, ConnectorException, ActiveRequestExistsException,
 			BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnsupportedEncodingException
 	{
 		log.trace("requestMoveToProduction(facilityId: {}, userId: {}, authorities: {})", facilityId, userId, authorities);
 
-		if (facilityId == null || userId == null) {
-			log.error("Illegal input - facilityId: {}, userId: {}", facilityId, userId);
+		if (Utils.checkParamsInvalid(facilityId, userId)) {
+			log.error("Wrong parameters passed: (facilityId: {}, userId: {})", facilityId, userId);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else if (! isFacilityAdmin(facilityId, userId)) {
 			log.error("User is not registered as admin for facility, cannot ask for moving to production");
@@ -287,10 +302,16 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	}
 
 	@Override
-	public Request getRequestDetailsForSignature(String code) throws InvalidKeyException,
-			BadPaddingException, IllegalBlockSizeException, MalformedCodeException, ExpiredCodeException
+	public Request getRequestDetailsForSignature(String code)
+			throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException, MalformedCodeException,
+			ExpiredCodeException, InternalErrorException
 	{
 		log.trace("getRequestDetailsForSignature({})", code);
+
+		if (Utils.checkParamsInvalid(code)) {
+			log.error("Wrong parameters passed: (code: {})", code);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
 
 		JSONObject decryptedCode = decryptRequestCode(code);
 		boolean isExpired = isExpiredCode(decryptedCode);
@@ -303,6 +324,11 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		Long requestId = decryptedCode.getLong(REQUEST_ID_KEY);
 		log.debug("Fetching request for id: {}", requestId);
 		Request request = requestManager.getRequestById(requestId);
+
+		if (request == null) {
+			log.error("Cannot find request from code");
+			throw new InternalErrorException("Cannot find request from code");
+		}
 
 		log.trace("getRequestDetailsForSignature returns: {}", request);
 		return request;
@@ -342,7 +368,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 		log.trace("getApprovalsOfProductionTransfer(requestId: {}, userId: {})", requestId, userId);
 
 		if (Utils.checkParamsInvalid(requestId, userId)) {
-			log.error("Illegal input - requestId: {}, userId: {} " , requestId, userId);
+			log.error("Wrong parameters passed: (requestId: {}, userId: {})" , requestId, userId);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
@@ -363,11 +389,12 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 	@Override
 	public Request getDetailedRequest(Long requestId, Long userId)
-			throws UnauthorizedActionException, InternalErrorException {
+			throws UnauthorizedActionException, InternalErrorException
+	{
 		log.trace("getDetailedRequest(requestId: {}, userId: {})", requestId, userId);
 
-		if (requestId == null || userId == null) {
-			log.error("Illegal input - requestId: {}, userId: {}", requestId, userId);
+		if (Utils.checkParamsInvalid(requestId, userId)) {
+			log.error("Wrong parameters passed: (requestId: {}, userId: {})", requestId, userId);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
@@ -376,7 +403,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 			log.error("Could not retrieve request for id: {}", requestId);
 			throw new InternalErrorException("Could not retrieve request for id: " + requestId);
 		} else if (!appConfig.isAppAdmin(userId) && !isAdminInRequest(request.getReqUserId(), userId)) {
-			log.error("User cannot view request, user is not a requester");
+			log.error("User cannot view request, user is not requester nor appAdmin");
 			throw new UnauthorizedActionException("User cannot view request, user is not a requester");
 		}
 
@@ -423,9 +450,21 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 	@Override
 	public Facility getDetailedFacilityWithInputs(Long facilityId, Long userId)
-			throws UnauthorizedActionException, ConnectorException, InternalErrorException {
+			throws UnauthorizedActionException, ConnectorException, InternalErrorException
+	{
 		log.trace("getDetailedFacilityWithInputs(facilityId: {}, userId: {})", facilityId, userId);
+
+		if (Utils.checkParamsInvalid(facilityId, userId)) {
+			log.error("Wrong parameters passed: (facilityId: {}, userId: {})", facilityId, userId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		Facility facility = getDetailedFacility(facilityId, userId);
+		if (facility == null || facility.getAttrs() == null) {
+			log.error("Could not fetch facility for id: {}", facilityId);
+			throw new InternalErrorException("Could not fetch facility for id: " + facilityId);
+		}
+
 		for (Map.Entry<String, PerunAttribute> attr: facility.getAttrs().entrySet()) {
 			AttrInput input = config.getInputMap().get(attr.getKey());
 			attr.getValue().setInput(input);
@@ -438,19 +477,28 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	@Override
 	public List<Request> getAllRequestsUserCanAccess(Long userId) throws ConnectorException {
 		log.trace("getAllRequestsUserCanAccess({})", userId);
-		if (userId == null) {
-			log.error("userId is null");
+
+		if (Utils.checkParamsInvalid(userId)) {
+			log.error("Wrong parameters passed: (userId: {})", userId);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
-		List<Request> requests = new ArrayList<>(requestManager.getAllRequestsByUserId(userId));
+		Set<Request> requests = new HashSet<>();
 
-		Set<Long> whereAdmin = perunConnector.getFacilityIdsWhereUserIsAdmin(userId);
-		if (whereAdmin != null && !whereAdmin.isEmpty()) {
-			requests.addAll(requestManager.getAllRequestsByFacilityIds(whereAdmin));
+		List<Request> userRequests = requestManager.getAllRequestsByUserId(userId);
+		if (userRequests != null && !userRequests.isEmpty()) {
+			requests.addAll(userRequests);
 		}
 
-		List<Request> unique = new ArrayList<>(new HashSet<>(requests));
+		Set<Long> facilityIdsWhereUserIsAdmin = perunConnector.getFacilityIdsWhereUserIsAdmin(userId);
+		if (facilityIdsWhereUserIsAdmin != null && !facilityIdsWhereUserIsAdmin.isEmpty()) {
+			List<Request> facilitiesRequests = requestManager.getAllRequestsByFacilityIds(facilityIdsWhereUserIsAdmin);
+			if (facilitiesRequests != null && !facilitiesRequests.isEmpty()) {
+				requests.addAll(facilitiesRequests);
+			}
+		}
+
+		List<Request> unique = new ArrayList<>(requests);
 		log.trace("getAllRequestsUserCanAccess returns: {}", unique);
 		return unique;
 	}
@@ -573,7 +621,7 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 			throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, MalformedCodeException,
 			ExpiredCodeException, InternalErrorException
 	{
-		log.debug("rejectAddAdmin({})", code);
+		log.debug("rejectAddAdmin(user: {}, code: {})", user, code);
 
 		if (Utils.checkParamsInvalid(user, code)) {
 			log.error("Wrong parameters passed: (user: {}, code: {})", user, code);
@@ -590,12 +638,14 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 		boolean deletedCode = requestManager.deleteUsedCode(code);
 
-		log.debug("rejectAddAdmin returns: {}", deletedCode);
+		log.debug("rejectAddAdmin() returns: {}", deletedCode);
 		return deletedCode;
 	}
 
 	@Override
-	public boolean validateCode(String code) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, MalformedCodeException {
+	public boolean validateCode(String code) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException,
+			MalformedCodeException
+	{
 		log.trace("validateCode({})", code);
 
 		if (Utils.checkParamsInvalid(code)) {
@@ -612,14 +662,24 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	/* PRIVATE METHODS */
 
 	private Request createRequest(Long facilityId, Long userId, List<PerunAttribute> attributes, RequestAction action)
-			throws InternalErrorException, CreateRequestException {
+			throws InternalErrorException, ActiveRequestExistsException
+	{
 		Map<String, PerunAttribute> convertedAttributes = ServiceUtils.transformListToMapAttrs(attributes, appConfig);
 		return createRequest(facilityId, userId, action, convertedAttributes);
 	}
 
 	private Request createRequest(Long facilityId, Long userId, RequestAction action, Map<String,PerunAttribute> attributes)
-			throws InternalErrorException, CreateRequestException {
-		log.debug("createRequest(facilityId: {}, userId: {}, action: {}, attributes: {})", facilityId, userId, action, attributes);
+			throws InternalErrorException, ActiveRequestExistsException
+	{
+		log.trace("createRequest(facilityId: {}, userId: {}, action: {}, attributes: {})",
+				facilityId, userId, action, attributes);
+
+		if (Utils.checkParamsInvalid(facilityId, userId, action, attributes)) {
+			log.error("Wrong parameters passed: (facility: {}, userId: {}, action: {}, attributes: {})",
+					facilityId, userId, action, attributes);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		Request request = new Request();
 		request.setFacilityId(facilityId);
 		request.setStatus(RequestStatus.WAITING_FOR_APPROVAL);
@@ -645,6 +705,11 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	private boolean isFacilityAdmin(Long facilityId, Long userId) throws ConnectorException {
 		log.trace("isFacilityAdmin(facilityId: {}, userId: {})", facilityId, userId);
 
+		if (Utils.checkParamsInvalid(facilityId, userId)) {
+			log.error("Wrong parameters passed: (facility: {}, userId: {})", facilityId, userId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		Set<Long> whereAdmin = perunConnector.getFacilityIdsWhereUserIsAdmin(userId);
 
 		if (whereAdmin == null || whereAdmin.isEmpty()) {
@@ -660,7 +725,13 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	private boolean isAdminInRequest(Long reqUserId, Long userId) {
 		log.debug("isAdminInRequest(reqUserId: {}, userId: {})", reqUserId, userId);
 
+		if (Utils.checkParamsInvalid(reqUserId, userId)) {
+			log.error("Wrong parameters passed: (reqUserId: {}, userId: {})", reqUserId, userId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		boolean res = reqUserId.equals(userId);
+
 		log.debug("isAdminInRequest returns: {}", res);
 		return res;
 	}
@@ -684,6 +755,11 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	{
 		log.trace("decryptRequestCode({})", code);
 
+		if (Utils.checkParamsInvalid(code)) {
+			log.error("Wrong parameters passed: (code: {})", code);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		Base64.Decoder b64dec = Base64.getUrlDecoder();
 
 		cipher.init(Cipher.DECRYPT_MODE, appConfig.getSecret());
@@ -705,6 +781,12 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 			throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException
 	{
 		log.trace("createRequestCode(requestId: {}, facilityId: {}, requestedMail: {})", requestId, facilityId, requestedMail);
+
+		if (Utils.checkParamsInvalid(requestId, facilityId, requestedMail)) {
+			log.error("Wrong parameters passed: (requestId: {}, facilityId: {}, requestedMail: {})",
+					requestId, facilityId, requestedMail);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
 
 		JSONObject object = new JSONObject();
 		object.put(REQUEST_ID_KEY, requestId);
@@ -729,6 +811,11 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	{
 		log.trace("decryptAddAdminCode({})", code);
 
+		if (Utils.checkParamsInvalid(code)) {
+			log.error("Wrong parameters passed: (code: {})", code);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		Base64.Decoder b64dec = Base64.getUrlDecoder();
 
 		cipher.init(Cipher.DECRYPT_MODE, appConfig.getSecret());
@@ -750,6 +837,11 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	{
 		log.trace("createRequestCode(facilityId: {}, requestedMail: {})", facilityId, requestedMail);
 
+		if (Utils.checkParamsInvalid(facilityId, requestedMail)) {
+			log.error("Wrong parameters passed: (facilityId: {}, requestedMail: {})", facilityId, requestedMail);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		JSONObject object = new JSONObject();
 		object.put(FACILITY_ID_KEY, facilityId);
 		object.put(CREATED_AT_KEY, LocalDateTime.now().toString());
@@ -770,6 +862,11 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	private boolean isExpiredCode(JSONObject codeInJson) {
 		log.trace("isExpiredCode({})", codeInJson);
 
+		if (Utils.checkParamsInvalid(codeInJson)) {
+			log.error("Wrong parameters passed: (codeInJson: {})", codeInJson);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		long daysValidPeriod = appConfig.getConfirmationPeriodDays();
 		long hoursValidPeriod = appConfig.getConfirmationPeriodHours();
 
@@ -784,6 +881,11 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 	private int sendAuthoritiesNotifications(Map<String, String> authsWithLinks, Request req) {
 		log.trace("sendAuthoritiesNotifications(authsWithLinks: {}, req: {})", authsWithLinks, req);
+
+		if (Utils.checkParamsInvalid(authsWithLinks, req)) {
+			log.error("Wrong parameters passed: (authsWithLinks: {}, req: {})", authsWithLinks, req);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
 
 		int sent = 0;
 		for (Map.Entry<String, String> entry: authsWithLinks.entrySet()) {
@@ -804,6 +906,11 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	private int sendAdminsNotifications(Map<String, String> adminLinkMap, Facility facility) {
 		log.trace("sendAdminsNotifications(adminLinkMap: {}, facility: {})", adminLinkMap, facility);
 
+		if (Utils.checkParamsInvalid(adminLinkMap, facility)) {
+			log.error("Wrong parameters passed: (adminLinkMap: {}, facility: {})", adminLinkMap, facility);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		int sent = 0;
 		for (Map.Entry<String, String> entry: adminLinkMap.entrySet()) {
 			String mailAdmin = entry.getKey();
@@ -823,6 +930,12 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 
 	private Map<String, PerunAttribute> filterNotNullAttributes(Facility facility) {
 		log.trace("filterNotNullAttributes({})", facility);
+
+		if (Utils.checkParamsInvalid(facility)) {
+			log.error("Wrong parameters passed: (facility: {})", facility);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		Map<String, PerunAttribute> filteredAttributes = new HashMap<>();
 		for (Map.Entry<String, PerunAttribute> entry : facility.getAttrs().entrySet()) {
 			if (entry.getValue().getValue() != null) {
@@ -871,6 +984,11 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	{
 		log.trace("generateCodesForAuthorities(request: {}, authorities: {})", request, authorities);
 
+		if (Utils.checkParamsInvalid(request, authorities)) {
+			log.error("Wrong parameters passed: (request: {}, authorities: {})", request, authorities);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		List<String> codes = new ArrayList<>();
 		Map<String, String> authsCodesMap = new HashMap<>();
 
@@ -890,6 +1008,11 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException, InternalErrorException
 	{
 		log.trace("generateCodesForAdmins(facilityId: {}, admins: {})", facilityId, admins);
+
+		if (Utils.checkParamsInvalid(admins, facilityId)) {
+			log.error("Wrong parameters passed: (admins: {}, facilityId: {})", admins, facilityId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
 
 		List<String> codes = new ArrayList<>();
 		Map<String, String> adminCodesMap = new HashMap<>();
@@ -911,6 +1034,11 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 	{
 		log.trace("generateLinksForAdmins(adminCodeMap: {}, facilityId: {})", adminCodeMap, facilityId);
 
+		if (Utils.checkParamsInvalid(facilityId, adminCodeMap)) {
+			log.error("Wrong parameters passed: (facilityId: {}, adminCodeMap: {})", facilityId, adminCodeMap);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		Facility facility = perunConnector.getFacilityById(facilityId);
 		Map<String, String> linksMap = new HashMap<>();
 
@@ -931,6 +1059,11 @@ public class UserCommandsServiceImpl implements UserCommandsService {
 			throws UnsupportedEncodingException, ConnectorException
 	{
 		log.trace("generateLinksForAuthorities(authorityCodeMap: {}, request: {})", authorityCodeMap, request);
+
+		if (Utils.checkParamsInvalid(authorityCodeMap, request)) {
+			log.error("Wrong parameters passed: (authorityCodeMap: {}, request: {})", authorityCodeMap, request);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
 
 		Facility facility = perunConnector.getFacilityById(request.getFacilityId());
 		Map<String, String> linksMap = new HashMap<>();

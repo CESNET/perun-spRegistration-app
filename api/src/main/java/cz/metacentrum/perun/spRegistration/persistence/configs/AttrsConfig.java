@@ -11,7 +11,7 @@ import java.util.Properties;
 /**
  * Configuration class of attribute inputs
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class AttrsConfig {
 

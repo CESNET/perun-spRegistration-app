@@ -55,6 +55,7 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 		String extSourceProxy = appConfig.getLoginExtSource();
 		log.info("settingUser");
 		String sub;
+
 		if (devEnabled) {
 			sub = request.getHeader("fake-usr-hdr");
 		} else {

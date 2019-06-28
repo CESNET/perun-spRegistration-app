@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Service layer with methods specific for Admins.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public interface AdminCommandsService {
 
@@ -22,9 +22,12 @@ public interface AdminCommandsService {
 	 * Approve request.
 	 * @param requestId ID of request.
 	 * @param userId ID of user (ADMIN) approving the request.
-	 * @return True if everything went OK.
+	 * @return TRUE if everything went OK, FALSE otherwise
 	 * @throws UnauthorizedActionException when user is not authorized to perform this action.
 	 * @throws CannotChangeStatusException when status of the request cannot be changed.
+	 * @throws InternalErrorException Thrown when cannot find request for given ID.
+	 * @throws IllegalArgumentException Thrown when param "requestId" is NULL, when param "userId" is NULL.
+	 *
 	 */
 	boolean approveRequest(Long requestId, Long userId)
 			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException, ConnectorException;
@@ -33,12 +36,13 @@ public interface AdminCommandsService {
 	 * Reject request.
 	 * @param requestId ID of request.
 	 * @param userId ID of user (ADMIN) rejecting the request.
-	 * @param message Message explaining why the request has been rejected.
-	 * @return True if everything went OK.
+	 * @return TRUE if everything went OK, FALSE otherwise
 	 * @throws UnauthorizedActionException when user is not authorized to perform this action.
 	 * @throws CannotChangeStatusException when status of the request cannot be changed.
+	 * @throws InternalErrorException Thrown when cannot find request for given ID.
+	 * @throws IllegalArgumentException Thrown when param "requestId" is NULL, when param "userId" is NULL.
 	 */
-	boolean rejectRequest(Long requestId, Long userId, String message)
+	boolean rejectRequest(Long requestId, Long userId)
 			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException;
 
 	/**
@@ -47,9 +51,11 @@ public interface AdminCommandsService {
 	 * @param userId ID of user (ADMIN) asking for changes.
 	 * @param attributes Map (key = attribute name, value = PerunAttribute) of attributes.
 	 *                   It contains comments left by ADMIN.
-	 * @return True if everything went OK.
-	 * @throws UnauthorizedActionException when user is not authorized to perform this action.
-	 * @throws CannotChangeStatusException when status of the request cannot be changed.
+	 * @return TRUE if everything went OK, FALSE otherwise
+	 * @throws UnauthorizedActionException Thrown when user is not authorized to perform this action.
+	 * @throws CannotChangeStatusException Thrown when status of the request cannot be changed.
+	 * @throws InternalErrorException Thrown when cannot find request for given ID.
+	 * @throws IllegalArgumentException Thrown when param "requestId" is NULL, when param "userId" is NULL.
 	 */
 	boolean askForChanges(Long requestId, Long userId, List<PerunAttribute> attributes)
 			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException;
@@ -58,7 +64,8 @@ public interface AdminCommandsService {
 	 * Get all requests stored in system.
 	 * @param adminId ID of admin.
 	 * @return List of found requests.
-	 * @throws UnauthorizedActionException when user is not authorized to perform this action.
+	 * @throws UnauthorizedActionException Thrown when user is not authorized to perform this action.
+	 * @throws IllegalArgumentException Thrown when param "adminId" is NULL.
 	 */
 	List<Request> getAllRequests(Long adminId) throws UnauthorizedActionException;
 
@@ -67,6 +74,8 @@ public interface AdminCommandsService {
 	 * @param adminId ID of admin.
 	 * @return List of found facilities.
 	 * @throws UnauthorizedActionException when user is not authorized to perform this action.
+	 * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
+	 * @throws IllegalArgumentException Thrown when param "adminId" is NULL.
 	 */
 	List<Facility> getAllFacilities(Long adminId) throws UnauthorizedActionException, ConnectorException;
 

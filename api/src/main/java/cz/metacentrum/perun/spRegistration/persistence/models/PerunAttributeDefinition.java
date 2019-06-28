@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.spRegistration.persistence.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import cz.metacentrum.perun.spRegistration.Utils;
 import org.json.JSONObject;
 
 import java.util.Objects;
@@ -8,7 +9,7 @@ import java.util.Objects;
 /**
  * Attribute definition from Perun.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class PerunAttributeDefinition extends PerunEntity {
 
@@ -42,8 +43,8 @@ public class PerunAttributeDefinition extends PerunEntity {
 	}
 
 	public static PerunAttributeDefinition fromPerunJson(JSONObject jsonObject) {
-		if (jsonObject == null || jsonObject.isEmpty() || jsonObject.equals(JSONObject.NULL)) {
-			return null;
+		if (Utils.checkParamsInvalid(jsonObject)) {
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
 		Long id = jsonObject.getLong("id");

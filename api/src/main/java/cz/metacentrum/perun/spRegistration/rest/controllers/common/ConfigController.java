@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * Controller handling requests for obtaining configuration
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @RestController
 public class ConfigController {

@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.spRegistration.persistence.mappers;
 
+import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.persistence.configs.Config;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.persistence.enums.RequestStatus;
@@ -21,7 +22,7 @@ import java.util.Map;
 /**
  * Mapper for Request object. Maps result retrieved from DB to Request object.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class RequestMapper implements RowMapper<Request> {
 
@@ -52,7 +53,6 @@ public class RequestMapper implements RowMapper<Request> {
 	@Override
 	public Request mapRow(ResultSet resultSet, int i) throws SQLException {
 		log.trace("mapRow(resultSet: {}, i: {})", resultSet, i);
-		Request request = new Request();
 
 		String attrsJsonStr = resultSet.getString(ATTRIBUTES_KEY);
 		Map<String, PerunAttribute> attrs = mapAttributes(attrsJsonStr);
@@ -61,6 +61,7 @@ public class RequestMapper implements RowMapper<Request> {
 			facilityId = null;
 		}
 
+		Request request = new Request();
 		request.setReqId(resultSet.getLong(ID_KEY));
 		request.setFacilityId(facilityId);
 		request.setStatus(RequestStatus.resolve(resultSet.getInt(STATUS_KEY)));
@@ -76,17 +77,20 @@ public class RequestMapper implements RowMapper<Request> {
 
 	private Map<String, PerunAttribute> mapAttributes(String attrsJsonStr) {
 		log.trace("mapAttributes({})", attrsJsonStr);
+
 		Map<String, PerunAttribute> attributes = new HashMap<>();
 
-		JSONObject json = new JSONObject(attrsJsonStr);
-		Iterator<String> keys = json.keys();
+		if (!Utils.checkParamsInvalid(attrsJsonStr)) {
+			JSONObject json = new JSONObject(attrsJsonStr);
+			Iterator<String> keys = json.keys();
 
-		while (keys.hasNext()) {
-			String key = keys.next();
-			PerunAttribute mappedAttribute = PerunAttribute.fromJsonOfDb(
-					key, json.getJSONObject(key), definitionMap, attrInputMap
-			);
-			attributes.put(key, mappedAttribute);
+			while (keys.hasNext()) {
+				String key = keys.next();
+				PerunAttribute mappedAttribute = PerunAttribute.fromJsonOfDb(
+						key, json.getJSONObject(key), definitionMap, attrInputMap
+				);
+				attributes.put(key, mappedAttribute);
+			}
 		}
 
 		log.trace("mapAttributes() returns: {}", attributes);

@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * MapperUtils class for mapping objects from RPC responses.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class MapperUtils {
 
@@ -29,7 +29,7 @@ public class MapperUtils {
 	 * Map JSON response from Perun RPC to Facility object.
 	 * @param facilityJson JSON from Perun with facility.
 	 * @return Mapped Facility object.
-	 * @throws IllegalArgumentException Thrown when input is NULL, equal to JSONObject.NULL or empty.
+	 * @throws IllegalArgumentException Thrown when param "facilityJson" is NULL, equal to JSONObject.NULL or empty.
 	 */
 	public static Facility mapFacility(JSONObject facilityJson) {
 		log.trace("mapFacility({})", facilityJson);
@@ -49,7 +49,7 @@ public class MapperUtils {
 	 * Map JSON response from Perun RPC to List of Facilities.
 	 * @param facilitiesJson JSON from Perun with facilities.
 	 * @return Mapped List of Facility objects (filled or empty).
-	 * @throws IllegalArgumentException Thrown when input is NULL, equal to JSONObject.NULL or empty.
+	 * @throws IllegalArgumentException Thrown when param "facilitiesJson" is NULL, equal to JSONObject.NULL or empty.
 	 */
 	public static List<Facility> mapFacilities(JSONArray facilitiesJson) {
 		log.trace("mapFacilities({})", facilitiesJson);
@@ -75,24 +75,26 @@ public class MapperUtils {
 	 * Map JSON response from Perun RPC to User object.
 	 * @param json JSON from Perun with user.
 	 * @param isRichUser Boolean value specifying if the JSON contains attributes as well.
-	 * @return Mapped User object or null.
+	 * @return Mapped User object.
+	 * @throws IllegalArgumentException Thrown when param "json" is NULL, equal to JSONObject.NULL or empty.
 	 */
 	public static User mapUser(JSONObject json, boolean isRichUser) {
 		log.trace("mapUser(json: {}, isRichUser: {})", json, isRichUser);
 		User user;
 
-		if (json == null || json.isEmpty() || json.equals(JSONObject.NULL)) {
-			user = null;
-		} else {
-			user = User.fromPerunJson(json);
-			if (isRichUser) {
-				JSONArray attrs = json.getJSONArray("attributes");
-				for (int i = 0; i < attrs.length(); i++) {
-					JSONObject attrJson = attrs.getJSONObject(i);
-					if (!(attrJson.get("name") instanceof NullNode)
-							&& "preferredMail".equals(attrJson.getString("name"))) {
-						user.setEmail(attrJson.getString("name"));
-					}
+		if (Utils.checkParamsInvalid(json)) {
+			log.error("Wrong parameters passed: (json: {})", json);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
+		user = User.fromPerunJson(json);
+		if (isRichUser) {
+			JSONArray attrs = json.getJSONArray("attributes");
+			for (int i = 0; i < attrs.length(); i++) {
+				JSONObject attrJson = attrs.getJSONObject(i);
+				if (!(attrJson.get("name") instanceof NullNode)
+						&& "preferredMail".equals(attrJson.getString("name"))) {
+					user.setEmail(attrJson.getString("name"));
 				}
 			}
 		}
@@ -153,17 +155,18 @@ public class MapperUtils {
 	/**
 	 * Map JSON from Perun RPC to PerunAttributeDefinition
 	 * @param json JSON from Perun with attribute definition.
-	 * @return Mapped PerunAttributeDefinition object or null.
+	 * @return Mapped PerunAttributeDefinition object.
 	 */
 	public static PerunAttributeDefinition mapAttrDefinition(JSONObject json) {
 		log.trace("mapAttrDefinition({})", json);
 		PerunAttributeDefinition perunAttributeDefinition;
 
-		if (json == null || json.isEmpty() || json.equals(JSONObject.NULL)) {
-			perunAttributeDefinition = null;
-		} else {
-			perunAttributeDefinition = PerunAttributeDefinition.fromPerunJson(json);
+		if (Utils.checkParamsInvalid(json)) {
+			log.error("Wrong parameters passed: (json: {})", json);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
+
+		perunAttributeDefinition = PerunAttributeDefinition.fromPerunJson(json);
 
 		log.trace("mapAttrDefinition() returns: {}", perunAttributeDefinition);
 		return perunAttributeDefinition;

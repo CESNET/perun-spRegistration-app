@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * Input for attribute. Holds configuration of inputs like if it is required, should be displayed etc.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class AttrInput {
 

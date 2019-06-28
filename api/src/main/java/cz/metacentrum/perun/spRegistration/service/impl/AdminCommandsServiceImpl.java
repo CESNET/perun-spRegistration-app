@@ -29,12 +29,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
  * Implementation of AdminCommandsService.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @Service("adminService")
 public class AdminCommandsServiceImpl implements AdminCommandsService {
@@ -62,10 +63,12 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 
 	@Override
 	public boolean approveRequest(Long requestId, Long userId)
-			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException, ConnectorException {
+			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException, ConnectorException
+	{
 		log.trace("approveRequest(requestId: {}, userId: {})", requestId, userId);
-		if (requestId == null || userId == null) {
-			log.error("Illegal input - requestId: {}, userId: {}", requestId, userId);
+
+		if (Utils.checkParamsInvalid(requestId, userId)) {
+			log.error("Wrong parameters passed: (requestId: {}, userId: {})", requestId, userId);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else if (! appConfig.isAppAdmin(userId)) {
 			log.error("User is not authorized to approve request");
@@ -76,23 +79,22 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 		if (request == null) {
 			log.error("Could not fetch request with ID: {} from database", requestId);
 			throw new InternalErrorException("Could not fetch request with ID: " + requestId + " from database");
-		} else if (! RequestStatus.WAITING_FOR_APPROVAL.equals(request.getStatus())) {
-			log.error("Cannot approve request, request not marked as WAITING_FOR_APPROVAL");
-			throw new CannotChangeStatusException("Cannot approve request, request not marked as WAITING_FOR_APPROVAL");
+		} else if (!RequestStatus.WAITING_FOR_APPROVAL.equals(request.getStatus())
+				&& !RequestStatus.WAITING_FOR_CHANGES.equals(request.getStatus())) {
+			log.error("Cannot approve request, request is not in valid status");
+			throw new CannotChangeStatusException("Cannot approve request, request is not in valid status");
 		}
-
-		boolean requestProcessed = processApprovedRequest(request);
 
 		request.setStatus(RequestStatus.APPROVED);
 		request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
-		boolean requestUpdated = requestManager.updateRequest(request);
 
+		boolean requestProcessed = processApprovedRequest(request);
+		boolean requestUpdated = requestManager.updateRequest(request);
 		boolean notificationSent = Mails.requestStatusUpdateUserNotify(request.getReqId(), RequestStatus.APPROVED,
 				request.getAdminContact(appConfig.getAdminsAttributeName()), messagesProperties);
-
 		boolean successful = (requestProcessed && requestUpdated && notificationSent);
 
-		if (! successful) {
+		if (!successful) {
 			log.error("some operations failed: requestProcessed: {}, requestUpdated: {}, notificationSent: {} for request: {}",
 					requestProcessed, requestUpdated, notificationSent, request);
 		} else {
@@ -104,12 +106,13 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 	}
 
 	@Override
-	public boolean rejectRequest(Long requestId, Long userId, String message)
-			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException {
+	public boolean rejectRequest(Long requestId, Long userId)
+			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException
+	{
+		log.trace("rejectRequest(requestId: {}, userId: {})", requestId, userId);
 
-		log.trace("rejectRequest(requestId: {}, userId: {}, message: {})", requestId, userId, message);
-		if (requestId == null || userId == null) {
-			log.error("Illegal input - requestId: {}, userId: {}", requestId, userId);
+		if (Utils.checkParamsInvalid(requestId, userId)) {
+			log.error("Wrong parameters passed: (requestId: {}, userId: {})", requestId, userId);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else if (! appConfig.isAppAdmin(userId)) {
 			log.error("User is not authorized to reject request");
@@ -120,21 +123,18 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 		if (request == null) {
 			log.error("Could not fetch request with ID: {} from database", requestId);
 			throw new InternalErrorException("Could not fetch request with ID: " + requestId + " from database");
-		} else if (! RequestStatus.WAITING_FOR_APPROVAL.equals(request.getStatus())) {
-			log.error("Cannot reject request, request not marked as WAITING_FOR_APPROVAL");
-			throw new CannotChangeStatusException("Cannot reject request, request not marked as WAITING_FOR_APPROVAL");
+		} else if (!RequestStatus.WAITING_FOR_APPROVAL.equals(request.getStatus())
+				&& !RequestStatus.WAITING_FOR_CHANGES.equals(request.getStatus())) {
+			log.error("Cannot reject request, request is not in valid status");
+			throw new CannotChangeStatusException("Cannot reject request, request is not in valid status");
 		}
 
 		request.setStatus(RequestStatus.REJECTED);
 		request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
 
-		log.debug("updatingRequest");
 		boolean requestUpdated = requestManager.updateRequest(request);
-
-		log.debug("sendingNotification");
 		boolean notificationSent = Mails.requestStatusUpdateUserNotify(request.getReqId(), RequestStatus.REJECTED,
 				request.getAdminContact(appConfig.getAdminsAttributeName()), messagesProperties);
-
 		boolean successful = (requestUpdated && notificationSent);
 
 		if (! successful) {
@@ -150,11 +150,12 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 
 	@Override
 	public boolean askForChanges(Long requestId, Long userId, List<PerunAttribute> attributes)
-			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException {
-
+			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException
+	{
 		log.trace("askForChanges(requestId: {}, userId: {}, attributes: {})", requestId, userId, attributes);
-		if (requestId == null || userId == null || attributes == null) {
-			log.error("Illegal input - requestId: {}, userId: {}, attributes: {}", requestId, userId, attributes);
+
+		if (Utils.checkParamsInvalid(requestId, userId)) {
+			log.error("Wrong parameters passed: (requestId: {}, userId: {})", requestId, userId);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else if (! appConfig.isAppAdmin(userId)) {
 			log.error("User is not authorized to ask for changes");
@@ -172,14 +173,10 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 
 		Map<String, PerunAttribute> convertedAttributes = ServiceUtils.transformListToMapAttrs(attributes, appConfig);
 		request.updateAttributes(convertedAttributes, false);
-
 		request.setStatus(RequestStatus.WAITING_FOR_CHANGES);
 		request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
 
-		log.debug("updatingRequest");
 		boolean requestUpdated = requestManager.updateRequest(request);
-
-		log.debug("sendingNotification");
 		boolean notificationSent = Mails.requestStatusUpdateUserNotify(request.getReqId(), RequestStatus.WAITING_FOR_CHANGES,
 				request.getAdminContact(appConfig.getAdminsAttributeName()), messagesProperties);
 
@@ -199,8 +196,9 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 	@Override
 	public List<Request> getAllRequests(Long userId) throws UnauthorizedActionException {
 		log.trace("getAllRequests({})", userId);
-		if (userId == null) {
-			log.error("Illegal input - userId is null");
+
+		if (Utils.checkParamsInvalid(userId)) {
+			log.error("Wrong parameters passed: (userId: {})", userId);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		} else if (! appConfig.isAppAdmin(userId)) {
 			log.error("User cannot list all requests, user is not an admin");
@@ -270,16 +268,15 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 	private boolean registerNewFacilityToPerun(Request request) throws InternalErrorException, ConnectorException {
 		log.trace("registerNewFacilityToPerun({})", request);
 
-		Facility facility = new Facility(null);
 		String newName = request.getFacilityName();
 		String newDesc = request.getFacilityDescription();
 
-		if (newName == null || newDesc == null) {
-			log.error("Cannot register facility without name and description");
+		if (Utils.checkParamsInvalid(newName, newDesc)) {
+			log.error("Wrong parameters passed: (newName: {}, newDesc: {})", newName, newDesc);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
-		log.info("Creating facility");
+		Facility facility = new Facility(null);
 		facility.setName(newName);
 		facility.setDescription(newDesc);
 		facility = perunConnector.createFacilityInPerun(facility.toJson());
@@ -287,12 +284,10 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 		if (facility == null) {
 			log.error("Creating facility in Perun failed");
 			throw new InternalErrorException("Creating facility in Perun failed");
-		} else {
-			log.info("Created facility: {}", facility);
 		}
+
 		request.setFacilityId(facility.getId());
 
-		log.info("Setting requesting user as facility admin");
 		boolean adminSet = perunConnector.addFacilityAdmin(facility.getId(), request.getReqUserId());
 
 		Map<String, PerunAttribute> additionalAttributes;
@@ -306,11 +301,10 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 		}
 
 		request.updateAttributes(additionalAttributes, true);
+		boolean attributesSet = perunConnector.setFacilityAttributes(
+				request.getFacilityId(), request.getAttributesAsJsonArrayForPerun());
 
-		log.info("Setting facility attributes");
-		boolean attributesSet = perunConnector.setFacilityAttributes(request.getFacilityId(), request.getAttributesAsJsonArrayForPerun());
-
-		boolean successful = adminSet && attributesSet;
+		boolean successful = (adminSet && attributesSet);
 		if (!successful) {
 			log.error("Some operations failed - adminSet: {}, attributesSet: {}", adminSet, attributesSet);
 		} else {
@@ -323,32 +317,33 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 
 	private boolean updateFacilityInPerun(Request request) throws InternalErrorException, ConnectorException {
 		log.trace("updateFacilityInPerun({})", request);
+
+		if (Utils.checkParamsInvalid(request)) {
+			log.error("Wrong parameters passed: (request: {})", request);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		Long facilityId = extractFacilityIdFromRequest(request);
 
-		log.debug("Fetching facility with ID: {} from Perun ", facilityId);
 		Facility actualFacility = perunConnector.getFacilityById(facilityId);
 		if (actualFacility == null) {
 			log.error("Facility with ID: {} does not exist in Perun", facilityId);
 			throw new InternalErrorException("Facility with ID: " + facilityId + " does not exist in Perun");
 		}
 
-		log.info("Updating facility name and description");
 		boolean facilityCoreUpdated = updateFacilityNameAndDesc(actualFacility, request);
-
-		log.info("Setting facility attributes");
 		boolean attributesSet = perunConnector.setFacilityAttributes(request.getFacilityId(),
 				request.getAttributesAsJsonArrayForPerun());
+		boolean mitreIdUpdated = false;
 
-		boolean mitreIdUpdated = true;
 		if (ServiceUtils.isOidcRequest(request, appConfig.getEntityIdAttributeName())) {
-			log.info("Updating mitreId client");
-			PerunAttribute mitreClientId = perunConnector.getFacilityAttribute(facilityId,
-					mitreIdAttrsConfig.getMitreClientIdAttr());
 			// TODO: uncomment when connector implemented
+			//PerunAttribute mitreClientId = perunConnector.getFacilityAttribute(facilityId, mitreIdAttrsConfig.getMitreClientIdAttr());
 			//mitreIdUpdated = mitreIdConnector.updateClient(mitreClientId.valueAsLong(), request.getAttributes());
+			mitreIdUpdated = true;
 		}
 
-		boolean successful = facilityCoreUpdated && attributesSet && mitreIdUpdated;
+		boolean successful = (facilityCoreUpdated && attributesSet && mitreIdUpdated);
 		if (!successful) {
 			if (ServiceUtils.isOidcRequest(request, appConfig.getEntityIdAttributeName())) {
 				log.error("Some operations failed - facilityCoreUpdated: {}, attributesSet: {}, mitreIdUpdated: {}",
@@ -357,27 +352,32 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 				log.error("Some operations failed - facilityCoreUpdated: {}, attributesSet: {}",
 						facilityCoreUpdated, attributesSet);
 			}
+		} else {
+			log.info("Facility has been updated in Perun");
 		}
-
 
 		log.trace("updateFacilityInPerun returns: {}", successful);
 		return successful;
 	}
 
-	private boolean deleteFacilityFromPerun(Request request) throws ConnectorException {
+	private boolean deleteFacilityFromPerun(Request request) throws ConnectorException, InternalErrorException {
 		log.trace("deleteFacilityFromPerun({})", request);
+
+		if (Utils.checkParamsInvalid(request)) {
+			log.error("Wrong parameters passed: (request: {})", request);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		Long facilityId = extractFacilityIdFromRequest(request);
 
-		log.info("Removing facility with ID: {} from Perun", facilityId);
 		boolean facilityRemoved = perunConnector.deleteFacilityFromPerun(facilityId);
-		boolean mitreIdRemoved = true;
+		boolean mitreIdRemoved = false;
 
 		if (ServiceUtils.isOidcRequest(request, appConfig.getEntityIdAttributeName())) {
-			log.info("Removing client from mitreId");
-			PerunAttribute mitreClientId = perunConnector.getFacilityAttribute(facilityId,
-					mitreIdAttrsConfig.getMitreClientIdAttr());
 			// TODO: uncomment when connector implemented
+			//PerunAttribute mitreClientId = perunConnector.getFacilityAttribute(facilityId, mitreIdAttrsConfig.getMitreClientIdAttr());
 			// mitreIdRemoved = mitreIdConnector.deleteClient(mitreClientId.valueAsLong());
+			mitreIdRemoved = true;
 		}
 
 		boolean successful = facilityRemoved && mitreIdRemoved;
@@ -388,6 +388,8 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 			} else {
 				log.error("Some operations failed - facilityRemoved: {}", facilityRemoved);
 			}
+		} else {
+			log.info("Facility has been deleted");
 		}
 
 		log.trace("deleteFacilityFromPerun returns: {}", successful);
@@ -408,18 +410,21 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 		return updated;
 	}
 
-	private Long extractFacilityIdFromRequest(Request request) {
-		if (request == null) {
-			log.error("Request is null");
+	private Long extractFacilityIdFromRequest(Request request) throws InternalErrorException {
+		log.trace("extractFacilityIdFromRequest({})", request);
+
+		if (Utils.checkParamsInvalid(request)) {
+			log.error("Wrong parameters passed: (request: {})",request);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
 		Long facilityId = request.getFacilityId();
 		if (facilityId == null) {
 			log.error("Request: {} does not have facilityId", request);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+			throw new InternalErrorException(Utils.GENERIC_ERROR_MSG);
 		}
 
+		log.trace("extractFacilityIdFromRequest() returns: {}", facilityId);
 		return facilityId;
 	}
 
@@ -454,18 +459,24 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 
 	private boolean updateFacilityNameAndDesc(Facility actualFacility, Request request) throws ConnectorException {
 		log.trace("updateFacilityNameAndDesc(actualFacility: {}, request: {})", actualFacility, request);
+
+		if (Utils.checkParamsInvalid(actualFacility, request)) {
+			log.error("Wrong parameters passed: (actualFacility: {}, request: {})", actualFacility, request);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		String newName = request.getFacilityName();
 		String newDesc = request.getFacilityDescription();
 		boolean changed = false;
 		boolean successful = true;
 
-		if (newName != null && !actualFacility.getName().equals(newName)) {
+		if (newName != null && !Objects.equals(actualFacility.getName(), newName)) {
 			log.debug("Update facility name requested");
 			actualFacility.setName(newName);
 			changed = true;
 		}
 
-		if (newDesc != null && !actualFacility.getDescription().equals(newDesc)) {
+		if (newDesc != null && !Objects.equals(actualFacility.getDescription(), newDesc)) {
 			log.debug("Update facility description requested");
 			actualFacility.setDescription(newDesc);
 			changed = true;
@@ -473,7 +484,7 @@ public class AdminCommandsServiceImpl implements AdminCommandsService {
 
 		if (changed) {
 			log.debug("Updating facility name and/or description");
-			successful = null != perunConnector.updateFacilityInPerun(actualFacility.toJson());
+			successful = (null != perunConnector.updateFacilityInPerun(actualFacility.toJson()));
 		}
 
 		log.trace("updateFacilityNameAndDesc() returns: {}", successful);

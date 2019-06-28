@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.spRegistration.rest.controllers.signatures;
 
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.ConnectorException;
-import cz.metacentrum.perun.spRegistration.persistence.exceptions.CreateRequestException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.ActiveRequestExistsException;
 import cz.metacentrum.perun.spRegistration.persistence.models.Request;
 import cz.metacentrum.perun.spRegistration.persistence.models.RequestSignature;
 import cz.metacentrum.perun.spRegistration.persistence.models.User;
@@ -24,15 +24,13 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.util.List;
 
 /**
  * Controller handling USER actions related to Signatures.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @RestController
 public class UserSignaturesController {
@@ -51,7 +49,7 @@ public class UserSignaturesController {
 								 @PathVariable("facilityId") Long facilityId,
 								 @RequestBody List<String> authorities)
 			throws BadPaddingException, InvalidKeyException, ConnectorException, IllegalBlockSizeException,
-			UnsupportedEncodingException, InternalErrorException, CreateRequestException, UnauthorizedActionException 
+			UnsupportedEncodingException, InternalErrorException, ActiveRequestExistsException, UnauthorizedActionException
 	{
 		log.trace("moveToProduction(user: {}, facilityId: {} authorities: {})", user.getId(), facilityId, authorities);
 		
@@ -64,7 +62,7 @@ public class UserSignaturesController {
 	@GetMapping(path = "/api/moveToProduction/getFacilityDetails", params = "code")
 	public Request signRequestGetData(String code)
 			throws BadPaddingException, ConnectorException, IllegalBlockSizeException, MalformedCodeException,
-			InvalidKeyException, ExpiredCodeException, UnsupportedEncodingException
+			InvalidKeyException, ExpiredCodeException, UnsupportedEncodingException, InternalErrorException
 	{
 		log.trace("signRequestGetData({})", code);
 

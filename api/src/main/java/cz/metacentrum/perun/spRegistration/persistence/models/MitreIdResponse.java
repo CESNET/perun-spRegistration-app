@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
  * Response from MitreID API. Holds interesting information from response that should be processed.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class MitreIdResponse {
 

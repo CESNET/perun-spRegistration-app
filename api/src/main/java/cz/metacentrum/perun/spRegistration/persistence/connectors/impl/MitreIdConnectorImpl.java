@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * Implementation of connector to MITREid server.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class MitreIdConnectorImpl implements MitreIdConnector {
 

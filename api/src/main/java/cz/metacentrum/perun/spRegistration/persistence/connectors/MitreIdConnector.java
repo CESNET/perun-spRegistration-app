@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Connects to MitreID API
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public interface MitreIdConnector {
 
@@ -17,7 +17,7 @@ public interface MitreIdConnector {
 	 * Create client in mitreid
 	 * @param attrs Attributes to be set
 	 * @return Response from mitreId containing some interesting fields
-	 * @throws ConnectorException When error occurs
+	 * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
 	 */
 	MitreIdResponse createClient(Map<String, PerunAttribute> attrs) throws ConnectorException;
 
@@ -26,7 +26,7 @@ public interface MitreIdConnector {
 	 * @param id id of client in mitreid (not client_id)
 	 * @param attrs attributes to be set
 	 * @return True if update was successful, false otherwise
-	 * @throws ConnectorException When error occurs
+	 * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
 	 */
 	boolean updateClient(Long id, Map<String, PerunAttribute> attrs) throws ConnectorException;
 
@@ -34,7 +34,7 @@ public interface MitreIdConnector {
 	 * Delete client from mitreid
 	 * @param id id of client in mitreid (not client_id)
 	 * @return True if delete was successful, false otherwise
-	 * @throws ConnectorException When error occurs
+	 * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
 	 */
 	boolean deleteClient(Long id) throws ConnectorException;
 }

@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * Representation of attribute from Perun.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class PerunAttribute {
 
@@ -169,7 +169,7 @@ public class PerunAttribute {
 	 */
 	public static PerunAttribute fromJsonOfPerun(JSONObject json) {
 		if (Utils.checkParamsInvalid(json)) {
-			return null;
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
 		PerunAttributeDefinition definition = PerunAttributeDefinition.fromPerunJson(json);

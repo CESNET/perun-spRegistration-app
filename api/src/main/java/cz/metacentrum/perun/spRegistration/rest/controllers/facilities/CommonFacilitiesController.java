@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 /**
  * Controller handling common actions related to Facilities.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @RestController
 public class CommonFacilitiesController {

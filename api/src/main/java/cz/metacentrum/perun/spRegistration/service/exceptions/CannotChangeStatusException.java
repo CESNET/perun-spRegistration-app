@@ -3,7 +3,7 @@ package cz.metacentrum.perun.spRegistration.service.exceptions;
 /**
  * Exception thrown when status of Request cannot be changed due to unmet requirements.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class CannotChangeStatusException extends Exception {
 

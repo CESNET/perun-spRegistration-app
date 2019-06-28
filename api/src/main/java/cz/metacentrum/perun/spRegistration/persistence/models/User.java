@@ -2,6 +2,7 @@ package cz.metacentrum.perun.spRegistration.persistence.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import cz.metacentrum.perun.spRegistration.Utils;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.StringJoiner;
 /**
  * Representation of Perun User.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class User extends PerunEntity {
 
@@ -152,8 +153,8 @@ public class User extends PerunEntity {
 	 * @return User or null
 	 */
 	public static User fromPerunJson(JSONObject json) {
-		if (json == null || json.isEmpty() || json.equals(JSONObject.NULL)) {
-			return null;
+		if (Utils.checkParamsInvalid(json)) {
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
 		Long id = json.getLong("id");

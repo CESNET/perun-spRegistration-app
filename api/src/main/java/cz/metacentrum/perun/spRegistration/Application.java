@@ -15,7 +15,7 @@ import org.springframework.context.annotation.ImportResource;
 /**
  * Core application class. Initializes the application an logs some configurations.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @SpringBootApplication(exclude = {
 		DataSourceAutoConfiguration.class,

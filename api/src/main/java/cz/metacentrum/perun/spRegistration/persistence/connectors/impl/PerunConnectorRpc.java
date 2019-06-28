@@ -37,7 +37,7 @@ import java.util.Set;
 /**
  * Connects to Perun via RPC.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class PerunConnectorRpc implements PerunConnector {
 
@@ -67,7 +67,9 @@ public class PerunConnectorRpc implements PerunConnector {
 	@Override
 	public Facility createFacilityInPerun(JSONObject facilityJson) throws ConnectorException {
 		log.trace("createFacilityInPerun({})", facilityJson);
-		if (facilityJson == null) {
+
+		if (Utils.checkParamsInvalid(facilityJson)) {
+			log.error("Wrong parameters passed: (facilityJson: {})", facilityJson);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
@@ -84,10 +86,11 @@ public class PerunConnectorRpc implements PerunConnector {
 	@Override
 	public Facility updateFacilityInPerun(JSONObject facilityJson) throws ConnectorException {
 		log.trace("updateFacilityInPerun({})", facilityJson);
-		if (facilityJson == null) {
+
+		if (Utils.checkParamsInvalid(facilityJson)) {
+			log.error("Wrong parameters passed: (facilityJson: {})", facilityJson);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
-
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("facility", facilityJson);
 
@@ -101,9 +104,12 @@ public class PerunConnectorRpc implements PerunConnector {
 	@Override
 	public boolean deleteFacilityFromPerun(Long facilityId) throws ConnectorException {
 		log.trace("deleteFacilityFromPerun({})", facilityId);
-		if (facilityId == null) {
+
+		if (Utils.checkParamsInvalid(facilityId)) {
+			log.error("Wrong parameters passed: (facilityId: {})", facilityId);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
+
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("facility", facilityId);
 
@@ -116,6 +122,7 @@ public class PerunConnectorRpc implements PerunConnector {
 	@Override
 	public Facility getFacilityById(Long facilityId) throws ConnectorException {
 		log.trace("getFacilityById({})", facilityId);
+
 		if (Utils.checkParamsInvalid(facilityId)) {
 			log.error("Wrong parameters passed: (facilityId: {})", facilityId);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
@@ -132,7 +139,9 @@ public class PerunConnectorRpc implements PerunConnector {
 	}
 
 	@Override
-	public List<Facility> getFacilitiesByProxyIdentifier(String proxyIdentifierAttr, String proxyIdentifier) throws ConnectorException {
+	public List<Facility> getFacilitiesByProxyIdentifier(String proxyIdentifierAttr, String proxyIdentifier)
+			throws ConnectorException
+	{
 		log.trace("getFacilitiesByProxyIdentifier(proxyIdentifierAttr: {}, proxyIdentifier: {})",
 				proxyIdentifierAttr, proxyIdentifier);
 
@@ -216,14 +225,17 @@ public class PerunConnectorRpc implements PerunConnector {
 	@Override
 	public boolean setFacilityAttribute(Long facilityId, JSONObject attrJson) throws ConnectorException {
 		log.trace("setFacilityAttribute(facilityId: {}, attrJson: {})", facilityId, attrJson);
-		if (facilityId == null || attrJson == null) {
+
+		if (Utils.checkParamsInvalid(facilityId, attrJson)) {
+			log.error("Wrong parameters passed: (facilityId: {}, attrJson: {})", facilityId, attrJson);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
+
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("facility", facilityId);
 		params.put("attribute", attrJson);
 
-		boolean successful = null == makeRpcPostCall(ATTRIBUTES_MANAGER, "setAttribute", params);
+		boolean successful = (null == makeRpcPostCall(ATTRIBUTES_MANAGER, "setAttribute", params));
 
 		log.trace("setFacilityAttribute() returns: {}", successful);
 		return successful;
@@ -232,14 +244,16 @@ public class PerunConnectorRpc implements PerunConnector {
 	@Override
 	public boolean setFacilityAttributes(Long facilityId, JSONArray attrsJsons) throws ConnectorException {
 		log.trace("setFacilityAttributes(facilityId: {}, attrsJsons: {})", facilityId, attrsJsons);
-		if (facilityId == null || attrsJsons == null) {
+
+		if (Utils.checkParamsInvalid(facilityId, attrsJsons)) {
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
+
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("facility", facilityId);
 		params.put("attributes", attrsJsons);
 
-		boolean successful = null == makeRpcPostCall(ATTRIBUTES_MANAGER, "setAttributes", params);
+		boolean successful = (null == makeRpcPostCall(ATTRIBUTES_MANAGER, "setAttributes", params));
 
 		log.trace("setFacilityAttributes() returns: {}", successful);
 		return successful;
@@ -248,9 +262,13 @@ public class PerunConnectorRpc implements PerunConnector {
 	@Override
 	public User getUserWithEmail(String extLogin, String extSourceName, String userEmailAttr) throws ConnectorException {
 		log.trace("getUserWithEmail({})", extLogin);
-		if (extLogin == null || extLogin.isEmpty()) {
+
+		if (Utils.checkParamsInvalid(extLogin, extSourceName, userEmailAttr)) {
+			log.error("Wrong parameters passed: (extLogin: {}, extSourceName: {}, userEmailAttr: {})",
+					extLogin, extSourceName, userEmailAttr);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
+
 		Map<String, Object> params = new LinkedHashMap<>();
 
 		params.put("extSourceName", extSourceName);
@@ -300,7 +318,9 @@ public class PerunConnectorRpc implements PerunConnector {
 	@Override
 	public Set<Long> getFacilityIdsWhereUserIsAdmin(Long userId) throws ConnectorException {
 		log.trace("getFacilityIdsWhereUserIsAdmin({})", userId);
-		if (userId == null) {
+
+		if (Utils.checkParamsInvalid(userId)) {
+			log.error("Wrong parameters passed: (userId: {})", userId);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
@@ -319,7 +339,9 @@ public class PerunConnectorRpc implements PerunConnector {
 	@Override
 	public PerunAttributeDefinition getAttributeDefinition(String attributeName) throws ConnectorException {
 		log.trace("getAttributeDefinition({})", attributeName);
-		if (attributeName == null) {
+
+		if (Utils.checkParamsInvalid(attributeName)) {
+			log.error("Wrong parameters passed: (attributeName: {})", attributeName);
 			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
 		}
 
@@ -357,6 +379,12 @@ public class PerunConnectorRpc implements PerunConnector {
 
 	private JSONObject makeRpcGetCallForObject(String manager, String method, Map<String, Object> map) throws ConnectorException {
 		log.trace("makeRpcGetCallForObject(manager: {}, method: {}, map: {}", manager, method, map);
+
+		if (Utils.checkParamsInvalid(manager, method)) {
+			log.error("Wrong parameters passed: (manager: {}, method: {})", manager, method);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		String response = makeRpcGetCall(manager, method, map);
 		if (response == null || response.equalsIgnoreCase("null")) {
 			return null;
@@ -370,10 +398,17 @@ public class PerunConnectorRpc implements PerunConnector {
 
 	private JSONArray makeRpcGetCallForArray(String manager, String method, Map<String, Object> map) throws ConnectorException {
 		log.trace("makeRpcCallForArray(manager: {}, method: {}, map: {}", manager, method, map);
+
+		if (Utils.checkParamsInvalid(manager, method)) {
+			log.error("Wrong parameters passed: (manager: {}, method: {})", manager, method);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		String response = makeRpcGetCall(manager, method, map);
 		if (response == null || response.equalsIgnoreCase("null")) {
 			return null;
 		}
+
 		JSONArray result = new JSONArray(response);
 
 		log.trace("makeRpcGetCallForArray() returns: {}",result);
@@ -382,6 +417,12 @@ public class PerunConnectorRpc implements PerunConnector {
 
 	private String makeRpcGetCall(String manager, String method, Map<String, Object> map) throws ConnectorException {
 		log.trace("makeRpcGetCall(manager: {}, method: {}, map: {})", manager, method, map);
+
+		if (Utils.checkParamsInvalid(manager, method)) {
+			log.error("Wrong parameters passed: (manager: {}, method: {})", manager, method);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		//prepare basic auth
 		RestTemplate restTemplate = new RestTemplate();
 		List<ClientHttpRequestInterceptor> interceptors =
@@ -407,6 +448,12 @@ public class PerunConnectorRpc implements PerunConnector {
 
 	private String makeRpcPostCall(String manager, String method, Map<String, Object> map) throws ConnectorException {
 		log.trace("makeRpcPostCall(manager: {}, method: {}, params: {})", manager, method, map);
+
+		if (Utils.checkParamsInvalid(manager, method)) {
+			log.error("Wrong parameters passed: (manager: {}, method: {})", manager, method);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		RestTemplate restTemplate = new RestTemplate();
 		List<ClientHttpRequestInterceptor> interceptors =
 				Collections.singletonList(new BasicAuthorizationInterceptor(perunRpcUser, perunRpcPassword));
@@ -430,6 +477,12 @@ public class PerunConnectorRpc implements PerunConnector {
 
 	private HttpEntity<byte[]> prepareJsonBody(Map<String, Object> map) {
 		log.trace("prepareJsonBody({})", map);
+
+		if (Utils.checkParamsInvalid(map)) {
+			log.error("Wrong parameters passed: (map: {})", map);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
 		JSONObject obj = new JSONObject();
 		for (Map.Entry<String, Object> entry: map.entrySet()) {
 			obj.put(entry.getKey(), entry.getValue());

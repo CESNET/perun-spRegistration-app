@@ -13,7 +13,7 @@ import java.io.IOException;
 /**
  * PersistenceUtils class used by connectors.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 public class ConnectorUtils {
 
@@ -21,6 +21,7 @@ public class ConnectorUtils {
 
 	public static String dealWithHttpClientErrorException(HttpClientErrorException ex, String message) throws ConnectorException {
 		log.trace("dealWithHttpClientErrorException(ex: {}, message: {})", ex, message);
+
 		MediaType contentType = null;
 		if (ex.getResponseHeaders() != null) {
 			contentType = ex.getResponseHeaders().getContentType();

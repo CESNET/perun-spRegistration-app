@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 /**
  * Controller handling common actions related to Requests.
  *
- * @author Dominik Frantisek Bucik &lt;bucik@ics.muni.cz&gt;
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @RestController
 public class CommonRequestsController {
@@ -35,9 +35,10 @@ public class CommonRequestsController {
 								 @PathVariable("requestId") Long requestId)
 			throws InternalErrorException, UnauthorizedActionException
 	{
-		log.debug("requestDetail(user: {}, requestId: {})", user.getId(), requestId);
+		log.trace("requestDetail(user: {}, requestId: {})", user.getId(), requestId);
 
 		Request request = service.getDetailedRequest(requestId, user.getId());
+
 		log.trace("requestDetail() returns: {}", request);
 		return request;
 	}
