@@ -1,0 +1,7 @@
+#############################################################################
+## Configuration for mails for transferring to production. User can select ##
+## from list provided in this file.                                        ##
+## ----------------------------------------------------------------------- ##
+## format: email:displayedText                                             ##
+## example: edu@somewhere.com=EDU SOMEWHERE                                ##
+#############################################################################

@@ -15,8 +15,14 @@
 ############################
 ###      ATTRIBUTES      ###
 ############################
-#attr.proxyIdentifierAttribute.value=		# identifier of proxy the services belong to - value of the attribute
-#attr.userEmail.name=					    # attribute which contains user email
+#attr.proxyIdentifier=    		        # identifier of proxy the services is served for
+#attr.proxyIdentifier.value=    		# identifier of proxy the services is served for - value of the attribute
+#attr.masterProxyIdentifier=    	    # identifier of proxy the services is registered in
+#attr.masterProxyIdentifier.value=    	# identifier of proxy the services is registered in - value of the attribute
+#attr.isTestSp=                         # indicates environment of service
+#attr.showOnServiceList=                # indicates if service should be displayed on service list
+#attr.administratorContact              # attribute for storing administration contact
+#attr.userEmail.name=					# attribute which contains user email
 
 ###########################
 ###      APPROVALS      ###
