@@ -52,11 +52,11 @@
                     <execution>
                         <id>npm run build</id>
                         <goals>
-                        <goal>npm</goal>
-                    </goals>
+                            <goal>npm</goal>
+                        </goals>
                         <configuration>
-                        <arguments>run build</arguments>
-                    </configuration>
+                            <arguments>run build</arguments>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>prod</id>
@@ -65,14 +65,14 @@
                     </goals>
                         <configuration>
                         <arguments>run ng build --
-                        --${angular.build.profile}
-                        --deploy-url=${angular.deploy.url}
-                        --base-href=${angular.base.href}
-                    </arguments>
+                            --${angular.build.profile}
+                            --deploy-url=${angular.deploy.url}
+                            --base-href=${angular.base.href}
+                        </arguments>
                         <environmentVariables>
-                        <api_url>${angular.api.url}</api_url>
-                    </environmentVariables>
-                    </configuration>
+                            <api_url>${angular.api.url}</api_url>
+                        </environmentVariables>
+                        </configuration>
                         <phase>generate-resources</phase>
                     </execution>
                     <execution>
