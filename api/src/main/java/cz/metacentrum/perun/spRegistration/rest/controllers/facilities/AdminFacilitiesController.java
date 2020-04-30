@@ -1,12 +1,12 @@
 package cz.metacentrum.perun.spRegistration.rest.controllers.facilities;
 
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
-import cz.metacentrum.perun.spRegistration.common.models.Facility;
-import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
-import cz.metacentrum.perun.spRegistration.common.models.User;
-import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
-import cz.metacentrum.perun.spRegistration.service.UtilsService;
-import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.ConnectorException;
+import cz.metacentrum.perun.spRegistration.persistence.models.Facility;
+import cz.metacentrum.perun.spRegistration.persistence.models.PerunAttribute;
+import cz.metacentrum.perun.spRegistration.persistence.models.User;
+import cz.metacentrum.perun.spRegistration.service.AdminCommandsService;
+import cz.metacentrum.perun.spRegistration.service.exceptions.InternalErrorException;
+import cz.metacentrum.perun.spRegistration.service.exceptions.UnauthorizedActionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,12 +42,12 @@ public class AdminFacilitiesController {
 	}
 
 	@GetMapping(path = "/api/allFacilities")
-	public List<Facility> allFacilities(@SessionAttribute("user") User user)
+	public List<ProvidedService> allFacilities(@SessionAttribute("user") User user)
 			throws ConnectorException, UnauthorizedActionException
 	{
 		log.trace("allFacilities({})", user.getId());
 
-		List<Facility> facilityList = facilitiesService.getAllFacilities(user.getId());
+		List<ProvidedService> facilityList = service.getAllServices(user.getId());
 
 		log.trace("allFacilities() returns: {}", facilityList);
 		return facilityList;

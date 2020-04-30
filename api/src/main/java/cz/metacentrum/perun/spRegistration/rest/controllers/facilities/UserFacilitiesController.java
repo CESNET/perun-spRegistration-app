@@ -47,7 +47,7 @@ public class UserFacilitiesController {
 	}
 
 	@GetMapping(path = "/api/userFacilities")
-	public List<Facility> userFacilities(@SessionAttribute("user") User user) throws ConnectorException	{
+	public List<ProvidedService> userFacilities(@SessionAttribute("user") User user) throws ConnectorException	{
 		log.trace("userFacilities({})", user.getId());
 
 		List<Facility> facilityList = facilitiesService.getAllUserFacilities(user.getId());
