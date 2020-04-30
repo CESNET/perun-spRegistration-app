@@ -8,6 +8,7 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionE
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.rest.ApiUtils;
 import cz.metacentrum.perun.spRegistration.service.AddAdminsService;
 import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
@@ -50,7 +51,7 @@ public class UserFacilitiesController {
 	public List<ProvidedService> userFacilities(@SessionAttribute("user") User user) throws ConnectorException	{
 		log.trace("userFacilities({})", user.getId());
 
-		List<Facility> facilityList = facilitiesService.getAllUserFacilities(user.getId());
+		List<ProvidedService> facilityList = facilitiesService.getAllUserFacilities(user.getId());
 
 		log.trace("userFacilities() returns: {}", facilityList);
 		return facilityList;

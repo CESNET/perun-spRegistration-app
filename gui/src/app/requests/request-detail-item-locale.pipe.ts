@@ -9,7 +9,7 @@ export class RequestDetailItemLocalePipe implements PipeTransform {
   constructor(private translate: TranslateService) {  }
 
   transform(value: Map<string, string>, args?: any): any {
-    const lang = this.translate.getBrowserLang();
+    const lang = this.translate.getDefaultLang();
 
     if (value === undefined || value === null) {
       return '-';

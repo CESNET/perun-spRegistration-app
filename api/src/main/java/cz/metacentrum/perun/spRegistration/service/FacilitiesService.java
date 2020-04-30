@@ -4,6 +4,7 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
+import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -20,7 +21,7 @@ public interface FacilitiesService {
      * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
      * @throws IllegalArgumentException Thrown when param "adminId" is NULL.
      */
-    List<Facility> getAllFacilities(Long adminId) throws UnauthorizedActionException, ConnectorException;
+    List<ProvidedService> getAllFacilities(Long adminId) throws UnauthorizedActionException, ConnectorException;
 
     /**
      * Get all facilities from Perun where user is admin (manager).
@@ -29,7 +30,7 @@ public interface FacilitiesService {
      * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
      * @throws IllegalArgumentException Thrown when param "userId" is NULL.
      */
-    List<Facility> getAllUserFacilities(Long userId) throws ConnectorException;
+    List<ProvidedService> getAllUserFacilities(Long userId) throws ConnectorException;
 
     /**
      * Get detailed facility.

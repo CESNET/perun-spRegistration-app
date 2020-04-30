@@ -1,12 +1,12 @@
 package cz.metacentrum.perun.spRegistration.rest.controllers.facilities;
 
-import cz.metacentrum.perun.spRegistration.persistence.exceptions.ConnectorException;
-import cz.metacentrum.perun.spRegistration.persistence.models.Facility;
-import cz.metacentrum.perun.spRegistration.persistence.models.PerunAttribute;
-import cz.metacentrum.perun.spRegistration.persistence.models.User;
-import cz.metacentrum.perun.spRegistration.service.AdminCommandsService;
-import cz.metacentrum.perun.spRegistration.service.exceptions.InternalErrorException;
-import cz.metacentrum.perun.spRegistration.service.exceptions.UnauthorizedActionException;
+import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
+import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
+import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
+import cz.metacentrum.perun.spRegistration.common.models.User;
+import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
+import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
+import cz.metacentrum.perun.spRegistration.service.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ public class AdminFacilitiesController {
 	{
 		log.trace("allFacilities({})", user.getId());
 
-		List<ProvidedService> facilityList = service.getAllServices(user.getId());
+		List<ProvidedService> facilityList = facilitiesService.getAllFacilities(user.getId());
 
 		log.trace("allFacilities() returns: {}", facilityList);
 		return facilityList;

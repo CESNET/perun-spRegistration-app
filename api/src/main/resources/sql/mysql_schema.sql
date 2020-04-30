@@ -31,3 +31,13 @@ CREATE TABLE IF NOT EXISTS linkCodes
     facility_id BIGINT,
     request_id BIGINT
 );
+
+CREATE TABLE IF NOT EXISTS provided_services
+(
+    id                 BIGINT PRIMARY KEY AUTO_INCREMENT,
+    facility_id        BIGINT NOT NULL,
+    name               TINYTEXT NOT NULL,
+    description        TINYTEXT DEFAULT '{}',
+    environment        VARCHAR(256) NOT NULL,
+    protocol           VARCHAR(256) NOT NULL
+);

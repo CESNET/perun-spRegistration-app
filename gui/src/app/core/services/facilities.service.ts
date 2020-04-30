@@ -6,6 +6,7 @@ import { Request } from "../models/Request";
 import {PerunAttribute} from "../models/PerunAttribute";
 import { map } from 'rxjs/operators';
 import {LinkCode} from "../models/LinkCode";
+import {ProvidedService} from "../models/ProvidedService";
 
 @Injectable({
   providedIn: 'root'
@@ -16,11 +17,11 @@ export class FacilitiesService {
     private apiService: ApiService
   ) { }
 
-  getAllFacilities(): Observable<Facility[]> {
+  getAllFacilities(): Observable<ProvidedService[]> {
     return this.apiService.get('/allFacilities');
   }
 
-  getMyFacilities(): Observable<Facility[]> {
+  getMyFacilities(): Observable<ProvidedService[]> {
     return this.apiService.get('/userFacilities');
   }
 

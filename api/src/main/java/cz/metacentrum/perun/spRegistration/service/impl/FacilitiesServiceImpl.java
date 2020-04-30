@@ -3,18 +3,20 @@ package cz.metacentrum.perun.spRegistration.service.impl;
 import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
 import cz.metacentrum.perun.spRegistration.common.configs.Config;
-import cz.metacentrum.perun.spRegistration.persistence.connectors.PerunConnector;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
-import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
+import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
+import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
+import cz.metacentrum.perun.spRegistration.persistence.connectors.PerunConnector;
+import cz.metacentrum.perun.spRegistration.persistence.managers.ProvidedServiceManager;
+import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
+import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
 import cz.metacentrum.perun.spRegistration.service.ServiceUtils;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
-import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
-import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,15 +42,17 @@ public class FacilitiesServiceImpl implements FacilitiesService {
     private final RequestManager requestManager;
     private final AppConfig appConfig;
     private final Config config;
+    private final ProvidedServiceManager providedServiceManager;
 
     @Autowired
     public FacilitiesServiceImpl(PerunConnector perunConnector, UtilsService utilsService, RequestManager requestManager,
-                                 AppConfig appConfig, Config config) {
+                                 AppConfig appConfig, Config config, ProvidedServiceManager providedServiceManager) {
         this.perunConnector = perunConnector;
         this.utilsService = utilsService;
         this.requestManager = requestManager;
         this.appConfig = appConfig;
         this.config = config;
+        this.providedServiceManager = providedServiceManager;
     }
 
     @Override
@@ -150,7 +154,7 @@ public class FacilitiesServiceImpl implements FacilitiesService {
     }
 
     @Override
-    public List<Facility> getAllUserFacilities(Long userId) throws ConnectorException {
+    public List<ProvidedService> getAllUserFacilities(Long userId) throws ConnectorException {
         log.trace("getAllFacilitiesWhereUserIsAdmin({})", userId);
 
         if (Utils.checkParamsInvalid(userId)) {
@@ -158,51 +162,23 @@ public class FacilitiesServiceImpl implements FacilitiesService {
             throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
         }
 
-        List<Facility> proxyFacilities = perunConnector.getFacilitiesByProxyIdentifier(
-                appConfig.getProxyIdentifierAttribute(), appConfig.getProxyIdentifierAttributeValue());
-        Map<Long, Facility> proxyFacilitiesMap = ServiceUtils.transformListToMapFacilities(proxyFacilities);
-        if (proxyFacilitiesMap == null || proxyFacilitiesMap.isEmpty()) {
-            return new ArrayList<>();
-        }
-
         List<Facility> userFacilities = perunConnector.getFacilitiesWhereUserIsAdmin(userId);
         if (userFacilities == null || userFacilities.isEmpty()) {
             return new ArrayList<>();
         }
 
-        List<Facility> testFacilities = perunConnector.getFacilitiesByAttribute(
-                appConfig.getIsTestSpAttribute(), "true");
-        Map<Long, Facility> testFacilitiesMap = ServiceUtils.transformListToMapFacilities(testFacilities);
-        if (testFacilitiesMap == null) {
-            testFacilitiesMap = new HashMap<>();
+        List<Long> ids = userFacilities.stream().map(Facility::getId).collect(Collectors.toList());
+        if (ids.isEmpty()) {
+            return new ArrayList<>();
         }
 
-        List<Facility> oidcFacilities = perunConnector.getFacilitiesByAttribute(
-                appConfig.getIsOidcAttributeName(), "true");
-        Map<Long, Facility> oidcFacilitiesMap = ServiceUtils.transformListToMapFacilities(oidcFacilities);
-
-        List<Facility> samlFacilities = perunConnector.getFacilitiesByAttribute(
-                appConfig.getIsSamlAttributeName(), "true");
-        Map<Long, Facility> samlFacilitiesMap = ServiceUtils.transformListToMapFacilities(samlFacilities);
-
-        List<Facility> filteredFacilities = new ArrayList<>();
-
-        for (Facility f : userFacilities) {
-            if (proxyFacilitiesMap.containsKey(f.getId())) {
-                filteredFacilities.add(f);
-
-                f.setOidc(oidcFacilitiesMap.containsKey(f.getId()));
-                f.setSaml(samlFacilitiesMap.containsKey(f.getId()));
-                f.setTestEnv(testFacilitiesMap.containsKey(f.getId()));
-            }
-        }
-
-        log.trace("getAllFacilitiesWhereUserIsAdmin returns: {}", filteredFacilities);
-        return filteredFacilities;
+        List<ProvidedService> services = providedServiceManager.getAllForFacilities(ids);
+        log.trace("getAllFacilitiesWhereUserIsAdmin returns: {}", services);
+        return services;
     }
 
     @Override
-    public List<Facility> getAllFacilities(Long userId) throws UnauthorizedActionException, ConnectorException {
+    public List<ProvidedService> getAllFacilities(Long userId) throws UnauthorizedActionException, ConnectorException {
         log.trace("getAllFacilities({})", userId);
 
         if (Utils.checkParamsInvalid(userId)) {
@@ -213,35 +189,10 @@ public class FacilitiesServiceImpl implements FacilitiesService {
             throw new UnauthorizedActionException("User cannot list all facilities, user does not have role APP_ADMIN");
         }
 
-        List<Facility> proxyFacilities = perunConnector.getFacilitiesByProxyIdentifier(
-                appConfig.getProxyIdentifierAttribute(), appConfig.getProxyIdentifierAttributeValue());
-        Map<Long, Facility> proxyFacilitiesMap = ServiceUtils.transformListToMapFacilities(proxyFacilities);
+        List<ProvidedService> services = providedServiceManager.getAll();
 
-        if (proxyFacilitiesMap == null || proxyFacilitiesMap.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<Facility> testFacilities = perunConnector.getFacilitiesByAttribute(
-                appConfig.getIsTestSpAttribute(), "true");
-        Map<Long, Facility> testFacilitiesMap = ServiceUtils.transformListToMapFacilities(testFacilities);
-
-        List<Facility> oidcFacilities = perunConnector.getFacilitiesByAttribute(
-                appConfig.getIsOidcAttributeName(), "true");
-        Map<Long, Facility> oidcFacilitiesMap = ServiceUtils.transformListToMapFacilities(oidcFacilities);
-
-        List<Facility> samlFacilities = perunConnector.getFacilitiesByAttribute(
-                appConfig.getIsSamlAttributeName(), "true");
-        Map<Long, Facility> samlFacilitiesMap = ServiceUtils.transformListToMapFacilities(samlFacilities);
-
-        proxyFacilitiesMap.forEach((facId, val) -> {
-            Facility f = proxyFacilitiesMap.get(facId);
-            f.setTestEnv(testFacilitiesMap.containsKey(facId));
-            f.setOidc(oidcFacilitiesMap.containsKey(facId));
-            f.setSaml(samlFacilitiesMap.containsKey(facId));
-        });
-
-        log.trace("getAllFacilities returns: {}", proxyFacilities);
-        return proxyFacilities;
+        log.trace("getAllFacilities returns: {}", services);
+        return services;
     }
 
     private List<String> getAttrsToKeep(boolean isOidc) {

@@ -1,10 +1,10 @@
 import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { Facility } from '../../core/models/Facility';
 import { FacilitiesService } from '../../core/services/facilities.service';
 import { Subscription } from 'rxjs';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import {MatPaginator} from "@angular/material/paginator";
+import {ProvidedService} from "../../core/models/ProvidedService";
 
 @Component({
   selector: 'app-facilities-overview',
@@ -13,13 +13,16 @@ import {MatPaginator} from "@angular/material/paginator";
 })
 export class ServicesOverviewComponent implements OnInit, OnDestroy {
 
+  private sort: MatSort;
+  private paginator: MatPaginator;
+  private facilitiesSubscription: Subscription;
+
   constructor(private facilitiesService: FacilitiesService) {
     this.myFacilities = [];
-    this.dataSource = new MatTableDataSource<Facility>([]);
+    this.dataSource = new MatTableDataSource<ProvidedService>([]);
   }
 
-  @Input()
-  myFacilities: Facility[];
+  @Input() myFacilities: ProvidedService[];
 
   @ViewChild(MatSort, {static: false}) set matSort(ms: MatSort) {
     this.sort = ms;
@@ -31,13 +34,9 @@ export class ServicesOverviewComponent implements OnInit, OnDestroy {
     this.setDataSource();
   }
 
-  displayedColumns: string[] = ['id', 'name', 'description', 'environment', 'protocolType'];
-  dataSource: MatTableDataSource<Facility>;
+  displayedColumns: string[] = ['id', 'name', 'description', 'environment', 'protocol'];
+  dataSource: MatTableDataSource<ProvidedService>;
   loading = true;
-
-  private sort: MatSort;
-  private paginator: MatPaginator;
-  private facilitiesSubscription: Subscription;
 
   setDataSource() {
     if (!!this.dataSource) {
@@ -47,26 +46,17 @@ export class ServicesOverviewComponent implements OnInit, OnDestroy {
       if (!!this.paginator) {
         this.dataSource.paginator = this.paginator;
       }
-
-      this.dataSource.sortingDataAccessor = (rowObject, columnName) => {
-        switch(columnName) {
-          case 'environment':
-            return rowObject['testEnv'];
-          default:
-            return rowObject[columnName];
-        }
-      };
     }
   }
 
   ngOnInit() {
     this.facilitiesSubscription = this.facilitiesService.getMyFacilities().subscribe(facilities => {
       this.loading = false;
-      this.myFacilities = facilities.map(f => new Facility(f));
-      this.dataSource = new MatTableDataSource<Facility>(this.myFacilities);
+      this.myFacilities = facilities.map(f => new ProvidedService(f));
+      this.dataSource = new MatTableDataSource<ProvidedService>(this.myFacilities);
     }, error => {
-        this.loading = false;
-        console.log(error);
+      this.loading = false;
+      console.log(error);
     });
   }
 

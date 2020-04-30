@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import cz.metacentrum.perun.spRegistration.Utils;
@@ -22,8 +23,12 @@ import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.connectors.PerunConnector;
+import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment;
+import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol;
 import cz.metacentrum.perun.spRegistration.persistence.managers.LinkCodeManager;
+import cz.metacentrum.perun.spRegistration.persistence.managers.ProvidedServiceManager;
 import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
+import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
 import cz.metacentrum.perun.spRegistration.service.MailsService;
 import cz.metacentrum.perun.spRegistration.service.RequestsService;
@@ -70,19 +75,15 @@ public class RequestsServiceImpl implements RequestsService {
     private final LinkCodeManager linkCodeManager;
     private final FacilitiesService facilitiesService;
     private final Config config;
+    private final ProvidedServiceManager providedServiceManager;
 
     @Value("#{'${mail.approval.default-authorities.mails}'.split(',')}")
     private List<String> defaultAuthorities;
 
-    private static final String REQUEST_ID_KEY = "requestId";
-    private static final String FACILITY_ID_KEY = "facilityId";
-    private static final String CREATED_AT_KEY = "createdAt";
-    private static final String REQUESTED_MAIL_KEY = "requestedMail";
-
     @Autowired
     public RequestsServiceImpl(PerunConnector perunConnector, AppConfig appConfig, MailsService mailsService,
                                UtilsService utilsService, RequestManager requestManager, LinkCodeManager linkCodeManager,
-                               FacilitiesService facilitiesService, Config config) {
+                               FacilitiesService facilitiesService, Config config, ProvidedServiceManager providedServiceManager) {
         this.perunConnector = perunConnector;
         this.appConfig = appConfig;
         this.mailsService = mailsService;
@@ -91,6 +92,7 @@ public class RequestsServiceImpl implements RequestsService {
         this.linkCodeManager = linkCodeManager;
         this.facilitiesService = facilitiesService;
         this.config = config;
+        this.providedServiceManager = providedServiceManager;
     }
 
     @Override
@@ -595,7 +597,17 @@ public class RequestsServiceImpl implements RequestsService {
         }
 
         request.setFacilityId(facility.getId());
+
+        ProvidedService sp = new ProvidedService();
+        sp.setFacilityId(facility.getId());
+        sp.setName(request.getFacilityName(appConfig.getServiceNameAttributeName()));
+        sp.setDescription(request.getFacilityDescription(appConfig.getServiceDescAttributeName()));
+        sp.setEnvironment(ServiceEnvironment.TESTING);
+        sp.setProtocol(ServiceUtils.isOidcRequest(request, appConfig.getEntityIdAttribute()) ?
+                ServiceProtocol.OIDC : ServiceProtocol.SAML);
+
         try {
+            providedServiceManager.create(sp);
             boolean adminSet = perunConnector.addFacilityAdmin(facility.getId(), request.getReqUserId());
 
             PerunAttribute testSp = generateTestSpAttribute(true);
@@ -637,7 +649,7 @@ public class RequestsServiceImpl implements RequestsService {
             }
             log.trace("registerNewFacilityToPerun returns: {}", successful);
             return successful;
-        } catch (ConnectorException e) {
+        } catch (ConnectorException | JsonProcessingException e) {
             log.error("Caught ConnectorException", e);
             try {
                 perunConnector.deleteFacilityFromPerun(facility.getId());
@@ -668,6 +680,10 @@ public class RequestsServiceImpl implements RequestsService {
             throw new InternalErrorException("Facility with ID: " + facilityId + " does not exist in Perun");
         }
 
+        ProvidedService sp = providedServiceManager.get(facilityId);
+        Map<String, String> oldName = sp.getName();
+        Map<String, String> oldDesc = sp.getDescription();
+
         try {
             if (!perunConnector.setFacilityAttributes(request.getFacilityId(),
                     request.getAttributesAsJsonArrayForPerun())) {
@@ -675,23 +691,28 @@ public class RequestsServiceImpl implements RequestsService {
             } else {
                 log.info("Facility has been updated in Perun");
             }
-
-            log.trace("updateFacilityInPerun returns: {}", perunConnector.setFacilityAttributes(request.getFacilityId(),
-                    request.getAttributesAsJsonArrayForPerun()));
-            return perunConnector.setFacilityAttributes(request.getFacilityId(),
-                    request.getAttributesAsJsonArrayForPerun());
-        } catch (ConnectorException e) {
+            sp = providedServiceManager.get(facilityId);
+            sp.setName(request.getFacilityName(appConfig.getServiceNameAttributeName()));
+            sp.setDescription(request.getFacilityDescription(appConfig.getServiceDescAttributeName()));
+            providedServiceManager.update(sp);
+        } catch (ConnectorException | JsonProcessingException e) {
             log.warn("Caught ConnectorException", e);
             try {
                 perunConnector.updateFacilityInPerun(actualFacility.toJson());
                 ArrayNode oldAttrsArray = JsonNodeFactory.instance.arrayNode();
                 oldAttributes.values().forEach(a -> oldAttrsArray.add(a.toJson()));
                 perunConnector.setFacilityAttributes(actualFacility.getId(), oldAttrsArray);
+                sp.setDescription(oldDesc);
+                sp.setName(oldName);
+                providedServiceManager.update(sp);
             } catch (ConnectorException ex) {
                 log.warn("Caught ConnectorException", ex);
+            } catch (JsonProcessingException ex) {
+                log.warn("caught JsonProcessingException", ex);
             }
             return false;
         }
+        return true;
     }
 
     private boolean deleteFacilityFromPerun(Request request) throws ConnectorException, InternalErrorException {
@@ -705,6 +726,7 @@ public class RequestsServiceImpl implements RequestsService {
         Long facilityId = extractFacilityIdFromRequest(request);
 
         boolean facilityRemoved = perunConnector.deleteFacilityFromPerun(facilityId);
+        providedServiceManager.deleteByFacilityId(facilityId);
 
         if (!facilityRemoved) {
             log.error("Some operations failed - facilityRemoved: {}", false);
@@ -726,6 +748,14 @@ public class RequestsServiceImpl implements RequestsService {
         ArrayNode attributes = request.getAttributesAsJsonArrayForPerun();
         attributes.add(testSp.toJson());
         attributes.add(showOnServiceList.toJson());
+
+        ProvidedService sp = providedServiceManager.getByFacilityId(request.getFacilityId());
+        sp.setEnvironment(ServiceEnvironment.PRODUCTION);
+        try {
+            providedServiceManager.update(sp);
+        } catch (InternalErrorException | JsonProcessingException ex) {
+            log.warn("Caught Exception when updating ProvidedService {}", sp, ex);
+        }
 
         boolean attributesSet = perunConnector.setFacilityAttributes(request.getFacilityId(), attributes);
 

@@ -1,10 +1,10 @@
-import {AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {FacilitiesService} from '../../core/services/facilities.service';
-import {Facility} from '../../core/models/Facility';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import {Subscription} from 'rxjs';
 import {MatPaginator} from '@angular/material/paginator';
+import {ProvidedService} from "../../core/models/ProvidedService";
 
 @Component({
   selector: 'app-all-facilities',
@@ -19,11 +19,10 @@ export class AllFacilitiesComponent implements OnInit, OnDestroy {
 
   constructor(private facilitiesService: FacilitiesService) {
     this.facilities = [];
-    this.dataSource = new MatTableDataSource<Facility>([]);
+    this.dataSource = new MatTableDataSource<ProvidedService>([]);
   }
 
-  @Input()
-  facilities: Facility[];
+  @Input() facilities: ProvidedService[];
 
   @ViewChild(MatSort, {static: false}) set matSort(ms: MatSort) {
     this.sort = ms;
@@ -36,7 +35,7 @@ export class AllFacilitiesComponent implements OnInit, OnDestroy {
   }
 
   displayedColumns: string[] = ['id', 'name', 'description', 'environment', 'protocol'];
-  dataSource: MatTableDataSource<Facility>;
+  dataSource: MatTableDataSource<ProvidedService>;
   loading = true;
 
   setDataSource() {
@@ -53,8 +52,8 @@ export class AllFacilitiesComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.facilitiesSubscription = this.facilitiesService.getAllFacilities().subscribe(facilities => {
       this.loading = false;
-      this.facilities = facilities.map(f => new Facility(f));
-      this.dataSource = new MatTableDataSource<Facility>(facilities);
+      this.facilities = facilities.map(f => new ProvidedService(f));
+      this.dataSource = new MatTableDataSource<ProvidedService>(this.facilities);
     }, error => {
       this.loading = false;
       console.log(error);

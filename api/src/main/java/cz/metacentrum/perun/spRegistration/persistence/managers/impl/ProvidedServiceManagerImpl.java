@@ -2,10 +2,10 @@ package cz.metacentrum.perun.spRegistration.persistence.managers.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import cz.metacentrum.perun.spRegistration.Utils;
+import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.persistence.managers.ProvidedServiceManager;
 import cz.metacentrum.perun.spRegistration.persistence.mappers.ProvidedServiceMapper;
 import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
-import cz.metacentrum.perun.spRegistration.service.exceptions.InternalErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -48,8 +48,8 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
         params.addValue("facility_id", sp.getFacilityId());
         params.addValue("name", sp.nameAsJsonString());
         params.addValue("description", sp.descriptionAsJsonString());
-        params.addValue("environment", sp.getEnvironment());
-        params.addValue("protocol", sp.getProtocol());
+        params.addValue("environment", sp.getEnvironment().toString());
+        params.addValue("protocol", sp.getProtocol().toString());
 
         int updatedCount = jdbcTemplate.update(query, params, key, new String[] { "id" });
 
@@ -91,8 +91,8 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
         params.addValue("facility_id", sp.getFacilityId());
         params.addValue("name", sp.nameAsJsonString());
         params.addValue("description", sp.descriptionAsJsonString());
-        params.addValue("environment", sp.getEnvironment());
-        params.addValue("protocol", sp.getProtocol());
+        params.addValue("environment", sp.getEnvironment().toString());
+        params.addValue("protocol", sp.getProtocol().toString());
         params.addValue("id", sp.getId());
 
         int updatedCount = jdbcTemplate.update(query, params);
@@ -241,7 +241,7 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
                 .add("WHERE").add(sub.toString())
                 .toString();
 
-        List<ProvidedService> providedServices = jdbcTemplate.query(query, MAPPER);
+        List<ProvidedService> providedServices = jdbcTemplate.query(query, params, MAPPER);
 
         log.trace("getAll returns: {}", providedServices);
         return providedServices;

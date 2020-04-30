@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { HostListener } from '@angular/core';
@@ -25,6 +25,7 @@ export class AppComponent implements OnInit {
     this.onResize();
     this.currentUrl = this.router.url;
     this.loading = true;
+
     this.configService.getLanguages().subscribe(langs => {
       this.langs = langs;
       this.translate.addLangs(langs);
@@ -107,6 +108,7 @@ export class AppComponent implements OnInit {
       PerunHeaderComponent.setHeader(null);
       this.loading = false;
     });
+
     this.setAndGetUser();
   }
 

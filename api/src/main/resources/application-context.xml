@@ -184,10 +184,6 @@
         <property name="dataSource" ref="dataSource" />
     </bean>
 
-    <bean id="requestManager" class="cz.metacentrum.perun.spRegistration.persistence.managers.impl.RequestManagerImpl">
-        <property name="jdbcTemplate" ref="jdbcTemplate"/>
-    </bean>
-
     <bean id="providedServicesManager" class="cz.metacentrum.perun.spRegistration.persistence.managers.impl.ProvidedServiceManagerImpl">
         <constructor-arg name="namedParameterJdbcTemplate" ref="nameParameterJdbcTemplate"/>
     </bean>
