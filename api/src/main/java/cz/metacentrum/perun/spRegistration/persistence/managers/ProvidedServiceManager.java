@@ -14,10 +14,13 @@ public interface ProvidedServiceManager {
 
     void delete(Long id) throws InternalErrorException;
 
+    void deleteByFacilityId(Long facilityId) throws InternalErrorException;
+
     ProvidedService get(Long id);
 
     List<ProvidedService> getAll();
 
     List<ProvidedService> getAllForFacilities(List<Long> facilityIds);
 
+    ProvidedService getByFacilityId(Long facilityId);
 }

@@ -135,6 +135,34 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
     }
 
     @Override
+    public void deleteByFacilityId(Long facilityId) throws InternalErrorException {
+        log.trace("deleteByFacilityId({})", facilityId);
+
+        if (Utils.checkParamsInvalid(facilityId)) {
+            log.error("Wrong parameters passed: (facilityId: {})", facilityId);
+            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+        }
+
+        String query = new StringJoiner(" ")
+                .add("DELETE FROM").add(SPS_TABLE)
+                .add("WHERE facility_id = :facility_id")
+                .toString();
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("facility_id", facilityId);
+
+        int updatedCount = jdbcTemplate.update(query, params);
+
+        if (updatedCount == 0) {
+            log.error("Zero sps have been deleted");
+            throw new InternalErrorException("Zero sps have been deleted");
+        } else if (updatedCount > 1) {
+            log.error("Only one sp should have been deleted");
+            throw new InternalErrorException("Only one sp should have been deleted");
+        }
+    }
+
+    @Override
     public ProvidedService get(Long id) {
         log.trace("get({})", id);
 
@@ -154,6 +182,29 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
         ProvidedService providedService = jdbcTemplate.queryForObject(query, params, MAPPER);
 
         log.trace("get({}) returns: {}", id, providedService);
+        return providedService;
+    }
+
+    @Override
+    public ProvidedService getByFacilityId(Long facilityId) {
+        log.trace("getByFacilityId({})", facilityId);
+
+        if (Utils.checkParamsInvalid(facilityId)) {
+            log.error("Wrong parameters passed: (facilityId: {})", facilityId);
+            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+        }
+
+        String query = new StringJoiner(" ")
+                .add("SELECT * FROM").add(SPS_TABLE)
+                .add("WHERE facility_id = :facility_id")
+                .toString();
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("facility_id", facilityId);
+
+        ProvidedService providedService = jdbcTemplate.queryForObject(query, params, MAPPER);
+
+        log.trace("getByFacilityId({}) returns: {}", facilityId, providedService);
         return providedService;
     }
 
