@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
+import cz.metacentrum.perun.spRegistration.common.models.Group;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.common.models.User;
@@ -203,5 +204,21 @@ public class MapperUtils {
 		}
 
 		return mappedUsers;
+	}
+
+	public static Group mapGroup(JsonNode res) {
+		if (Utils.checkParamsInvalid(res)) {
+			log.error("Wrong parameters passed: (res: {})", res);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
+		Long id = res.get("id").asLong();
+		String shortName = res.get("shortName").asText();
+		String name = res.get("name").asText();
+		String description = res.get("description").asText();
+		Long parentGroupId = res.get("parentGroupId").asLong();
+		Long voId = res.get("voId").asLong();
+
+		return new Group(id, name, shortName, description, parentGroupId, voId);
 	}
 }

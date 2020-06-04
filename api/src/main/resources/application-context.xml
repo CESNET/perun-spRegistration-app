@@ -36,6 +36,8 @@
                 <prop key="host.url">http://spreg.com/spreg</prop>
                 <prop key="secret">secretSaltGoesHere123!X$</prop>
                 <prop key="logout.url">https://spreg.aai.cesnet.cz/Shibboleth.sso/Logout?target=https%3A%2F%2Fspreg.aai.cesnet.cz%2Fspreg%2F</prop>
+                <prop key="spAdminsRootVoId">3322</prop>
+                <prop key="spAdminsRootGroupId">11836</prop>
                 <!-- ATTRS -->
                 <prop key="attr.userEmail">urn:perun:user:attribute-def:def:preferredMail</prop>
                 <prop key="attr.proxyIdentifier">urn:perun:facility:attribute-def:def:proxyIdentifiers</prop>
@@ -52,6 +54,7 @@
                 <prop key="attr.isSaml">urn:perun:facility:attribute-def:def:isSamlFacility</prop>
                 <prop key="attr.serviceName">urn:perun:facility:attribute-def:def:serviceName</prop>
                 <prop key="attr.serviceDesc">urn:perun:facility:attribute-def:def:serviceDescription</prop>
+                <prop key="attr.adminsGroupAttr">urn:perun:facility:attribute-def:def:serviceManagersGroupId</prop>
                 <!-- APPROVALS -->
                 <prop key="approval.confirmationPeriod.days">30</prop>
                 <prop key="approval.confirmationPeriod.hours">0</prop>
@@ -236,6 +239,8 @@
         <property name="signaturesEndpointUrl" value="${host.url}/auth/sign"/>
         <property name="adminsEndpoint" value="${host.url}/auth/facilities/addAdmin/sign"/>
         <property name="logoutUrl" value="${logout.url}"/>
+        <property name="spAdminsRootVoId" value="${spAdminsRootVoId}"/>
+        <property name="spAdminsRootGroupId" value="${spAdminsRootGroupId}"/>
         <property name="prodTransferAuthoritiesMailsMap" ref="prodTransferAuthoritiesMailsMap" />
         <property name="masterProxyIdentifierAttribute" value="${attr.masterProxyIdentifier}" />
         <property name="masterProxyIdentifierAttributeValue" value="${attr.masterProxyIdentifier.value}" />
@@ -252,6 +257,7 @@
         <property name="userEmailAttributeName" value="${attr.userEmail}" />
         <property name="serviceNameAttributeName" value="${attr.serviceName}"/>
         <property name="serviceDescAttributeName" value="${attr.serviceDesc}"/>
+        <property name="adminsGroupAttribute" value="${attr.adminsGroupAttr}"/>
     </bean>
 
     <import resource="attributes-context.xml" />

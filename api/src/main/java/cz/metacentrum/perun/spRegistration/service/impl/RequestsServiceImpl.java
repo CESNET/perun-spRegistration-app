@@ -18,6 +18,7 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorExcept
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
+import cz.metacentrum.perun.spRegistration.common.models.Group;
 import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
@@ -592,7 +593,6 @@ public class RequestsServiceImpl implements RequestsService {
         } catch (ConnectorException e) {
             throw new InternalErrorException("Creating facility in Perun failed");
         }
-
         if (facility == null) {
             log.error("Creating facility in Perun failed");
             throw new InternalErrorException("Creating facility in Perun failed");
@@ -607,11 +607,29 @@ public class RequestsServiceImpl implements RequestsService {
         sp.setEnvironment(ServiceEnvironment.TESTING);
         sp.setProtocol(ServiceUtils.isOidcRequest(request, appConfig.getEntityIdAttribute()) ?
                 ServiceProtocol.OIDC : ServiceProtocol.SAML);
-
+        Long adminsGroupId = null;
         try {
             providedServiceManager.create(sp);
-            boolean adminSet = perunConnector.addFacilityAdmin(facility.getId(), request.getReqUserId());
 
+            Group adminsGroup = new Group(null, facility.getPerunName(), facility.getPerunName(),
+                    "Administrators of SP - " + facility.getPerunName(), appConfig.getSpAdminsRootGroupId(),
+                    appConfig.getSpAdminsRootVoId());
+            adminsGroup = perunConnector.createGroup(adminsGroup.getParentGroupId(), adminsGroup);
+            adminsGroupId = adminsGroup.getId();
+            boolean adminSet = perunConnector.addGroupAsAdmins(facility.getId(), adminsGroupId);
+            if (adminSet) {
+                Long memberId = perunConnector.getMemberIdByUser(appConfig.getSpAdminsRootVoId(), request.getReqUserId());
+                if (memberId != null) {
+                    adminSet = perunConnector.addMemberToGroup(adminsGroupId, memberId);
+                } else {
+                    log.error("Could not add requester {} as a member({}) of group {}",
+                            request.getReqUserId(), memberId, adminsGroupId );
+                }
+            } else {
+                log.error("Could not set created group {} as managers for facility {}", adminsGroupId, facility.getId());
+            }
+
+            PerunAttribute adminsGroupAttr = generateAdminsGroupAttr(adminsGroup.getId());
             PerunAttribute testSp = generateTestSpAttribute(true);
             PerunAttribute showOnServiceList = generateShowOnServiceListAttribute(false);
             PerunAttribute proxyIdentifiers = generateProxyIdentifiersAttribute();
@@ -636,6 +654,7 @@ public class RequestsServiceImpl implements RequestsService {
                 perunConnector.setFacilityAttribute(facility.getId(), clientSecret.toJson());
             }
 
+            attributes.add(adminsGroupAttr.toJson());
             attributes.add(testSp.toJson());
             attributes.add(showOnServiceList.toJson());
             attributes.add(proxyIdentifiers.toJson());
@@ -654,9 +673,22 @@ public class RequestsServiceImpl implements RequestsService {
         } catch (ConnectorException | JsonProcessingException e) {
             log.error("Caught ConnectorException", e);
             try {
+                if (adminsGroupId != null) {
+                    try {
+                        perunConnector.removeGroupFromAdmins(facility.getId(), adminsGroupId);
+                    } catch (ConnectorException ex) {
+                        log.error("Caught connector exception when removing admin group {} from facility {}. " +
+                                "Probably not assigned before", adminsGroupId, facility.getId(), ex);
+                    }
+                    try {
+                        perunConnector.deleteGroup(adminsGroupId);
+                    } catch (ConnectorException ex) {
+                        log.error("Caught connector exception when removing admin group {}", adminsGroupId, ex);
+                    }
+                }
                 perunConnector.deleteFacilityFromPerun(facility.getId());
             } catch (ConnectorException ex) {
-                log.error("Caught ConnectorException", ex);
+                log.error("Caught ConnectorException when deleting facility", ex);
             }
 
             return false;
@@ -726,6 +758,17 @@ public class RequestsServiceImpl implements RequestsService {
         }
 
         Long facilityId = extractFacilityIdFromRequest(request);
+
+        PerunAttribute adminsGroupAttr = perunConnector.getFacilityAttribute(request.getFacilityId(), appConfig.getAdminsGroupAttribute());
+        if (adminsGroupAttr == null || adminsGroupAttr.valueAsLong() == null) {
+            log.warn("No admins group ID found for facility: {}", facilityId);
+        } else {
+            Long groupId = adminsGroupAttr.valueAsLong();
+            boolean removedGroupFromAdmins = perunConnector.removeGroupFromAdmins(request.getFacilityId(), groupId);
+            if (removedGroupFromAdmins) {
+                perunConnector.deleteGroup(groupId);
+            }
+        }
 
         boolean facilityRemoved = perunConnector.deleteFacilityFromPerun(facilityId);
         providedServiceManager.deleteByFacilityId(facilityId);
@@ -852,6 +895,17 @@ public class RequestsServiceImpl implements RequestsService {
         attribute.setValue(clientId);
 
         log.trace("generateClientIdAttribute() returns: {}", attribute);
+        return attribute;
+    }
+
+    private PerunAttribute generateAdminsGroupAttr(Long id) {
+        log.trace("generateAdminsGroupAttr({})", id);
+
+        PerunAttribute attribute = new PerunAttribute();
+        attribute.setDefinition(appConfig.getAttrDefinition(appConfig.getAdminsGroupAttribute()));
+        attribute.setValue(id);
+
+        log.trace("generateAdminsGroupAttr({}) returns: {}", id, attribute);
         return attribute;
     }
 

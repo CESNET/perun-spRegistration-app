@@ -63,6 +63,9 @@ public class AppConfig {
 	private boolean specifyAuthoritiesEnabled;
 	private String signaturesEndpointUrl;
 	private String adminsEndpoint;
+	private Long spAdminsRootVoId;
+	private Long spAdminsRootGroupId;
+	private String adminsGroupAttribute;
 
 	public Set<Long> getAppAdminIds() {
 		return Collections.unmodifiableSet(appAdminIds);
@@ -228,6 +231,30 @@ public class AppConfig {
 		this.attributeCategoryMap = attributeCategoryMap;
 	}
 
+	public Long getSpAdminsRootVoId() {
+		return spAdminsRootVoId;
+	}
+
+	public void setSpAdminsRootVoId(Long spAdminsRootVoId) {
+		this.spAdminsRootVoId = spAdminsRootVoId;
+	}
+
+	public Long getSpAdminsRootGroupId() {
+		return spAdminsRootGroupId;
+	}
+
+	public void setSpAdminsRootGroupId(Long spAdminsRootGroupId) {
+		this.spAdminsRootGroupId = spAdminsRootGroupId;
+	}
+
+	public void setLogoutUrl(String logoutUrl) {
+		this.logoutUrl = logoutUrl;
+	}
+
+	public String getLogoutUrl() {
+		return logoutUrl;
+	}
+
 	// ATTRIBUTES
 
 	public String getMasterProxyIdentifierAttribute() {
@@ -366,14 +393,6 @@ public class AppConfig {
 		this.proxyIdentifierAttributeValue = proxyIdentifierAttributeValue;
 	}
 
-	public void setLogoutUrl(String logoutUrl) {
-		this.logoutUrl = logoutUrl;
-	}
-
-	public String getLogoutUrl() {
-		return logoutUrl;
-	}
-
 	public String getServiceNameAttributeName() {
 		return serviceNameAttributeName;
 	}
@@ -388,6 +407,18 @@ public class AppConfig {
 
 	public void setServiceDescAttributeName(String serviceDescAttributeName) {
 		this.serviceDescAttributeName = serviceDescAttributeName;
+	}
+
+	public String getAdminsGroupAttribute() {
+		return adminsGroupAttribute;
+	}
+
+	public void setAdminsGroupAttribute(String adminsGroupAttribute) throws ConnectorException {
+		this.adminsGroupAttribute = adminsGroupAttribute;
+
+		PerunAttributeDefinition def = perunConnector.getAttributeDefinition(adminsGroupAttribute);
+		perunAttributeDefinitionsMap.put(adminsGroupAttribute, def);
+		attributeCategoryMap.put(def.getFullName(), AttributeCategory.SERVICE);
 	}
 
 	@Override

@@ -22,7 +22,7 @@ import java.util.Objects;
 public class PerunAttribute {
 
 	private final static String STRING_TYPE = "java.lang.String";
-	private final static String INTEGER_TYPE = "java.lang.Long";
+	private final static String INTEGER_TYPE = "java.lang.Integer";
 	private final static String BOOLEAN_TYPE = "java.lang.Boolean";
 	private final static String ARRAY_TYPE = "java.util.ArrayList";
 	private final static String MAP_TYPE = "java.util.LinkedHashMap";

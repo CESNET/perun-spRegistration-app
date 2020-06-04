@@ -109,12 +109,20 @@ public class AddAdminsServiceImpl implements AddAdminsService {
             throw new ExpiredCodeException("Code is invalid");
         }
 
-        boolean added = perunConnector.addFacilityAdmin(linkCode.getFacilityId(), user.getId());
-        linkCodeManager.delete(code);
+        Long memberId = perunConnector.getMemberIdByUser(appConfig.getSpAdminsRootVoId(), user.getId());
+        if (memberId == null) {
+            throw new InternalErrorException("No member could be found for user");
+        }
+        PerunAttribute adminsGroupAttribute = perunConnector.getFacilityAttribute(linkCode.getFacilityId(), appConfig.getAdminsGroupAttribute());
+        if (adminsGroupAttribute == null || adminsGroupAttribute.valueAsLong() == null) {
+            throw new InternalErrorException("No admins group found for service");
+        }
 
+        boolean added = perunConnector.addMemberToGroup(adminsGroupAttribute.valueAsLong(), memberId);
         if (!added) {
-            log.error("some operations failed: added: {}", added);
+            log.error("some operations failed: added: false");
         } else {
+            linkCodeManager.delete(code);
             log.info("Admin added, code deleted");
         }
 

@@ -3,11 +3,11 @@ package cz.metacentrum.perun.spRegistration.persistence.connectors.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.NullNode;
 import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.common.exceptions.BadRequestException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
+import cz.metacentrum.perun.spRegistration.common.models.Group;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.common.models.User;
@@ -47,6 +47,8 @@ public class PerunConnectorRpc implements PerunConnector {
 	private static final String FACILITIES_MANAGER = "facilitiesManager";
 	private static final String ATTRIBUTES_MANAGER = "attributesManager";
 	private static final String SEARCHER = "searcher";
+	private static final String GROUPS_MANAGER = "groupsManager";
+	private static final String MEMBERS_MANAGER = "membersManager";
 
 	private String perunRpcUrl;
 	private String perunRpcUser;
@@ -307,7 +309,7 @@ public class PerunConnectorRpc implements PerunConnector {
 		params.put("extLogin", extLogin);
 
 		JsonNode res = makeRpcGetCallForObject(USERS_MANAGER, "getUserByExtSourceNameAndExtLogin", params);
-		if (res == null) {
+		if (res == null || res.isNull()) {
 			throw new ConnectorException("Should not found more than one user");
 		}
 
@@ -322,25 +324,6 @@ public class PerunConnectorRpc implements PerunConnector {
 
 		log.trace("getUserWithEmail() returns: {}", user);
 		return user;
-	}
-
-	@Override
-	public boolean addFacilityAdmin(Long facilityId, Long userId) throws ConnectorException {
-		log.trace("addFacilityAdmin(facilityId: {}, userId:{})", facilityId, userId);
-
-		if (Utils.checkParamsInvalid(facilityId, userId)) {
-			log.error("Wrong parameters passed: (facilityId: {}, userId: {})", facilityId, userId);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
-
-		Map<String, Object> params = new LinkedHashMap<>();
-		params.put("facility", facilityId);
-		params.put("user", userId);
-
-		boolean res = (null == makeRpcPostCall(FACILITIES_MANAGER, "addAdmin", params));
-
-		log.trace("addFacilityAdmin() returns: {}", res);
-		return res;
 	}
 
 	@Override
@@ -422,6 +405,126 @@ public class PerunConnectorRpc implements PerunConnector {
 		return user;
 	}
 
+	@Override
+	public Group createGroup(Long parentGroupId, Group group) throws ConnectorException {
+		log.trace("createGroup({}, {})", parentGroupId, group);
+
+		if (Utils.checkParamsInvalid(parentGroupId, group)) {
+			log.error("Wrong parameters passed: (parentGroupId: {}, group: {})", parentGroupId, group);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
+		Map<String, Object> params = new LinkedHashMap<>();
+		params.put("parentGroup", parentGroupId);
+		params.put("group", group.toJson());
+
+		JsonNode res = makeRpcGetCall(GROUPS_MANAGER, "createGroup", params);
+		Group g = MapperUtils.mapGroup(res);
+
+		log.trace("createGroup({}, {}) returns: {}", parentGroupId, group, g);
+		return g;
+	}
+
+	@Override
+	public boolean deleteGroup(Long groupId) throws ConnectorException {
+		log.trace("deleteGroup({})", groupId);
+
+		if (Utils.checkParamsInvalid(groupId)) {
+			log.error("Wrong parameters passed: (groupId: {})", groupId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
+		Map<String, Object> params = new LinkedHashMap<>();
+		params.put("group", groupId);
+		params.put("force", true);
+
+		JsonNode res = makeRpcGetCall(GROUPS_MANAGER, "deleteGroup", params);
+		boolean result = res == null || res.isNull();
+
+		log.trace("deleteGroup({}) returns: {}", groupId, result);
+		return result;
+	}
+
+	@Override
+	public boolean addGroupAsAdmins(Long facilityId, Long groupId) throws ConnectorException {
+		log.trace("addGroupAsAdmins({}, {})", facilityId, groupId);
+
+		if (Utils.checkParamsInvalid(groupId)) {
+			log.error("Wrong parameters passed: (groupId: {})", groupId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
+		Map<String, Object> params = new LinkedHashMap<>();
+		params.put("facility", facilityId);
+		params.put("authorizedGroup", groupId);
+
+		JsonNode res = makeRpcGetCall(FACILITIES_MANAGER, "addAdmin", params);
+		boolean result = res == null || res.isNull();
+
+		log.trace("addGroupAsAdmins({}, {}) returns: {}", facilityId, groupId, result);
+		return result;
+	}
+
+	@Override
+	public boolean removeGroupFromAdmins(Long facilityId, Long groupId) throws ConnectorException {
+		log.trace("removeGroupFromAdmins({}, {})", facilityId, groupId);
+
+		if (Utils.checkParamsInvalid(groupId)) {
+			log.error("Wrong parameters passed: (groupId: {})", groupId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
+		Map<String, Object> params = new LinkedHashMap<>();
+		params.put("facility", facilityId);
+		params.put("authorizedGroup", groupId);
+
+		JsonNode res = makeRpcGetCall(FACILITIES_MANAGER, "removeAdmin", params);
+		boolean result = res == null || res.isNull();
+
+		log.trace("removeGroupFromAdmins({}, {}) returns: {}", facilityId, groupId, result);
+		return result;
+	}
+
+	@Override
+	public Long getMemberIdByUser(Long vo, Long user) throws ConnectorException {
+		log.trace("getMemberIdByUser({}, {})", vo, user);
+
+		if (Utils.checkParamsInvalid(vo, user)) {
+			log.error("Wrong parameters passed: (vo: {}, user: {})", vo, user);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
+		Map<String, Object> params = new LinkedHashMap<>();
+		params.put("vo", vo);
+		params.put("user", user);
+
+		JsonNode res = makeRpcGetCall(MEMBERS_MANAGER, "getMemberByUser", params);
+		Long id = res.get("id").asLong();
+
+		log.trace("getMemberIdByUser({}, {}) returns: {}", vo, user, id);
+		return id;
+	}
+
+	@Override
+	public boolean addMemberToGroup(Long groupId, Long memberId) throws ConnectorException {
+		log.trace("addMemberToGroup({}, {})", groupId, memberId);
+
+		if (Utils.checkParamsInvalid(groupId, memberId)) {
+			log.error("Wrong parameters passed: (groupId: {}, memberId: {})", groupId, memberId);
+			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+		}
+
+		Map<String, Object> params = new LinkedHashMap<>();
+		params.put("group", groupId);
+		params.put("member", memberId);
+
+		JsonNode res = makeRpcGetCall(GROUPS_MANAGER, "addMember", params);
+		boolean result = res == null || res.isNull();
+
+		log.trace("addMemberToGroup({}, {}) returns: {}", groupId, memberId, result);
+		return result;
+	}
+
 	/* PRIVATE METHODS */
 
 	private List<User> getAdminsForFacility(Long facility, String userEmailAttr) throws ConnectorException {
@@ -451,7 +554,7 @@ public class PerunConnectorRpc implements PerunConnector {
 		}
 
 		JsonNode response = makeRpcGetCall(manager, method, map);
-		if (response == null || (response instanceof NullNode)) {
+		if (response == null || response.isNull()) {
 			return null;
 		}
 
@@ -468,7 +571,7 @@ public class PerunConnectorRpc implements PerunConnector {
 		}
 
 		JsonNode response = makeRpcGetCall(manager, method, map);
-		if (response == null || (response instanceof NullNode)) {
+		if (response == null || response.isNull()) {
 			return null;
 		}
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import cz.metacentrum.perun.spRegistration.common.exceptions.BadRequestException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
+import cz.metacentrum.perun.spRegistration.common.models.Group;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.common.models.User;
@@ -138,16 +139,6 @@ public interface PerunConnector {
 	User getUserWithEmail(String extLogin, String extSourceName, String userEmailAttr) throws ConnectorException;
 
 	/**
-	 * Add user as an admin (manager) of facility.
-	 * @param facilityId ID of facility.
-	 * @param userId ID of user.
-	 * @return TRUE if everything went OK, FALSE otherwise.
-	 * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
-	 * @throws IllegalArgumentException Thrown when param "facilityId" is NULL, when "userId" is NULL.
-	 */
-	boolean addFacilityAdmin(Long facilityId, Long userId) throws ConnectorException;
-
-	/**
 	 * Fetch attribute definition by name.
 	 * @param name Name of the attribute.
 	 * @return Attribute definition
@@ -170,4 +161,16 @@ public interface PerunConnector {
 
 	User getUserById(Long id) throws ConnectorException;
 
+
+	Group createGroup(Long parentGroupId, Group group) throws ConnectorException;
+
+	boolean deleteGroup(Long groupId) throws ConnectorException;
+
+	boolean addGroupAsAdmins(Long facilityId, Long groupId) throws ConnectorException;
+
+	boolean removeGroupFromAdmins(Long facilityId, Long groupId) throws ConnectorException;
+
+	Long getMemberIdByUser(Long vo, Long user) throws ConnectorException;
+
+	boolean addMemberToGroup(Long groupId, Long memberId) throws ConnectorException;
 }
