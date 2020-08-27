@@ -108,11 +108,8 @@ public class PerunConnectorRpc {
      * @throws PerunConnectionException Thrown when problem with connection to Perun interface occurs.
      */
     public JsonNode post(String manager, String method, Map<String, Object> map)
-            throws PerunUnknownException, PerunConnectionException {
-        if (!properties.isEnabled()) {
-            return JsonNodeFactory.instance.nullNode();
-        }
-
+            throws PerunUnknownException, PerunConnectionException
+    {
         String actionUrl = this.perunUrl + "/json/" + manager + '/' + method;
 
         // make the call

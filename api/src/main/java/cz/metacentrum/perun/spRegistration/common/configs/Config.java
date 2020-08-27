@@ -18,7 +18,6 @@ public class Config {
 
 	private static final Logger log = LoggerFactory.getLogger(Config.class);
 
-	private AppConfig appConfig;
 	private AttrsConfig facilityServiceConfig;
 	private AttrsConfig facilityOrganizationConfig;
 	private AttrsConfig facilityMembershipConfig;
@@ -26,15 +25,6 @@ public class Config {
 	private AttrsConfig facilitySamlConfig;
 	private Properties messagesConfig;
 	private Map<String, AttrInput> inputMap = new HashMap<>();
-
-	public void setAppConfig(AppConfig appConfig) {
-		log.debug("setting app config: {}", appConfig);
-		this.appConfig = appConfig;
-	}
-
-	public AppConfig getAppConfig() {
-		return appConfig;
-	}
 
 	public void setFacilityServiceConfig(AttrsConfig facilityServiceConfig) {
 		log.trace("setting facility service config: {}", facilityServiceConfig);

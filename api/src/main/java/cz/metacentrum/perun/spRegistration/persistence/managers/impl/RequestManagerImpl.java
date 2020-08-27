@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.spRegistration.persistence.managers.impl;
 
 import cz.metacentrum.perun.spRegistration.Utils;
+import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
 import cz.metacentrum.perun.spRegistration.common.configs.Config;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestStatus;
@@ -41,13 +42,16 @@ public class RequestManagerImpl implements RequestManager {
 
 	private final RequestMapper REQUEST_MAPPER;
 	private final NamedParameterJdbcTemplate jdbcTemplate;
-	private final Config config;
+	private final ApplicationBeans applicationBeans;
 
 	@Autowired
-	public RequestManagerImpl(Config config, NamedParameterJdbcTemplate jdbcTemplate) {
-		this.config = config;
+	public RequestManagerImpl(Config config,
+							  NamedParameterJdbcTemplate jdbcTemplate,
+							  ApplicationBeans applicationBeans)
+	{
+		REQUEST_MAPPER = new RequestMapper(config, applicationBeans);
 		this.jdbcTemplate = jdbcTemplate;
-		REQUEST_MAPPER = new RequestMapper(config);
+		this.applicationBeans = applicationBeans;
 	}
 
 	@Override
@@ -80,7 +84,7 @@ public class RequestManagerImpl implements RequestManager {
 		params.addValue("status", request.getStatus().getAsInt());
 		params.addValue("action", request.getAction().getAsInt());
 		params.addValue("req_user_id", request.getReqUserId());
-		params.addValue("attributes", request.getAttributesAsJsonForDb(config.getAppConfig()));
+		params.addValue("attributes", request.getAttributesAsJsonForDb(applicationBeans));
 		params.addValue("modified_by", request.getModifiedBy());
 
 		int updatedCount = jdbcTemplate.update(query, params, key, new String[] { "id" });
@@ -125,7 +129,7 @@ public class RequestManagerImpl implements RequestManager {
 		params.addValue("status", request.getStatus().getAsInt());
 		params.addValue("action", request.getAction().getAsInt());
 		params.addValue("req_user_id", request.getReqUserId());
-		params.addValue("attributes", request.getAttributesAsJsonForDb(config.getAppConfig()));
+		params.addValue("attributes", request.getAttributesAsJsonForDb(applicationBeans));
 		params.addValue("modified_by", request.getModifiedBy());
 		params.addValue("req_id", request.getReqId());
 

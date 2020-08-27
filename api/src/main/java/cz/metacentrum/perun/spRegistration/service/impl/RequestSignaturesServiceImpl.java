@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
 import cz.metacentrum.perun.spRegistration.Utils;
-import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
+import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
@@ -34,17 +34,22 @@ public class RequestSignaturesServiceImpl implements RequestSignaturesService {
     private final RequestSignatureManager requestSignatureManager;
     private final RequestManager requestManager;
     private final MailsService mailsService;
-    private final AppConfig appConfig;
     private final UtilsService utilsService;
     private final LinkCodeManager linkCodeManager;
+    private final ApplicationProperties applicationProperties;
 
     @Autowired
-    public RequestSignaturesServiceImpl(RequestSignatureManager requestSignatureManager, RequestManager requestManager,
-                                        MailsService mailsService, AppConfig appConfig, UtilsService utilsService, LinkCodeManager linkCodeManager) {
+    public RequestSignaturesServiceImpl(RequestSignatureManager requestSignatureManager,
+                                        RequestManager requestManager,
+                                        MailsService mailsService,
+                                        UtilsService utilsService,
+                                        LinkCodeManager linkCodeManager,
+                                        ApplicationProperties applicationProperties)
+    {
         this.requestSignatureManager = requestSignatureManager;
         this.requestManager = requestManager;
         this.mailsService = mailsService;
-        this.appConfig = appConfig;
+        this.applicationProperties = applicationProperties;
         this.utilsService = utilsService;
         this.linkCodeManager = linkCodeManager;
     }
@@ -96,7 +101,9 @@ public class RequestSignaturesServiceImpl implements RequestSignaturesService {
         if (request == null) {
             log.error("Could not retrieve request for id: {}", requestId);
             throw new InternalErrorException(Utils.GENERIC_ERROR_MSG);
-        } else if (!appConfig.isAppAdmin(userId) && !utilsService.isAdminInRequest(request.getReqUserId(), userId)) {
+        } else if (!applicationProperties.isAppAdmin(userId)
+                && !utilsService.isAdminInRequest(request.getReqUserId(), userId)
+        ){
             log.error("User is not authorized to view approvals for request: {}", requestId);
             throw new UnauthorizedActionException(Utils.GENERIC_ERROR_MSG);
         }

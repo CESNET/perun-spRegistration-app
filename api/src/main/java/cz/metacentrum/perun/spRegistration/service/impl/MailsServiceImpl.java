@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
-import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
+import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
+import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.models.User;
@@ -79,13 +80,19 @@ public class MailsServiceImpl implements MailsService {
 
 	private final JavaMailSender mailSender;
 	private final Properties messagesProperties;
-	private final AppConfig appConfig;
+	private final ApplicationProperties applicationProperties;
+	private final AttributesProperties attributesProperties;
 
 	@Autowired
-	public MailsServiceImpl(JavaMailSender mailSender, Properties messagesProperties, AppConfig appConfig) {
+	public MailsServiceImpl(JavaMailSender mailSender,
+							Properties messagesProperties,
+							ApplicationProperties applicationProperties,
+							AttributesProperties attributesProperties) 
+	{
 		this.mailSender = mailSender;
 		this.messagesProperties = messagesProperties;
-		this.appConfig = appConfig;
+		this.applicationProperties = applicationProperties;
+		this.attributesProperties = attributesProperties;
 	}
 
 	@Override
@@ -118,7 +125,7 @@ public class MailsServiceImpl implements MailsService {
 				approvalLink, req, recipient);
 
 		StringJoiner subject = new StringJoiner(" / ");
-		for (String lang : appConfig.getAvailableLanguages()) {
+		for (String lang : applicationProperties.getLanguagesEnabled()) {
 			String subj = messagesProperties.getProperty(PRODUCTION_AUTHORITIES_SUBJECT_KEY + '.' + lang);
 			if (subj != null && !NULL_KEY.equals(subj)) {
 				subject.add(subj);
@@ -126,7 +133,7 @@ public class MailsServiceImpl implements MailsService {
 		}
 
 		StringJoiner message = new StringJoiner("<br/><hr/><br/>");
-		for (String lang : appConfig.getAvailableLanguages()) {
+		for (String lang : applicationProperties.getLanguagesEnabled()) {
 			String msg = messagesProperties.getProperty(PRODUCTION_AUTHORITIES_MESSAGE_KEY + '.' + lang);
 			if (msg != null && ! NULL_KEY.equals(msg)) {
 				message.add(msg);
@@ -152,7 +159,7 @@ public class MailsServiceImpl implements MailsService {
 				approvalLink, facility, recipient);
 
 		StringJoiner subject = new StringJoiner(" / ");
-		for (String lang : appConfig.getAvailableLanguages()) {
+		for (String lang : applicationProperties.getLanguagesEnabled()) {
 			String subj = messagesProperties.getProperty(ADD_ADMIN_SUBJECT_KEY + '.' + lang);
 			if (null != subj && !NULL_KEY.equals(subj)) {
 				subject.add(subj);
@@ -160,7 +167,7 @@ public class MailsServiceImpl implements MailsService {
 		}
 
 		StringJoiner message = new StringJoiner("<br/><hr/><br/>");
-		for (String lang : appConfig.getAvailableLanguages()) {
+		for (String lang : applicationProperties.getLanguagesEnabled()) {
 			String msg = messagesProperties.getProperty(ADD_ADMIN_MESSAGE_KEY + '.' + lang);
 			if (null != msg && !NULL_KEY.equals(msg)) {
 				message.add(msg);
@@ -217,7 +224,7 @@ public class MailsServiceImpl implements MailsService {
 		subject = replacePlaceholders(subject, req);
 		message = replacePlaceholders(message, req);
 
-		String userMail = req.getAdminContact(appConfig.getAdminsAttributeName());
+		String userMail = req.getAdminContact(attributesProperties.getAdministratorContactAttrName());
 
 		boolean res = sendMail(userMail, subject, message);
 		if (!res) {
@@ -257,7 +264,7 @@ public class MailsServiceImpl implements MailsService {
 				fac.getName().get("en"), "");
 		containerString = replacePlaceholder(containerString, EN_SERVICE_DESCRIPTION_FIELD,
 				fac.getDescription().get("en"), "");
-		if (appConfig.getAvailableLanguages().contains("cs")) {
+		if (applicationProperties.getLanguagesEnabled().contains("cs")) {
 			containerString = replacePlaceholder(containerString, CS_SERVICE_NAME_FIELD,
 					fac.getName().get("cs"), "");
 			containerString = replacePlaceholder(containerString, CS_SERVICE_DESCRIPTION_FIELD,
@@ -276,9 +283,9 @@ public class MailsServiceImpl implements MailsService {
 		containerString = replacePlaceholder(containerString, EN_NEW_STATUS_FIELD,
 				req.getStatus().toString("en"), "");
 		containerString = replacePlaceholder(containerString, EN_SERVICE_NAME_FIELD,
-				req.getFacilityName(appConfig.getServiceNameAttributeName()).get("en"), "");
+				req.getFacilityName(attributesProperties.getServiceNameAttrName()).get("en"), "");
 		containerString = replacePlaceholder(containerString, EN_SERVICE_DESCRIPTION_FIELD,
-				req.getFacilityDescription(appConfig.getServiceDescAttributeName()).get("en"), "");
+				req.getFacilityDescription(attributesProperties.getServiceDescAttrName()).get("en"), "");
 		containerString = replacePlaceholder(containerString, REQUEST_DETAIL_LINK_FIELD,
 				wrapInAnchorElement(requestLink), "-");
 		containerString = replacePlaceholder(containerString, EN_ACTION_FIELD,
@@ -286,13 +293,13 @@ public class MailsServiceImpl implements MailsService {
 		containerString = replacePlaceholder(containerString, USER_INFO_FIELD,
 				req.getReqUserId().toString(), "");
 
-		if (appConfig.getAvailableLanguages().contains("cs")) {
+		if (applicationProperties.getLanguagesEnabled().contains("cs")) {
 			containerString = replacePlaceholder(containerString, CS_NEW_STATUS_FIELD,
 					req.getStatus().toString("cs"), "");
 			containerString = replacePlaceholder(containerString, CS_SERVICE_NAME_FIELD,
-					req.getFacilityName(appConfig.getServiceNameAttributeName()).get("cs"), "");
+					req.getFacilityName(attributesProperties.getServiceNameAttrName()).get("cs"), "");
 			containerString = replacePlaceholder(containerString, CS_SERVICE_DESCRIPTION_FIELD,
-					req.getFacilityDescription(appConfig.getServiceDescAttributeName()).get("cs"), "");
+					req.getFacilityDescription(attributesProperties.getServiceDescAttrName()).get("cs"), "");
 			containerString = replacePlaceholder(containerString, CS_ACTION_FIELD,
 					req.getAction().toString("cs"), "");
 		}
@@ -320,7 +327,7 @@ public class MailsServiceImpl implements MailsService {
 	private String getSubject(String action, String role) {
 		log.trace("getSubject({}, {})", action, role);
 		StringJoiner joiner = new StringJoiner(" / ");
-		for (String lang : appConfig.getAvailableLanguages()) {
+		for (String lang : applicationProperties.getLanguagesEnabled()) {
 			String subj = getSingleEntry(action, role, lang, "subject");
 			if (subj != null && !NULL_KEY.equals(subj)) {
 				joiner.add(subj);
@@ -333,7 +340,7 @@ public class MailsServiceImpl implements MailsService {
 	private String getMessage(String action, String role) {
 		log.trace("getMessage({}, {})", action, role);
 		StringJoiner joiner = new StringJoiner("<br/><br/><hr/><br/>");
-		for (String lang : appConfig.getAvailableLanguages()) {
+		for (String lang : applicationProperties.getLanguagesEnabled()) {
 			String msg = getSingleEntry(action, role, lang, "message");
 			if (msg != null && !NULL_KEY.equals(msg)) {
 				joiner.add(msg);
@@ -370,7 +377,7 @@ public class MailsServiceImpl implements MailsService {
 		log.debug("notifyClientSecretChanged(facility: {})", facility);
 
 		StringJoiner subject = new StringJoiner(" / ");
-		for (String lang : appConfig.getAvailableLanguages()) {
+		for (String lang : applicationProperties.getLanguagesEnabled()) {
 			String subj = messagesProperties.getProperty(CLIENT_SECRET_CHANGED_SUBJECT_KEY + '.' + lang);
 			if (subj != null && ! NULL_KEY.equals(subj)) {
 				subject.add(subj);
@@ -378,7 +385,7 @@ public class MailsServiceImpl implements MailsService {
 		}
 
 		StringJoiner message = new StringJoiner("<br/><hr/><br/>");
-		for (String lang : appConfig.getAvailableLanguages()) {
+		for (String lang : applicationProperties.getLanguagesEnabled()) {
 			String msg = messagesProperties.getProperty(CLIENT_SECRET_CHANGED_MESSAGE_KEY + '.' + lang);
 			if (msg != null && !NULL_KEY.equals(msg)) {
 				message.add(msg);

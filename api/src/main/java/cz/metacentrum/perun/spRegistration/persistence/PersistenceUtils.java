@@ -2,7 +2,8 @@ package cz.metacentrum.perun.spRegistration.persistence;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
+import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
+import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Utility class for persistence layer
@@ -41,17 +43,19 @@ public class PersistenceUtils {
 	/**
 	 * Initialize attributes form configuration
 	 * @param connector Perun connector to obtain information about attributes
-	 * @param appConfig configuration for attributes
 	 * @param props properties file containing translations
 	 * @return List of initialized attributes
 	 */
-	public static List<AttrInput> initializeAttributes(PerunAdapter connector, AppConfig appConfig, Properties props,
+	public static List<AttrInput> initializeAttributes(PerunAdapter connector,
+													   ApplicationProperties applicationProperties,
+													   ApplicationBeans applicationBeans,
+													   Properties props,
 													   AttributeCategory category)
 			throws PerunUnknownException, PerunConnectionException
 	{
 		log.trace("Initializing attribute inputs - START");
 		List<AttrInput> inputs = new ArrayList<>();
-		log.debug("Locales enabled: {}", appConfig.getAvailableLanguages());
+		log.debug("Locales enabled: {}", applicationProperties.getLanguagesEnabled());
 
 		for (String prop: props.stringPropertyNames()) {
 			if (! prop.contains(ATTR_NAME)) {
@@ -64,11 +68,11 @@ public class PersistenceUtils {
 			log.debug("Initializing attribute: {}", attrName);
 
 			PerunAttributeDefinition def = connector.getAttributeDefinition(attrName);
-			appConfig.getPerunAttributeDefinitionsMap().put(def.getFullName(), def);
-			appConfig.getAttributeCategoryMap().put(def.getFullName(), category);
+			applicationBeans.getAttributeDefinitionMap().put(def.getFullName(), def);
+			applicationBeans.getAttributeCategoryMap().put(def.getFullName(), category);
 
-			Map<String, String> name = getTranslations(appConfig, "name", baseProp, props);
-			Map<String, String> desc = getTranslations(appConfig, "desc", baseProp, props);
+			Map<String, String> name = getTranslations(applicationProperties.getLanguagesEnabled(), "name", baseProp, props);
+			Map<String, String> desc = getTranslations(applicationProperties.getLanguagesEnabled(), "desc", baseProp, props);
 
 			AttrInput input = new AttrInput(def.getFullName(), name, desc, def.getType());
 
@@ -81,11 +85,11 @@ public class PersistenceUtils {
 		return inputs;
 	}
 
-	private static Map<String, String> getTranslations(AppConfig appConfig, String subKey, String baseProp,
+	private static Map<String, String> getTranslations(Set<String> enabledLangs, String subKey, String baseProp,
 													   Properties props)
 	{
 		Map<String, String> map = new HashMap<>();
-		for (String langKey: appConfig.getAvailableLanguages()) {
+		for (String langKey: enabledLangs) {
 			String prop = baseProp + ".lang." + subKey + '.' + langKey;
 			if (props.containsKey(prop)) {
 				map.put(langKey, props.getProperty(prop));

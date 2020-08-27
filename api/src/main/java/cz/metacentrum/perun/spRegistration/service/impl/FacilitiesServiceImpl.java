@@ -2,6 +2,9 @@ package cz.metacentrum.perun.spRegistration.service.impl;
 
 import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
+import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
+import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
+import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.Config;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
@@ -43,18 +46,23 @@ public class FacilitiesServiceImpl implements FacilitiesService {
     private final PerunAdapter perunAdapter;
     private final UtilsService utilsService;
     private final RequestManager requestManager;
-    private final AppConfig appConfig;
+    private final AttributesProperties attributesProperties;
+    private final ApplicationBeans applicationBeans;
+    private final ApplicationProperties applicationProperties;
     private final Config config;
     private final ProvidedServiceManager providedServiceManager;
 
     @Autowired
     public FacilitiesServiceImpl(PerunAdapter perunAdapter, UtilsService utilsService, RequestManager requestManager,
-                                 AppConfig appConfig, Config config, ProvidedServiceManager providedServiceManager)
-    {
+                                 Config config, ProvidedServiceManager providedServiceManager,
+                                 AttributesProperties attributesProperties,
+                                 ApplicationBeans applicationBeans, ApplicationProperties applicationProperties) {
         this.perunAdapter = perunAdapter;
         this.utilsService = utilsService;
         this.requestManager = requestManager;
-        this.appConfig = appConfig;
+        this.attributesProperties = attributesProperties;
+        this.applicationBeans = applicationBeans;
+        this.applicationProperties = applicationProperties;
         this.config = config;
         this.providedServiceManager = providedServiceManager;
     }
@@ -81,49 +89,57 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         Long activeRequestId = requestManager.getActiveRequestIdByFacilityId(facilityId);
         facility.setActiveRequestId(activeRequestId);
 
-        List<String> attrsToFetch = new ArrayList<>(appConfig.getPerunAttributeDefinitionsMap().keySet());
+        List<String> attrsToFetch = new ArrayList<>(applicationBeans.getAttributeDefinitionMap().keySet());
         Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facilityId, attrsToFetch);
-        boolean isOidc = ServiceUtils.isOidcAttributes(attrs, appConfig.getEntityIdAttribute());
+        boolean isOidc = ServiceUtils.isOidcAttributes(attrs, attributesProperties.getEntityIdAttrName());
         List<String> keptAttrs = getAttrsToKeep(isOidc);
         List<PerunAttribute> filteredAttributes = ServiceUtils.filterFacilityAttrs(attrs, keptAttrs);
-        Map<AttributeCategory, Map<String, PerunAttribute>> facilityAttributes = convertToStruct(filteredAttributes, appConfig);
+        Map<AttributeCategory, Map<String, PerunAttribute>> facilityAttributes = convertToStruct(filteredAttributes,
+                applicationBeans);
         facility.setAttributes(facilityAttributes);
 
         Map<String, String> name = facility.getAttributes()
                 .get(AttributeCategory.SERVICE)
-                .get(appConfig.getServiceNameAttributeName())
+                .get(attributesProperties.getServiceNameAttrName())
                 .valueAsMap();
 
         Map<String, String> desc = facility.getAttributes()
                 .get(AttributeCategory.SERVICE)
-                .get(appConfig.getServiceDescAttributeName())
+                .get(attributesProperties.getServiceDescAttrName())
                 .valueAsMap();
         facility.setName(name);
         facility.setDescription(desc);
 
         if (isOidc) {
             PerunAttribute clientSecret = facility.getAttributes()
-                    .get(AttributeCategory.PROTOCOL).get(appConfig.getClientSecretAttribute());
+                    .get(AttributeCategory.PROTOCOL).get(attributesProperties.getOidcClientIdAttrName());
             String valEncrypted = clientSecret.valueAsString();
-            String decrypted = ServiceUtils.decrypt(valEncrypted, appConfig.getSecret());
+            String decrypted = ServiceUtils.decrypt(valEncrypted, applicationBeans.getSecretKeySpec());
             clientSecret.setValue(decrypted);
         }
 
         if (!includeClientCredentials) {
-            facility.getAttributes().get(AttributeCategory.PROTOCOL).remove(appConfig.getClientIdAttribute());
-            facility.getAttributes().get(AttributeCategory.PROTOCOL).remove(appConfig.getClientSecretAttribute());
+            facility.getAttributes().get(AttributeCategory.PROTOCOL)
+                    .remove(attributesProperties.getOidcClientIdAttrName());
+            facility.getAttributes().get(AttributeCategory.PROTOCOL)
+                    .remove(attributesProperties.getOidcClientSecretAttrName());
         }
 
-        boolean inTest = attrs.get(appConfig.getIsTestSpAttribute()).valueAsBoolean();
+        boolean inTest = attrs.get(attributesProperties.getIsTestSpAttrName()).valueAsBoolean();
         facility.setTestEnv(inTest);
 
-        Map<String, PerunAttribute> protocolAttrs = perunAdapter.getFacilityAttributes(facilityId, Arrays.asList(
-                appConfig.getIsOidcAttributeName(), appConfig.getIsSamlAttributeName(), appConfig.getMasterProxyIdentifierAttribute()));
-        facility.setOidc(protocolAttrs.get(appConfig.getIsOidcAttributeName()).valueAsBoolean());
-        facility.setSaml(protocolAttrs.get(appConfig.getIsSamlAttributeName()).valueAsBoolean());
+        Map<String, PerunAttribute> protocolAttrs = perunAdapter.getFacilityAttributes(facilityId,
+                Arrays.asList(
+                    attributesProperties.getIsOidcAttrName(),
+                    attributesProperties.getIsSamlAttrName(),
+                    attributesProperties.getMasterProxyIdentifierAttrName())
+        );
+        facility.setOidc(protocolAttrs.get(attributesProperties.getIsOidcAttrName()).valueAsBoolean());
+        facility.setSaml(protocolAttrs.get(attributesProperties.getIsSamlAttrName()).valueAsBoolean());
 
-        PerunAttribute proxyAttrs = protocolAttrs.get(appConfig.getMasterProxyIdentifierAttribute());
-        boolean canBeEdited = appConfig.getMasterProxyIdentifierAttributeValue().equals(proxyAttrs.valueAsString());
+        PerunAttribute proxyAttrs = protocolAttrs.get(attributesProperties.getMasterProxyIdentifierAttrName());
+        boolean canBeEdited = attributesProperties.getMasterProxyIdentifierAttrValue()
+                .equals(proxyAttrs.valueAsString());
         facility.setEditable(canBeEdited);
 
         log.trace("getDetailedFacility returns: {}", facility);
@@ -167,7 +183,9 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         }
 
         List<Facility> proxyFacilities = perunAdapter.getFacilitiesByProxyIdentifier(
-                appConfig.getProxyIdentifierAttribute(), appConfig.getProxyIdentifierAttributeValue());
+                attributesProperties.getProxyIdentifierAttrName(),
+                attributesProperties.getProxyIdentifierAttrValue()
+        );
         Map<Long, Facility> proxyFacilitiesMap = ServiceUtils.transformListToMapFacilities(proxyFacilities);
         if (proxyFacilitiesMap == null || proxyFacilitiesMap.isEmpty()) {
             return new ArrayList<>();
@@ -184,18 +202,18 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         }
 
         List<Facility> testFacilities = perunAdapter.getFacilitiesByAttribute(
-                appConfig.getIsTestSpAttribute(), "true");
+                attributesProperties.getIsTestSpAttrName(), "true");
         Map<Long, Facility> testFacilitiesMap = ServiceUtils.transformListToMapFacilities(testFacilities);
         if (testFacilitiesMap == null) {
             testFacilitiesMap = new HashMap<>();
         }
 
         List<Facility> oidcFacilities = perunAdapter.getFacilitiesByAttribute(
-                appConfig.getIsOidcAttributeName(), "true");
+                attributesProperties.getIsOidcAttrName(), "true");
         Map<Long, Facility> oidcFacilitiesMap = ServiceUtils.transformListToMapFacilities(oidcFacilities);
 
         List<Facility> samlFacilities = perunAdapter.getFacilitiesByAttribute(
-                appConfig.getIsSamlAttributeName(), "true");
+                attributesProperties.getIsSamlAttrName(), "true");
         Map<Long, Facility> samlFacilitiesMap = ServiceUtils.transformListToMapFacilities(samlFacilities);
 
         List<Facility> filteredFacilities = new ArrayList<>();
@@ -224,14 +242,14 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         if (Utils.checkParamsInvalid(userId)) {
             log.error("Wrong parameters passed: (userId: {})", userId);
             throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        } else if (! appConfig.isAppAdmin(userId)) {
+        } else if (!applicationProperties.isAppAdmin(userId)) {
             log.error("User cannot list all facilities, user not an admin");
             throw new UnauthorizedActionException("User cannot list all facilities, user does not have role APP_ADMIN");
         }
 
         List<ProvidedService> services = providedServiceManager.getAll();
         List<Facility> proxyFacilities = perunAdapter.getFacilitiesByProxyIdentifier(
-                appConfig.getProxyIdentifierAttribute(), appConfig.getProxyIdentifierAttributeValue());
+                attributesProperties.getProxyIdentifierAttrName(), attributesProperties.getProxyIdentifierAttrValue());
         Map<Long, Facility> proxyFacilitiesMap = ServiceUtils.transformListToMapFacilities(proxyFacilities);
 
         if (proxyFacilitiesMap == null || proxyFacilitiesMap.isEmpty()) {
@@ -239,15 +257,15 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         }
 
         List<Facility> testFacilities = perunAdapter.getFacilitiesByAttribute(
-                appConfig.getIsTestSpAttribute(), "true");
+                attributesProperties.getIsTestSpAttrName(), "true");
         Map<Long, Facility> testFacilitiesMap = ServiceUtils.transformListToMapFacilities(testFacilities);
 
         List<Facility> oidcFacilities = perunAdapter.getFacilitiesByAttribute(
-                appConfig.getIsOidcAttributeName(), "true");
+                attributesProperties.getIsOidcAttrName(), "true");
         Map<Long, Facility> oidcFacilitiesMap = ServiceUtils.transformListToMapFacilities(oidcFacilities);
 
         List<Facility> samlFacilities = perunAdapter.getFacilitiesByAttribute(
-                appConfig.getIsSamlAttributeName(), "true");
+                attributesProperties.getIsSamlAttrName(), "true");
         Map<Long, Facility> samlFacilitiesMap = ServiceUtils.transformListToMapFacilities(samlFacilities);
 
         proxyFacilitiesMap.forEach((facId, val) -> {
@@ -282,8 +300,8 @@ public class FacilitiesServiceImpl implements FacilitiesService {
                     .map(AttrInput::getName)
                     .collect(Collectors.toList())
             );
-            keptAttrs.add(appConfig.getClientIdAttribute());
-            keptAttrs.add(appConfig.getClientSecretAttribute());
+            keptAttrs.add(attributesProperties.getOidcClientIdAttrName());
+            keptAttrs.add(attributesProperties.getOidcClientSecretAttrName());
         } else {
             keptAttrs.addAll(config.getSamlInputs()
                     .stream()
@@ -296,7 +314,7 @@ public class FacilitiesServiceImpl implements FacilitiesService {
     }
 
     private Map<AttributeCategory, Map<String, PerunAttribute>> convertToStruct(List<PerunAttribute> filteredAttributes,
-                AppConfig appConfig)
+                                                                                ApplicationBeans appBeans)
     {
         if (filteredAttributes == null) {
             return null;
@@ -310,7 +328,7 @@ public class FacilitiesServiceImpl implements FacilitiesService {
 
         if (!filteredAttributes.isEmpty()) {
             for (PerunAttribute attribute : filteredAttributes) {
-                AttributeCategory category = appConfig.getAttrCategory(attribute.getFullName());
+                AttributeCategory category = appBeans.getAttrCategory(attribute.getFullName());
                 attribute.setInput(config.getInputMap().get(attribute.getFullName()));
                 map.get(category).put(attribute.getFullName(), attribute);
             }

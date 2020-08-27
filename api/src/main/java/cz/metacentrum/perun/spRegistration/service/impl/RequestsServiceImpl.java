@@ -4,7 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import cz.metacentrum.perun.spRegistration.Utils;
-import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
+import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
+import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
+import cz.metacentrum.perun.spRegistration.common.configs.ApprovalsProperties;
+import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.Config;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestAction;
@@ -68,38 +71,47 @@ public class RequestsServiceImpl implements RequestsService {
     private static final Logger log = LoggerFactory.getLogger(RequestsServiceImpl.class);
 
     private final PerunAdapter perunAdapter;
-    private final AppConfig appConfig;
     private final MailsService mailsService;
     private final UtilsService utilsService;
     private final RequestManager requestManager;
     private final LinkCodeManager linkCodeManager;
     private final FacilitiesService facilitiesService;
-    private final Config config;
     private final ProvidedServiceManager providedServiceManager;
+    private final ApplicationBeans applicationBeans;
+    private final Config config;
+    private final ApplicationProperties applicationProperties;
+    private final AttributesProperties attributesProperties;
+    private final ApprovalsProperties approvalsProperties;
 
     @Value("#{'${mail.approval.default-authorities.mails}'.split(',')}")
     private List<String> defaultAuthorities;
 
     @Autowired
     public RequestsServiceImpl(PerunAdapter perunAdapter,
-                               AppConfig appConfig,
                                MailsService mailsService,
                                UtilsService utilsService,
                                RequestManager requestManager,
                                LinkCodeManager linkCodeManager,
                                FacilitiesService facilitiesService,
-                               Config config,
-                               ProvidedServiceManager providedServiceManager)
+                               ApplicationBeans applicationBeans,
+                               ApplicationProperties applicationProperties,
+                               AttributesProperties attributesProperties,
+                               ApprovalsProperties approvalsProperties,
+                               ProvidedServiceManager providedServiceManager,
+                               Config config)
     {
         this.perunAdapter = perunAdapter;
-        this.appConfig = appConfig;
         this.mailsService = mailsService;
         this.utilsService = utilsService;
         this.requestManager = requestManager;
         this.linkCodeManager = linkCodeManager;
         this.facilitiesService = facilitiesService;
-        this.config = config;
         this.providedServiceManager = providedServiceManager;
+        this.applicationBeans = applicationBeans;
+        this.applicationProperties = applicationProperties;
+        this.attributesProperties = attributesProperties;
+        this.approvalsProperties = approvalsProperties;
+        this.config = config;
     }
 
     @Override
@@ -194,9 +206,9 @@ public class RequestsServiceImpl implements RequestsService {
             throw new UnauthorizedActionException("User is not registered as facility admin, cannot create request");
         }
 
-        List<String> attrsToFetch = new ArrayList<>(appConfig.getPerunAttributeDefinitionsMap().keySet());
+        List<String> attrsToFetch = new ArrayList<>(applicationBeans.getAttributeDefinitionMap().keySet());
         Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facilityId, attrsToFetch);
-        boolean isOidc = ServiceUtils.isOidcAttributes(attrs, appConfig.getEntityIdAttribute());
+        boolean isOidc = ServiceUtils.isOidcAttributes(attrs, attributesProperties.getEntityIdAttrName());
         List<String> keptAttrs = getAttrsToKeep(isOidc);
         List<PerunAttribute> facilityAttributes = ServiceUtils.filterFacilityAttrs(attrs, keptAttrs);
 
@@ -268,7 +280,7 @@ public class RequestsServiceImpl implements RequestsService {
         }
 
         log.info("Updating request");
-        request.updateAttributes(attributes, true, appConfig);
+        request.updateAttributes(attributes, true, applicationBeans);
 
         request.setStatus(RequestStatus.WAITING_FOR_APPROVAL);
         request.setModifiedBy(userId);
@@ -327,7 +339,7 @@ public class RequestsServiceImpl implements RequestsService {
         if (request == null) {
             log.error("Could not retrieve request for id: {}", requestId);
             throw new InternalErrorException("Could not retrieve request for id: " + requestId);
-        } else if (!appConfig.isAppAdmin(userId) && !utilsService.isAdminInRequest(request.getReqUserId(), userId)) {
+        } else if (!applicationProperties.isAppAdmin(userId) && !utilsService.isAdminInRequest(request.getReqUserId(), userId)) {
             log.error("User cannot view request, user is not requester nor appAdmin");
             throw new UnauthorizedActionException("User cannot view request, user is not a requester");
         }
@@ -383,7 +395,7 @@ public class RequestsServiceImpl implements RequestsService {
         if (Utils.checkParamsInvalid(userId)) {
             log.error("Wrong parameters passed: (userId: {})", userId);
             throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        } else if (! appConfig.isAppAdmin(userId)) {
+        } else if (!applicationProperties.isAppAdmin(userId)) {
             log.error("User cannot list all requests, user is not an admin");
             throw new UnauthorizedActionException("User cannot list all requests, user is not an admin");
         }
@@ -397,13 +409,14 @@ public class RequestsServiceImpl implements RequestsService {
     @Override
     public boolean approveRequest(Long requestId, Long userId)
             throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException,
-            BadPaddingException, InvalidKeyException, IllegalBlockSizeException, PerunUnknownException, PerunConnectionException {
+            PerunUnknownException, PerunConnectionException
+    {
         log.trace("approveRequest(requestId: {}, userId: {})", requestId, userId);
 
         if (Utils.checkParamsInvalid(requestId, userId)) {
             log.error("Wrong parameters passed: (requestId: {}, userId: {})", requestId, userId);
             throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        } else if (! appConfig.isAppAdmin(userId)) {
+        } else if (!applicationProperties.isAppAdmin(userId)) {
             log.error("User is not authorized to approve request");
             throw new UnauthorizedActionException("User is not authorized to approve request");
         }
@@ -421,7 +434,7 @@ public class RequestsServiceImpl implements RequestsService {
         request.setStatus(RequestStatus.APPROVED);
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
         request.setModifiedBy(userId);
-        request.updateAttributes(new ArrayList<>(), false, appConfig);
+        request.updateAttributes(new ArrayList<>(), false, applicationBeans);
 
         boolean requestProcessed = processApprovedRequest(request);
         boolean requestUpdated = requestManager.updateRequest(request);
@@ -449,7 +462,7 @@ public class RequestsServiceImpl implements RequestsService {
         if (Utils.checkParamsInvalid(requestId, userId)) {
             log.error("Wrong parameters passed: (requestId: {}, userId: {})", requestId, userId);
             throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        } else if (! appConfig.isAppAdmin(userId)) {
+        } else if (!applicationProperties.isAppAdmin(userId)) {
             log.error("User is not authorized to reject request");
             throw new UnauthorizedActionException("User is not authorized to reject request");
         }
@@ -490,7 +503,7 @@ public class RequestsServiceImpl implements RequestsService {
         if (Utils.checkParamsInvalid(requestId, userId)) {
             log.error("Wrong parameters passed: (requestId: {}, userId: {})", requestId, userId);
             throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        } else if (! appConfig.isAppAdmin(userId)) {
+        } else if (!applicationProperties.isAppAdmin(userId)) {
             log.error("User is not authorized to ask for changes");
             throw new UnauthorizedActionException("User is not authorized to ask for changes");
         }
@@ -505,7 +518,7 @@ public class RequestsServiceImpl implements RequestsService {
             throw new CannotChangeStatusException("Cannot ask for changes, request not marked as WFA nor WFC");
         }
 
-        request.updateAttributes(attributes, false, appConfig);
+        request.updateAttributes(attributes, false, applicationBeans);
         request.setStatus(RequestStatus.WAITING_FOR_CHANGES);
         request.setModifiedBy(userId);
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
@@ -538,7 +551,7 @@ public class RequestsServiceImpl implements RequestsService {
         request.setFacilityId(facilityId);
         request.setStatus(RequestStatus.WAITING_FOR_APPROVAL);
         request.setAction(action);
-        request.updateAttributes(attributes, true, appConfig);
+        request.updateAttributes(attributes, true, applicationBeans);
         request.setReqUserId(userId);
         request.setModifiedBy(userId);
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
@@ -576,7 +589,7 @@ public class RequestsServiceImpl implements RequestsService {
     private boolean registerNewFacilityToPerun(Request request) throws InternalErrorException {
         log.trace("registerNewFacilityToPerun({})", request);
 
-        String newName = request.getFacilityName(appConfig.getServiceNameAttributeName()).get("en");
+        String newName = request.getFacilityName(attributesProperties.getServiceNameAttrName()).get("en");
         Pattern pattern = Pattern.compile("[^A-Za-z0-9]");
         Pattern pattern2 = Pattern.compile("_+_");
 
@@ -584,8 +597,9 @@ public class RequestsServiceImpl implements RequestsService {
         newName = pattern.matcher(newName).replaceAll("_");
         newName = pattern2.matcher(newName).replaceAll("_");
         PerunAttribute clientId = generateClientIdAttribute();
-        String newDesc = ServiceUtils.isOidcRequest(request, appConfig.getEntityIdAttribute()) ?
-                clientId.valueAsString() : request.getAttributes().get(AttributeCategory.PROTOCOL).get(appConfig.getEntityIdAttribute()).valueAsString();
+        String newDesc = ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName()) ?
+                clientId.valueAsString() : request.getAttributes().get(AttributeCategory.PROTOCOL)
+                .get(attributesProperties.getEntityIdAttrName()).valueAsString();
 
         if (Utils.checkParamsInvalid(newName)) {
             log.error("Wrong parameters passed: (newName: {})", newName);
@@ -609,21 +623,23 @@ public class RequestsServiceImpl implements RequestsService {
 
         ProvidedService sp = new ProvidedService();
         sp.setFacilityId(facility.getId());
-        sp.setName(request.getFacilityName(appConfig.getServiceNameAttributeName()));
-        sp.setDescription(request.getFacilityDescription(appConfig.getServiceDescAttributeName()));
+        sp.setName(request.getFacilityName(attributesProperties.getServiceNameAttrName()));
+        sp.setDescription(request.getFacilityDescription(attributesProperties.getServiceDescAttrName()));
         sp.setEnvironment(ServiceEnvironment.TESTING);
-        sp.setProtocol(ServiceUtils.isOidcRequest(request, appConfig.getEntityIdAttribute()) ?
+        sp.setProtocol(ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName()) ?
                 ServiceProtocol.OIDC : ServiceProtocol.SAML);
-        Long adminsGroupId = null;
+        Long adminsGroupId;
         try {
             Group adminsGroup = new Group(null, facility.getPerunName(), facility.getPerunName(),
-                    "Administrators of SP - " + facility.getPerunName(), appConfig.getSpAdminsRootGroupId(),
-                    appConfig.getSpAdminsRootVoId());
+                    "Administrators of SP - " + facility.getPerunName(),
+                    applicationProperties.getSpAdminsRootGroupId(),
+                    applicationProperties.getSpAdminsRootVoId());
             adminsGroup = perunAdapter.createGroup(adminsGroup.getParentGroupId(), adminsGroup);
             adminsGroupId = adminsGroup.getId();
             boolean adminSet = perunAdapter.addGroupAsAdmins(facility.getId(), adminsGroupId);
             if (adminSet) {
-                Long memberId = perunAdapter.getMemberIdByUser(appConfig.getSpAdminsRootVoId(), request.getReqUserId());
+                Long memberId = perunAdapter.getMemberIdByUser(applicationProperties.getSpAdminsRootVoId(),
+                        request.getReqUserId());
                 if (memberId != null) {
                     adminSet = perunAdapter.addMemberToGroup(adminsGroupId, memberId);
                 } else {
@@ -639,10 +655,10 @@ public class RequestsServiceImpl implements RequestsService {
             PerunAttribute proxyIdentifiers = generateProxyIdentifiersAttribute();
             PerunAttribute masterProxyIdentifiers = generateMasterProxyIdentifierAttribute();
             PerunAttribute authProtocol = generateAuthProtocolAttribute(ServiceUtils.isOidcRequest(request,
-                    appConfig.getEntityIdAttribute()));
+                    attributesProperties.getEntityIdAttrName()));
 
             ArrayNode attributes = request.getAttributesAsJsonArrayForPerun();
-            if (ServiceUtils.isOidcRequest(request, appConfig.getEntityIdAttribute())) {
+            if (ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName())) {
                 for (int i = 0; i < 10; i++) {
                     try {
                         perunAdapter.setFacilityAttribute(facility.getId(), clientId.toJson());
@@ -716,8 +732,8 @@ public class RequestsServiceImpl implements RequestsService {
             } else {
                 log.info("Facility has been updated in Perun");
             }
-            sp.setName(request.getFacilityName(appConfig.getServiceNameAttributeName()));
-            sp.setDescription(request.getFacilityDescription(appConfig.getServiceDescAttributeName()));
+            sp.setName(request.getFacilityName(attributesProperties.getServiceNameAttrName()));
+            sp.setDescription(request.getFacilityDescription(attributesProperties.getServiceDescAttrName()));
             providedServiceManager.update(sp);
         } catch (JsonProcessingException e) {
             log.warn("Caught ConnectorException", e);
@@ -754,7 +770,8 @@ public class RequestsServiceImpl implements RequestsService {
 
         Long facilityId = extractFacilityIdFromRequest(request);
 
-        PerunAttribute adminsGroupAttr = perunAdapter.getFacilityAttribute(request.getFacilityId(), appConfig.getAdminsGroupAttribute());
+        PerunAttribute adminsGroupAttr = perunAdapter.getFacilityAttribute(request.getFacilityId(),
+                attributesProperties.getManagerGroupAttrName());
         if (adminsGroupAttr == null || adminsGroupAttr.valueAsLong() == null) {
             log.warn("No admins group ID found for facility: {}", facilityId);
         } else {
@@ -826,9 +843,9 @@ public class RequestsServiceImpl implements RequestsService {
 
         PerunAttribute attribute = new PerunAttribute();
         if (isOidc) {
-            attribute.setDefinition(appConfig.getAttrDefinition(appConfig.getIsOidcAttributeName()));
+            attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getIsOidcAttrName()));
         } else {
-            attribute.setDefinition(appConfig.getAttrDefinition(appConfig.getIsSamlAttributeName()));
+            attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getIsSamlAttrName()));
         }
         attribute.setValue(true);
 
@@ -840,8 +857,8 @@ public class RequestsServiceImpl implements RequestsService {
         log.trace("generateMasterProxyIdentifierAttribute()");
 
         PerunAttribute attribute = new PerunAttribute();
-        attribute.setDefinition(appConfig.getAttrDefinition(appConfig.getMasterProxyIdentifierAttribute()));
-        attribute.setValue(appConfig.getMasterProxyIdentifierAttributeValue());
+        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getMasterProxyIdentifierAttrName()));
+        attribute.setValue(attributesProperties.getMasterProxyIdentifierAttrValue());
 
         log.trace("generateMasterProxyIdentifierAttribute() returns: {}", attribute);
         return attribute;
@@ -851,8 +868,8 @@ public class RequestsServiceImpl implements RequestsService {
         log.trace("generateProxyIdentifierAttribute()");
 
         PerunAttribute attribute = new PerunAttribute();
-        attribute.setDefinition(appConfig.getAttrDefinition(appConfig.getProxyIdentifierAttribute()));
-        attribute.setValue(Collections.singletonList(appConfig.getProxyIdentifierAttributeValue()));
+        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getProxyIdentifierAttrName()));
+        attribute.setValue(Collections.singletonList(attributesProperties.getProxyIdentifierAttrValue()));
 
         log.trace("generateProxyIdentifierAttribute() returns: {}", attribute);
         return attribute;
@@ -862,7 +879,7 @@ public class RequestsServiceImpl implements RequestsService {
         log.trace("generateShowOnServiceListAttribute({})", value);
 
         PerunAttribute attribute = new PerunAttribute();
-        attribute.setDefinition(appConfig.getAttrDefinition(appConfig.getShowOnServicesListAttributeName()));
+        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getShowOnServiceListAttrName()));
         attribute.setValue(value);
 
         log.trace("generateShowOnServiceListAttribute() returns: {}", attribute);
@@ -873,7 +890,7 @@ public class RequestsServiceImpl implements RequestsService {
         log.trace("generateTestSpAttribute({})", value);
 
         PerunAttribute attribute = new PerunAttribute();
-        attribute.setDefinition(appConfig.getAttrDefinition(appConfig.getIsTestSpAttribute()));
+        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getIsTestSpAttrName()));
         attribute.setValue(value);
 
         log.trace("generateTestSpAttribute() returns: {}", attribute);
@@ -884,7 +901,7 @@ public class RequestsServiceImpl implements RequestsService {
         log.trace("generateClientIdAttribute()");
 
         PerunAttribute attribute = new PerunAttribute();
-        attribute.setDefinition(appConfig.getAttrDefinition(appConfig.getClientIdAttribute()));
+        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getOidcClientIdAttrName()));
 
         String clientId = ServiceUtils.generateClientId();
         attribute.setValue(clientId);
@@ -897,7 +914,7 @@ public class RequestsServiceImpl implements RequestsService {
         log.trace("generateAdminsGroupAttr({})", id);
 
         PerunAttribute attribute = new PerunAttribute();
-        attribute.setDefinition(appConfig.getAttrDefinition(appConfig.getAdminsGroupAttribute()));
+        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getManagerGroupAttrName()));
         attribute.setValue(id);
 
         log.trace("generateAdminsGroupAttr({}) returns: {}", id, attribute);
@@ -940,7 +957,7 @@ public class RequestsServiceImpl implements RequestsService {
         if (authorities == null || authorities.isEmpty()) {
             emails = defaultAuthorities;
         } else {
-            Map<String, List<String>> authsMap = appConfig.getProdTransferAuthoritiesMailsMap();
+            Map<String, List<String>> authsMap = approvalsProperties.getTransferAuthoritiesMap();
             for (String authoritiesInput: authorities) {
                 if (authsMap.containsKey(authoritiesInput)) {
                     emails.addAll(authsMap.get(authoritiesInput));
@@ -971,7 +988,7 @@ public class RequestsServiceImpl implements RequestsService {
         code.setRecipientEmail(authority);
         code.setSenderName(user.getName());
         code.setSenderEmail(user.getEmail());
-        code.setExpiresAt(appConfig);
+        code.setExpiresAt(approvalsProperties);
         code.setFacilityId(facilityId);
         code.setRequestId(requestId);
         code.setHash(ServiceUtils.getHash(code.toString()));
@@ -994,7 +1011,7 @@ public class RequestsServiceImpl implements RequestsService {
 
         for (Map.Entry<String, String> entry : authorityCodeMap.entrySet()) {
             String code = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.toString());
-            String link = appConfig.getSignaturesEndpointUrl()
+            String link = approvalsProperties.getAuthoritiesEndpoint()
                     .concat("?code=").concat(code);
             linksMap.put(entry.getKey(), link);
             log.debug("Generated code: {}", code); //TODO: remove
@@ -1025,8 +1042,8 @@ public class RequestsServiceImpl implements RequestsService {
                     .map(AttrInput::getName)
                     .collect(Collectors.toList())
             );
-            keptAttrs.add(appConfig.getClientIdAttribute());
-            keptAttrs.add(appConfig.getClientSecretAttribute());
+            keptAttrs.add(attributesProperties.getOidcClientIdAttrName());
+            keptAttrs.add(attributesProperties.getOidcClientSecretAttrName());
         } else {
             keptAttrs.addAll(config.getSamlInputs()
                     .stream()

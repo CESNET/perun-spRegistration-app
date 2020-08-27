@@ -6,6 +6,7 @@ import cz.metacentrum.perun.spRegistration.persistence.PersistenceUtils;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Properties;
@@ -17,18 +18,25 @@ import java.util.Properties;
  */
 public class AttrsConfig {
 
-	private List<AttrInput> inputs;
+	private final List<AttrInput> inputs;
+	private final ApplicationBeans applicationBeans;
+	private final ApplicationProperties applicationProperties;
 
-	public AttrsConfig(AppConfig appConfig, PerunAdapter perunAdapter, Properties attrsProps, AttributeCategory category) throws PerunUnknownException, PerunConnectionException {
-		inputs = PersistenceUtils.initializeAttributes(perunAdapter, appConfig, attrsProps, category);
+	public AttrsConfig(PerunAdapter perunAdapter,
+					   Properties attrsProps,
+					   AttributeCategory category,
+					   ApplicationBeans applicationBeans,
+					   ApplicationProperties applicationProperties)
+			throws PerunUnknownException, PerunConnectionException
+	{
+		this.applicationBeans = applicationBeans;
+		this.applicationProperties = applicationProperties;
+		inputs = PersistenceUtils.initializeAttributes(perunAdapter, applicationProperties, applicationBeans,
+				attrsProps, category);
 	}
 
 	List<AttrInput> getInputs() {
 		return inputs;
-	}
-
-	void setInputs(List<AttrInput> inputs) {
-		this.inputs = inputs;
 	}
 
 	@Override

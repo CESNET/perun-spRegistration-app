@@ -1,6 +1,6 @@
 package cz.metacentrum.perun.spRegistration.common.models;
 
-import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
+import cz.metacentrum.perun.spRegistration.common.configs.ApprovalsProperties;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -72,10 +72,10 @@ public class LinkCode {
         this.expiresAt = expiresAt;
     }
 
-    public void setExpiresAt(AppConfig appConfig) {
+    public void setExpiresAt(ApprovalsProperties approvalsProperties) {
         this.expiresAt = new Timestamp(LocalDateTime.now()
-                .plusHours(appConfig.getConfirmationPeriodHours())
-                .plusDays(appConfig.getConfirmationPeriodDays())
+                .plusHours(approvalsProperties.getConfirmationPeriodHours())
+                .plusDays(approvalsProperties.getConfirmationPeriodDays())
                 .toInstant(ZoneOffset.UTC).toEpochMilli());
     }
 

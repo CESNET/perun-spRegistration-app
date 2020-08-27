@@ -1,7 +1,9 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
 import cz.metacentrum.perun.spRegistration.Utils;
-import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
+import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
+import cz.metacentrum.perun.spRegistration.common.configs.ApprovalsProperties;
+import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
@@ -42,23 +44,27 @@ public class AddAdminsServiceImpl implements AddAdminsService {
     private static final Logger log = LoggerFactory.getLogger(AddAdminsServiceImpl.class);
 
     private final PerunAdapter perunAdapter;
-    private final AppConfig appConfig;
     private final MailsService mailsService;
     private final LinkCodeManager linkCodeManager;
     private final UtilsService utilsService;
     private final FacilitiesService facilitiesService;
+    private final AttributesProperties attributesProperties;
+    private final ApprovalsProperties approvalsProperties;
+    private final ApplicationProperties applicationProperties;
 
     @Autowired
-    public AddAdminsServiceImpl(PerunAdapter perunAdapter, AppConfig appConfig, MailsService mailsService,
+    public AddAdminsServiceImpl(PerunAdapter perunAdapter, MailsService mailsService,
                                 LinkCodeManager linkCodeManager, UtilsService utilsService,
-                                FacilitiesService facilitiesService)
-    {
+                                FacilitiesService facilitiesService, AttributesProperties attributesProperties,
+                                ApprovalsProperties approvalsProperties, ApplicationProperties applicationProperties) {
         this.perunAdapter = perunAdapter;
-        this.appConfig = appConfig;
+        this.attributesProperties = attributesProperties;
         this.mailsService = mailsService;
         this.linkCodeManager = linkCodeManager;
         this.utilsService = utilsService;
         this.facilitiesService = facilitiesService;
+        this.approvalsProperties = approvalsProperties;
+        this.applicationProperties = applicationProperties;
     }
 
     @Override
@@ -80,11 +86,12 @@ public class AddAdminsServiceImpl implements AddAdminsService {
             throw new InternalErrorException("Could not find facility for id: " + facilityId);
         }
 
-        Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facility.getId(),
-                Arrays.asList(appConfig.getServiceNameAttributeName(), appConfig.getServiceDescAttributeName()));
+        Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facility.getId(), Arrays.asList(
+                attributesProperties.getServiceNameAttrName(), attributesProperties.getServiceDescAttrName())
+        );
 
-        facility.setName(attrs.get(appConfig.getServiceNameAttributeName()).valueAsMap());
-        facility.setDescription(attrs.get(appConfig.getServiceDescAttributeName()).valueAsMap());
+        facility.setName(attrs.get(attributesProperties.getServiceNameAttrName()).valueAsMap());
+        facility.setDescription(attrs.get(attributesProperties.getServiceDescAttrName()).valueAsMap());
 
         Map<String, String> adminCodeMap = generateCodesForAdmins(admins, user, facilityId);
         Map<String, String> adminLinkMap = generateLinksForAdmins(adminCodeMap);
@@ -111,12 +118,12 @@ public class AddAdminsServiceImpl implements AddAdminsService {
             throw new ExpiredCodeException("Code is invalid");
         }
 
-        Long memberId = perunAdapter.getMemberIdByUser(appConfig.getSpAdminsRootVoId(), user.getId());
+        Long memberId = perunAdapter.getMemberIdByUser(applicationProperties.getSpAdminsRootVoId(), user.getId());
         if (memberId == null) {
             throw new InternalErrorException("No member could be found for user");
         }
         PerunAttribute adminsGroupAttribute = perunAdapter.getFacilityAttribute(
-                linkCode.getFacilityId(), appConfig.getAdminsGroupAttribute());
+                linkCode.getFacilityId(), attributesProperties.getManagerGroupAttrName());
         if (adminsGroupAttribute == null || adminsGroupAttribute.valueAsLong() == null) {
             throw new InternalErrorException("No admins group found for service");
         }
@@ -214,8 +221,7 @@ public class AddAdminsServiceImpl implements AddAdminsService {
 
         for (Map.Entry<String, String> entry : adminCodeMap.entrySet()) {
             String code = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.toString());
-            String link = appConfig.getAdminsEndpoint()
-                    .concat("?code=").concat(code);
+            String link = approvalsProperties.getAdminsEndpoint().concat("?code=").concat(code);
             linksMap.put(entry.getKey(), link);
             log.debug("Generated code: {}", code); //TODO: remove
         }
@@ -231,7 +237,7 @@ public class AddAdminsServiceImpl implements AddAdminsService {
         code.setRecipientEmail(admin);
         code.setSenderName(user.getName());
         code.setSenderEmail(user.getEmail());
-        code.setExpiresAt(appConfig);
+        code.setExpiresAt(approvalsProperties);
         code.setFacilityId(facility);
         code.setRequestId(-1L);
         code.setHash(ServiceUtils.getHash(code.toString()));

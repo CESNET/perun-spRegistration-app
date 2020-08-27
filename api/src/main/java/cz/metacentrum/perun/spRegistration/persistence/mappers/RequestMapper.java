@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cz.metacentrum.perun.spRegistration.Utils;
+import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
 import cz.metacentrum.perun.spRegistration.common.configs.Config;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestAction;
@@ -43,9 +44,9 @@ public class RequestMapper implements RowMapper<Request> {
 	private final Map<String, PerunAttributeDefinition> definitionMap;
 	private final Map<String, AttrInput> attrInputMap;
 
-	public RequestMapper(Config config) {
-		if (config.getAppConfig() != null) {
-			this.definitionMap = config.getAppConfig().getPerunAttributeDefinitionsMap();
+	public RequestMapper(Config config, ApplicationBeans applicationBeans) {
+		if (applicationBeans != null) {
+			this.definitionMap = applicationBeans.getAttributeDefinitionMap();
 			this.attrInputMap = config.getInputMap();
 		} else {
 			this.definitionMap = null;

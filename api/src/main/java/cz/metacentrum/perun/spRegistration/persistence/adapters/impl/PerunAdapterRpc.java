@@ -2,7 +2,8 @@ package cz.metacentrum.perun.spRegistration.persistence.adapters.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import cz.metacentrum.perun.spRegistration.Utils;
-import cz.metacentrum.perun.spRegistration.common.configs.ApplicationConfiguration;
+import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
+import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.Group;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
@@ -58,12 +59,17 @@ public class PerunAdapterRpc implements PerunAdapter {
 	public static final String PARAM_ONLY_DIRECT_ADMINS = "onlyDirectAdmins";
 
 	private final PerunConnectorRpc perunConnectorRpc;
-	private final ApplicationConfiguration applicationConfiguration;
+	private final ApplicationProperties applicationProperties;
+	private final AttributesProperties attributesProperties;
 
 	@Autowired
-	public PerunAdapterRpc(PerunConnectorRpc perunConnectorRpc, ApplicationConfiguration applicationConfiguration) {
+	public PerunAdapterRpc(PerunConnectorRpc perunConnectorRpc,
+						   ApplicationProperties applicationProperties,
+						   AttributesProperties attributesProperties)
+	{
 		this.perunConnectorRpc = perunConnectorRpc;
-		this.applicationConfiguration = applicationConfiguration;
+		this.applicationProperties = applicationProperties;
+		this.attributesProperties = attributesProperties;
 	}
 
 	@Override
@@ -137,7 +143,7 @@ public class PerunAdapterRpc implements PerunAdapter {
 		JsonNode res = perunConnectorRpc.post(FACILITIES_MANAGER, "getFacilityById", params);
 		Facility facility = MapperUtils.mapFacility(res);
 
-		List<User> admins = getAdminsForFacility(facilityId, applicationConfiguration.getUserEmailAttrName());
+		List<User> admins = getAdminsForFacility(facilityId, attributesProperties.getUserEmailAttrName());
 		facility.setAdmins(admins);
 
 		log.trace("getFacilityById() returns: {}", facility);
@@ -405,7 +411,7 @@ public class PerunAdapterRpc implements PerunAdapter {
 		JsonNode res = perunConnectorRpc.post(FACILITIES_MANAGER, "getRichAdmins", params);
 		List<User> admins = MapperUtils.mapUsers(res, userEmailAttr);
 		for (User u: admins) {
-			u.setAdmin(applicationConfiguration.getAdminIds().contains(u.getId()));
+			u.setAdmin(applicationProperties.getAdminIds().contains(u.getId()));
 		}
 
 		log.trace("getAdminsForFacility() returns: {}", admins);

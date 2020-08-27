@@ -1,6 +1,9 @@
 package cz.metacentrum.perun.spRegistration.rest.controllers.common;
 
+import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
+import cz.metacentrum.perun.spRegistration.common.configs.ApprovalsProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.Config;
+import cz.metacentrum.perun.spRegistration.common.configs.FrontendProperties;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import org.slf4j.Logger;
@@ -28,10 +31,19 @@ public class ConfigController {
 	private static final Logger log = LoggerFactory.getLogger(ConfigController.class);
 
 	private final Config config;
+	private final ApplicationProperties applicationProperties;
+	private final FrontendProperties frontendProperties;
+	private final ApprovalsProperties approvalsProperties;
 
 	@Autowired
-	public ConfigController(Config config) {
+	public ConfigController(Config config,
+							ApplicationProperties applicationProperties,
+							FrontendProperties frontendProperties,
+							ApprovalsProperties approvalsProperties) {
 		this.config = config;
+		this.applicationProperties = applicationProperties;
+		this.frontendProperties = frontendProperties;
+		this.approvalsProperties = approvalsProperties;
 	}
 
 	@GetMapping(path = "/api/config/oidcInputs")
@@ -62,21 +74,20 @@ public class ConfigController {
 
 	@GetMapping(path = "/api/config/protocols")
 	public String[] getProtocolsEnabled() {
-		log.trace("getProtocolsEnabled() returns: {}", (Object[]) config.getAppConfig().getProtocolsEnabled());
-		return config.getAppConfig().getProtocolsEnabled();
+		return applicationProperties.getProtocolsEnabled().toArray(new String[] {});
 	}
 
 	@GetMapping(path = "/api/config/langs")
 	public List<String> getLangs() {
-		List<String> langs = config.getAppConfig().getAvailableLanguages();
+		Set<String> langs = applicationProperties.getLanguagesEnabled();
 
 		log.trace("getAvailableLanguages() returns: {}", langs);
-		return langs;
+		return new ArrayList<>(langs);
 	}
 
 	@GetMapping(path = "/api/config/isUserAdmin")
 	public boolean isUserAdmin(@SessionAttribute("user") User user) {
-		boolean isAdmin = config.getAppConfig().isAppAdmin(user.getId());
+		boolean isAdmin = applicationProperties.isAppAdmin(user.getId());
 
 		log.trace("isUserAdmin({}) returns: {}", user, isAdmin);
 		return isAdmin;
@@ -86,11 +97,11 @@ public class ConfigController {
 	public Map<String, String> getPageConfig() {
 		log.trace("getPageConfig()");
 		Map<String, String> pageConfig = new HashMap<>();
-		pageConfig.put("logoUrl", config.getAppConfig().getHeaderLogo());
-		pageConfig.put("headerLabel", config.getAppConfig().getHeaderTitle());
-		pageConfig.put("footerHtml", config.getAppConfig().getFooterHTML());
-		pageConfig.put("headerHtml", config.getAppConfig().getHeaderHTML());
-		pageConfig.put("logoutUrl", config.getAppConfig().getLogoutUrl());
+		pageConfig.put("logoUrl", frontendProperties.getHeaderLogoUrl());
+		pageConfig.put("headerLabel", frontendProperties.getHeaderTitle());
+		pageConfig.put("footerHtml", frontendProperties.getFooterHtml());
+		pageConfig.put("headerHtml", frontendProperties.getHeaderHtml());
+		pageConfig.put("logoutUrl", applicationProperties.getLogoutUrl());
 
 		log.trace("getPageConfig() returns: {}", pageConfig);
 		return pageConfig;
@@ -98,7 +109,7 @@ public class ConfigController {
 
 	@GetMapping(path = "/api/config/specifyAuthoritiesEnabled")
 	public boolean getSpecifyAuthoritiesEnabled() {
-		boolean specifyAuthoritiesEnabled = config.getAppConfig().getSpecifyAuthoritiesEnabled();
+		boolean specifyAuthoritiesEnabled = approvalsProperties.isSpecifyOwn();
 
 		log.trace("getSpecifyAuthoritiesEnabled() returns: {}", specifyAuthoritiesEnabled);
 		return specifyAuthoritiesEnabled;
@@ -108,7 +119,7 @@ public class ConfigController {
 	public Set<String> getProdTransferEntries() {
 		log.trace("getProdTransferEntries()");
 
-		Set<String> entries = config.getAppConfig().getProdTransferAuthoritiesMailsMap().keySet();
+		Set<String> entries = approvalsProperties.getTransferAuthoritiesMap().keySet();
 
 		log.trace("getProdTransferEntries() returns: {}", entries);
 		return entries;

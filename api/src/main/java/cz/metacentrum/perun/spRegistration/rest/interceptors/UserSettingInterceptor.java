@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.spRegistration.rest.interceptors;
 
-import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
+import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
+import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
@@ -21,16 +22,21 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 
 	private static final Logger log = LoggerFactory.getLogger(UserSettingInterceptor.class);
 
-	private final AppConfig appConfig;
 	private final PerunAdapter connector;
+	private final AttributesProperties attributesProperties;
+	private final ApplicationProperties applicationProperties;
 
 	@Value("${dev.enabled}")
 	private boolean devEnabled;
 
 	@Autowired
-	public UserSettingInterceptor(AppConfig appConfig, PerunAdapter connector) {
-		this.appConfig = appConfig;
+	public UserSettingInterceptor(PerunAdapter connector,
+								  AttributesProperties attributesProperties,
+								  ApplicationProperties applicationProperties)
+	{
 		this.connector = connector;
+		this.attributesProperties = attributesProperties;
+		this.applicationProperties = applicationProperties;
 	}
 
 	@Override
@@ -51,8 +57,8 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 	}
 
 	private User setUser(HttpServletRequest request) throws PerunUnknownException, PerunConnectionException {
-		String userEmailAttr = appConfig.getUserEmailAttributeName();
-		String extSourceProxy = appConfig.getLoginExtSource();
+		String userEmailAttr = attributesProperties.getAdministratorContactAttrName();
+		String extSourceProxy = applicationProperties.getProxyIdentifier();
 		log.info("settingUser");
 		String sub;
 
@@ -67,7 +73,7 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 		if (sub != null && !sub.isEmpty()) {
 			log.info("Found userId: {} ", sub);
 			User user = connector.getUserWithEmail(sub, extSourceProxy, userEmailAttr);
-			user.setAdmin(appConfig.isAppAdmin(user.getId()));
+			user.setAdmin(applicationProperties.isAppAdmin(user.getId()));
 			log.info("Found user: {}", user);
 
 			request.getSession().setAttribute("user", user);
@@ -76,4 +82,5 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 
 		return null;
 	}
+
 }

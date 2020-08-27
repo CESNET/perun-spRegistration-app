@@ -1,7 +1,9 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
 import cz.metacentrum.perun.spRegistration.Utils;
-import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
+import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
+import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
+import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.exceptions.CodeNotStoredException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
@@ -32,17 +34,22 @@ public class UtilsServiceImpl implements UtilsService {
 
     private final LinkCodeManager linkCodeManager;
     private final PerunAdapter perunAdapter;
-    private final AppConfig appConfig;
     private final MailsService mailsService;
+    private final ApplicationProperties applicationProperties;
+    private final AttributesProperties attributesProperties;
+    private final ApplicationBeans applicationBeans;
 
     @Autowired
-    public UtilsServiceImpl(LinkCodeManager linkCodeManager, PerunAdapter perunAdapter, AppConfig appConfig,
-                            MailsServiceImpl mailsService)
+    public UtilsServiceImpl(LinkCodeManager linkCodeManager, PerunAdapter perunAdapter, MailsServiceImpl mailsService,
+                            ApplicationProperties applicationProperties, AttributesProperties attributesProperties,
+                            ApplicationBeans applicationBeans)
     {
         this.linkCodeManager = linkCodeManager;
         this.perunAdapter = perunAdapter;
-        this.appConfig = appConfig;
         this.mailsService = mailsService;
+        this.applicationProperties = applicationProperties;
+        this.attributesProperties = attributesProperties;
+        this.applicationBeans = applicationBeans;
     }
 
     @Override
@@ -72,7 +79,7 @@ public class UtilsServiceImpl implements UtilsService {
         if (Utils.checkParamsInvalid(userId, facilityId)) {
             log.error("Wrong parameters passed: (userId: {}, facilityId: {})", userId, facilityId);
             throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        } else if (!appConfig.isAppAdmin(userId) && !isFacilityAdmin(facilityId, userId)) {
+        } else if (!applicationProperties.isAppAdmin(userId) && !isFacilityAdmin(facilityId, userId)) {
             log.error("User is not authorized to regenerate client secret");
             throw new UnauthorizedActionException("User is not authorized to regenerate client secret");
         }
@@ -80,15 +87,16 @@ public class UtilsServiceImpl implements UtilsService {
         PerunAttribute clientSecret = generateClientSecretAttribute();
         perunAdapter.setFacilityAttribute(facilityId, clientSecret.toJson());
 
-        String decrypted = ServiceUtils.decrypt(clientSecret.valueAsString(), appConfig.getSecret());
+        String decrypted = ServiceUtils.decrypt(clientSecret.valueAsString(), applicationBeans.getSecretKeySpec());
         clientSecret.setValue(decrypted);
 
         Facility facility = perunAdapter.getFacilityById(facilityId);
         Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facilityId, Arrays.asList(
-                appConfig.getServiceNameAttributeName(), appConfig.getServiceDescAttributeName()));
+                attributesProperties.getServiceNameAttrName(), attributesProperties.getServiceDescAttrName())
+        );
 
-        facility.setName(attrs.get(appConfig.getServiceNameAttributeName()).valueAsMap());
-        facility.setDescription(attrs.get(appConfig.getServiceDescAttributeName()).valueAsMap());
+        facility.setName(attrs.get(attributesProperties.getServiceNameAttrName()).valueAsMap());
+        facility.setDescription(attrs.get(attributesProperties.getServiceDescAttrName()).valueAsMap());
 
         mailsService.notifyClientSecretChanged(facility);
 
@@ -107,7 +115,7 @@ public class UtilsServiceImpl implements UtilsService {
             throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
         }
 
-        if (appConfig.isAppAdmin(userId)) {
+        if (applicationProperties.isAppAdmin(userId)) {
             return true;
         }
 
@@ -130,10 +138,10 @@ public class UtilsServiceImpl implements UtilsService {
         log.trace("generateClientIdAttribute()");
 
         PerunAttribute attribute = new PerunAttribute();
-        attribute.setDefinition(appConfig.getAttrDefinition(appConfig.getClientSecretAttribute()));
+        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getOidcClientSecretAttrName()));
 
         String clientSecret = ServiceUtils.generateClientSecret();
-        String encryptedClientSecret = ServiceUtils.encrypt(clientSecret, appConfig.getSecret());
+        String encryptedClientSecret = ServiceUtils.encrypt(clientSecret, applicationBeans.getSecretKeySpec());
 
         attribute.setValue(encryptedClientSecret);
 
@@ -150,7 +158,7 @@ public class UtilsServiceImpl implements UtilsService {
             throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
         }
 
-        boolean res = reqUserId.equals(userId) || appConfig.isAppAdmin(userId);
+        boolean res = reqUserId.equals(userId) || applicationProperties.isAppAdmin(userId);
 
         log.debug("isAdminInRequest returns: {}", res);
         return res;

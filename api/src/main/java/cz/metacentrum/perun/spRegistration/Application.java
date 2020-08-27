@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.spRegistration;
 
-import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -33,8 +32,5 @@ public class Application extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
 		ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
-		AppConfig appConfig = context.getBean("appConfig", AppConfig.class);
-		log.info("Application initialized");
-		log.info("Loaded app config: {}", appConfig);
 	}
 }
