@@ -52,6 +52,11 @@ application:
     is_saml_attr_name: "urn:perun:facility:attribute-def:def:isSamlFacility"
     service_name_attr_name: "urn:perun:facility:attribute-def:def:serviceName"
     service_desc_attr_name: "urn:perun:facility:attribute-def:def:serviceDescription"
+    service_attributes_config: "/etc/perun-spreg/attrs/service.yml"
+    organization_attrs_config: "/etc/perun-spreg/attrs/org.yml"
+    saml_attrs_config: "/etc/perun-spreg/attrs/saml.yml"
+    oidc_attrs_config: "/etc/perun-spreg/attrs/oidc.yml"
+    ac_attrs_config: "/etc/perun-spreg/attrs/access_control.yml"
   approvals:
     confirmation_period_days: 30
     confirmation_period_hours: 0

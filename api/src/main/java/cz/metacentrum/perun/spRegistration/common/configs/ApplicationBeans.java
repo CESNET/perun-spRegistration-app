@@ -8,10 +8,14 @@ import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownEx
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.validation.constraints.NotNull;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -19,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 @Component
 @Getter
@@ -51,6 +56,101 @@ public class ApplicationBeans {
         this.secretKeySpec = this.generateSecretKeySpec(applicationProperties.getSecretKey());
     }
 
+    @Bean("facilityServiceConfig")
+    public AttrsConfig facilityServiceConfig(AttributesProperties attributesProperties)
+            throws PerunUnknownException, PerunConnectionException
+    {
+        String config = attributesProperties.getServiceAttributesConfig();
+
+        Properties properties = new Properties();
+        try {
+            properties.load(new InputStreamReader(new FileInputStream(config)));
+        } catch (IOException e) {
+            log.error("Caught IOException when initializing facility attributes - service", e);
+            throw new IllegalArgumentException("Error when reading file: " + config);
+        }
+
+        return new AttrsConfig(perunAdapter, properties, AttributeCategory.SERVICE, attributeDefinitionMap, attributeCategoryMap, applicationProperties);
+    }
+
+    @Bean("facilityOrganizationConfig")
+    public AttrsConfig facilityOrganizationConfig(AttributesProperties attributesProperties)
+            throws PerunUnknownException, PerunConnectionException
+    {
+        String config = attributesProperties.getOrganizationAttrsConfigPath();
+
+        Properties properties = new Properties();
+        try {
+            properties.load(new InputStreamReader(new FileInputStream(config)));
+        } catch (IOException e) {
+            log.error("Caught IOException when initializing facility attributes - organization", e);
+            throw new IllegalArgumentException("Error when reading file: " + config);
+        }
+
+        return new AttrsConfig(perunAdapter, properties, AttributeCategory.ORGANIZATION, attributeDefinitionMap, attributeCategoryMap, applicationProperties);
+    }
+
+    @Bean("facilitySamlConfig")
+    public AttrsConfig facilitySamlConfig(AttributesProperties attributesProperties)
+            throws PerunUnknownException, PerunConnectionException
+    {
+        String config = attributesProperties.getServiceAttributesConfig();
+
+        Properties properties = new Properties();
+        try {
+            properties.load(new InputStreamReader(new FileInputStream(config)));
+        } catch (IOException e) {
+            log.error("Caught IOException when initializing facility attributes - saml", e);
+            throw new IllegalArgumentException("Error when reading file: " + config);
+        }
+
+        return new AttrsConfig(perunAdapter, properties, AttributeCategory.PROTOCOL, attributeDefinitionMap, attributeCategoryMap, applicationProperties);
+    }
+
+    @Bean("facilityOidcConfig")
+    public AttrsConfig facilityOidcConfig(AttributesProperties attributesProperties)
+            throws PerunUnknownException, PerunConnectionException
+    {
+        String config = attributesProperties.getOidcAttrsConfigPath();
+
+        Properties properties = new Properties();
+        try {
+            properties.load(new InputStreamReader(new FileInputStream(config)));
+        } catch (IOException e) {
+            log.error("Caught IOException when initializing facility attributes - oidc", e);
+            throw new IllegalArgumentException("Error when reading file: " + config);
+        }
+
+        return new AttrsConfig(perunAdapter, properties, AttributeCategory.PROTOCOL, attributeDefinitionMap, attributeCategoryMap, applicationProperties);
+    }
+
+    @Bean("facilityAccessControlConfig")
+    public AttrsConfig facilityAccessControlConfig(AttributesProperties attributesProperties)
+            throws PerunUnknownException, PerunConnectionException
+    {
+        String config = attributesProperties.getAcAttrsConfigPath();
+
+        Properties properties = new Properties();
+        try {
+            properties.load(new InputStreamReader(new FileInputStream(config)));
+        } catch (IOException e) {
+            log.error("Caught IOException when initializing facility attributes - access control", e);
+            throw new IllegalArgumentException("Error when reading file: " + config);
+        }
+
+        return new AttrsConfig(perunAdapter, properties, AttributeCategory.ACCESS_CONTROL, attributeDefinitionMap, attributeCategoryMap, applicationProperties);
+    }
+
+    public AttributeCategory getAttrCategory(@NotNull String attrFullName) {
+        return attributeCategoryMap.get(attrFullName);
+    }
+
+    public PerunAttributeDefinition getAttrDefinition(@NotNull String attrFullName) {
+        return attributeDefinitionMap.get(attrFullName);
+    }
+
+    // private methods
+
     private SecretKeySpec generateSecretKeySpec(String secret) throws NoSuchAlgorithmException {
         secret = fixSecret(secret);
         MessageDigest sha;
@@ -71,13 +171,5 @@ public class ApplicationBeans {
             s = sBuilder.toString();
         }
         return s.substring(0, 32);
-    }
-
-    public AttributeCategory getAttrCategory(@NotNull String attrFullName) {
-        return attributeCategoryMap.get(attrFullName);
-    }
-
-    public PerunAttributeDefinition getAttrDefinition(@NotNull String attrFullName) {
-        return attributeDefinitionMap.get(attrFullName);
     }
 }

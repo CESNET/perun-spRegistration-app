@@ -3,31 +3,11 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="facilityServiceAttributes" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-        <property name="locations">
-            <list>
-                <value>file:///etc/perun-spRegistration/attrs/service.properties</value>
-            </list>
-        </property>
-        <property name="ignoreResourceNotFound" value="true"/>
-        <property name="fileEncoding" value="UTF-8"/>
-    </bean>
-
     <bean id="facilityServiceConfig" class="cz.metacentrum.perun.spRegistration.common.configs.AttrsConfig">
         <constructor-arg name="attrsProps" ref="facilityServiceAttributes" />
         <constructor-arg name="appConfig" ref="appConfig" />
         <constructor-arg name="perunAdapter" ref="perunAdapter" />
         <constructor-arg name="category" value="SERVICE"/>
-    </bean>
-
-    <bean id="facilityOrganizationAttributes" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-        <property name="locations">
-            <list>
-                <value>file:///etc/perun-spRegistration/attrs/organization.properties</value>
-            </list>
-        </property>
-        <property name="ignoreResourceNotFound" value="true"/>
-        <property name="fileEncoding" value="UTF-8"/>
     </bean>
 
     <bean id="facilityOrganizationConfig" class="cz.metacentrum.perun.spRegistration.common.configs.AttrsConfig">
@@ -37,16 +17,6 @@
         <constructor-arg name="category" value="ORGANIZATION"/>
     </bean>
 
-    <bean id="facilitySamlAttributes" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-        <property name="locations">
-            <list>
-                <value>file:///etc/perun-spRegistration/attrs/saml.properties</value>
-            </list>
-        </property>
-        <property name="ignoreResourceNotFound" value="true"/>
-        <property name="fileEncoding" value="UTF-8"/>
-    </bean>
-
     <bean id="facilitySamlConfig" class="cz.metacentrum.perun.spRegistration.common.configs.AttrsConfig">
         <constructor-arg name="attrsProps" ref="facilitySamlAttributes" />
         <constructor-arg name="appConfig" ref="appConfig" />
@@ -54,31 +24,11 @@
         <constructor-arg name="category" value="PROTOCOL"/>
     </bean>
 
-    <bean id="facilityOidcAttributes" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-        <property name="locations">
-            <list>
-                <value>file:///etc/perun-spRegistration/attrs/oidc.properties</value>
-            </list>
-        </property>
-        <property name="ignoreResourceNotFound" value="true"/>
-        <property name="fileEncoding" value="UTF-8"/>
-    </bean>
-
     <bean id="facilityOidcConfig" class="cz.metacentrum.perun.spRegistration.common.configs.AttrsConfig">
         <constructor-arg name="attrsProps" ref="facilityOidcAttributes" />
         <constructor-arg name="appConfig" ref="appConfig" />
         <constructor-arg name="perunAdapter" ref="perunAdapter" />
         <constructor-arg name="category" value="PROTOCOL"/>
-    </bean>
-
-    <bean id="facilityAccessControlAttributes" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-        <property name="locations">
-            <list>
-                <value>file:///etc/perun-spRegistration/attrs/access_control.properties</value>
-            </list>
-        </property>
-        <property name="ignoreResourceNotFound" value="true"/>
-        <property name="fileEncoding" value="UTF-8"/>
     </bean>
 
     <bean id="facilityAccessControlConfig" class="cz.metacentrum.perun.spRegistration.common.configs.AttrsConfig">

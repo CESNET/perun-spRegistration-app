@@ -40,6 +40,13 @@ public class AttributesProperties {
     @NotBlank private String proxyIdentifierAttrValue = "https://login.cesnet.cz/idp/";
     @NotBlank private String masterProxyIdentifierAttrValue= "https://login.cesnet.cz/idp/";
 
+    // additional paths
+    @NotBlank private String serviceAttributesConfig = "/etc/perun-spreg/attrs/service.yml";
+    @NotBlank private String organizationAttrsConfigPath = "/etc/perun-spreg/attrs/org.yml";
+    private String samlAttrsConfigPath = "/etc/perun-spreg/attrs/saml.yml";
+    private String oidcAttrsConfigPath = "/etc/perun-spreg/attrs/oidc.yml";
+    @NotBlank private String acAttrsConfigPath = "/etc/perun-spreg/attrs/access_control.yml";
+
     @PostConstruct
     public void postInit() {
         log.info("Initialized attributes properties");

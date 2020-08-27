@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.spRegistration.persistence;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
@@ -13,7 +11,6 @@ import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownEx
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,7 +45,8 @@ public class PersistenceUtils {
 	 */
 	public static List<AttrInput> initializeAttributes(PerunAdapter connector,
 													   ApplicationProperties applicationProperties,
-													   ApplicationBeans applicationBeans,
+													   Map<String, PerunAttributeDefinition> definitionMap,
+													   Map<String, AttributeCategory> categoryMap,
 													   Properties props,
 													   AttributeCategory category)
 			throws PerunUnknownException, PerunConnectionException
@@ -68,8 +66,8 @@ public class PersistenceUtils {
 			log.debug("Initializing attribute: {}", attrName);
 
 			PerunAttributeDefinition def = connector.getAttributeDefinition(attrName);
-			applicationBeans.getAttributeDefinitionMap().put(def.getFullName(), def);
-			applicationBeans.getAttributeCategoryMap().put(def.getFullName(), category);
+			definitionMap.put(def.getFullName(), def);
+			categoryMap.put(def.getFullName(), category);
 
 			Map<String, String> name = getTranslations(applicationProperties.getLanguagesEnabled(), "name", baseProp, props);
 			Map<String, String> desc = getTranslations(applicationProperties.getLanguagesEnabled(), "desc", baseProp, props);
@@ -97,28 +95,6 @@ public class PersistenceUtils {
 		}
 
 		return map;
-	}
-
-	/**
-	 * Convert JsonNode to String with proper JSON formatting
-	 * @param jsonNode jsonNode to be converted
-	 * @return String or null
-	 * @throws IOException in case of error
-	 */
-	public static String prettyPrintJsonString(JsonNode jsonNode) throws IOException {
-		log.trace("prettyPrintJsonString({})", jsonNode);
-
-		if (jsonNode == null || jsonNode.isNull()) {
-			return null;
-		}
-
-		ObjectMapper mapper = new ObjectMapper();
-		Object json = mapper.readValue(jsonNode.toString(), Object.class);
-
-		String prettyJsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
-
-		log.trace("prettyPrintJsonString() returns: {}", prettyJsonString);
-		return prettyJsonString;
 	}
 
 	private static void setAdditionalOptions(Properties props, AttrInput input, String prop) {
