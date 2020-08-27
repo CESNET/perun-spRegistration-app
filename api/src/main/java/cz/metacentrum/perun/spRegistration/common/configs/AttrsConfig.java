@@ -1,12 +1,12 @@
 package cz.metacentrum.perun.spRegistration.common.configs;
 
-import cz.metacentrum.perun.spRegistration.persistence.PersistenceUtils;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
-import cz.metacentrum.perun.spRegistration.persistence.connectors.PerunConnector;
+import cz.metacentrum.perun.spRegistration.persistence.PersistenceUtils;
+import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Properties;
 
@@ -19,8 +19,8 @@ public class AttrsConfig {
 
 	private List<AttrInput> inputs;
 
-	public AttrsConfig(AppConfig appConfig, PerunConnector perunConnector, Properties attrsProps, AttributeCategory category) throws ConnectorException, UnsupportedEncodingException {
-		inputs = PersistenceUtils.initializeAttributes(perunConnector, appConfig, attrsProps, category);
+	public AttrsConfig(AppConfig appConfig, PerunAdapter perunAdapter, Properties attrsProps, AttributeCategory category) throws PerunUnknownException, PerunConnectionException {
+		inputs = PersistenceUtils.initializeAttributes(perunAdapter, appConfig, attrsProps, category);
 	}
 
 	List<AttrInput> getInputs() {

@@ -2,6 +2,8 @@ package cz.metacentrum.perun.spRegistration.rest.controllers.requests;
 
 import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.service.RequestsService;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
@@ -33,8 +35,7 @@ public class CommonRequestsController {
 	@GetMapping(path = "/api/request/{requestId}")
 	public Request requestDetail(@SessionAttribute("user") User user,
 								 @PathVariable("requestId") Long requestId)
-			throws InternalErrorException, UnauthorizedActionException
-	{
+			throws InternalErrorException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException {
 		log.trace("requestDetail(user: {}, requestId: {})", user.getId(), requestId);
 
 		Request request = requestsService.getRequest(requestId, user.getId());

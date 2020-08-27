@@ -1,10 +1,10 @@
 package cz.metacentrum.perun.spRegistration.rest.controllers.requests;
 
-import cz.metacentrum.perun.spRegistration.common.exceptions.BadRequestException;
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.service.RequestsService;
 import cz.metacentrum.perun.spRegistration.common.exceptions.CannotChangeStatusException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
@@ -56,7 +56,7 @@ public class AdminRequestsController {
 	@PostMapping(path = "/api/approve/{requestId}")
 	public boolean approveRequest(@SessionAttribute("user") User user,
 								  @PathVariable("requestId") Long requestId)
-			throws ConnectorException, CannotChangeStatusException, InternalErrorException, UnauthorizedActionException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, BadRequestException {
+			throws CannotChangeStatusException, InternalErrorException, UnauthorizedActionException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, PerunUnknownException, PerunConnectionException {
 		log.trace("approveRequest(user: {}, requestId: {})", user.getId(), requestId);
 		
 		boolean successful = requestsService.approveRequest(requestId, user.getId());

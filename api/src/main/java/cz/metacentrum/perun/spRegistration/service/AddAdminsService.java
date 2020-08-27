@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.spRegistration.service;
 
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
 import cz.metacentrum.perun.spRegistration.common.models.User;
@@ -8,6 +7,8 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.CodeNotStoredExcept
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -24,7 +25,6 @@ public interface AddAdminsService {
      * @param admins List of emails to whom the notification should be sent
      * @return TRUE if everything went OK, FALSE otherwise.
      * @throws UnauthorizedActionException when user is not authorized to perform this action.
-     * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
      * @throws BadPaddingException Thrown when cannot generate code.
      * @throws InvalidKeyException Thrown when cannot generate code.
      * @throws IllegalBlockSizeException Thrown when cannot generate code.
@@ -34,15 +34,14 @@ public interface AddAdminsService {
      * "admins" is NULL or empty.
      */
     boolean addAdminsNotify(User user, Long facilityId, List<String> admins)
-            throws UnauthorizedActionException, ConnectorException, BadPaddingException, InvalidKeyException,
-            IllegalBlockSizeException, UnsupportedEncodingException, InternalErrorException;
+            throws UnauthorizedActionException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException,
+            UnsupportedEncodingException, InternalErrorException, PerunUnknownException, PerunConnectionException;
 
     /**
      * Confirm request to be added as a facility admin.
      * @param user user to be added or removed from facility admins.
      * @param code code generated for the approval
      * @return TRUE if everything went OK, FALSE otherwise.
-     * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
      * @throws BadPaddingException Thrown when cannot decrypt code.
      * @throws InvalidKeyException Thrown when cannot decrypt code.
      * @throws IllegalBlockSizeException Thrown when cannot decrypt code.
@@ -50,7 +49,8 @@ public interface AddAdminsService {
      * @throws IllegalArgumentException Thrown when param "user" is NULL, when param "code" is NULL or empty.
      */
     boolean confirmAddAdmin(User user, String code)
-            throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, ExpiredCodeException, ConnectorException, InternalErrorException, CodeNotStoredException;
+            throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, ExpiredCodeException,
+            InternalErrorException, CodeNotStoredException, PerunUnknownException, PerunConnectionException;
 
     /**
      * Reject request to be added as a facility admin.
@@ -73,5 +73,5 @@ public interface AddAdminsService {
     LinkCode getDetails(String hash);
 
     Facility getFacilityDetails(Long facilityId, User user) throws BadPaddingException, InvalidKeyException,
-            ConnectorException, IllegalBlockSizeException, InternalErrorException, UnauthorizedActionException;
+            IllegalBlockSizeException, InternalErrorException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException;
 }

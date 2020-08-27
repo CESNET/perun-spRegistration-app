@@ -2,9 +2,10 @@ package cz.metacentrum.perun.spRegistration.rest.controllers.facilities;
 
 
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
@@ -40,7 +41,7 @@ public class CommonFacilitiesController {
 	@GetMapping(path = "/api/facility/{facilityId}")
 	public Facility facilityDetail(@SessionAttribute("user") User user,
 								   @PathVariable("facilityId") Long facilityId)
-			throws UnauthorizedActionException, InternalErrorException, ConnectorException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
+			throws UnauthorizedActionException, InternalErrorException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, PerunUnknownException, PerunConnectionException {
 		log.trace("facilityDetail(user(): {}, facilityId: {})", user.getId(), facilityId);
 
 		Facility facility = facilitiesService.getFacility(facilityId, user.getId(), true, true);
@@ -52,7 +53,9 @@ public class CommonFacilitiesController {
 	@GetMapping(path = "/api/facility/signature/{facilityId}")
 	public Facility facilityDetailSignature(@SessionAttribute("user") User user,
 											@PathVariable("facilityId") Long facilityId)
-			throws UnauthorizedActionException, InternalErrorException, ConnectorException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
+			throws UnauthorizedActionException, InternalErrorException, BadPaddingException, InvalidKeyException,
+			IllegalBlockSizeException, PerunUnknownException, PerunConnectionException
+	{
 		log.trace("facilityDetailSignature(user(): {}, facilityId: {})", user.getId(), facilityId);
 
 		Facility facility = facilitiesService.getFacility(facilityId, user.getId(), false, false);

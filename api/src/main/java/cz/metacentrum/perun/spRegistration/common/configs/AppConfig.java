@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.spRegistration.common.configs;
 
-import cz.metacentrum.perun.spRegistration.persistence.connectors.PerunConnector;
+import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
@@ -34,7 +35,7 @@ public class AppConfig {
 	private List<String> availableLanguages = new ArrayList<>();
 	private String logoutUrl;
 
-	private PerunConnector perunConnector;
+	private PerunAdapter perunAdapter;
 	private String showOnServicesListAttributeName;
 	private String isTestSpAttribute;
 	private String entityIdAttribute;
@@ -83,12 +84,12 @@ public class AppConfig {
 		this.availableLanguages = availableLanguages;
 	}
 
-	public PerunConnector getPerunConnector() {
-		return perunConnector;
+	public PerunAdapter getPerunAdapter() {
+		return perunAdapter;
 	}
 
-	public void setPerunConnector(PerunConnector perunConnector) {
-		this.perunConnector = perunConnector;
+	public void setPerunAdapter(PerunAdapter perunAdapter) {
+		this.perunAdapter = perunAdapter;
 	}
 
 	public String getLoginExtSource() {
@@ -261,10 +262,10 @@ public class AppConfig {
 		return masterProxyIdentifierAttribute;
 	}
 
-	public void setMasterProxyIdentifierAttribute(String masterProxyIdentifierAttribute) throws ConnectorException {
+	public void setMasterProxyIdentifierAttribute(String masterProxyIdentifierAttribute) throws PerunUnknownException, PerunConnectionException {
 		this.masterProxyIdentifierAttribute = masterProxyIdentifierAttribute;
 
-		PerunAttributeDefinition def = perunConnector.getAttributeDefinition(masterProxyIdentifierAttribute);
+		PerunAttributeDefinition def = perunAdapter.getAttributeDefinition(masterProxyIdentifierAttribute);
 		perunAttributeDefinitionsMap.put(masterProxyIdentifierAttribute, def);
 		attributeCategoryMap.put(def.getFullName(), AttributeCategory.SERVICE);
 	}
@@ -273,10 +274,10 @@ public class AppConfig {
 		return proxyIdentifierAttribute;
 	}
 
-	public void setProxyIdentifierAttribute(String proxyIdentifierAttribute) throws ConnectorException {
+	public void setProxyIdentifierAttribute(String proxyIdentifierAttribute) throws PerunUnknownException, PerunConnectionException {
 		this.proxyIdentifierAttribute = proxyIdentifierAttribute;
 
-		PerunAttributeDefinition def = perunConnector.getAttributeDefinition(proxyIdentifierAttribute);
+		PerunAttributeDefinition def = perunAdapter.getAttributeDefinition(proxyIdentifierAttribute);
 		perunAttributeDefinitionsMap.put(proxyIdentifierAttribute, def);
 		attributeCategoryMap.put(def.getFullName(), AttributeCategory.SERVICE);
 	}
@@ -285,10 +286,10 @@ public class AppConfig {
 		return isTestSpAttribute;
 	}
 
-	public void setIsTestSpAttribute(String isTestSpAttribute) throws ConnectorException {
+	public void setIsTestSpAttribute(String isTestSpAttribute) throws PerunUnknownException, PerunConnectionException {
 		this.isTestSpAttribute = isTestSpAttribute;
 
-		PerunAttributeDefinition def = perunConnector.getAttributeDefinition(isTestSpAttribute);
+		PerunAttributeDefinition def = perunAdapter.getAttributeDefinition(isTestSpAttribute);
 		perunAttributeDefinitionsMap.put(isTestSpAttribute, def);
 		attributeCategoryMap.put(def.getFullName(), AttributeCategory.SERVICE);
 	}
@@ -297,10 +298,10 @@ public class AppConfig {
 		return showOnServicesListAttributeName;
 	}
 
-	public void setShowOnServicesListAttributeName(String showOnServicesListAttributeName) throws ConnectorException {
+	public void setShowOnServicesListAttributeName(String showOnServicesListAttributeName) throws PerunUnknownException, PerunConnectionException {
 		this.showOnServicesListAttributeName = showOnServicesListAttributeName;
 
-		PerunAttributeDefinition def = perunConnector.getAttributeDefinition(showOnServicesListAttributeName);
+		PerunAttributeDefinition def = perunAdapter.getAttributeDefinition(showOnServicesListAttributeName);
 		perunAttributeDefinitionsMap.put(showOnServicesListAttributeName, def);
 		attributeCategoryMap.put(def.getFullName(), AttributeCategory.SERVICE);
 	}
@@ -333,10 +334,10 @@ public class AppConfig {
 		return clientIdAttribute;
 	}
 
-	public void setClientIdAttribute(String clientIdAttribute) throws ConnectorException {
+	public void setClientIdAttribute(String clientIdAttribute) throws PerunUnknownException, PerunConnectionException {
 		this.clientIdAttribute = clientIdAttribute;
 
-		PerunAttributeDefinition def = perunConnector.getAttributeDefinition(clientIdAttribute);
+		PerunAttributeDefinition def = perunAdapter.getAttributeDefinition(clientIdAttribute);
 		perunAttributeDefinitionsMap.put(clientIdAttribute, def);
 		attributeCategoryMap.put(def.getFullName(), AttributeCategory.PROTOCOL);
 	}
@@ -345,10 +346,10 @@ public class AppConfig {
 		return clientSecretAttribute;
 	}
 
-	public void setClientSecretAttribute(String clientSecretAttribute) throws ConnectorException {
+	public void setClientSecretAttribute(String clientSecretAttribute) throws PerunUnknownException, PerunConnectionException {
 		this.clientSecretAttribute = clientSecretAttribute;
 
-		PerunAttributeDefinition def = perunConnector.getAttributeDefinition(clientSecretAttribute);
+		PerunAttributeDefinition def = perunAdapter.getAttributeDefinition(clientSecretAttribute);
 		perunAttributeDefinitionsMap.put(clientSecretAttribute, def);
 		attributeCategoryMap.put(def.getFullName(), AttributeCategory.PROTOCOL);
 	}
@@ -357,10 +358,10 @@ public class AppConfig {
 		return isSamlAttributeName;
 	}
 
-	public void setIsSamlAttributeName(String isSamlAttributeName) throws ConnectorException {
+	public void setIsSamlAttributeName(String isSamlAttributeName) throws PerunUnknownException, PerunConnectionException {
 		this.isSamlAttributeName = isSamlAttributeName;
 
-		PerunAttributeDefinition def = perunConnector.getAttributeDefinition(isSamlAttributeName);
+		PerunAttributeDefinition def = perunAdapter.getAttributeDefinition(isSamlAttributeName);
 		perunAttributeDefinitionsMap.put(isSamlAttributeName, def);
 		attributeCategoryMap.put(def.getFullName(), AttributeCategory.PROTOCOL);
 	}
@@ -369,10 +370,12 @@ public class AppConfig {
 		return isOidcAttributeName;
 	}
 
-	public void setIsOidcAttributeName(String isOidcAttributeName) throws ConnectorException {
+	public void setIsOidcAttributeName(String isOidcAttributeName)
+			throws PerunUnknownException, PerunConnectionException
+	{
 		this.isOidcAttributeName = isOidcAttributeName;
 
-		PerunAttributeDefinition def = perunConnector.getAttributeDefinition(isOidcAttributeName);
+		PerunAttributeDefinition def = perunAdapter.getAttributeDefinition(isOidcAttributeName);
 		perunAttributeDefinitionsMap.put(isOidcAttributeName, def);
 		attributeCategoryMap.put(def.getFullName(), AttributeCategory.PROTOCOL);
 	}
@@ -413,10 +416,12 @@ public class AppConfig {
 		return adminsGroupAttribute;
 	}
 
-	public void setAdminsGroupAttribute(String adminsGroupAttribute) throws ConnectorException {
+	public void setAdminsGroupAttribute(String adminsGroupAttribute)
+			throws PerunUnknownException, PerunConnectionException
+	{
 		this.adminsGroupAttribute = adminsGroupAttribute;
 
-		PerunAttributeDefinition def = perunConnector.getAttributeDefinition(adminsGroupAttribute);
+		PerunAttributeDefinition def = perunAdapter.getAttributeDefinition(adminsGroupAttribute);
 		perunAttributeDefinitionsMap.put(adminsGroupAttribute, def);
 		attributeCategoryMap.put(def.getFullName(), AttributeCategory.SERVICE);
 	}
@@ -428,7 +433,7 @@ public class AppConfig {
 				"perunAttributeDefinitionsMap: " + perunAttributeDefinitionsMap + "'\n" +
 				"protocolsEnabled=" + Arrays.toString(protocolsEnabled) + "'\n" +
 				"availableLanguages=" + availableLanguages + "'\n" +
-				"perunConnector=" + perunConnector + "'\n" +
+				"perunConnector=" + perunAdapter + "'\n" +
 				"footerHTML: '" + footerHTML + "'\n" +
 				"headerLogo: '" + headerLogo + "'\n" +
 				"headerTitle: '" + headerTitle + "'\n" +

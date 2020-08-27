@@ -1,9 +1,10 @@
 package cz.metacentrum.perun.spRegistration.rest.interceptors;
 
 import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.models.User;
-import cz.metacentrum.perun.spRegistration.persistence.connectors.PerunConnector;
+import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +22,13 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 	private static final Logger log = LoggerFactory.getLogger(UserSettingInterceptor.class);
 
 	private final AppConfig appConfig;
-	private final PerunConnector connector;
+	private final PerunAdapter connector;
 
 	@Value("${dev.enabled}")
 	private boolean devEnabled;
 
 	@Autowired
-	public UserSettingInterceptor(AppConfig appConfig, PerunConnector connector) {
+	public UserSettingInterceptor(AppConfig appConfig, PerunAdapter connector) {
 		this.appConfig = appConfig;
 		this.connector = connector;
 	}
@@ -49,7 +50,7 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 		return true;
 	}
 
-	private User setUser(HttpServletRequest request) throws ConnectorException {
+	private User setUser(HttpServletRequest request) throws PerunUnknownException, PerunConnectionException {
 		String userEmailAttr = appConfig.getUserEmailAttributeName();
 		String extSourceProxy = appConfig.getLoginExtSource();
 		log.info("settingUser");

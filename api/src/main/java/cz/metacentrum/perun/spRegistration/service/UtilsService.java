@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.spRegistration.service;
 
 import cz.metacentrum.perun.spRegistration.common.exceptions.CodeNotStoredException;
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -21,20 +22,22 @@ public interface UtilsService {
      * @throws BadPaddingException
      * @throws InvalidKeyException
      * @throws IllegalBlockSizeException
-     * @throws ConnectorException
      */
-    PerunAttribute regenerateClientSecret(Long userId, Long facilityId) throws UnauthorizedActionException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, ConnectorException;
+    PerunAttribute regenerateClientSecret(Long userId, Long facilityId) throws UnauthorizedActionException,
+            BadPaddingException, InvalidKeyException, IllegalBlockSizeException, PerunUnknownException, PerunConnectionException;
 
     /**
      * Validate code for signature
      * @param code code to be validated
      * @return True if valid, false otherwise
      */
-    boolean validateCode(String code) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, ExpiredCodeException, CodeNotStoredException;
+    boolean validateCode(String code) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException,
+            ExpiredCodeException, CodeNotStoredException;
 
-    boolean isFacilityAdmin(Long facilityId, Long userId) throws ConnectorException;
+    boolean isFacilityAdmin(Long facilityId, Long userId) throws PerunUnknownException, PerunConnectionException;
 
-    PerunAttribute generateClientSecretAttribute() throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException;
+    PerunAttribute generateClientSecretAttribute() throws BadPaddingException, InvalidKeyException,
+            IllegalBlockSizeException;
 
     boolean isAdminInRequest(Long reqUserId, Long userId);
 }

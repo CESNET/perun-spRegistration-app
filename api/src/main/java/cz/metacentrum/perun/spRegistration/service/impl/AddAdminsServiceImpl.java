@@ -3,7 +3,6 @@ package cz.metacentrum.perun.spRegistration.service.impl;
 import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
@@ -11,7 +10,9 @@ import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.User;
-import cz.metacentrum.perun.spRegistration.persistence.connectors.PerunConnector;
+import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.persistence.managers.LinkCodeManager;
 import cz.metacentrum.perun.spRegistration.service.AddAdminsService;
 import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
@@ -40,7 +41,7 @@ public class AddAdminsServiceImpl implements AddAdminsService {
 
     private static final Logger log = LoggerFactory.getLogger(AddAdminsServiceImpl.class);
 
-    private final PerunConnector perunConnector;
+    private final PerunAdapter perunAdapter;
     private final AppConfig appConfig;
     private final MailsService mailsService;
     private final LinkCodeManager linkCodeManager;
@@ -48,9 +49,11 @@ public class AddAdminsServiceImpl implements AddAdminsService {
     private final FacilitiesService facilitiesService;
 
     @Autowired
-    public AddAdminsServiceImpl(PerunConnector perunConnector, AppConfig appConfig, MailsService mailsService,
-                                LinkCodeManager linkCodeManager, UtilsService utilsService, FacilitiesService facilitiesService) {
-        this.perunConnector = perunConnector;
+    public AddAdminsServiceImpl(PerunAdapter perunAdapter, AppConfig appConfig, MailsService mailsService,
+                                LinkCodeManager linkCodeManager, UtilsService utilsService,
+                                FacilitiesService facilitiesService)
+    {
+        this.perunAdapter = perunAdapter;
         this.appConfig = appConfig;
         this.mailsService = mailsService;
         this.linkCodeManager = linkCodeManager;
@@ -60,8 +63,7 @@ public class AddAdminsServiceImpl implements AddAdminsService {
 
     @Override
     public boolean addAdminsNotify(User user, Long facilityId, List<String> admins)
-            throws UnauthorizedActionException, ConnectorException, UnsupportedEncodingException, InternalErrorException
-    {
+            throws UnauthorizedActionException, UnsupportedEncodingException, InternalErrorException, PerunUnknownException, PerunConnectionException {
         log.trace("addAdminsNotify(user: {}, facilityId: {}, admins: {}", user, facilityId, admins);
 
         if (Utils.checkParamsInvalid(user, facilityId, admins) || admins.isEmpty()) {
@@ -72,13 +74,13 @@ public class AddAdminsServiceImpl implements AddAdminsService {
             throw new UnauthorizedActionException("User cannot request adding admins to facility, user is not an admin");
         }
 
-        Facility facility = perunConnector.getFacilityById(facilityId);
+        Facility facility = perunAdapter.getFacilityById(facilityId);
         if (facility == null) {
             log.error("Could not fetch facility for id: {}", facilityId);
             throw new InternalErrorException("Could not find facility for id: " + facilityId);
         }
 
-        Map<String, PerunAttribute> attrs = perunConnector.getFacilityAttributes(facility.getId(),
+        Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facility.getId(),
                 Arrays.asList(appConfig.getServiceNameAttributeName(), appConfig.getServiceDescAttributeName()));
 
         facility.setName(attrs.get(appConfig.getServiceNameAttributeName()).valueAsMap());
@@ -94,7 +96,7 @@ public class AddAdminsServiceImpl implements AddAdminsService {
 
     @Override
     public boolean confirmAddAdmin(User user, String code)
-            throws ExpiredCodeException, ConnectorException, InternalErrorException {
+            throws ExpiredCodeException, InternalErrorException, PerunUnknownException, PerunConnectionException {
         log.debug("confirmAddAdmin({})", code);
 
         if (Utils.checkParamsInvalid(user, code)) {
@@ -109,16 +111,16 @@ public class AddAdminsServiceImpl implements AddAdminsService {
             throw new ExpiredCodeException("Code is invalid");
         }
 
-        Long memberId = perunConnector.getMemberIdByUser(appConfig.getSpAdminsRootVoId(), user.getId());
+        Long memberId = perunAdapter.getMemberIdByUser(appConfig.getSpAdminsRootVoId(), user.getId());
         if (memberId == null) {
             throw new InternalErrorException("No member could be found for user");
         }
-        PerunAttribute adminsGroupAttribute = perunConnector.getFacilityAttribute(linkCode.getFacilityId(), appConfig.getAdminsGroupAttribute());
+        PerunAttribute adminsGroupAttribute = perunAdapter.getFacilityAttribute(
+                linkCode.getFacilityId(), appConfig.getAdminsGroupAttribute());
         if (adminsGroupAttribute == null || adminsGroupAttribute.valueAsLong() == null) {
             throw new InternalErrorException("No admins group found for service");
         }
-
-        boolean added = perunConnector.addMemberToGroup(adminsGroupAttribute.valueAsLong(), memberId);
+        boolean added = perunAdapter.addMemberToGroup(adminsGroupAttribute.valueAsLong(), memberId);
         if (!added) {
             log.error("some operations failed: added: false");
         } else {
@@ -162,8 +164,7 @@ public class AddAdminsServiceImpl implements AddAdminsService {
 
     @Override
     public Facility getFacilityDetails(Long facilityId, User user) throws BadPaddingException, InvalidKeyException,
-            ConnectorException, IllegalBlockSizeException, InternalErrorException, UnauthorizedActionException
-    {
+            IllegalBlockSizeException, InternalErrorException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException {
         log.debug("getFacilityDetails({}, {})", facilityId, user);
 
         Facility facility = facilitiesService.getFacility(facilityId, user.getId(), false, false);

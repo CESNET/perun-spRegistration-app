@@ -1,8 +1,6 @@
 package cz.metacentrum.perun.spRegistration.service;
 
 import cz.metacentrum.perun.spRegistration.common.exceptions.ActiveRequestExistsException;
-import cz.metacentrum.perun.spRegistration.common.exceptions.BadRequestException;
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.exceptions.CannotChangeStatusException;
@@ -10,6 +8,8 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeExceptio
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -36,7 +36,6 @@ public interface RequestsService {
      * @param attributes Attributes set for SP (key = attribute name, value = attribute).
      * @return Generated request ID after storing to the DB.
      * @throws UnauthorizedActionException Thrown when user is not authorized to perform this action.
-     * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
      * @throws InternalErrorException Thrown when cannot fetch facility with given ID,
      * when request could not be created or was created correctly.
      * @throws ActiveRequestExistsException Thrown when there already exists active request for given facility.
@@ -44,7 +43,7 @@ public interface RequestsService {
      * "attributes" is NULL.
      */
     Long createFacilityChangesRequest(Long facilityId, Long userId, List<PerunAttribute> attributes)
-            throws UnauthorizedActionException, ConnectorException, InternalErrorException, ActiveRequestExistsException;
+            throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException, PerunUnknownException, PerunConnectionException;
 
     /**
      * Create request for removal of SP (which already exists as facility in Perun).
@@ -52,14 +51,13 @@ public interface RequestsService {
      * @param facilityId ID of facility in Perun.
      * @return Generated request ID after storing to the DB.
      * @throws UnauthorizedActionException when user is not authorized to perform this action.
-     * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
      * @throws InternalErrorException Thrown when cannot fetch facility with given ID,
      * when request could not be created or was created correctly.
      * @throws ActiveRequestExistsException Thrown when there already exists active request for given facility.
      * @throws IllegalArgumentException Thrown when param "facilityId" is NULL, when param "userId" is NULL.
      */
     Long createRemovalRequest(Long userId, Long facilityId)
-            throws UnauthorizedActionException, ConnectorException, InternalErrorException, ActiveRequestExistsException;
+            throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException, PerunUnknownException, PerunConnectionException;
 
     /**
      * Ask for moving the service to the production environment.
@@ -68,7 +66,6 @@ public interface RequestsService {
      * @param authorities List to whom the emails should be sent
      * @return Id of created request
      * @throws UnauthorizedActionException when user is not authorized to perform this action.
-     * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
      * @throws BadPaddingException Thrown when cannot generate code.
      * @throws InvalidKeyException Thrown when cannot generate code.
      * @throws IllegalBlockSizeException Thrown when cannot generate code.
@@ -77,9 +74,8 @@ public interface RequestsService {
      * @throws IllegalArgumentException Thrown when param "facilityId" is NULL, when param "userId" is NULL.
      */
     Long createMoveToProductionRequest(Long facilityId, User user, List<String> authorities)
-            throws UnauthorizedActionException, InternalErrorException, ConnectorException,
-            ActiveRequestExistsException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException,
-            UnsupportedEncodingException;
+            throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException,
+            BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnsupportedEncodingException, PerunUnknownException, PerunConnectionException;
 
     /**
      * Update existing request in DB with new data.
@@ -105,16 +101,15 @@ public interface RequestsService {
      * @throws InternalErrorException Thrown when cannot find request for given ID.
      * @throws IllegalArgumentException Thrown when param "requestId" is NULL, when param "userId" is NULL.
      */
-    Request getRequest(Long requestId, Long userId) throws UnauthorizedActionException, InternalErrorException;
+    Request getRequest(Long requestId, Long userId) throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException;
 
     /**
      * Get all requests user can access (is requester or admin(manager) of facility)
      * @param userId ID of user.
      * @return List of requests.
-     * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
      * @throws IllegalArgumentException Thrown when param "userId" is NULL.
      */
-    List<Request> getAllUserRequests(Long userId) throws ConnectorException;
+    List<Request> getAllUserRequests(Long userId) throws PerunUnknownException, PerunConnectionException;
 
     /**
      * Get all requests stored in system.
@@ -129,7 +124,6 @@ public interface RequestsService {
      * Get details of facility for the signatures interface
      * @param code code
      * @return Fetched request object.
-     * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
      * @throws BadPaddingException Thrown when cannot decode code.
      * @throws InvalidKeyException Thrown when cannot decode code.
      * @throws IllegalBlockSizeException Thrown when cannot decode code.
@@ -138,8 +132,8 @@ public interface RequestsService {
      * @throws IllegalArgumentException Thrown when param "code" is NULL or empty.
      */
     Request getRequestForSignatureByCode(String code)
-            throws ConnectorException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException,
-            ExpiredCodeException, InternalErrorException;
+            throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException, ExpiredCodeException,
+            InternalErrorException;
 
     /**
      * Approve request.
@@ -153,8 +147,8 @@ public interface RequestsService {
      *
      */
     boolean approveRequest(Long requestId, Long userId)
-            throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException, ConnectorException,
-            BadPaddingException, InvalidKeyException, IllegalBlockSizeException, BadRequestException;
+            throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException,
+            BadPaddingException, InvalidKeyException, IllegalBlockSizeException, PerunUnknownException, PerunConnectionException;
 
     /**
      * Reject request.

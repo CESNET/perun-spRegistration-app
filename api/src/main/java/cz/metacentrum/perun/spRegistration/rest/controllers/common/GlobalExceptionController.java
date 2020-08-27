@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.spRegistration.rest.controllers.common;
 
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.CannotChangeStatusException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.CodeNotStoredException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
@@ -28,7 +27,7 @@ public class GlobalExceptionController {
 
 	private static final Logger log = LoggerFactory.getLogger(GlobalExceptionController.class);
 
-	@ExceptionHandler(value = { InternalErrorException.class, BadPaddingException.class, ConnectorException.class,
+	@ExceptionHandler(value = { InternalErrorException.class, BadPaddingException.class,
 			UnsupportedEncodingException.class, InvalidKeyException.class, IllegalBlockSizeException.class,
 			BadPaddingException.class })
 	public ResponseEntity<Object> internalErrorException(InternalErrorException exception) {

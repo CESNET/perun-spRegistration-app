@@ -1,9 +1,10 @@
 package cz.metacentrum.perun.spRegistration.rest.controllers.facilities;
 
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
@@ -43,7 +44,7 @@ public class AdminFacilitiesController {
 
 	@GetMapping(path = "/api/allFacilities")
 	public List<ProvidedService> allFacilities(@SessionAttribute("user") User user)
-			throws ConnectorException, UnauthorizedActionException
+			throws UnauthorizedActionException, PerunUnknownException, PerunConnectionException
 	{
 		log.trace("allFacilities({})", user.getId());
 
@@ -57,7 +58,7 @@ public class AdminFacilitiesController {
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public PerunAttribute generateClientSecret(@SessionAttribute("user") User user,
 											   @PathVariable("facilityId") Long facilityId)
-			throws UnauthorizedActionException, ConnectorException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
+			throws UnauthorizedActionException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, PerunUnknownException, PerunConnectionException {
 		log.trace("generateClientSecret(user: {}, facilityId: {})", user, facilityId);
 		PerunAttribute clientSecret = utilsService.regenerateClientSecret(user.getId(), facilityId);
 

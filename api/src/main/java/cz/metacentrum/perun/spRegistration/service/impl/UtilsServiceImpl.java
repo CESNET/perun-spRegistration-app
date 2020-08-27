@@ -3,11 +3,12 @@ package cz.metacentrum.perun.spRegistration.service.impl;
 import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
 import cz.metacentrum.perun.spRegistration.common.exceptions.CodeNotStoredException;
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
-import cz.metacentrum.perun.spRegistration.persistence.connectors.PerunConnector;
+import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.persistence.managers.LinkCodeManager;
 import cz.metacentrum.perun.spRegistration.service.MailsService;
 import cz.metacentrum.perun.spRegistration.service.ServiceUtils;
@@ -30,14 +31,16 @@ public class UtilsServiceImpl implements UtilsService {
     private static final Logger log = LoggerFactory.getLogger(UtilsServiceImpl.class);
 
     private final LinkCodeManager linkCodeManager;
-    private final PerunConnector perunConnector;
+    private final PerunAdapter perunAdapter;
     private final AppConfig appConfig;
     private final MailsService mailsService;
 
     @Autowired
-    public UtilsServiceImpl(LinkCodeManager linkCodeManager, PerunConnector perunConnector, AppConfig appConfig, MailsServiceImpl mailsService) {
+    public UtilsServiceImpl(LinkCodeManager linkCodeManager, PerunAdapter perunAdapter, AppConfig appConfig,
+                            MailsServiceImpl mailsService)
+    {
         this.linkCodeManager = linkCodeManager;
-        this.perunConnector = perunConnector;
+        this.perunAdapter = perunAdapter;
         this.appConfig = appConfig;
         this.mailsService = mailsService;
     }
@@ -60,7 +63,10 @@ public class UtilsServiceImpl implements UtilsService {
     }
 
     @Override
-    public PerunAttribute regenerateClientSecret(Long userId, Long facilityId) throws UnauthorizedActionException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, ConnectorException {
+    public PerunAttribute regenerateClientSecret(Long userId, Long facilityId) throws UnauthorizedActionException,
+            BadPaddingException, InvalidKeyException, IllegalBlockSizeException, PerunUnknownException,
+            PerunConnectionException
+    {
         log.trace("regenerateClientSecret({}, {})", userId, facilityId);
 
         if (Utils.checkParamsInvalid(userId, facilityId)) {
@@ -72,13 +78,13 @@ public class UtilsServiceImpl implements UtilsService {
         }
 
         PerunAttribute clientSecret = generateClientSecretAttribute();
-        perunConnector.setFacilityAttribute(facilityId, clientSecret.toJson());
+        perunAdapter.setFacilityAttribute(facilityId, clientSecret.toJson());
 
         String decrypted = ServiceUtils.decrypt(clientSecret.valueAsString(), appConfig.getSecret());
         clientSecret.setValue(decrypted);
 
-        Facility facility = perunConnector.getFacilityById(facilityId);
-        Map<String, PerunAttribute> attrs = perunConnector.getFacilityAttributes(facilityId, Arrays.asList(
+        Facility facility = perunAdapter.getFacilityById(facilityId);
+        Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facilityId, Arrays.asList(
                 appConfig.getServiceNameAttributeName(), appConfig.getServiceDescAttributeName()));
 
         facility.setName(attrs.get(appConfig.getServiceNameAttributeName()).valueAsMap());
@@ -91,7 +97,9 @@ public class UtilsServiceImpl implements UtilsService {
     }
 
     @Override
-    public boolean isFacilityAdmin(Long facilityId, Long userId) throws ConnectorException {
+    public boolean isFacilityAdmin(Long facilityId, Long userId) throws PerunUnknownException,
+            PerunConnectionException
+    {
         log.trace("isFacilityAdmin(facilityId: {}, userId: {})", facilityId, userId);
 
         if (Utils.checkParamsInvalid(facilityId, userId)) {
@@ -103,7 +111,7 @@ public class UtilsServiceImpl implements UtilsService {
             return true;
         }
 
-        Set<Long> whereAdmin = perunConnector.getFacilityIdsWhereUserIsAdmin(userId);
+        Set<Long> whereAdmin = perunAdapter.getFacilityIdsWhereUserIsAdmin(userId);
 
         if (whereAdmin == null || whereAdmin.isEmpty()) {
             log.debug("isFacilityAdmin returns: {}", false);
@@ -116,7 +124,9 @@ public class UtilsServiceImpl implements UtilsService {
     }
 
     @Override
-    public PerunAttribute generateClientSecretAttribute() throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
+    public PerunAttribute generateClientSecretAttribute() throws BadPaddingException, InvalidKeyException,
+            IllegalBlockSizeException
+    {
         log.trace("generateClientIdAttribute()");
 
         PerunAttribute attribute = new PerunAttribute();
@@ -145,4 +155,5 @@ public class UtilsServiceImpl implements UtilsService {
         log.debug("isAdminInRequest returns: {}", res);
         return res;
     }
+
 }

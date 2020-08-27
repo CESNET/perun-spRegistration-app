@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.spRegistration.rest.controllers.common;
 
 import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
-import cz.metacentrum.perun.spRegistration.persistence.connectors.PerunConnector;
+import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,13 +24,13 @@ public class AuthController {
 	private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
 	private final AppConfig appConfig;
-	private final PerunConnector connector;
+	private final PerunAdapter connector;
 
 	@Value("${dev.enabled}")
 	private boolean devEnabled;
 
 	@Autowired
-	public AuthController(AppConfig appConfig, PerunConnector connector) {
+	public AuthController(AppConfig appConfig, PerunAdapter connector) {
 		this.appConfig = appConfig;
 		this.connector = connector;
 	}

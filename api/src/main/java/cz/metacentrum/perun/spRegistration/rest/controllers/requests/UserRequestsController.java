@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.spRegistration.rest.controllers.requests;
 
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ActiveRequestExistsException;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.service.RequestsService;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
@@ -38,7 +39,7 @@ public class UserRequestsController {
 	}
 
 	@GetMapping(path = "/api/userRequests")
-	public List<Request> userRequests(@SessionAttribute("user") User user) throws ConnectorException {
+	public List<Request> userRequests(@SessionAttribute("user") User user) throws PerunUnknownException, PerunConnectionException {
 		log.trace("userRequests({})", user.getId());
 		
 		List<Request> requestList = requestsService.getAllUserRequests(user.getId());
@@ -63,8 +64,7 @@ public class UserRequestsController {
 	public Long createFacilityChangesRequest(@SessionAttribute("user") User user,
 											 @RequestBody List<PerunAttribute> attributes,
 											 @PathVariable("facilityId") Long facilityId)
-			throws ConnectorException, ActiveRequestExistsException, InternalErrorException, UnauthorizedActionException
-	{
+			throws ActiveRequestExistsException, InternalErrorException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException {
 		log.trace("createFacilityChangesRequest(user: {}, facilityId: {}, attributes: {})", user.getId(),
 				facilityId, attributes);
 		
@@ -77,8 +77,7 @@ public class UserRequestsController {
 	@PostMapping(path = "/api/remove/{facilityId}")
 	public Long createRemovalRequest(@SessionAttribute("user") User user,
 									 @PathVariable("facilityId") Long facilityId)
-			throws ConnectorException, ActiveRequestExistsException, InternalErrorException, UnauthorizedActionException
-	{
+			throws ActiveRequestExistsException, InternalErrorException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException {
 		log.trace("createRemovalRequest(user: {}, facilityId: {})", user.getId(), facilityId);
 		
 		Long generatedId = requestsService.createRemovalRequest(user.getId(), facilityId);

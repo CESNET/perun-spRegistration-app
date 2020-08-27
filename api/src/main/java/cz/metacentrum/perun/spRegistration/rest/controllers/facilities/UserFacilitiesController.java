@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.spRegistration.rest.controllers.facilities;
 
 import cz.metacentrum.perun.spRegistration.common.exceptions.CodeNotStoredException;
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
@@ -9,6 +8,8 @@ import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.rest.ApiUtils;
 import cz.metacentrum.perun.spRegistration.service.AddAdminsService;
 import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
@@ -48,7 +49,9 @@ public class UserFacilitiesController {
 	}
 
 	@GetMapping(path = "/api/userFacilities")
-	public List<ProvidedService> userFacilities(@SessionAttribute("user") User user) throws ConnectorException	{
+	public List<ProvidedService> userFacilities(@SessionAttribute("user") User user)
+			throws PerunUnknownException, PerunConnectionException
+	{
 		log.trace("userFacilities({})", user.getId());
 
 		List<ProvidedService> facilityList = facilitiesService.getAllUserFacilities(user.getId());
@@ -61,8 +64,9 @@ public class UserFacilitiesController {
 	public boolean addAdmins(@SessionAttribute("user") User user,
 							 @PathVariable("facilityId") Long facilityId,
 							 @RequestBody List<String> adminEmails)
-			throws BadPaddingException, InvalidKeyException, ConnectorException, IllegalBlockSizeException,
-			UnsupportedEncodingException, InternalErrorException, UnauthorizedActionException
+			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException,
+			UnsupportedEncodingException, InternalErrorException, UnauthorizedActionException,
+			PerunUnknownException, PerunConnectionException
 	{
 		log.trace("addAdminsNotify(user: {}, facilityId: {}, adminEmails: {})", user.getId(), facilityId, adminEmails);
 
@@ -76,7 +80,9 @@ public class UserFacilitiesController {
 	public boolean addAdminConfirm(@SessionAttribute("user") User user,
 								   @RequestBody String code)
 			throws BadPaddingException, ExpiredCodeException, IllegalBlockSizeException,
-			InvalidKeyException, ConnectorException, InternalErrorException, CodeNotStoredException {
+			InvalidKeyException, InternalErrorException, CodeNotStoredException, PerunUnknownException,
+			PerunConnectionException
+	{
 		log.trace("addAdminConfirm(user: {}, code: {})", user, code);
 
 		code = ApiUtils.normalizeRequestBodyString(code);
@@ -113,8 +119,8 @@ public class UserFacilitiesController {
 	@GetMapping(path = "/api/addAdmin/getFacilityDetails/{facilityId}")
 	public Facility addAdminGetFacilityDetail(@SessionAttribute("user") User user,
 											  @PathVariable("facilityId") Long facilityId)
-			throws BadPaddingException, ConnectorException, IllegalBlockSizeException, InternalErrorException,
-			InvalidKeyException, UnauthorizedActionException
+			throws BadPaddingException, IllegalBlockSizeException, InternalErrorException,
+			InvalidKeyException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException
 	{
 		log.trace("addAdminGetFacilityDetail({}, {})", user, facilityId);
 
@@ -127,7 +133,9 @@ public class UserFacilitiesController {
 	@GetMapping(path = "/api/facilityWithInputs/{facilityId}")
 	public Facility getDetailedFacilityWithInputs(@SessionAttribute("user") User user,
 												  @PathVariable("facilityId") Long facilityId)
-			throws UnauthorizedActionException, InternalErrorException, ConnectorException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
+			throws UnauthorizedActionException, InternalErrorException, BadPaddingException, InvalidKeyException,
+			IllegalBlockSizeException, PerunUnknownException, PerunConnectionException
+	{
 		log.trace("getDetailedFacilityWithInputs(user: {}, facilityId: {})", user, facilityId);
 		Facility facility = facilitiesService.getFacilityWithInputs(facilityId, user.getId());
 

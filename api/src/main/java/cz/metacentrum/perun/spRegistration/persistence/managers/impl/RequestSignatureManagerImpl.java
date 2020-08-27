@@ -11,11 +11,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.StringJoiner;
 
+@Component("requestSignatureManager")
 public class RequestSignatureManagerImpl implements RequestSignatureManager {
 
     private static final Logger log = LoggerFactory.getLogger(RequestSignatureManagerImpl.class);

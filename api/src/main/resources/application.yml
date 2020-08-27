@@ -1,0 +1,25 @@
+---
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+server:
+  error.whitelabel.enabled: false
+  port: @server.port@
+  servlet.context-path: @server.contextPath@
+
+dev:
+  enabled: false
+
+connector.rpc:
+  perun_user: "user"
+  perun_password: "pass"
+  perun_url: "https://perun-dev.cesnet.cz/ba/rpc"
+
+application:
+  admin_ids:
+    - 1
+    - 2
+    - 3
+  user_email_attr_name: "urn:perun:user:attribute-def:def:preferredEmail"

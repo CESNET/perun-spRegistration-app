@@ -16,7 +16,7 @@
     <bean id="facilityServiceConfig" class="cz.metacentrum.perun.spRegistration.common.configs.AttrsConfig">
         <constructor-arg name="attrsProps" ref="facilityServiceAttributes" />
         <constructor-arg name="appConfig" ref="appConfig" />
-        <constructor-arg name="perunConnector" ref="perunConnector" />
+        <constructor-arg name="perunAdapter" ref="perunAdapter" />
         <constructor-arg name="category" value="SERVICE"/>
     </bean>
 
@@ -33,7 +33,7 @@
     <bean id="facilityOrganizationConfig" class="cz.metacentrum.perun.spRegistration.common.configs.AttrsConfig">
         <constructor-arg name="attrsProps" ref="facilityOrganizationAttributes" />
         <constructor-arg name="appConfig" ref="appConfig" />
-        <constructor-arg name="perunConnector" ref="perunConnector" />
+        <constructor-arg name="perunAdapter" ref="perunAdapter" />
         <constructor-arg name="category" value="ORGANIZATION"/>
     </bean>
 
@@ -50,7 +50,7 @@
     <bean id="facilitySamlConfig" class="cz.metacentrum.perun.spRegistration.common.configs.AttrsConfig">
         <constructor-arg name="attrsProps" ref="facilitySamlAttributes" />
         <constructor-arg name="appConfig" ref="appConfig" />
-        <constructor-arg name="perunConnector" ref="perunConnector" />
+        <constructor-arg name="perunAdapter" ref="perunAdapter" />
         <constructor-arg name="category" value="PROTOCOL"/>
     </bean>
 
@@ -67,7 +67,7 @@
     <bean id="facilityOidcConfig" class="cz.metacentrum.perun.spRegistration.common.configs.AttrsConfig">
         <constructor-arg name="attrsProps" ref="facilityOidcAttributes" />
         <constructor-arg name="appConfig" ref="appConfig" />
-        <constructor-arg name="perunConnector" ref="perunConnector" />
+        <constructor-arg name="perunAdapter" ref="perunAdapter" />
         <constructor-arg name="category" value="PROTOCOL"/>
     </bean>
 
@@ -84,7 +84,7 @@
     <bean id="facilityAccessControlConfig" class="cz.metacentrum.perun.spRegistration.common.configs.AttrsConfig">
         <constructor-arg name="attrsProps" ref="facilityAccessControlAttributes" />
         <constructor-arg name="appConfig" ref="appConfig" />
-        <constructor-arg name="perunConnector" ref="perunConnector" />
+        <constructor-arg name="perunAdapter" ref="perunAdapter" />
         <constructor-arg name="category" value="ACCESS_CONTROL"/>
     </bean>
 

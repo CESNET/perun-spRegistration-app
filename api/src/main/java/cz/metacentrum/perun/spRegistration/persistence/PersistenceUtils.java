@@ -3,16 +3,16 @@ package cz.metacentrum.perun.spRegistration.persistence;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
-import cz.metacentrum.perun.spRegistration.persistence.connectors.PerunConnector;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
+import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -44,9 +44,11 @@ public class PersistenceUtils {
 	 * @param appConfig configuration for attributes
 	 * @param props properties file containing translations
 	 * @return List of initialized attributes
-	 * @throws ConnectorException Thrown when problem while communicating with Perun RPC occur.
 	 */
-	public static List<AttrInput> initializeAttributes(PerunConnector connector, AppConfig appConfig, Properties props, AttributeCategory category) throws ConnectorException, UnsupportedEncodingException {
+	public static List<AttrInput> initializeAttributes(PerunAdapter connector, AppConfig appConfig, Properties props,
+													   AttributeCategory category)
+			throws PerunUnknownException, PerunConnectionException
+	{
 		log.trace("Initializing attribute inputs - START");
 		List<AttrInput> inputs = new ArrayList<>();
 		log.debug("Locales enabled: {}", appConfig.getAvailableLanguages());
@@ -79,7 +81,9 @@ public class PersistenceUtils {
 		return inputs;
 	}
 
-	private static Map<String, String> getTranslations(AppConfig appConfig, String subKey, String baseProp, Properties props) throws UnsupportedEncodingException {
+	private static Map<String, String> getTranslations(AppConfig appConfig, String subKey, String baseProp,
+													   Properties props)
+	{
 		Map<String, String> map = new HashMap<>();
 		for (String langKey: appConfig.getAvailableLanguages()) {
 			String prop = baseProp + ".lang." + subKey + '.' + langKey;

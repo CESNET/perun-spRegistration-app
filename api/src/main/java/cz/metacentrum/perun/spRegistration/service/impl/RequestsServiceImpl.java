@@ -10,9 +10,7 @@ import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestStatus;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ActiveRequestExistsException;
-import cz.metacentrum.perun.spRegistration.common.exceptions.BadRequestException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.CannotChangeStatusException;
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
@@ -23,9 +21,11 @@ import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.models.User;
-import cz.metacentrum.perun.spRegistration.persistence.connectors.PerunConnector;
 import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment;
 import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol;
+import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.persistence.managers.LinkCodeManager;
 import cz.metacentrum.perun.spRegistration.persistence.managers.ProvidedServiceManager;
 import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
@@ -67,7 +67,7 @@ public class RequestsServiceImpl implements RequestsService {
 
     private static final Logger log = LoggerFactory.getLogger(RequestsServiceImpl.class);
 
-    private final PerunConnector perunConnector;
+    private final PerunAdapter perunAdapter;
     private final AppConfig appConfig;
     private final MailsService mailsService;
     private final UtilsService utilsService;
@@ -81,10 +81,17 @@ public class RequestsServiceImpl implements RequestsService {
     private List<String> defaultAuthorities;
 
     @Autowired
-    public RequestsServiceImpl(PerunConnector perunConnector, AppConfig appConfig, MailsService mailsService,
-                               UtilsService utilsService, RequestManager requestManager, LinkCodeManager linkCodeManager,
-                               FacilitiesService facilitiesService, Config config, ProvidedServiceManager providedServiceManager) {
-        this.perunConnector = perunConnector;
+    public RequestsServiceImpl(PerunAdapter perunAdapter,
+                               AppConfig appConfig,
+                               MailsService mailsService,
+                               UtilsService utilsService,
+                               RequestManager requestManager,
+                               LinkCodeManager linkCodeManager,
+                               FacilitiesService facilitiesService,
+                               Config config,
+                               ProvidedServiceManager providedServiceManager)
+    {
+        this.perunAdapter = perunAdapter;
         this.appConfig = appConfig;
         this.mailsService = mailsService;
         this.utilsService = utilsService;
@@ -125,8 +132,7 @@ public class RequestsServiceImpl implements RequestsService {
 
     @Override
     public Long createFacilityChangesRequest(Long facilityId, Long userId, List<PerunAttribute> attributes)
-            throws UnauthorizedActionException, ConnectorException, InternalErrorException, ActiveRequestExistsException
-    {
+            throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException, PerunUnknownException, PerunConnectionException {
         log.trace("createFacilityChangesRequest(facility: {}, userId: {}, attributes: {})", facilityId, userId, attributes);
 
         if (Utils.checkParamsInvalid(facilityId, userId, attributes)) {
@@ -138,7 +144,7 @@ public class RequestsServiceImpl implements RequestsService {
             throw new UnauthorizedActionException("User is not registered as facility admin, cannot create request");
         }
 
-        Facility facility = perunConnector.getFacilityById(facilityId);
+        Facility facility = perunAdapter.getFacilityById(facilityId);
         if (facility == null) {
             log.error("Could not fetch facility for facilityId: {}", facilityId);
             throw new InternalErrorException("Could not fetch facility for facilityId: " + facilityId);
@@ -146,7 +152,7 @@ public class RequestsServiceImpl implements RequestsService {
 
         boolean attrsChanged = false;
         List<String> attrNames = attributes.stream().map(PerunAttribute::getFullName).collect(Collectors.toList());
-        Map<String, PerunAttribute> actualAttrs = perunConnector.getFacilityAttributes(facilityId, attrNames);
+        Map<String, PerunAttribute> actualAttrs = perunAdapter.getFacilityAttributes(facilityId, attrNames);
         for (PerunAttribute a: attributes) {
             if (actualAttrs.containsKey(a.getFullName())) {
                 PerunAttribute actualA = actualAttrs.get(a.getFullName());
@@ -177,8 +183,7 @@ public class RequestsServiceImpl implements RequestsService {
 
     @Override
     public Long createRemovalRequest(Long userId, Long facilityId)
-            throws UnauthorizedActionException, ConnectorException, InternalErrorException, ActiveRequestExistsException
-    {
+            throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException, PerunUnknownException, PerunConnectionException {
         log.trace("createRemovalRequest(userId: {}, facilityId: {})", userId, facilityId);
 
         if (Utils.checkParamsInvalid(userId, facilityId)) {
@@ -190,7 +195,7 @@ public class RequestsServiceImpl implements RequestsService {
         }
 
         List<String> attrsToFetch = new ArrayList<>(appConfig.getPerunAttributeDefinitionsMap().keySet());
-        Map<String, PerunAttribute> attrs = perunConnector.getFacilityAttributes(facilityId, attrsToFetch);
+        Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facilityId, attrsToFetch);
         boolean isOidc = ServiceUtils.isOidcAttributes(attrs, appConfig.getEntityIdAttribute());
         List<String> keptAttrs = getAttrsToKeep(isOidc);
         List<PerunAttribute> facilityAttributes = ServiceUtils.filterFacilityAttrs(attrs, keptAttrs);
@@ -210,9 +215,8 @@ public class RequestsServiceImpl implements RequestsService {
 
     @Override
     public Long createMoveToProductionRequest(Long facilityId, User user, List<String> authorities)
-            throws UnauthorizedActionException, InternalErrorException, ConnectorException, ActiveRequestExistsException,
-            BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnsupportedEncodingException
-    {
+            throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException,
+            BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnsupportedEncodingException, PerunUnknownException, PerunConnectionException {
         log.trace("requestMoveToProduction(facilityId: {}, userId: {}, authorities: {})", facilityId, user, authorities);
 
         if (Utils.checkParamsInvalid(facilityId, user)) {
@@ -311,8 +315,7 @@ public class RequestsServiceImpl implements RequestsService {
 
     @Override
     public Request getRequest(Long requestId, Long userId)
-            throws UnauthorizedActionException, InternalErrorException
-    {
+            throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException {
         log.trace("getDetailedRequest(requestId: {}, userId: {})", requestId, userId);
 
         if (Utils.checkParamsInvalid(requestId, userId)) {
@@ -345,7 +348,7 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     @Override
-    public List<Request> getAllUserRequests(Long userId) throws ConnectorException {
+    public List<Request> getAllUserRequests(Long userId) throws PerunUnknownException, PerunConnectionException {
         log.trace("getAllRequestsUserCanAccess({})", userId);
 
         if (Utils.checkParamsInvalid(userId)) {
@@ -360,7 +363,7 @@ public class RequestsServiceImpl implements RequestsService {
             requests.addAll(userRequests);
         }
 
-        Set<Long> facilityIdsWhereUserIsAdmin = perunConnector.getFacilityIdsWhereUserIsAdmin(userId);
+        Set<Long> facilityIdsWhereUserIsAdmin = perunAdapter.getFacilityIdsWhereUserIsAdmin(userId);
         if (facilityIdsWhereUserIsAdmin != null && !facilityIdsWhereUserIsAdmin.isEmpty()) {
             List<Request> facilitiesRequests = requestManager.getAllRequestsByFacilityIds(facilityIdsWhereUserIsAdmin);
             if (facilitiesRequests != null && !facilitiesRequests.isEmpty()) {
@@ -393,8 +396,8 @@ public class RequestsServiceImpl implements RequestsService {
 
     @Override
     public boolean approveRequest(Long requestId, Long userId)
-            throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException, ConnectorException,
-            BadPaddingException, InvalidKeyException, IllegalBlockSizeException, BadRequestException {
+            throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException,
+            BadPaddingException, InvalidKeyException, IllegalBlockSizeException, PerunUnknownException, PerunConnectionException {
         log.trace("approveRequest(requestId: {}, userId: {})", requestId, userId);
 
         if (Utils.checkParamsInvalid(requestId, userId)) {
@@ -553,7 +556,9 @@ public class RequestsServiceImpl implements RequestsService {
         return request;
     }
 
-    private boolean processApprovedRequest(Request request) throws InternalErrorException, ConnectorException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, BadRequestException {
+    private boolean processApprovedRequest(Request request) throws InternalErrorException, PerunUnknownException,
+            PerunConnectionException
+    {
         switch(request.getAction()) {
             case REGISTER_NEW_SP:
                 return registerNewFacilityToPerun(request);
@@ -568,7 +573,7 @@ public class RequestsServiceImpl implements RequestsService {
         return false;
     }
 
-    private boolean registerNewFacilityToPerun(Request request) throws InternalErrorException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, BadRequestException {
+    private boolean registerNewFacilityToPerun(Request request) throws InternalErrorException {
         log.trace("registerNewFacilityToPerun({})", request);
 
         String newName = request.getFacilityName(appConfig.getServiceNameAttributeName()).get("en");
@@ -591,8 +596,8 @@ public class RequestsServiceImpl implements RequestsService {
         facility.setPerunName(newName);
         facility.setPerunDescription(newDesc);
         try {
-            facility = perunConnector.createFacilityInPerun(facility.toJson());
-        } catch (ConnectorException e) {
+            facility = perunAdapter.createFacilityInPerun(facility.toJson());
+        } catch (Exception e) {
             throw new InternalErrorException("Creating facility in Perun failed");
         }
         if (facility == null) {
@@ -614,13 +619,13 @@ public class RequestsServiceImpl implements RequestsService {
             Group adminsGroup = new Group(null, facility.getPerunName(), facility.getPerunName(),
                     "Administrators of SP - " + facility.getPerunName(), appConfig.getSpAdminsRootGroupId(),
                     appConfig.getSpAdminsRootVoId());
-            adminsGroup = perunConnector.createGroup(adminsGroup.getParentGroupId(), adminsGroup);
+            adminsGroup = perunAdapter.createGroup(adminsGroup.getParentGroupId(), adminsGroup);
             adminsGroupId = adminsGroup.getId();
-            boolean adminSet = perunConnector.addGroupAsAdmins(facility.getId(), adminsGroupId);
+            boolean adminSet = perunAdapter.addGroupAsAdmins(facility.getId(), adminsGroupId);
             if (adminSet) {
-                Long memberId = perunConnector.getMemberIdByUser(appConfig.getSpAdminsRootVoId(), request.getReqUserId());
+                Long memberId = perunAdapter.getMemberIdByUser(appConfig.getSpAdminsRootVoId(), request.getReqUserId());
                 if (memberId != null) {
-                    adminSet = perunConnector.addMemberToGroup(adminsGroupId, memberId);
+                    adminSet = perunAdapter.addMemberToGroup(adminsGroupId, memberId);
                 } else {
                     log.error("Could not add requester {} as a member({}) of group {}",
                             request.getReqUserId(), memberId, adminsGroupId );
@@ -628,7 +633,6 @@ public class RequestsServiceImpl implements RequestsService {
             } else {
                 log.error("Could not set created group {} as managers for facility {}", adminsGroupId, facility.getId());
             }
-
             PerunAttribute adminsGroupAttr = generateAdminsGroupAttr(adminsGroup.getId());
             PerunAttribute testSp = generateTestSpAttribute(true);
             PerunAttribute showOnServiceList = generateShowOnServiceListAttribute(false);
@@ -641,9 +645,9 @@ public class RequestsServiceImpl implements RequestsService {
             if (ServiceUtils.isOidcRequest(request, appConfig.getEntityIdAttribute())) {
                 for (int i = 0; i < 10; i++) {
                     try {
-                        perunConnector.setFacilityAttribute(facility.getId(), clientId.toJson());
+                        perunAdapter.setFacilityAttribute(facility.getId(), clientId.toJson());
                         break;
-                    } catch (ConnectorException e) {
+                    } catch (Exception e) {
                         log.warn("Failed to set attribute clientId with value {} for facility {}",
                                 clientId.valueAsString(), facility.getId());
                         clientId = generateClientIdAttribute();
@@ -652,10 +656,6 @@ public class RequestsServiceImpl implements RequestsService {
 
                 PerunAttribute clientSecret = utilsService.generateClientSecretAttribute();
                 perunConnector.setFacilityAttribute(facility.getId(), clientSecret.toJson());
-                sp.setIdentifier(clientId.valueAsString());
-            } else {
-                sp.setIdentifier(request.getAttributes().get(AttributeCategory.PROTOCOL)
-                        .get(appConfig.getEntityIdAttribute()).valueAsString());
             }
 
             attributes.add(adminsGroupAttr.toJson());
@@ -665,7 +665,7 @@ public class RequestsServiceImpl implements RequestsService {
             attributes.add(masterProxyIdentifiers.toJson());
             attributes.add(authProtocol.toJson());
             boolean attributesSet = perunConnector.setFacilityAttributes(request.getFacilityId(), attributes);
-            providedServiceManager.create(sp);
+
             boolean successful = (adminSet && attributesSet);
             if (!successful) {
                 log.error("Some operations failed - adminSet: {}, attributesSet: {}", adminSet, attributesSet);
@@ -674,24 +674,11 @@ public class RequestsServiceImpl implements RequestsService {
             }
             log.trace("registerNewFacilityToPerun returns: {}", successful);
             return successful;
-        } catch (JsonProcessingException | InternalErrorException | ConnectorException e) {
-            log.error("Caught {}", e.getClass(), e);
+        } catch (ConnectorException | JsonProcessingException e) {
+            log.error("Caught ConnectorException", e);
             try {
-                if (adminsGroupId != null) {
-                    try {
-                        perunConnector.removeGroupFromAdmins(facility.getId(), adminsGroupId);
-                    } catch (ConnectorException ex) {
-                        log.error("Caught connector exception when removing admin group {} from facility {}. " +
-                                "Probably not assigned before", adminsGroupId, facility.getId(), ex);
-                    }
-                    try {
-                        perunConnector.deleteGroup(adminsGroupId);
-                    } catch (ConnectorException ex) {
-                        log.error("Caught connector exception when removing admin group {}", adminsGroupId, ex);
-                    }
-                }
-                perunConnector.deleteFacilityFromPerun(facility.getId());
-            } catch (ConnectorException ex) {
+                perunAdapter.deleteFacilityFromPerun(facility.getId());
+            } catch (PerunUnknownException | PerunConnectionException ex) {
                 log.error("Caught ConnectorException when deleting facility", ex);
             }
 
@@ -699,7 +686,7 @@ public class RequestsServiceImpl implements RequestsService {
         }
     }
 
-    private boolean updateFacilityInPerun(Request request) throws InternalErrorException, ConnectorException, BadRequestException {
+    private boolean updateFacilityInPerun(Request request) throws InternalErrorException, PerunUnknownException, PerunConnectionException {
         log.trace("updateFacilityInPerun({})", request);
 
         if (Utils.checkParamsInvalid(request)) {
@@ -709,8 +696,8 @@ public class RequestsServiceImpl implements RequestsService {
 
         Long facilityId = extractFacilityIdFromRequest(request);
 
-        Facility actualFacility = perunConnector.getFacilityById(facilityId);
-        Map<String, PerunAttribute> oldAttributes = perunConnector.getFacilityAttributes(facilityId,
+        Facility actualFacility = perunAdapter.getFacilityById(facilityId);
+        Map<String, PerunAttribute> oldAttributes = perunAdapter.getFacilityAttributes(facilityId,
                 request.getAttributeNames());
 
         if (actualFacility == null) {
@@ -723,7 +710,7 @@ public class RequestsServiceImpl implements RequestsService {
         Map<String, String> oldDesc = sp.getDescription();
 
         try {
-            if (!perunConnector.setFacilityAttributes(request.getFacilityId(),
+            if (!perunAdapter.setFacilityAttributes(request.getFacilityId(),
                     request.getAttributesAsJsonArrayForPerun())) {
                 log.error("Some operations failed - attributesSet: false");
             } else {
@@ -732,27 +719,32 @@ public class RequestsServiceImpl implements RequestsService {
             sp.setName(request.getFacilityName(appConfig.getServiceNameAttributeName()));
             sp.setDescription(request.getFacilityDescription(appConfig.getServiceDescAttributeName()));
             providedServiceManager.update(sp);
-        } catch (ConnectorException | JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             log.warn("Caught ConnectorException", e);
+
+            log.trace("updateFacilityInPerun returns: {}", perunAdapter.setFacilityAttributes(request.getFacilityId(),
+                    request.getAttributesAsJsonArrayForPerun()));
+            return perunAdapter.setFacilityAttributes(request.getFacilityId(),
+                    request.getAttributesAsJsonArrayForPerun());
+        } catch (Exception e) {
+            log.warn("Caught Exception", e);
             try {
-                perunConnector.updateFacilityInPerun(actualFacility.toJson());
+                perunAdapter.updateFacilityInPerun(actualFacility.toJson());
                 ArrayNode oldAttrsArray = JsonNodeFactory.instance.arrayNode();
                 oldAttributes.values().forEach(a -> oldAttrsArray.add(a.toJson()));
-                perunConnector.setFacilityAttributes(actualFacility.getId(), oldAttrsArray);
+                perunAdapter.setFacilityAttributes(actualFacility.getId(), oldAttrsArray);
                 sp.setDescription(oldDesc);
                 sp.setName(oldName);
                 providedServiceManager.update(sp);
-            } catch (ConnectorException ex) {
-                log.warn("Caught ConnectorException", ex);
-            } catch (JsonProcessingException ex) {
-                log.warn("caught JsonProcessingException", ex);
+            } catch (Exception ex) {
+                log.warn("Caught Exception", ex);
             }
             return false;
         }
         return true;
     }
 
-    private boolean deleteFacilityFromPerun(Request request) throws ConnectorException, InternalErrorException {
+    private boolean deleteFacilityFromPerun(Request request) throws InternalErrorException, PerunUnknownException, PerunConnectionException {
         log.trace("deleteFacilityFromPerun({})", request);
 
         if (Utils.checkParamsInvalid(request)) {
@@ -762,18 +754,18 @@ public class RequestsServiceImpl implements RequestsService {
 
         Long facilityId = extractFacilityIdFromRequest(request);
 
-        PerunAttribute adminsGroupAttr = perunConnector.getFacilityAttribute(request.getFacilityId(), appConfig.getAdminsGroupAttribute());
+        PerunAttribute adminsGroupAttr = perunAdapter.getFacilityAttribute(request.getFacilityId(), appConfig.getAdminsGroupAttribute());
         if (adminsGroupAttr == null || adminsGroupAttr.valueAsLong() == null) {
             log.warn("No admins group ID found for facility: {}", facilityId);
         } else {
             Long groupId = adminsGroupAttr.valueAsLong();
-            boolean removedGroupFromAdmins = perunConnector.removeGroupFromAdmins(request.getFacilityId(), groupId);
+            boolean removedGroupFromAdmins = perunAdapter.removeGroupFromAdmins(request.getFacilityId(), groupId);
             if (removedGroupFromAdmins) {
-                perunConnector.deleteGroup(groupId);
+                perunAdapter.deleteGroup(groupId);
             }
         }
 
-        boolean facilityRemoved = perunConnector.deleteFacilityFromPerun(facilityId);
+        boolean facilityRemoved = perunAdapter.deleteFacilityFromPerun(facilityId);
         providedServiceManager.deleteByFacilityId(facilityId);
 
         if (!facilityRemoved) {
@@ -786,7 +778,7 @@ public class RequestsServiceImpl implements RequestsService {
         return facilityRemoved;
     }
 
-    private boolean moveToProduction(Request request) throws ConnectorException {
+    private boolean moveToProduction(Request request) throws PerunUnknownException, PerunConnectionException {
         log.trace("requestMoveToProduction({})", request);
 
         log.info("Updating facility attributes");
@@ -805,7 +797,7 @@ public class RequestsServiceImpl implements RequestsService {
             log.warn("Caught Exception when updating ProvidedService {}", sp, ex);
         }
 
-        boolean attributesSet = perunConnector.setFacilityAttributes(request.getFacilityId(), attributes);
+        boolean attributesSet = perunAdapter.setFacilityAttributes(request.getFacilityId(), attributes);
 
         log.trace("requestMoveToProduction returns: {}", attributesSet);
         return attributesSet;

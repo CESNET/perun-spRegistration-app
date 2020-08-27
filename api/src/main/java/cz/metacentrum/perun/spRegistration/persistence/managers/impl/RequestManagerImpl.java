@@ -18,6 +18,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,7 @@ import java.util.StringJoiner;
  *
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
+@Component("requestManager")
 @EnableTransactionManagement
 public class RequestManagerImpl implements RequestManager {
 
@@ -38,7 +40,7 @@ public class RequestManagerImpl implements RequestManager {
 	private static final String REQUESTS_TABLE = "requests";
 
 	private final RequestMapper REQUEST_MAPPER;
-	private NamedParameterJdbcTemplate jdbcTemplate;
+	private final NamedParameterJdbcTemplate jdbcTemplate;
 	private final Config config;
 
 	@Autowired

@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.spRegistration.rest.controllers.signatures;
 
-import cz.metacentrum.perun.spRegistration.common.exceptions.ConnectorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ActiveRequestExistsException;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.rest.ApiUtils;
 import cz.metacentrum.perun.spRegistration.service.RequestSignaturesService;
 import cz.metacentrum.perun.spRegistration.service.RequestsService;
@@ -55,9 +56,8 @@ public class UserSignaturesController {
 	public Long moveToProduction(@SessionAttribute("user") User user,
 								 @PathVariable("facilityId") Long facilityId,
 								 @RequestBody List<String> authorities)
-			throws BadPaddingException, InvalidKeyException, ConnectorException, IllegalBlockSizeException,
-			UnsupportedEncodingException, InternalErrorException, ActiveRequestExistsException, UnauthorizedActionException
-	{
+			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException,
+			UnsupportedEncodingException, InternalErrorException, ActiveRequestExistsException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException {
 		log.trace("moveToProduction(user: {}, facilityId: {} authorities: {})", user.getId(), facilityId, authorities);
 		
 		Long generatedId = requestsService.createMoveToProductionRequest(facilityId, user, authorities);
@@ -68,7 +68,7 @@ public class UserSignaturesController {
 
 	@GetMapping(path = "/api/moveToProduction/getFacilityDetails", params = "code")
 	public Request signRequestGetData(String code)
-			throws BadPaddingException, ConnectorException, IllegalBlockSizeException,
+			throws BadPaddingException, IllegalBlockSizeException,
 			InvalidKeyException, ExpiredCodeException, InternalErrorException {
 		log.trace("signRequestGetData({})", code);
 
