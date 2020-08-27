@@ -13,6 +13,7 @@ import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
@@ -28,9 +29,8 @@ import java.util.Map;
  *
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
+@Slf4j
 public class RequestMapper implements RowMapper<Request> {
-
-	private static final Logger log = LoggerFactory.getLogger(RequestMapper.class);
 
 	private static final String ATTRIBUTES_KEY = "attributes";
 	private static final String ID_KEY = "id";

@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.spRegistration.rest.controllers.common;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -14,9 +15,8 @@ import javax.servlet.http.HttpServletRequest;
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
 @Controller
+@Slf4j
 public class AppErrorController implements ErrorController {
-
-	private static final Logger log = LoggerFactory.getLogger(AppErrorController.class);
 
 	@GetMapping(value = "/error")
 	public String handleError(HttpServletRequest request) {

@@ -6,6 +6,7 @@ import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.service.MailsService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +30,8 @@ import java.util.stream.Collectors;
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @Service("mailsService")
+@Slf4j
 public class MailsServiceImpl implements MailsService {
-
-	private static final Logger log = LoggerFactory.getLogger(MailsServiceImpl.class);
 
 	public static final String REQUEST_CREATED = "REQUEST_CREATED";
 	public static final String REQUEST_MODIFIED = "REQUEST_MODIFIED";
@@ -79,18 +79,15 @@ public class MailsServiceImpl implements MailsService {
 	private List<String> appAdminEmails;
 
 	private final JavaMailSender mailSender;
-	private final Properties messagesProperties;
 	private final ApplicationProperties applicationProperties;
 	private final AttributesProperties attributesProperties;
 
 	@Autowired
 	public MailsServiceImpl(JavaMailSender mailSender,
-							Properties messagesProperties,
 							ApplicationProperties applicationProperties,
 							AttributesProperties attributesProperties) 
 	{
 		this.mailSender = mailSender;
-		this.messagesProperties = messagesProperties;
 		this.applicationProperties = applicationProperties;
 		this.attributesProperties = attributesProperties;
 	}

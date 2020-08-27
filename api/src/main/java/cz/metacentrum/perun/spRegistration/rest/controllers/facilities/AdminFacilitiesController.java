@@ -8,8 +8,7 @@ import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownEx
 import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,9 +28,8 @@ import java.util.List;
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @RestController
+@Slf4j
 public class AdminFacilitiesController {
-
-	private static final Logger log = LoggerFactory.getLogger(AdminFacilitiesController.class);
 
 	private final FacilitiesService facilitiesService;
 	private final UtilsService utilsService;

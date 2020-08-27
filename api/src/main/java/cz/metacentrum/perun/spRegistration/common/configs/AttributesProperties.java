@@ -42,10 +42,10 @@ public class AttributesProperties {
 
     // additional paths
     @NotBlank private String serviceAttributesConfig = "/etc/perun-spreg/attrs/service.yml";
-    @NotBlank private String organizationAttrsConfigPath = "/etc/perun-spreg/attrs/org.yml";
-    private String samlAttrsConfigPath = "/etc/perun-spreg/attrs/saml.yml";
-    private String oidcAttrsConfigPath = "/etc/perun-spreg/attrs/oidc.yml";
-    @NotBlank private String acAttrsConfigPath = "/etc/perun-spreg/attrs/access_control.yml";
+    @NotBlank private String organizationAttrsConfig = "/etc/perun-spreg/attrs/org.yml";
+    private String samlAttrsConfig = "/etc/perun-spreg/attrs/saml.yml";
+    private String oidcAttrsConfig = "/etc/perun-spreg/attrs/oidc.yml";
+    @NotBlank private String acAttrsConfig = "/etc/perun-spreg/attrs/access_control.yml";
 
     @PostConstruct
     public void postInit() {

@@ -1,10 +1,19 @@
 package cz.metacentrum.perun.spRegistration.common.models;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 /**
  * Abstract class representing entity in Perun
  *
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
 public abstract class PerunEntity {
 
 	private Long id;
@@ -21,10 +30,4 @@ public abstract class PerunEntity {
 		this.id = id;
 	}
 
-	@Override
-	public String toString() {
-		return "PerunEntity{" +
-				"id=" + id +
-				'}';
-	}
 }

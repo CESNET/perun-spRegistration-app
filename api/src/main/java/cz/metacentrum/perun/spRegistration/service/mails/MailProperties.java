@@ -1,48 +1,31 @@
 package cz.metacentrum.perun.spRegistration.service.mails;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 @Configuration
-public class MailsConfiguration {
+public class MailProperties {
 
-    @Value("${mail.protocol}")
-    private String protocol;
-
-    @Value("${mail.smtp.auth}")
-    private boolean auth;
-
-    @Value("${mail.smtp.starttls.enable}")
-    private boolean starttlsEnable;
-
-    @Value("${mail.smtp.connectiontimeout}")
-    private int connectiontimeout;
-
-    @Value("${mail.smtp.timeout}")
-    private int timeout;
-
-    @Value("${mail.smtp.writetimeout}")
-    private int writetimeout;
-
-    @Value("${mail.debug}")
-    private boolean debug;
-
-    @Value("${mail.host}")
-    private String host;
-
-    @Value("${mail.port}")
-    private int port;
-
-    @Value("${mail.auth.username:@null}")
-    private String username;
-
-    @Value("${mail.auth.password:@null}")
-    private String password;
+    private String protocol = "smtp";
+    private boolean auth = false;
+    private boolean starttlsEnable = false;
+    private int connectiontimeout = 3000;
+    private int timeout = 5000;
+    private int writetimeout = 3000;
+    private boolean debug = false;
+    private String host = "localhost";
+    private int port = 25;
+    private String username = null;
+    private String password = null;
+    private List<String> appAdminEmails;
+    //private Map<String
+            // TODO: finish this, come up with the config for the messages
 
     @Bean
     public JavaMailSender javaMailSender() {

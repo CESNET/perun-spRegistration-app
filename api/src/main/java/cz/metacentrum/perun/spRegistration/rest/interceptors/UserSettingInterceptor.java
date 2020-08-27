@@ -6,6 +6,7 @@ import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
+@Slf4j
 public class UserSettingInterceptor implements HandlerInterceptor {
-
-	private static final Logger log = LoggerFactory.getLogger(UserSettingInterceptor.class);
 
 	private final PerunAdapter connector;
 	private final AttributesProperties attributesProperties;
@@ -73,7 +73,7 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 		if (sub != null && !sub.isEmpty()) {
 			log.info("Found userId: {} ", sub);
 			User user = connector.getUserWithEmail(sub, extSourceProxy, userEmailAttr);
-			user.setAdmin(applicationProperties.isAppAdmin(user.getId()));
+			user.setAppAdmin(applicationProperties.isAppAdmin(user.getId()));
 			log.info("Found user: {}", user);
 
 			request.getSession().setAttribute("user", user);

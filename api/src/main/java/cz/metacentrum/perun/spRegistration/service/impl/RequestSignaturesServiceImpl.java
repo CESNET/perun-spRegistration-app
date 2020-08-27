@@ -15,6 +15,7 @@ import cz.metacentrum.perun.spRegistration.persistence.managers.RequestSignature
 import cz.metacentrum.perun.spRegistration.service.MailsService;
 import cz.metacentrum.perun.spRegistration.service.RequestSignaturesService;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +26,8 @@ import java.util.List;
 import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.REQUEST_SIGNED;
 
 @Service("requestSignaturesService")
+@Slf4j
 public class RequestSignaturesServiceImpl implements RequestSignaturesService {
-
-    private static final Logger log = LoggerFactory.getLogger(RequestSignaturesServiceImpl.class);
-
-    private static final String REQUEST_ID_KEY = "requestId";
 
     private final RequestSignatureManager requestSignatureManager;
     private final RequestManager requestManager;

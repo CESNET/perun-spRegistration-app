@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 import java.util.Set;
 
 @Setter
@@ -33,6 +32,7 @@ public class ApplicationProperties {
     @NotNull private FrontendProperties frontendProperties;
     @NotNull private Long spAdminsRootVoId;
     @NotNull private Long spAdminsRootGroupId;
+    @NotBlank private String mailsConfig;
 
     @Override
     public String toString() {
@@ -44,6 +44,7 @@ public class ApplicationProperties {
                 ", secretKey='*******************'" +
                 ", hostUrl='" + hostUrl + '\'' +
                 ", logoutUrl='" + logoutUrl + '\'' +
+                ", mailsConfig='" + mailsConfig + '\'' +
                 '}';
     }
 

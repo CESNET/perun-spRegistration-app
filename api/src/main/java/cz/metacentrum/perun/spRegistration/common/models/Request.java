@@ -9,6 +9,10 @@ import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestStatus;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -16,7 +20,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -25,6 +28,10 @@ import java.util.Set;
  *
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
+@Getter
+@Setter
+@ToString(exclude = {"attributes", "user"})
+@EqualsAndHashCode(exclude = {"attributes", "user"})
 public class Request {
 
 	private Long reqId;
@@ -37,86 +44,6 @@ public class Request {
 	private Timestamp modifiedAt;
 	private Long modifiedBy;
 	private User modifier;
-
-	public Long getReqId() {
-		return reqId;
-	}
-
-	public void setReqId(Long reqId) {
-		this.reqId = reqId;
-	}
-
-	public Long getFacilityId() {
-		return facilityId;
-	}
-
-	public void setFacilityId(Long facilityId) {
-		this.facilityId = facilityId;
-	}
-
-	public RequestStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(RequestStatus status) {
-		this.status = status;
-	}
-
-	public RequestAction getAction() {
-		return action;
-	}
-
-	public void setAction(RequestAction action) {
-		this.action = action;
-	}
-
-	public Long getReqUserId() {
-		return reqUserId;
-	}
-
-	public void setReqUserId(Long reqUserId) {
-		this.reqUserId = reqUserId;
-	}
-
-	public Map<AttributeCategory, Map<String, PerunAttribute>> getAttributes() {
-		return attributes;
-	}
-
-	public void setAttributes(Map<AttributeCategory, Map<String, PerunAttribute>> attributes) {
-		this.attributes = attributes;
-	}
-
-	public Timestamp getModifiedAt() {
-		return modifiedAt;
-	}
-
-	public void setModifiedAt(Timestamp modifiedAt) {
-		this.modifiedAt = modifiedAt;
-	}
-
-	public Long getModifiedBy() {
-		return modifiedBy;
-	}
-
-	public void setModifiedBy(Long modifiedBy) {
-		this.modifiedBy = modifiedBy;
-	}
-
-	public User getRequester() {
-		return requester;
-	}
-
-	public void setRequester(User requester) {
-		this.requester = requester;
-	}
-
-	public User getModifier() {
-		return modifier;
-	}
-
-	public void setModifier(User modifier) {
-		this.modifier = modifier;
-	}
 
 	@JsonIgnore
 	public Map<String, String> getFacilityName(String attrName) {
@@ -196,41 +123,6 @@ public class Request {
 		return null;
 	}
 
-	@Override
-	public String toString() {
-		return "Request{" +
-				"reqId=" + reqId +
-				", facilityId=" + facilityId +
-				", status=" + status +
-				", action=" + action +
-				", reqUserId=" + reqUserId +
-				", attributes=" + attributes +
-				", modifiedAt=" + modifiedAt +
-				", modifiedBy=" + modifiedBy +
-				'}';
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		Request request = (Request) o;
-		return Objects.equals(reqId, request.reqId) &&
-				status == request.status &&
-				action == request.action &&
-				Objects.equals(reqUserId, request.reqUserId);
-	}
-
-	@Override
-	public int hashCode() {
-		long res = 31 * reqId;
-		res *= 31 * action.hashCode();
-		res *= 31 * status.hashCode();
-		if (facilityId!= null) res *= 31 * facilityId;
-
-		return (int) res;
-	}
-
 	public void updateAttributes(List<PerunAttribute> attrsToUpdate, boolean clearComment, ApplicationBeans applicationBeans) {
 		if (attrsToUpdate == null) {
 			return;
@@ -260,6 +152,7 @@ public class Request {
 		this.attributes = SpregUtils.filterInvalidAttributes(attributes, applicationBeans.getAttributeDefinitionMap());
 	}
 
+	@JsonIgnore
 	public List<String> getAttributeNames() {
 		Set<String> res = new HashSet<>();
 
@@ -271,4 +164,5 @@ public class Request {
 
 		return new ArrayList<>(res);
 	}
+
 }

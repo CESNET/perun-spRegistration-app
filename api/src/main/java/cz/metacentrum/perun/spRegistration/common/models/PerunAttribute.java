@@ -6,6 +6,12 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cz.metacentrum.perun.spRegistration.Utils;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -19,15 +25,20 @@ import java.util.Objects;
  *
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
+@Getter
+@Setter
+@ToString(exclude = {"definition", "input"})
+@EqualsAndHashCode(exclude = {"definition", "input"})
+@NoArgsConstructor
 public class PerunAttribute {
 
-	private final static String STRING_TYPE = "java.lang.String";
-	private final static String INTEGER_TYPE = "java.lang.Integer";
-	private final static String BOOLEAN_TYPE = "java.lang.Boolean";
-	private final static String ARRAY_TYPE = "java.util.ArrayList";
-	private final static String MAP_TYPE = "java.util.LinkedHashMap";
-	private final static String LARGE_STRING_TYPE = "java.lang.LargeString";
-	private final static String LARGE_ARRAY_LIST_TYPE = "java.util.LargeArrayList";
+	public final static String STRING_TYPE = "java.lang.String";
+	public final static String INTEGER_TYPE = "java.lang.Integer";
+	public final static String BOOLEAN_TYPE = "java.lang.Boolean";
+	public final static String ARRAY_TYPE = "java.util.ArrayList";
+	public final static String MAP_TYPE = "java.util.LinkedHashMap";
+	public final static String LARGE_STRING_TYPE = "java.lang.LargeString";
+	public final static String LARGE_ARRAY_LIST_TYPE = "java.util.LargeArrayList";
 
 	private PerunAttributeDefinition definition;
 	private Object value;
@@ -35,8 +46,6 @@ public class PerunAttribute {
 	private String comment;
 	private String fullName;
 	private AttrInput input;
-
-	public PerunAttribute() { }
 
 	public PerunAttribute(PerunAttributeDefinition definition, String fullName, Object value, Object oldValue, String comment,
 						  AttrInput input) {
@@ -72,52 +81,8 @@ public class PerunAttribute {
 		this.input = null;
 	}
 
-	public PerunAttributeDefinition getDefinition() {
-		return definition;
-	}
-
-	public void setDefinition(PerunAttributeDefinition definition) {
-		this.definition = definition;
-	}
-
 	public String getFullName() {
-		return (fullName == null) ? definition.getFullName() : fullName;
-	}
-
-	public void setFullName(String fullName) {
-		this.fullName = fullName;
-	}
-
-	public Object getValue() {
-		return value;
-	}
-
-	public void setValue(Object value) {
-		this.value = value;
-	}
-
-	public Object getOldValue() {
-		return oldValue;
-	}
-
-	public void setOldValue(Object oldValue) {
-		this.oldValue = oldValue;
-	}
-
-	public String getComment() {
-		return comment;
-	}
-
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
-
-	public AttrInput getInput() {
-		return input;
-	}
-
-	public void setInput(AttrInput input) {
-		this.input = input;
+		return (definition != null && fullName == null) ? definition.getFullName() : fullName;
 	}
 
 	public String valueAsString() {
@@ -212,31 +177,6 @@ public class PerunAttribute {
 		AttrInput input = inputMap.get(name);
 
 		return new PerunAttribute(def, name, newValue, oldValue, comment, input);
-	}
-
-	@Override
-	public String toString() {
-		return "PerunAttribute{" +
-				"value=" + value +
-				", oldValue=" + oldValue +
-				", fullName='" + fullName + '\'' +
-				'}';
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		PerunAttribute that = (PerunAttribute) o;
-		return Objects.equals(value, that.value) &&
-				Objects.equals(oldValue, that.oldValue) &&
-				Objects.equals(comment, that.comment) &&
-				Objects.equals(fullName, that.fullName);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(value, oldValue, comment, fullName);
 	}
 
 	private String valueAsString(boolean isOldValue) {
@@ -429,4 +369,5 @@ public class PerunAttribute {
 
 		return null;
 	}
+
 }

@@ -18,13 +18,11 @@ import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.persistence.managers.ProvidedServiceManager;
-import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
 import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
 import cz.metacentrum.perun.spRegistration.service.ServiceUtils;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,9 +37,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service("facilitiesService")
+@Slf4j
 public class FacilitiesServiceImpl implements FacilitiesService {
-
-    private static final Logger log = LoggerFactory.getLogger(FacilitiesServiceImpl.class);
 
     private final PerunAdapter perunAdapter;
     private final UtilsService utilsService;

@@ -6,6 +6,7 @@ import cz.metacentrum.perun.spRegistration.common.configs.Config;
 import cz.metacentrum.perun.spRegistration.common.configs.FrontendProperties;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,8 @@ import java.util.Set;
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @RestController
+@Slf4j
 public class ConfigController {
-
-	private static final Logger log = LoggerFactory.getLogger(ConfigController.class);
 
 	private final Config config;
 	private final ApplicationProperties applicationProperties;

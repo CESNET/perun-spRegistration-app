@@ -5,6 +5,7 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.CodeNotStoredExcept
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -23,9 +24,8 @@ import java.security.InvalidKeyException;
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionController {
-
-	private static final Logger log = LoggerFactory.getLogger(GlobalExceptionController.class);
 
 	@ExceptionHandler(value = { InternalErrorException.class, BadPaddingException.class,
 			UnsupportedEncodingException.class, InvalidKeyException.class, IllegalBlockSizeException.class,

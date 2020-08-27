@@ -38,6 +38,7 @@ import cz.metacentrum.perun.spRegistration.service.MailsService;
 import cz.metacentrum.perun.spRegistration.service.RequestsService;
 import cz.metacentrum.perun.spRegistration.service.ServiceUtils;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,9 +67,8 @@ import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.
 import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.REQUEST_MODIFIED;
 
 @Service("requestsService")
+@Slf4j
 public class RequestsServiceImpl implements RequestsService {
-
-    private static final Logger log = LoggerFactory.getLogger(RequestsServiceImpl.class);
 
     private final PerunAdapter perunAdapter;
     private final MailsService mailsService;

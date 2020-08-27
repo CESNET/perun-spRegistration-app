@@ -9,6 +9,7 @@ import cz.metacentrum.perun.spRegistration.common.models.Group;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +23,8 @@ import java.util.Map;
  *
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
+@Slf4j
 public class MapperUtils {
-
-	private static final Logger log = LoggerFactory.getLogger(MapperUtils.class);
 
 	/**
 	 * Map JSON response from Perun RPC to Facility object.

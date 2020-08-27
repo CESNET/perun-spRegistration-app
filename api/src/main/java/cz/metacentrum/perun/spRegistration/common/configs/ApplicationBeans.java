@@ -1,6 +1,10 @@
 package cz.metacentrum.perun.spRegistration.common.configs;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
+import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
@@ -13,9 +17,8 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.validation.constraints.NotNull;
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -23,7 +26,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 @Component
 @Getter
@@ -34,15 +36,20 @@ public class ApplicationBeans {
     @NotNull private final PerunAdapter perunAdapter;
     private final Map<String, PerunAttributeDefinition> attributeDefinitionMap = new HashMap<>();
     private final Map<String, AttributeCategory> attributeCategoryMap = new HashMap<>();
+    private final AttributesProperties attributesProperties;
     private final SecretKeySpec secretKeySpec;
 
     @Autowired
-    public ApplicationBeans(ApplicationProperties applicationProperties, PerunAdapter perunAdapter)
-            throws PerunUnknownException, PerunConnectionException, NoSuchAlgorithmException {
+    public ApplicationBeans(ApplicationProperties applicationProperties,
+                            PerunAdapter perunAdapter,
+                            AttributesProperties attributesProperties)
+            throws PerunUnknownException, PerunConnectionException, NoSuchAlgorithmException
+    {
         this.applicationProperties = applicationProperties;
         this.perunAdapter = perunAdapter;
+        this.attributesProperties = attributesProperties;
 
-        List<String> attrNames = applicationProperties.getAttributesProperties().getAttrNames();
+        List<String> attrNames = this.attributesProperties.getAttrNames();
         for (String attrName: attrNames) {
             PerunAttributeDefinition def = perunAdapter.getAttributeDefinition(attrName);
             if (def != null) {
@@ -61,84 +68,69 @@ public class ApplicationBeans {
             throws PerunUnknownException, PerunConnectionException
     {
         String config = attributesProperties.getServiceAttributesConfig();
-
-        Properties properties = new Properties();
         try {
-            properties.load(new InputStreamReader(new FileInputStream(config)));
+            List<AttrInput> inputs = this.getInputsFromYaml(config);
+            return new AttrsConfig(perunAdapter, inputs, AttributeCategory.SERVICE, attributeDefinitionMap, attributeCategoryMap, applicationProperties);
         } catch (IOException e) {
             log.error("Caught IOException when initializing facility attributes - service", e);
             throw new IllegalArgumentException("Error when reading file: " + config);
         }
-
-        return new AttrsConfig(perunAdapter, properties, AttributeCategory.SERVICE, attributeDefinitionMap, attributeCategoryMap, applicationProperties);
     }
 
     @Bean("facilityOrganizationConfig")
     public AttrsConfig facilityOrganizationConfig(AttributesProperties attributesProperties)
             throws PerunUnknownException, PerunConnectionException
     {
-        String config = attributesProperties.getOrganizationAttrsConfigPath();
-
-        Properties properties = new Properties();
+        String config = attributesProperties.getOidcAttrsConfig();
         try {
-            properties.load(new InputStreamReader(new FileInputStream(config)));
+            List<AttrInput> inputs = this.getInputsFromYaml(config);
+            return new AttrsConfig(perunAdapter, inputs, AttributeCategory.ORGANIZATION, attributeDefinitionMap, attributeCategoryMap, applicationProperties);
         } catch (IOException e) {
             log.error("Caught IOException when initializing facility attributes - organization", e);
             throw new IllegalArgumentException("Error when reading file: " + config);
         }
-
-        return new AttrsConfig(perunAdapter, properties, AttributeCategory.ORGANIZATION, attributeDefinitionMap, attributeCategoryMap, applicationProperties);
     }
 
     @Bean("facilitySamlConfig")
     public AttrsConfig facilitySamlConfig(AttributesProperties attributesProperties)
             throws PerunUnknownException, PerunConnectionException
     {
-        String config = attributesProperties.getServiceAttributesConfig();
-
-        Properties properties = new Properties();
+        String config = attributesProperties.getSamlAttrsConfig();
         try {
-            properties.load(new InputStreamReader(new FileInputStream(config)));
+            List<AttrInput> inputs = this.getInputsFromYaml(config);
+            return new AttrsConfig(perunAdapter, inputs, AttributeCategory.PROTOCOL, attributeDefinitionMap, attributeCategoryMap, applicationProperties);
         } catch (IOException e) {
             log.error("Caught IOException when initializing facility attributes - saml", e);
             throw new IllegalArgumentException("Error when reading file: " + config);
         }
-
-        return new AttrsConfig(perunAdapter, properties, AttributeCategory.PROTOCOL, attributeDefinitionMap, attributeCategoryMap, applicationProperties);
     }
 
     @Bean("facilityOidcConfig")
     public AttrsConfig facilityOidcConfig(AttributesProperties attributesProperties)
             throws PerunUnknownException, PerunConnectionException
     {
-        String config = attributesProperties.getOidcAttrsConfigPath();
-
-        Properties properties = new Properties();
+        String config = attributesProperties.getOidcAttrsConfig();
         try {
-            properties.load(new InputStreamReader(new FileInputStream(config)));
+            List<AttrInput> inputs = this.getInputsFromYaml(config);
+            return new AttrsConfig(perunAdapter, inputs, AttributeCategory.PROTOCOL, attributeDefinitionMap, attributeCategoryMap, applicationProperties);
         } catch (IOException e) {
             log.error("Caught IOException when initializing facility attributes - oidc", e);
             throw new IllegalArgumentException("Error when reading file: " + config);
         }
-
-        return new AttrsConfig(perunAdapter, properties, AttributeCategory.PROTOCOL, attributeDefinitionMap, attributeCategoryMap, applicationProperties);
     }
 
     @Bean("facilityAccessControlConfig")
     public AttrsConfig facilityAccessControlConfig(AttributesProperties attributesProperties)
             throws PerunUnknownException, PerunConnectionException
     {
-        String config = attributesProperties.getAcAttrsConfigPath();
-
-        Properties properties = new Properties();
+        String config = attributesProperties.getAcAttrsConfig();
         try {
-            properties.load(new InputStreamReader(new FileInputStream(config)));
+            List<AttrInput> inputs = this.getInputsFromYaml(config);
+            return new AttrsConfig(perunAdapter, inputs, AttributeCategory.ACCESS_CONTROL, attributeDefinitionMap, attributeCategoryMap, applicationProperties);
         } catch (IOException e) {
             log.error("Caught IOException when initializing facility attributes - access control", e);
             throw new IllegalArgumentException("Error when reading file: " + config);
         }
-
-        return new AttrsConfig(perunAdapter, properties, AttributeCategory.ACCESS_CONTROL, attributeDefinitionMap, attributeCategoryMap, applicationProperties);
     }
 
     public AttributeCategory getAttrCategory(@NotNull String attrFullName) {
@@ -172,4 +164,17 @@ public class ApplicationBeans {
         }
         return s.substring(0, 32);
     }
+
+    /**
+     * Reads YAML file and map it into AttributeMappingFromYAML object.
+     *
+     * @param path String path to YAML file with attributes
+     * @return AttributesMappingFromYAML object with mapped attributes
+     * @throws IOException thrown when file does not exist, is empty or does not have the right structure
+     */
+    private List<AttrInput> getInputsFromYaml(String path) throws IOException {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        return mapper.readValue(new File(path), new TypeReference<List<AttrInput>>() {});
+    }
+
 }

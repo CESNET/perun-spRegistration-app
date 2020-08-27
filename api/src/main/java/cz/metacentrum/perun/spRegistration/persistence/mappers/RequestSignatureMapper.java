@@ -1,8 +1,7 @@
 package cz.metacentrum.perun.spRegistration.persistence.mappers;
 
 import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -13,9 +12,8 @@ import java.sql.SQLException;
  *
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
+@Slf4j
 public class RequestSignatureMapper implements RowMapper<RequestSignature> {
-
-	private static final Logger log = LoggerFactory.getLogger(RequestSignatureMapper.class);
 
 	private static final String REQUEST_ID_KEY = "request_id";
 	private static final String USER_ID_KEY = "user_id";

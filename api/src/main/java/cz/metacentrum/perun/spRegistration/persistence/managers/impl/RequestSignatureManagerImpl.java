@@ -6,6 +6,7 @@ import cz.metacentrum.perun.spRegistration.persistence.managers.RequestSignature
 import cz.metacentrum.perun.spRegistration.persistence.mappers.RequestSignatureMapper;
 import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,8 @@ import java.util.List;
 import java.util.StringJoiner;
 
 @Component("requestSignatureManager")
+@Slf4j
 public class RequestSignatureManagerImpl implements RequestSignatureManager {
-
-    private static final Logger log = LoggerFactory.getLogger(RequestSignatureManagerImpl.class);
 
     private static final String APPROVALS_TABLE = "approvals";
 

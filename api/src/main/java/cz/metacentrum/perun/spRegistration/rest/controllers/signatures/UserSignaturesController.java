@@ -14,6 +14,7 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.CodeNotStoredExcept
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +37,8 @@ import java.util.List;
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @RestController
+@Slf4j
 public class UserSignaturesController {
-
-	private static final Logger log = LoggerFactory.getLogger(UserSignaturesController.class);
 
 	private final RequestsService requestsService;
 	private final UtilsService utilsService;

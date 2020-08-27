@@ -411,7 +411,7 @@ public class PerunAdapterRpc implements PerunAdapter {
 		JsonNode res = perunConnectorRpc.post(FACILITIES_MANAGER, "getRichAdmins", params);
 		List<User> admins = MapperUtils.mapUsers(res, userEmailAttr);
 		for (User u: admins) {
-			u.setAdmin(applicationProperties.getAdminIds().contains(u.getId()));
+			u.setAppAdmin(applicationProperties.getAdminIds().contains(u.getId()));
 		}
 
 		log.trace("getAdminsForFacility() returns: {}", admins);

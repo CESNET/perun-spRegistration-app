@@ -4,6 +4,7 @@ import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.DigestUtils;
@@ -29,9 +30,9 @@ import java.util.stream.Collectors;
  *
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
+@Slf4j
 public class ServiceUtils {
 
-	public static final Logger log = LoggerFactory.getLogger(ServiceUtils.class);
 	public static final String CIPHER_PARAMS = "AES/ECB/PKCS5PADDING";
 	public static Cipher cipher;
 

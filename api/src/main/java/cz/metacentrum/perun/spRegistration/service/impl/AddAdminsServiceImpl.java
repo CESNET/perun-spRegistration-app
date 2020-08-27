@@ -21,6 +21,7 @@ import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
 import cz.metacentrum.perun.spRegistration.service.MailsService;
 import cz.metacentrum.perun.spRegistration.service.ServiceUtils;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +40,8 @@ import java.util.List;
 import java.util.Map;
 
 @Service("addAdminsService")
+@Slf4j
 public class AddAdminsServiceImpl implements AddAdminsService {
-
-    private static final Logger log = LoggerFactory.getLogger(AddAdminsServiceImpl.class);
 
     private final PerunAdapter perunAdapter;
     private final MailsService mailsService;

@@ -10,6 +10,7 @@ import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
 import cz.metacentrum.perun.spRegistration.persistence.mappers.RequestMapper;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +36,9 @@ import java.util.StringJoiner;
  */
 @Component("requestManager")
 @EnableTransactionManagement
+@Slf4j
 public class RequestManagerImpl implements RequestManager {
 
-	private static final Logger log = LoggerFactory.getLogger(RequestManagerImpl.class);
 	private static final String REQUESTS_TABLE = "requests";
 
 	private final RequestMapper REQUEST_MAPPER;

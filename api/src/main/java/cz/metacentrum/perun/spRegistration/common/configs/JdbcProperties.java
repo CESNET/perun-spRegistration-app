@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
@@ -17,10 +18,11 @@ import javax.annotation.PostConstruct;
 @ConfigurationProperties(prefix = "jdbc")
 public class JdbcProperties {
 
-    private String driver;
-    private String url;
-    private String username;
-    private String password;
+    @NotBlank private String driver;
+    @NotBlank private String url;
+    @NotBlank private String username;
+    @NotBlank private String password;
+    private int maxPoolSize = 40;
 
     @PostConstruct
     public void postInit() {

@@ -1,8 +1,9 @@
 package cz.metacentrum.perun.spRegistration.common.configs;
 
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,9 +15,10 @@ import java.util.Properties;
  *
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
+@Getter
+@Setter
+@Slf4j
 public class Config {
-
-	private static final Logger log = LoggerFactory.getLogger(Config.class);
 
 	private AttrsConfig facilityServiceConfig;
 	private AttrsConfig facilityOrganizationConfig;
@@ -24,10 +26,9 @@ public class Config {
 	private AttrsConfig facilityOidcConfig;
 	private AttrsConfig facilitySamlConfig;
 	private Properties messagesConfig;
-	private Map<String, AttrInput> inputMap = new HashMap<>();
+	private final Map<String, AttrInput> inputMap = new HashMap<>();
 
 	public void setFacilityServiceConfig(AttrsConfig facilityServiceConfig) {
-		log.trace("setting facility service config: {}", facilityServiceConfig);
 		this.facilityServiceConfig = facilityServiceConfig;
 		for (AttrInput a: facilityServiceConfig.getInputs()) {
 			inputMap.put(a.getName(), a);
@@ -35,7 +36,6 @@ public class Config {
 	}
 
 	public void setFacilityOrganizationConfig(AttrsConfig facilityOrganizationConfig) {
-		log.trace("setting facility organization config: {}", facilityOrganizationConfig);
 		this.facilityOrganizationConfig = facilityOrganizationConfig;
 		for (AttrInput a: facilityOrganizationConfig.getInputs()) {
 			inputMap.put(a.getName(), a);
@@ -43,7 +43,6 @@ public class Config {
 	}
 
 	public void setFacilityMembershipConfig(AttrsConfig facilityMembershipConfig) {
-		log.trace("setting facility membership config: {}", facilityMembershipConfig);
 		this.facilityMembershipConfig = facilityMembershipConfig;
 		for (AttrInput a: facilityMembershipConfig.getInputs()) {
 			inputMap.put(a.getName(), a);
@@ -51,7 +50,6 @@ public class Config {
 	}
 
 	public void setFacilityOidcConfig(AttrsConfig facilityOidcConfig) {
-		log.trace("setting facility oidc config: {}", facilityOidcConfig);
 		this.facilityOidcConfig = facilityOidcConfig;
 		for (AttrInput a: facilityOidcConfig.getInputs()) {
 			inputMap.put(a.getName(), a);
@@ -59,24 +57,10 @@ public class Config {
 	}
 
 	public void setFacilitySamlConfig(AttrsConfig facilitySamlConfig) {
-		log.trace("setting facility saml config: {}", facilitySamlConfig);
 		this.facilitySamlConfig = facilitySamlConfig;
 		for (AttrInput a: facilitySamlConfig.getInputs()) {
 			inputMap.put(a.getName(), a);
 		}
-	}
-
-	public void setMessagesConfig(Properties messagesConfig) {
-		log.trace("setting messages config: {}", messagesConfig);
-		this.messagesConfig = messagesConfig;
-	}
-
-	public void setInputMap(Map<String, AttrInput> inputMap) {
-		this.inputMap = inputMap;
-	}
-
-	public Properties getMessagesConfig() {
-		return messagesConfig;
 	}
 
 	public List<AttrInput> getServiceInputs() {
@@ -97,10 +81,6 @@ public class Config {
 
 	public List<AttrInput> getMembershipInputs() {
 		return this.facilityMembershipConfig.getInputs();
-	}
-
-	public Map<String, AttrInput> getInputMap() {
-		return inputMap;
 	}
 
 }
