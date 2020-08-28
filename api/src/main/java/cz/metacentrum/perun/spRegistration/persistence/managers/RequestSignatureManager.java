@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.spRegistration.persistence.managers;
 
-import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
+import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
 
 import java.util.List;
 

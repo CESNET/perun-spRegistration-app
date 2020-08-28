@@ -12,6 +12,7 @@ import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownEx
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -131,6 +132,24 @@ public class ApplicationBeans {
             log.error("Caught IOException when initializing facility attributes - access control", e);
             throw new IllegalArgumentException("Error when reading file: " + config);
         }
+    }
+
+    @Bean("config")
+    @Autowired
+    public Config config(@Qualifier("facilityAccessControlConfig") AttrsConfig facilityAccessControlConfig,
+                         @Qualifier("facilityOidcConfig") AttrsConfig facilityOidcConfig,
+                         @Qualifier("facilitySamlConfig") AttrsConfig facilitySamlConfig,
+                         @Qualifier("facilityOrganizationConfig") AttrsConfig facilityOrganizationConfig,
+                         @Qualifier("facilityServiceConfig") AttrsConfig facilityServiceConfig)
+    {
+        Config c = new Config();
+        c.setFacilityServiceConfig(facilityServiceConfig);
+        c.setFacilityOrganizationConfig(facilityOrganizationConfig);
+        c.setFacilityMembershipConfig(facilityAccessControlConfig);
+        c.setFacilityOidcConfig(facilityOidcConfig);
+        c.setFacilitySamlConfig(facilitySamlConfig);
+
+        return c;
     }
 
     public AttributeCategory getAttrCategory(@NotNull String attrFullName) {

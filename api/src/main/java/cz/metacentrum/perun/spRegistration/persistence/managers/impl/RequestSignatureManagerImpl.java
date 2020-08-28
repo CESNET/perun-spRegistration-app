@@ -1,14 +1,12 @@
 package cz.metacentrum.perun.spRegistration.persistence.managers.impl;
 
 import cz.metacentrum.perun.spRegistration.Utils;
+import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
+import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
 import cz.metacentrum.perun.spRegistration.persistence.managers.LinkCodeManager;
 import cz.metacentrum.perun.spRegistration.persistence.managers.RequestSignatureManager;
 import cz.metacentrum.perun.spRegistration.persistence.mappers.RequestSignatureMapper;
-import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
-import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;

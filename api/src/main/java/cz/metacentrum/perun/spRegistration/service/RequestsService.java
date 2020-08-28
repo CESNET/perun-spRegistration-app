@@ -1,12 +1,12 @@
 package cz.metacentrum.perun.spRegistration.service;
 
 import cz.metacentrum.perun.spRegistration.common.exceptions.ActiveRequestExistsException;
-import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
-import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.exceptions.CannotChangeStatusException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
+import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
+import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;

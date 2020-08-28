@@ -7,8 +7,6 @@ import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.HandlerInterceptor;

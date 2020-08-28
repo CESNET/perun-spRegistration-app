@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Generic configuration class containing all other configuration classes.
@@ -25,7 +24,6 @@ public class Config {
 	private AttrsConfig facilityMembershipConfig;
 	private AttrsConfig facilityOidcConfig;
 	private AttrsConfig facilitySamlConfig;
-	private Properties messagesConfig;
 	private final Map<String, AttrInput> inputMap = new HashMap<>();
 
 	public void setFacilityServiceConfig(AttrsConfig facilityServiceConfig) {

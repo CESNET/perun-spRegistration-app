@@ -1,9 +1,9 @@
 package cz.metacentrum.perun.spRegistration.service;
 
-import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
+import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 

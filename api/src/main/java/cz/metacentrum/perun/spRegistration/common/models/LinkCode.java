@@ -11,7 +11,6 @@ import lombok.ToString;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Objects;
 import java.util.UUID;
 
 @Getter

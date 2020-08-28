@@ -2,8 +2,6 @@ package cz.metacentrum.perun.spRegistration.persistence.mappers;
 
 import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;

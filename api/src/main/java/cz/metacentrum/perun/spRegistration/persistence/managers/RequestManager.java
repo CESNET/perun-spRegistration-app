@@ -3,8 +3,8 @@ package cz.metacentrum.perun.spRegistration.persistence.managers;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestStatus;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ActiveRequestExistsException;
-import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
+import cz.metacentrum.perun.spRegistration.common.models.Request;
 
 import java.util.List;
 import java.util.Set;

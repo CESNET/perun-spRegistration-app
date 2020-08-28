@@ -32,6 +32,7 @@ public class ApprovalsProperties {
     @NotBlank private String adminsEndpoint = "https://dev.spreg.aai.cesnet.cz/spreg/auth/facilities/addAdmin/sign";
     @NotBlank private String authoritiesEndpoint = "https://dev.spreg.aai.cesnet.cz/spreg/auth/sign";
     private final Map<String, List<String>> transferAuthoritiesMap = new HashMap<>();
+    @NotEmpty private List<String> defaultAuthorities;
 
     @PostConstruct
     public void postInit() {

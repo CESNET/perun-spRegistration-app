@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.spRegistration.persistence;
 
-import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
@@ -9,16 +8,9 @@ import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * Utility class for persistence layer
