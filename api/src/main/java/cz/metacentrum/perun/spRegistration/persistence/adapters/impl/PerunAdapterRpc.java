@@ -14,17 +14,19 @@ import cz.metacentrum.perun.spRegistration.persistence.connectors.PerunConnector
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.persistence.mappers.MapperUtils;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Connects to Perun via RPC.
@@ -58,365 +60,285 @@ public class PerunAdapterRpc implements PerunAdapter {
 	public static final String PARAM_ALL_USER_ATTRIBUTES = "allUserAttributes";
 	public static final String PARAM_ONLY_DIRECT_ADMINS = "onlyDirectAdmins";
 
-	private final PerunConnectorRpc perunConnectorRpc;
-	private final ApplicationProperties applicationProperties;
-	private final AttributesProperties attributesProperties;
+	@NonNull private final PerunConnectorRpc perunRpc;
+	@NonNull private final ApplicationProperties applicationProperties;
+	@NonNull private final AttributesProperties attributesProperties;
 
 	@Autowired
 	public PerunAdapterRpc(PerunConnectorRpc perunConnectorRpc,
 						   ApplicationProperties applicationProperties,
 						   AttributesProperties attributesProperties)
 	{
-		this.perunConnectorRpc = perunConnectorRpc;
+		this.perunRpc = perunConnectorRpc;
 		this.applicationProperties = applicationProperties;
 		this.attributesProperties = attributesProperties;
 	}
 
 	@Override
-	public Facility createFacilityInPerun(JsonNode facilityJson) throws PerunUnknownException, PerunConnectionException {
-		log.trace("createFacilityInPerun({})", facilityJson);
-
-		if (Utils.checkParamsInvalid(facilityJson)) {
-			log.error("Wrong parameters passed: (facilityJson: {})", facilityJson);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+	public Facility createFacilityInPerun(@NonNull JsonNode facilityJson)
+			throws PerunUnknownException, PerunConnectionException
+	{
+		if (facilityJson.isNull()) {
+			throw new IllegalArgumentException("FacilityJson cannot be NULL JSON object");
 		}
 
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put(PARAM_FACILITY, facilityJson);
 
-		JsonNode res = perunConnectorRpc.post(FACILITIES_MANAGER, "createFacility", params);
-		Facility facility = MapperUtils.mapFacility(res);
-
-		log.trace("createFacilityInPerun() returns: {}", facility);
-		return facility;
+		JsonNode response = perunRpc.call(FACILITIES_MANAGER, "createFacility", params);
+		return MapperUtils.mapFacility(response);
 	}
 
 	@Override
-	public Facility updateFacilityInPerun(JsonNode facilityJson) throws PerunUnknownException, PerunConnectionException {
-		log.trace("updateFacilityInPerun({})", facilityJson);
-
-		if (Utils.checkParamsInvalid(facilityJson)) {
-			log.error("Wrong parameters passed: (facilityJson: {})", facilityJson);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+	public Facility updateFacilityInPerun(@NonNull JsonNode facilityJson)
+			throws PerunUnknownException, PerunConnectionException
+	{
+		if (facilityJson.isNull()) {
+			throw new IllegalArgumentException("FacilityJson cannot be NULL JSON object");
 		}
+
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put(PARAM_FACILITY, facilityJson);
 
-		JsonNode res = perunConnectorRpc.post(FACILITIES_MANAGER, "updateFacility", params);
-		Facility facility = MapperUtils.mapFacility(res);
-
-		log.trace("updateFacilityInPerun() returns: {}", facility);
-		return facility;
+		JsonNode response = perunRpc.call(FACILITIES_MANAGER, "updateFacility", params);
+		return MapperUtils.mapFacility(response);
 	}
 
 	@Override
-	public boolean deleteFacilityFromPerun(Long facilityId) throws PerunUnknownException, PerunConnectionException {
-		log.trace("deleteFacilityFromPerun({})", facilityId);
-
-		if (Utils.checkParamsInvalid(facilityId)) {
-			log.error("Wrong parameters passed: (facilityId: {})", facilityId);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
-
+	public boolean deleteFacilityFromPerun(@NonNull Long facilityId)
+			throws PerunUnknownException, PerunConnectionException
+	{
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put(PARAM_FACILITY, facilityId);
 		params.put(PARAM_FORCE, true);
 
-		boolean successful = null != perunConnectorRpc.post(FACILITIES_MANAGER, "deleteFacility", params);
-
-		log.trace("deleteFacilityFromPerun() returns: {}", successful);
-		return successful;
+		JsonNode response = perunRpc.call(FACILITIES_MANAGER, "deleteFacility", params);
+		return (!response.isNull());
 	}
 
 	@Override
-	public Facility getFacilityById(Long facilityId) throws PerunUnknownException, PerunConnectionException {
-		log.trace("getFacilityById({})", facilityId);
-
-		if (Utils.checkParamsInvalid(facilityId)) {
-			log.error("Wrong parameters passed: (facilityId: {})", facilityId);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
-
+	public Facility getFacilityById(@NonNull Long facilityId)
+			throws PerunUnknownException, PerunConnectionException
+	{
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put(PARAM_ID, facilityId);
 
-		JsonNode res = perunConnectorRpc.post(FACILITIES_MANAGER, "getFacilityById", params);
-		Facility facility = MapperUtils.mapFacility(res);
+		JsonNode response = perunRpc.call(FACILITIES_MANAGER, "getFacilityById", params);
+		Facility facility = MapperUtils.mapFacility(response);
+		if (facility == null) {
+			return null;
+		}
 
-		List<User> admins = getAdminsForFacility(facilityId, attributesProperties.getUserEmailAttrName());
+		List<User> admins = this.getAdminsForFacility(facilityId, attributesProperties.getUserEmailAttrName());
 		facility.setAdmins(admins);
 
-		log.trace("getFacilityById() returns: {}", facility);
 		return facility;
 	}
 
 	@Override
-	public List<Facility> getFacilitiesByProxyIdentifier(String proxyIdentifierAttr, String proxyIdentifier)
-			throws PerunUnknownException, PerunConnectionException {
-		log.trace("getFacilitiesByProxyIdentifier(proxyIdentifierAttr: {}, proxyIdentifier: {})",
-				proxyIdentifierAttr, proxyIdentifier);
-
-		if (Utils.checkParamsInvalid(proxyIdentifierAttr, proxyIdentifier)) {
-			log.error("Wrong parameters passed: (proxyIdentifierAttr: {}, proxyIdentifier: {})",
-					proxyIdentifierAttr, proxyIdentifier);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+	public List<Facility> getFacilitiesByProxyIdentifier(@NonNull String proxyIdentifierAttr,
+														 @NonNull String proxyIdentifier)
+			throws PerunUnknownException, PerunConnectionException
+	{
+		if (!StringUtils.hasText(proxyIdentifier)) {
+			throw new IllegalArgumentException("ProxyIdentifierAttr cannot be empty");
+		} else if (!StringUtils.hasText(proxyIdentifier)) {
+			throw new IllegalArgumentException("ProxyIdentifier cannot be empty");
 		}
 
 		Map<String, Object> params = new LinkedHashMap<>();
-		Map<String, String> attributesWithSearchingValues = new HashMap<>();
-		attributesWithSearchingValues.put(proxyIdentifierAttr, proxyIdentifier);
-		params.put(PARAM_ATTRIBUTES_WITH_SEARCHING_VALUES, attributesWithSearchingValues);
+		params.put(PARAM_ATTRIBUTES_WITH_SEARCHING_VALUES,
+				Collections.singletonMap(proxyIdentifierAttr, proxyIdentifier)
+		);
 
-		JsonNode res = perunConnectorRpc.post(SEARCHER, "getFacilities", params);
-		List<Facility> facilities = MapperUtils.mapFacilities(res);
-
-		log.trace("getFacilitiesByProxyIdentifier() returns: {}", facilities);
-		return facilities;
+		JsonNode response = perunRpc.call(SEARCHER, "getFacilities", params);
+		return MapperUtils.mapFacilities(response);
 	}
 
 	@Override
-	public List<Facility> getFacilitiesWhereUserIsAdmin(Long userId) throws PerunUnknownException, PerunConnectionException {
-		log.trace("getFacilitiesWhereUserIsAdmin({})", userId);
-
-		if (Utils.checkParamsInvalid(userId)) {
-			log.error("Wrong parameters passed: (userId: {})", userId);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
-
+	public List<Facility> getFacilitiesWhereUserIsAdmin(@NonNull Long userId)
+			throws PerunUnknownException, PerunConnectionException
+	{
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put(PARAM_USER, userId);
 
-		JsonNode res = perunConnectorRpc.post(FACILITIES_MANAGER, "getFacilitiesWhereUserIsAdmin", params);
-		List<Facility> facilities = MapperUtils.mapFacilities(res);
-
-		log.trace("getFacilitiesWhereUserIsAdmin() returns: {}", facilities);
-		return facilities;
+		JsonNode response = perunRpc.call(FACILITIES_MANAGER, "getFacilitiesWhereUserIsAdmin", params);
+		return MapperUtils.mapFacilities(response);
 	}
 
 	@Override
-	public PerunAttribute getFacilityAttribute(Long facilityId, String attrName) throws PerunUnknownException, PerunConnectionException {
-		log.trace("getFacilityAttribute(facilityId: {}, attrName: {})", facilityId, attrName);
-
-		if (Utils.checkParamsInvalid(facilityId, attrName)) {
-			log.error("Wrong parameters passed: (facilityId: {}, attrName: {})", facilityId, attrName);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+	public PerunAttribute getFacilityAttribute(@NonNull Long facilityId, @NonNull String attrName)
+			throws PerunUnknownException, PerunConnectionException
+	{
+		if (!StringUtils.hasText(attrName)) {
+			throw new IllegalArgumentException("AttrName cannot be empty");
 		}
 
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put(PARAM_FACILITY, facilityId);
 		params.put(PARAM_ATTRIBUTE_NAME, attrName);
 
-		JsonNode res = perunConnectorRpc.post(ATTRIBUTES_MANAGER, "getAttribute", params);
-		PerunAttribute attribute = MapperUtils.mapPerunAttribute(res);
-
-		log.trace("getFacilityAttribute() returns: {}", attribute);
-		return attribute;
+		JsonNode response = perunRpc.call(ATTRIBUTES_MANAGER, "getAttribute", params);
+		return MapperUtils.mapPerunAttribute(response);
 	}
 
 	@Override
-	public Map<String, PerunAttribute> getFacilityAttributes(Long facilityId, List<String> attrNames) throws PerunUnknownException, PerunConnectionException {
-		log.trace("getFacilityAttributes(facilityId: {}, attrNames: {})", facilityId, attrNames);
-
-		if (Utils.checkParamsInvalid(facilityId, attrNames)) {
-			log.error("Wrong parameters passed: (facilityId: {}, attrNames: {})", facilityId, attrNames);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
-
+	public Map<String, PerunAttribute> getFacilityAttributes(@NonNull Long facilityId, @NonNull List<String> attrNames)
+			throws PerunUnknownException, PerunConnectionException
+	{
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put(PARAM_FACILITY, facilityId);
 		params.put(PARAM_ATTR_NAMES, attrNames);
 
-		JsonNode res = perunConnectorRpc.post(ATTRIBUTES_MANAGER, "getAttributes", params);
-		Map<String, PerunAttribute> attributeMap = MapperUtils.mapAttributes(res);
-
-		log.trace("getFacilityAttributes() returns: {}", attributeMap);
-		return attributeMap;
+		JsonNode response = perunRpc.call(ATTRIBUTES_MANAGER, "getAttributes", params);
+		return MapperUtils.mapAttributes(response);
 	}
 
 	@Override
-	public boolean setFacilityAttribute(Long facilityId, JsonNode attrJson) throws PerunUnknownException, PerunConnectionException {
-		log.trace("setFacilityAttribute(facilityId: {}, attrJson: {})", facilityId, attrJson);
-
-		if (Utils.checkParamsInvalid(facilityId, attrJson)) {
-			log.error("Wrong parameters passed: (facilityId: {}, attrJson: {})", facilityId, attrJson);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+	public boolean setFacilityAttribute(@NonNull Long facilityId, @NonNull  JsonNode attrJson)
+			throws PerunUnknownException, PerunConnectionException
+	{
+		if (attrJson.isNull()) {
+			throw new IllegalArgumentException("AttrJson cannot be null JSON object");
 		}
 
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put(PARAM_FACILITY, facilityId);
 		params.put(PARAM_ATTRIBUTE, attrJson);
 
-		boolean successful = (null == perunConnectorRpc.post(ATTRIBUTES_MANAGER, "setAttribute", params));
-
-		log.trace("setFacilityAttribute() returns: {}", successful);
-		return successful;
+		JsonNode response = perunRpc.call(ATTRIBUTES_MANAGER, "setAttribute", params);
+		return response.isNull();
 	}
 
 	@Override
-	public boolean setFacilityAttributes(Long facilityId, JsonNode attrsJsons) throws PerunUnknownException, PerunConnectionException {
-		log.trace("setFacilityAttributes(facilityId: {}, attrsJsons: {})", facilityId, attrsJsons);
-
-		if (Utils.checkParamsInvalid(facilityId, attrsJsons)) {
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+	public boolean setFacilityAttributes(@NonNull Long facilityId, @NonNull JsonNode attrJsons)
+			throws PerunUnknownException, PerunConnectionException
+	{
+		if (attrJsons.isNull()) {
+			throw new IllegalArgumentException("AttrJsons cannot be null JSON object");
 		}
 
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put(PARAM_FACILITY, facilityId);
-		params.put(PARAM_ATTRIBUTES, attrsJsons);
+		params.put(PARAM_ATTRIBUTES, attrJsons);
 
-		boolean successful = (null == perunConnectorRpc.post(ATTRIBUTES_MANAGER, "setAttributes", params));
-
-		log.trace("setFacilityAttributes() returns: {}", successful);
-		return successful;
+		JsonNode response = perunRpc.call(ATTRIBUTES_MANAGER, "setAttributes", params);
+		return response.isNull();
 	}
 
 	@Override
-	public User getUserWithEmail(String extLogin, String extSourceName, String userEmailAttr) throws PerunUnknownException, PerunConnectionException {
-		log.trace("getUserWithEmail({})", extLogin);
-
-		if (Utils.checkParamsInvalid(extLogin, extSourceName, userEmailAttr)) {
-			log.error("Wrong parameters passed: (extLogin: {}, extSourceName: {}, userEmailAttr: {})",
-					extLogin, extSourceName, userEmailAttr);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+	public User getUserWithEmail(@NonNull String extLogin, @NonNull String extSourceName, @NonNull String userEmailAttr)
+			throws PerunUnknownException, PerunConnectionException
+	{
+		if (!StringUtils.hasText(userEmailAttr)) {
+			throw new IllegalArgumentException("UserEmailAttr cannot be empty");
 		}
 
 		Map<String, Object> params = new LinkedHashMap<>();
-
 		params.put(PARAM_EXT_SOURCE_NAME, extSourceName);
 		params.put(PARAM_EXT_LOGIN, extLogin);
 
-		JsonNode res = perunConnectorRpc.post(USERS_MANAGER, "getUserByExtSourceNameAndExtLogin", params);
-
-		User user = MapperUtils.mapUser(res);
-		params.clear();
-		params.put(PARAM_USER, user.getId().intValue());
-		params.put(PARAM_ATTRIBUTE_NAME, userEmailAttr);
-
-		JsonNode attr = perunConnectorRpc.post(ATTRIBUTES_MANAGER, "getAttribute", params);
-		PerunAttribute attribute = MapperUtils.mapPerunAttribute(attr);
-		if (attribute != null) {
-			user.setEmail(attribute.valueAsString());
+		JsonNode response = perunRpc.call(USERS_MANAGER, "getUserByExtSourceNameAndExtLogin", params);
+		User user = MapperUtils.mapUser(response);
+		if (user == null) {
+			return null;
+		} else if (user.getId() == null) {
+			return user;
 		}
 
-		log.trace("getUserWithEmail() returns: {}", user);
+		PerunAttribute emailAttribute = this.getUserAttribute(user.getId(), userEmailAttr);
+		if (emailAttribute != null) {
+			user.setEmail(emailAttribute.valueAsString());
+		}
+
 		return user;
 	}
 
 	@Override
-	public boolean addFacilityAdmin(Long facilityId, Long userId) throws PerunUnknownException, PerunConnectionException {
-		log.trace("addFacilityAdmin(facilityId: {}, userId:{})", facilityId, userId);
-
-		if (Utils.checkParamsInvalid(facilityId, userId)) {
-			log.error("Wrong parameters passed: (facilityId: {}, userId: {})", facilityId, userId);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
-
+	public boolean addFacilityAdmin(@NonNull Long facilityId, @NonNull Long userId)
+			throws PerunUnknownException, PerunConnectionException
+	{
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put(PARAM_FACILITY, facilityId);
 		params.put(PARAM_USER, userId);
 
-		boolean res = (null == perunConnectorRpc.post(FACILITIES_MANAGER, "addAdmin", params));
-
-		log.trace("addFacilityAdmin() returns: {}", res);
-		return res;
+		JsonNode response = perunRpc.call(FACILITIES_MANAGER, "addAdmin", params);
+		return response.isNull();
 	}
 
 	@Override
-	public Set<Long> getFacilityIdsWhereUserIsAdmin(Long userId) throws PerunUnknownException, PerunConnectionException {
-		log.trace("getFacilityIdsWhereUserIsAdmin({})", userId);
-
-		if (Utils.checkParamsInvalid(userId)) {
-			log.error("Wrong parameters passed: (userId: {})", userId);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
-
+	public Set<Long> getFacilityIdsWhereUserIsAdmin(@NonNull Long userId)
+			throws PerunUnknownException, PerunConnectionException
+	{
 		List<Facility> facilities = this.getFacilitiesWhereUserIsAdmin(userId);
 		if (facilities == null) {
 			return new HashSet<>();
 		}
 
-		Set<Long> ids = new HashSet<>();
-		facilities.forEach(f -> ids.add(f.getId()));
-
-		log.trace("getFacilityIdsWhereUserIsAdmin() returns: {}", ids);
-		return ids;
+		return facilities.stream().map(Facility::getId).collect(Collectors.toSet());
 	}
 
 	@Override
-	public PerunAttributeDefinition getAttributeDefinition(String attributeName) throws PerunUnknownException, PerunConnectionException {
-		log.trace("getAttributeDefinition({})", attributeName);
-
-		if (Utils.checkParamsInvalid(attributeName)) {
-			log.error("Wrong parameters passed: (attributeName: {})", attributeName);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+	public PerunAttributeDefinition getAttributeDefinition(@NonNull String attributeName)
+			throws PerunUnknownException, PerunConnectionException
+	{
+		if (!StringUtils.hasText(attributeName)) {
+			throw new IllegalArgumentException("AttributeName cannot be empty");
 		}
 
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put(PARAM_ATTRIBUTE_NAME, attributeName);
 
-		JsonNode res = perunConnectorRpc.post(ATTRIBUTES_MANAGER, "getAttributeDefinition", params);
-		PerunAttributeDefinition definition = MapperUtils.mapAttributeDefinition(res);
-
-		log.trace("getAttributeDefinition() returns: {}", definition);
-		return definition;
+		JsonNode response = perunRpc.call(ATTRIBUTES_MANAGER, "getAttributeDefinition", params);
+		return MapperUtils.mapAttributeDefinition(response);
 	}
 
 	@Override
-	public List<Facility> getFacilitiesByAttribute(String attrName, String attrValue) throws PerunUnknownException, PerunConnectionException {
-		log.trace("getFacilitiesByAttribute(attrName: {}, attrValue: {})", attrName, attrName);
-
-		if (Utils.checkParamsInvalid(attrName)) {
-			log.error("Wrong parameters passed: (attrName: {})", attrName);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+	public List<Facility> getFacilitiesByAttribute(@NonNull String attrName, @NonNull String attrValue)
+			throws PerunUnknownException, PerunConnectionException
+	{
+		if (!StringUtils.hasText(attrName)) {
+			throw new IllegalArgumentException("AttrName cannot be empty");
+		} else if (!StringUtils.hasText(attrValue)) {
+			throw new IllegalArgumentException("AttrValue cannot be empty");
 		}
 
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put(PARAM_ATTRIBUTE_NAME, attrName);
 		params.put(PARAM_ATTRIBUTE_VALUE, attrValue);
 
-		JsonNode res = perunConnectorRpc.post(FACILITIES_MANAGER, "getFacilitiesByAttribute", params);
-		List<Facility> facilities = MapperUtils.mapFacilities(res);
-
-		log.trace("getFacilitiesByAttribute() returns: {}", facilities);
-		return facilities;
+		JsonNode response = perunRpc.call(FACILITIES_MANAGER, "getFacilitiesByAttribute", params);
+		return MapperUtils.mapFacilities(response);
 	}
 
 	@Override
-	public User getUserById(Long id) throws PerunUnknownException, PerunConnectionException {
-		log.trace("getUserById({})", id);
-
-		if (Utils.checkParamsInvalid(id)) {
-			log.error("Wrong parameters passed: (id: {})", id);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
-
+	public User getUserById(@NonNull Long id) throws PerunUnknownException, PerunConnectionException {
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put(PARAM_ID, id);
 
-		JsonNode res = perunConnectorRpc.post(USERS_MANAGER, "getUserById", params);
-		User user = MapperUtils.mapUser(res);
-
-		log.trace("getUserById() returns: {}", user);
-		return user;
+		JsonNode response = perunRpc.call(USERS_MANAGER, "getUserById", params);
+		return MapperUtils.mapUser(response);
 	}
 
-	/* PRIVATE METHODS */
+	private List<User> getAdminsForFacility(@NonNull Long facility, @NonNull String userEmailAttr)
+			throws PerunUnknownException, PerunConnectionException
+	{
+		if (!StringUtils.hasText(userEmailAttr)) {
+			throw new IllegalArgumentException("UserEmailAttr cannot be empty");
+		}
 
-	private List<User> getAdminsForFacility(Long facility, String userEmailAttr) throws PerunUnknownException, PerunConnectionException {
-		log.trace("getAdminsForFacility({})", facility);
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put(PARAM_FACILITY, facility);
 		params.put(PARAM_SPECIFIC_ATTRIBUTES, Collections.singletonList(userEmailAttr));
 		params.put(PARAM_ALL_USER_ATTRIBUTES, false);
 		params.put(PARAM_ONLY_DIRECT_ADMINS, false);
 
-		JsonNode res = perunConnectorRpc.post(FACILITIES_MANAGER, "getRichAdmins", params);
-		List<User> admins = MapperUtils.mapUsers(res, userEmailAttr);
+		JsonNode response = perunRpc.call(FACILITIES_MANAGER, "getRichAdmins", params);
+		List<User> admins = MapperUtils.mapUsers(response, userEmailAttr);
 		for (User u: admins) {
 			u.setAppAdmin(applicationProperties.getAdminIds().contains(u.getId()));
 		}
 
-		log.trace("getAdminsForFacility() returns: {}", admins);
 		return admins;
 	}
 
@@ -433,7 +355,7 @@ public class PerunAdapterRpc implements PerunAdapter {
 		params.put("parentGroup", parentGroupId);
 		params.put("group", group.toJson());
 
-		JsonNode res = perunConnectorRpc.post(GROUPS_MANAGER, "createGroup", params);
+		JsonNode res = perunRpc.call(GROUPS_MANAGER, "createGroup", params);
 		Group g = MapperUtils.mapGroup(res);
 
 		log.trace("createGroup({}, {}) returns: {}", parentGroupId, group, g);
@@ -453,7 +375,7 @@ public class PerunAdapterRpc implements PerunAdapter {
 		params.put("group", groupId);
 		params.put("force", true);
 
-		JsonNode res = perunConnectorRpc.post(GROUPS_MANAGER, "deleteGroup", params);
+		JsonNode res = perunRpc.call(GROUPS_MANAGER, "deleteGroup", params);
 		boolean result = res == null || res.isNull();
 
 		log.trace("deleteGroup({}) returns: {}", groupId, result);
@@ -473,7 +395,7 @@ public class PerunAdapterRpc implements PerunAdapter {
 		params.put("facility", facilityId);
 		params.put("authorizedGroup", groupId);
 
-		JsonNode res = perunConnectorRpc.post(FACILITIES_MANAGER, "addAdmin", params);
+		JsonNode res = perunRpc.call(FACILITIES_MANAGER, "addAdmin", params);
 		boolean result = res == null || res.isNull();
 
 		log.trace("addGroupAsAdmins({}, {}) returns: {}", facilityId, groupId, result);
@@ -493,7 +415,7 @@ public class PerunAdapterRpc implements PerunAdapter {
 		params.put("facility", facilityId);
 		params.put("authorizedGroup", groupId);
 
-		JsonNode res = perunConnectorRpc.post(FACILITIES_MANAGER, "removeAdmin", params);
+		JsonNode res = perunRpc.call(FACILITIES_MANAGER, "removeAdmin", params);
 		boolean result = res == null || res.isNull();
 
 		log.trace("removeGroupFromAdmins({}, {}) returns: {}", facilityId, groupId, result);
@@ -513,7 +435,7 @@ public class PerunAdapterRpc implements PerunAdapter {
 		params.put("vo", vo);
 		params.put("user", user);
 
-		JsonNode res = perunConnectorRpc.post(MEMBERS_MANAGER, "getMemberByUser", params);
+		JsonNode res = perunRpc.call(MEMBERS_MANAGER, "getMemberByUser", params);
 		Long id = res.get("id").asLong();
 
 		log.trace("getMemberIdByUser({}, {}) returns: {}", vo, user, id);
@@ -522,8 +444,7 @@ public class PerunAdapterRpc implements PerunAdapter {
 
 	@Override
 	public boolean addMemberToGroup(Long groupId, Long memberId)
-			throws PerunUnknownException, PerunConnectionException
-	{
+			throws PerunUnknownException, PerunConnectionException {
 		log.trace("addMemberToGroup({}, {})", groupId, memberId);
 
 		if (Utils.checkParamsInvalid(groupId, memberId)) {
@@ -535,11 +456,26 @@ public class PerunAdapterRpc implements PerunAdapter {
 		params.put("group", groupId);
 		params.put("member", memberId);
 
-		JsonNode res = perunConnectorRpc.post(GROUPS_MANAGER, "addMember", params);
+		JsonNode res = perunRpc.call(GROUPS_MANAGER, "addMember", params);
 		boolean result = res == null || res.isNull();
 
 		log.trace("addMemberToGroup({}, {}) returns: {}", groupId, memberId, result);
 		return result;
+	}
+
+	private PerunAttribute getUserAttribute(@NonNull Long userId, @NonNull String attributeName)
+			throws PerunUnknownException, PerunConnectionException
+	{
+		if (!StringUtils.hasText(attributeName)) {
+			throw new IllegalArgumentException("AttributeName cannot be empty");
+		}
+
+		Map<String, Object> params = new LinkedHashMap<>();
+		params.put(PARAM_USER, userId);
+		params.put(PARAM_ATTRIBUTE_NAME, attributeName);
+
+		JsonNode attr = perunRpc.call(ATTRIBUTES_MANAGER, "getAttribute", params);
+		return MapperUtils.mapPerunAttribute(attr);
 	}
 
 }

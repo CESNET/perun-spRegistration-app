@@ -8,6 +8,7 @@ import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinitio
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
+import lombok.NonNull;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,8 @@ public interface PerunAdapter {
 	 * @return Created facility.
 	 * @throws IllegalArgumentException Thrown when param "facilityJson" is NULL, equals JSONObject.NULL or empty.
 	 */
-	Facility createFacilityInPerun(JsonNode facilityJson) throws PerunUnknownException, PerunConnectionException;
+	Facility createFacilityInPerun(@NonNull JsonNode facilityJson)
+			throws PerunUnknownException, PerunConnectionException;
 
 	/**
 	 * Update existing facility in Perun.
@@ -34,7 +36,8 @@ public interface PerunAdapter {
 	 * @return Updated facility.
 	 * @throws IllegalArgumentException Thrown when param "facilityJson" is NULL, equals JSONObject.NULL or empty.
 	 */
-	Facility updateFacilityInPerun(JsonNode facilityJson) throws PerunUnknownException, PerunConnectionException;
+	Facility updateFacilityInPerun(@NonNull JsonNode facilityJson)
+			throws PerunUnknownException, PerunConnectionException;
 
 	/**
 	 * Delete facility from Perun.
@@ -42,7 +45,8 @@ public interface PerunAdapter {
 	 * @return True if everything went OK.
 	 * @throws IllegalArgumentException Thrown when param "facilityId" is NULL.
 	 */
-	boolean deleteFacilityFromPerun(Long facilityId) throws PerunUnknownException, PerunConnectionException;
+	boolean deleteFacilityFromPerun(@NonNull Long facilityId)
+			throws PerunUnknownException, PerunConnectionException;
 
 	/**
 	 * Get facility from Perun with specified ID.
@@ -50,7 +54,8 @@ public interface PerunAdapter {
 	 * @return Retrieved facility.
 	 * @throws IllegalArgumentException Thrown when param "facilityId" is NULL.
 	 */
-	Facility getFacilityById(Long facilityId) throws PerunUnknownException, PerunConnectionException;
+	Facility getFacilityById(@NonNull Long facilityId)
+			throws PerunUnknownException, PerunConnectionException;
 
 	/**
 	 * Get facilities having specified attribute.
@@ -58,7 +63,7 @@ public interface PerunAdapter {
 	 * @throws IllegalArgumentException Thrown when param "proxyIdentifierAttr" is NULL or empty, when param
 	 * "proxyIdentifier" is NULL or empty.
 	 */
-	List<Facility> getFacilitiesByProxyIdentifier(String proxyIdentifierAttr, String proxyIdentifier)
+	List<Facility> getFacilitiesByProxyIdentifier(@NonNull String proxyIdentifierAttr, @NonNull String proxyIdentifier)
 			throws PerunUnknownException, PerunConnectionException;
 
 	/**
@@ -67,7 +72,8 @@ public interface PerunAdapter {
 	 * @return List of found facilities.
 	 * @throws IllegalArgumentException Thrown when param "userId" is NULL.
 	 */
-	List<Facility> getFacilitiesWhereUserIsAdmin(Long userId) throws PerunUnknownException, PerunConnectionException;
+	List<Facility> getFacilitiesWhereUserIsAdmin(@NonNull Long userId)
+			throws PerunUnknownException, PerunConnectionException;
 
 	/**
 	 * Get attribute of facility.
@@ -76,7 +82,8 @@ public interface PerunAdapter {
 	 * @return Retrieved attribute.
 	 * @throws IllegalArgumentException Thrown when param "facilityId" is NULL, when param "attrNames" is NULL.
 	 */
-	PerunAttribute getFacilityAttribute(Long facilityId, String attrName) throws PerunUnknownException, PerunConnectionException;
+	PerunAttribute getFacilityAttribute(@NonNull Long facilityId, @NonNull String attrName)
+			throws PerunUnknownException, PerunConnectionException;
 
 	/**
 	 * Get specified attributes for facility.
@@ -85,7 +92,8 @@ public interface PerunAdapter {
 	 * @return Map (key = attribute name, value = attribute) of facility attributes.
 	 * @throws IllegalArgumentException Thrown when param "facilityId" is NULL, when param "attrNames" is NULL.
 	 */
-	Map<String, PerunAttribute> getFacilityAttributes(Long facilityId, List<String> attrNames) throws PerunUnknownException, PerunConnectionException;
+	Map<String, PerunAttribute> getFacilityAttributes(@NonNull Long facilityId, @NonNull List<String> attrNames)
+			throws PerunUnknownException, PerunConnectionException;
 
 	/**
 	 * Get IDs of facilities where user is admin (manager).
@@ -93,7 +101,8 @@ public interface PerunAdapter {
 	 * @return Set of facility IDs.
 	 * @throws IllegalArgumentException Thrown when param "userId" is NULL.
 	 */
-	Set<Long> getFacilityIdsWhereUserIsAdmin(Long userId) throws PerunUnknownException, PerunConnectionException;
+	Set<Long> getFacilityIdsWhereUserIsAdmin(@NonNull Long userId)
+			throws PerunUnknownException, PerunConnectionException;
 
 	/**
 	 * Set attribute for facility in Perun.
@@ -103,7 +112,8 @@ public interface PerunAdapter {
 	 * @throws IllegalArgumentException Thrown when param "facilityId" is NULL, when param "attrJson" is NULL or empty
 	 * or equals to JSONObject.NULL.
 	 */
-	boolean setFacilityAttribute(Long facilityId, JsonNode attrJson) throws PerunUnknownException, PerunConnectionException;
+	boolean setFacilityAttribute(@NonNull Long facilityId, @NonNull JsonNode attrJson)
+			throws PerunUnknownException, PerunConnectionException;
 
 	/**
 	 * Set attributes for facility in Perun.
@@ -113,7 +123,8 @@ public interface PerunAdapter {
 	 * @throws IllegalArgumentException Thrown when param "facilityId" is NULL, when param "attrsJson" is NULL,
 	 * empty or equals JSONObject.NULL.
 	 */
-	boolean setFacilityAttributes(Long facilityId, JsonNode attrsJsons) throws PerunUnknownException, PerunConnectionException;
+	boolean setFacilityAttributes(@NonNull Long facilityId, @NonNull JsonNode attrsJsons)
+			throws PerunUnknownException, PerunConnectionException;
 
 	/**
 	 * Get user from Perun.
@@ -124,7 +135,8 @@ public interface PerunAdapter {
 	 * @throws IllegalArgumentException Thrown when param "extLogin" is NULL or empty, when param "extSourceName"
 	 * is NULL or empty, when param "userEmailAttr" is NULL or empty.
 	 */
-	User getUserWithEmail(String extLogin, String extSourceName, String userEmailAttr) throws PerunUnknownException, PerunConnectionException;
+	User getUserWithEmail(@NonNull String extLogin, @NonNull String extSourceName, @NonNull String userEmailAttr)
+			throws PerunUnknownException, PerunConnectionException;
 
 	/**
 <<<<<<< master:api/src/main/java/cz/metacentrum/perun/spRegistration/persistence/connectors/PerunConnector.java
@@ -135,7 +147,8 @@ public interface PerunAdapter {
 	 * @return TRUE if everything went OK, FALSE otherwise.
 	 * @throws IllegalArgumentException Thrown when param "facilityId" is NULL, when "userId" is NULL.
 	 */
-	boolean addFacilityAdmin(Long facilityId, Long userId) throws PerunUnknownException, PerunConnectionException;
+	boolean addFacilityAdmin(@NonNull Long facilityId, @NonNull Long userId)
+			throws PerunUnknownException, PerunConnectionException;
 
 	/**
 >>>>>>> The great refactor part1:api/src/main/java/cz/metacentrum/perun/spRegistration/persistence/adapters/PerunAdapter.java
@@ -144,7 +157,8 @@ public interface PerunAdapter {
 	 * @return Attribute definition
 	 * @throws IllegalArgumentException Thrown when param "name" is NULL or empty.
 	 */
-	PerunAttributeDefinition getAttributeDefinition(String name) throws PerunUnknownException, PerunConnectionException;
+	PerunAttributeDefinition getAttributeDefinition(@NonNull String name)
+			throws PerunUnknownException, PerunConnectionException;
 
 	/**
 	 * Fetch facilities having specified attribute. Caller is fully responsible for "attrValue" param.
@@ -155,9 +169,11 @@ public interface PerunAdapter {
 	 * @return List of facilities, empty list if o such is found.
 	 * @throws IllegalArgumentException Thrown when attrName is NULL or empty.
 	 */
-	List<Facility> getFacilitiesByAttribute(String attrName, String attrValue) throws PerunUnknownException, PerunConnectionException;
+	List<Facility> getFacilitiesByAttribute(@NonNull String attrName, @NonNull String attrValue)
+			throws PerunUnknownException, PerunConnectionException;
 
-	User getUserById(Long id) throws PerunUnknownException, PerunConnectionException;
+	User getUserById(@NonNull Long id)
+			throws PerunUnknownException, PerunConnectionException;
 
 	Group createGroup(Long parentGroupId, Group group) throws PerunUnknownException, PerunConnectionException;
 
