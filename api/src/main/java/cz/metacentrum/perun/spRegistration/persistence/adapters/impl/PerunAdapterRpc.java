@@ -207,7 +207,7 @@ public class PerunAdapterRpc implements PerunAdapter {
 		params.put(PARAM_ATTRIBUTE_NAME, attrName);
 
 		JsonNode res = perunConnectorRpc.post(ATTRIBUTES_MANAGER, "getAttribute", params);
-		PerunAttribute attribute = MapperUtils.mapAttribute(res);
+		PerunAttribute attribute = MapperUtils.mapPerunAttribute(res);
 
 		log.trace("getFacilityAttribute() returns: {}", attribute);
 		return attribute;
@@ -293,8 +293,10 @@ public class PerunAdapterRpc implements PerunAdapter {
 		params.put(PARAM_ATTRIBUTE_NAME, userEmailAttr);
 
 		JsonNode attr = perunConnectorRpc.post(ATTRIBUTES_MANAGER, "getAttribute", params);
-		PerunAttribute attribute = MapperUtils.mapAttribute(attr);
-		user.setEmail(attribute.valueAsString());
+		PerunAttribute attribute = MapperUtils.mapPerunAttribute(attr);
+		if (attribute != null) {
+			user.setEmail(attribute.valueAsString());
+		}
 
 		log.trace("getUserWithEmail() returns: {}", user);
 		return user;
@@ -353,7 +355,7 @@ public class PerunAdapterRpc implements PerunAdapter {
 		params.put(PARAM_ATTRIBUTE_NAME, attributeName);
 
 		JsonNode res = perunConnectorRpc.post(ATTRIBUTES_MANAGER, "getAttributeDefinition", params);
-		PerunAttributeDefinition definition = MapperUtils.mapAttrDefinition(res);
+		PerunAttributeDefinition definition = MapperUtils.mapAttributeDefinition(res);
 
 		log.trace("getAttributeDefinition() returns: {}", definition);
 		return definition;

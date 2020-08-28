@@ -21,8 +21,8 @@ import javax.validation.constraints.NotNull;
 public class RpcConnectorProperties {
 
     @NotBlank private String perunUrl = "https://perun-dev.cesnet.cz/ba/rpc";
-    @NotNull private String perunUser;
-    @NotNull private String perunPassword;
+    @NonNull private String perunUser;
+    @NonNull private String perunPassword;
     private int requestTimeout = 30000;
     private int connectTimeout = 30000;
     private int socketTimeout = 60000;

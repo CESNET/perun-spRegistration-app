@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
@@ -111,7 +112,7 @@ public class FacilitiesServiceImpl implements FacilitiesService {
                     .get(AttributeCategory.PROTOCOL).get(attributesProperties.getOidcClientIdAttrName());
             String valEncrypted = clientSecret.valueAsString();
             String decrypted = ServiceUtils.decrypt(valEncrypted, applicationBeans.getSecretKeySpec());
-            clientSecret.setValue(decrypted);
+            clientSecret.setValue(JsonNodeFactory.instance.textNode(decrypted));
         }
 
         if (!includeClientCredentials) {

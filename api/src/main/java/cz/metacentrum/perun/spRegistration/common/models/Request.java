@@ -11,9 +11,12 @@ import cz.metacentrum.perun.spRegistration.common.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestStatus;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,12 +37,11 @@ import java.util.Set;
 @EqualsAndHashCode(exclude = {"attributes", "user"})
 public class Request {
 
-	private Long reqId;
+	@NonNull private Long reqId;
 	private Long facilityId;
 	private User requester;
-	private RequestStatus status;
-	private RequestAction action;
-	private Long reqUserId;
+	@NonNull private RequestAction action;
+	@NonNull private RequestStatus status;
 	private Map<AttributeCategory, Map<String, PerunAttribute>> attributes = new HashMap<>();
 	private Timestamp modifiedAt;
 	private Long modifiedBy;

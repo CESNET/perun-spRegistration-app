@@ -2,6 +2,7 @@ package cz.metacentrum.perun.spRegistration.common.configs;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -48,7 +49,7 @@ public class ApplicationProperties {
                 '}';
     }
 
-    public boolean isAppAdmin(@NotNull Long id) {
+    public boolean isAppAdmin(@NonNull Long id) {
         return adminIds.contains(id);
     }
 

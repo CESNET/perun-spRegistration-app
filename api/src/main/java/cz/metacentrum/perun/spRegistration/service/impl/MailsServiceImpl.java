@@ -8,6 +8,7 @@ import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.service.MailsService;
 import cz.metacentrum.perun.spRegistration.service.mails.MailProperties;
 import cz.metacentrum.perun.spRegistration.service.mails.MailTemplate;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -94,8 +94,8 @@ public class MailsServiceImpl implements MailsService {
 	}
 
 	@Override
-	public void notifyAuthorities(@NotNull Request req,
-								  @NotNull Map<String, String> authoritiesLinksMap)
+	public void notifyAuthorities(@NonNull Request req,
+								  @NonNull Map<String, String> authoritiesLinksMap)
 	{
 		for (String email: authoritiesLinksMap.keySet()) {
 			String link = authoritiesLinksMap.get(email);
@@ -107,9 +107,9 @@ public class MailsServiceImpl implements MailsService {
 	}
 
 	@Override
-	public boolean notifyNewAdmins(@NotNull Facility facility,
-								   @NotNull Map<String, String> adminsLinksMap,
-								   @NotNull User user) {
+	public boolean notifyNewAdmins(@NonNull Facility facility,
+								   @NonNull Map<String, String> adminsLinksMap,
+								   @NonNull User user) {
 		for (String email: adminsLinksMap.keySet()) {
 			String link = adminsLinksMap.get(email);
 			if (!this.adminAddRemoveNotify(link, facility, email, user)) {
@@ -122,9 +122,9 @@ public class MailsServiceImpl implements MailsService {
 	}
 
 	@Override
-	public boolean authoritiesApproveProductionTransferNotify(@NotNull String approvalLink,
-															  @NotNull Request req,
-															  @NotNull String recipient)
+	public boolean authoritiesApproveProductionTransferNotify(@NonNull String approvalLink,
+															  @NonNull Request req,
+															  @NonNull String recipient)
 	{
 		MailTemplate template = getTemplate(PRODUCTION_AUTHORITIES_KEY);
 		String message = this.constructMessage(template);
@@ -140,8 +140,8 @@ public class MailsServiceImpl implements MailsService {
 	}
 
 	@Override
-	public boolean adminAddRemoveNotify(@NotNull String approvalLink, @NotNull Facility facility,
-										@NotNull String recipient, @NotNull User user)
+	public boolean adminAddRemoveNotify(@NonNull String approvalLink, @NonNull Facility facility,
+										@NonNull String recipient, @NonNull User user)
 	{
 		MailTemplate template = getTemplate(ADD_ADMIN_KEY);
 		String message = this.constructMessage(template);
@@ -160,7 +160,7 @@ public class MailsServiceImpl implements MailsService {
 	}
 
 	@Override
-	public void notifyUser(@NotNull Request req, @NotNull String action) {
+	public void notifyUser(@NonNull Request req, @NonNull String action) {
 		MailTemplate template = getTemplate(action, ROLE_USER);
 		
 		String message = this.constructMessage(template);
@@ -178,7 +178,7 @@ public class MailsServiceImpl implements MailsService {
 	}
 
 	@Override
-	public void notifyAppAdmins(@NotNull Request req, @NotNull String action) {
+	public void notifyAppAdmins(@NonNull Request req, @NonNull String action) {
 		MailTemplate template = this.getTemplate(action, ROLE_ADMIN);
 		String subject = this.constructSubject(template);
 		String message = this.constructMessage(template);
@@ -196,7 +196,7 @@ public class MailsServiceImpl implements MailsService {
 	}
 
 	@Override
-	public void notifyClientSecretChanged(@NotNull Facility facility) {
+	public void notifyClientSecretChanged(@NonNull Facility facility) {
 		log.debug("notifyClientSecretChanged(facility: {})", facility);
 		MailTemplate template = this.getTemplate(CLIENT_SECRET_CHANGED_KEY);
 		String subject = this.constructSubject(template);
@@ -219,7 +219,7 @@ public class MailsServiceImpl implements MailsService {
 		log.debug("notifyClientSecretChanged() has sent {} notifications out of {}", sent, emails.size());
 	}
 
-	private String replaceApprovalLink(@NotNull String containerString, @NotNull String link) {
+	private String replaceApprovalLink(@NonNull String containerString, @NonNull String link) {
 		log.trace("replaceApprovalLink({}, {})", containerString, link);
 		if (containerString.contains(APPROVAL_LINK_FIELD)) {
 			return containerString.replaceAll(APPROVAL_LINK_FIELD, wrapInAnchorElement(link));
@@ -228,7 +228,7 @@ public class MailsServiceImpl implements MailsService {
 		return containerString;
 	}
 
-	private String replacePlaceholders(@NotNull String containerString, @NotNull Facility fac) {
+	private String replacePlaceholders(@NonNull String containerString, @NonNull Facility fac) {
 		log.trace("replacePlaceholders({}, {})", containerString, fac);
 		containerString = this.replacePlaceholder(containerString, EN_SERVICE_NAME_FIELD,
 				fac.getName().get(LANG_EN), "");
@@ -244,7 +244,7 @@ public class MailsServiceImpl implements MailsService {
 		return containerString;
 	}
 
-	private String replacePlaceholders(@NotNull String containerString, @NotNull Request req) {
+	private String replacePlaceholders(@NonNull String containerString, @NonNull Request req) {
 		log.trace("replacePlaceholders({}, {})", containerString, req);
 		String requestLink = applicationProperties.getHostUrl() + "/auth/requests/detail/" + req.getReqId();
 
@@ -277,12 +277,12 @@ public class MailsServiceImpl implements MailsService {
 		return containerString;
 	}
 
-	private String wrapInAnchorElement(@NotNull String link) {
+	private String wrapInAnchorElement(@NonNull String link) {
 		return "<a href=\"" + link + "\">" + link + "</a>";
 	}
 
-	private String replacePlaceholder(@NotNull String container, @NotNull String replaceKey,
-									  @NotNull String replaceWith, @NotNull String def)
+	private String replacePlaceholder(@NonNull String container, @NonNull String replaceKey,
+									  @NonNull String replaceWith, @NonNull String def)
 	{
 		log.trace("replacePlaceholder({}, {}, {})", container, replaceKey, replaceWith);
 		if (container.contains(replaceKey)) {
@@ -296,7 +296,7 @@ public class MailsServiceImpl implements MailsService {
 		return container;
 	}
 
-	private MailTemplate getTemplate(@NotNull String action, @NotNull String role) {
+	private MailTemplate getTemplate(@NonNull String action, @NonNull String role) {
 		String key = getMailTemplateKey(role, action);
 		MailTemplate template = templates.getOrDefault(key, null);
 		if (template == null) {
@@ -307,7 +307,7 @@ public class MailsServiceImpl implements MailsService {
 		return template;
 	}
 
-	private MailTemplate getTemplate(@NotNull String key) {
+	private MailTemplate getTemplate(@NonNull String key) {
 		MailTemplate template = templates.getOrDefault(key, null);
 		if (template == null) {
 			log.error("Could not fetch mail template for key {} ", key);
@@ -317,7 +317,7 @@ public class MailsServiceImpl implements MailsService {
 		return template;
 	}
 
-	private String getMailTemplateKey(@NotNull String role, @NotNull String action) {
+	private String getMailTemplateKey(@NonNull String role, @NonNull String action) {
 		if (ROLE_ADMIN.equalsIgnoreCase(role)) {
 			return getMailTemplateKeyAdmin(action);
 		} else if (ROLE_USER.equalsIgnoreCase(role)){
@@ -344,7 +344,7 @@ public class MailsServiceImpl implements MailsService {
 		}
 	}
 
-	private String getMailTemplateKeyAdmin(@NotNull String action) {
+	private String getMailTemplateKeyAdmin(@NonNull String action) {
 		switch (action) {
 			case REQUEST_CREATED:
 				return REQUEST_CREATED_ADMIN_KEY;
@@ -360,7 +360,7 @@ public class MailsServiceImpl implements MailsService {
 		}
 	}
 
-	private String constructSubject(@NotNull MailTemplate template) {
+	private String constructSubject(@NonNull MailTemplate template) {
 		StringJoiner joiner = new StringJoiner(" / ");
 		for (String lang: applicationProperties.getLanguagesEnabled()) {
 			String subj = template.getSubjectInLang(lang);
@@ -372,7 +372,7 @@ public class MailsServiceImpl implements MailsService {
 		return mailProperties.getSubjectPrefix() + joiner.toString();
 	}
 
-	private String constructMessage(@NotNull MailTemplate template) {
+	private String constructMessage(@NonNull MailTemplate template) {
 		StringJoiner joiner = new StringJoiner("<br/><br/><hr/><br/>");
 		for (String lang: applicationProperties.getLanguagesEnabled()) {
 			String msg = template.getMessageInLang(lang);
@@ -384,7 +384,7 @@ public class MailsServiceImpl implements MailsService {
 		return joiner.toString();
 	}
 
-	private boolean sendMail(@NotNull String to, @NotNull String subject, @NotNull String msg) {
+	private boolean sendMail(@NonNull String to, @NonNull String subject, @NonNull String msg) {
 		try {
 			MimeMessage message = mailSender.createMimeMessage();
 

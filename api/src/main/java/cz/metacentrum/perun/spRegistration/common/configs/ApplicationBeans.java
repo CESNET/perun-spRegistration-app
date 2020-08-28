@@ -10,6 +10,7 @@ import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,8 +34,8 @@ import java.util.Map;
 @Slf4j
 public class ApplicationBeans {
 
-    @NotNull private final ApplicationProperties applicationProperties;
-    @NotNull private final PerunAdapter perunAdapter;
+    @NonNull private final ApplicationProperties applicationProperties;
+    @NonNull private final PerunAdapter perunAdapter;
     private final Map<String, PerunAttributeDefinition> attributeDefinitionMap = new HashMap<>();
     private final Map<String, AttributeCategory> attributeCategoryMap = new HashMap<>();
     private final AttributesProperties attributesProperties;
@@ -152,11 +153,11 @@ public class ApplicationBeans {
         return c;
     }
 
-    public AttributeCategory getAttrCategory(@NotNull String attrFullName) {
+    public AttributeCategory getAttrCategory(@NonNull String attrFullName) {
         return attributeCategoryMap.get(attrFullName);
     }
 
-    public PerunAttributeDefinition getAttrDefinition(@NotNull String attrFullName) {
+    public PerunAttributeDefinition getAttrDefinition(@NonNull String attrFullName) {
         return attributeDefinitionMap.get(attrFullName);
     }
 

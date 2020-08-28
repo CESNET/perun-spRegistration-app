@@ -3,16 +3,16 @@ package cz.metacentrum.perun.spRegistration.common;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
+import lombok.NonNull;
 
-import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
 public class SpregUtils {
 
     public static Map<AttributeCategory, Map<String, PerunAttribute>> filterInvalidAttributes(
-            @NotNull Map<AttributeCategory, Map<String, PerunAttribute>> attributes,
-            @NotNull Map<String, PerunAttributeDefinition> definitionMap)
+            @NonNull Map<AttributeCategory, Map<String, PerunAttribute>> attributes,
+            @NonNull Map<String, PerunAttributeDefinition> definitionMap)
     {
         if (attributes == null) {
             return null;
@@ -36,4 +36,5 @@ public class SpregUtils {
         return valid;
 
     }
+
 }

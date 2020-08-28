@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
@@ -86,7 +87,7 @@ public class UtilsServiceImpl implements UtilsService {
         perunAdapter.setFacilityAttribute(facilityId, clientSecret.toJson());
 
         String decrypted = ServiceUtils.decrypt(clientSecret.valueAsString(), applicationBeans.getSecretKeySpec());
-        clientSecret.setValue(decrypted);
+        clientSecret.setValue(JsonNodeFactory.instance.textNode(decrypted));
 
         Facility facility = perunAdapter.getFacilityById(facilityId);
         Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facilityId, Arrays.asList(
@@ -141,7 +142,7 @@ public class UtilsServiceImpl implements UtilsService {
         String clientSecret = ServiceUtils.generateClientSecret();
         String encryptedClientSecret = ServiceUtils.encrypt(clientSecret, applicationBeans.getSecretKeySpec());
 
-        attribute.setValue(encryptedClientSecret);
+        attribute.setValue(JsonNodeFactory.instance.textNode(encryptedClientSecret));
 
         log.trace("generateClientIdAttribute() returns: {}", attribute);
         return attribute;

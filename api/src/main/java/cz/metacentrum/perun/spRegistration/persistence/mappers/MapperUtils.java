@@ -3,18 +3,20 @@ package cz.metacentrum.perun.spRegistration.persistence.mappers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.Group;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 
 /**
  * MapperUtils class for mapping objects from RPC responses.
@@ -23,193 +25,217 @@ import java.util.Map;
  */
 @Slf4j
 public class MapperUtils {
+	
+	public static final String ID = "id";
+	public static final String NAME = "name";
+	public static final String DESCRIPTION = "description";
+	public static final String FIRST_NAME = "firstName";
+	public static final String LAST_NAME = "lastName";
+	public static final String MIDDLE_NAME = "middleName";
+	public static final String TITLE_BEFORE = "titleBefore";
+	public static final String TITLE_AFTER = "titleAfter";
+	public static final String ATTRIBUTES = "attributes";
+	public static final String USER_ATTRIBUTES = "userAttributes";
+	public static final String VALUE = "value";
+	public static final String NAMESPACE = "namespace";
+	public static final String FRIENDLY_NAME = "friendlyName";
+	public static final String TYPE = "type";
+	public static final String DISPLAY_NAME = "displayName";
+	public static final String WRITABLE = "writable";
+	public static final String UNIQUE = "unique";
+	public static final String ENTITY = "entity";
+	public static final String BASE_FRIENDLY_NAME = "baseFriendlyName";
+	public static final String FRIENDLY_NAME_PARAMETER = "friendlyNameParameter";
+	public static final String BEAN_NAME = "beanName";
 
-	/**
-	 * Map JSON response from Perun RPC to Facility object.
-	 * @param facilityJson JSON from Perun with facility.
-	 * @return Mapped Facility object.
-	 * @throws IllegalArgumentException Thrown when param "facilityJson" is NULL, equal to JSONObject.NULL or empty.
-	 */
-	public static Facility mapFacility(JsonNode facilityJson) {
-		log.trace("mapFacility({})", facilityJson);
-
-		if (Utils.checkParamsInvalid(facilityJson)) {
-			log.error("Wrong parameters passed: (facilityJson: {})", facilityJson);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		} else {
-			Facility facility = Facility.fromPerunJson(facilityJson);
-
-			log.trace("mapFacility() returns: {}", facility);
-			return facility;
+	public static Facility mapFacility(@NonNull JsonNode json) {
+		String[] requiredParams = new String[] {ID, NAME};
+		if (!MapperUtils.hasRequiredFields(json, requiredParams)) {
+			log.warn("Facility JSON {} does not have all required fields {}", json, requiredParams);
+			return null;
 		}
+
+		Long id = json.get(ID).asLong();
+		String name = json.get(NAME).textValue();
+		String description = json.hasNonNull(DESCRIPTION) ? json.get(DESCRIPTION).textValue() : null;
+
+		return new Facility(id, name, description);
 	}
 
-	/**
-	 * Map JSON response from Perun RPC to List of Facilities.
-	 * @param facilitiesJson JSON from Perun with facilities.
-	 * @return Mapped List of Facility objects (filled or empty).
-	 * @throws IllegalArgumentException Thrown when param "facilitiesJson" is NULL, equal to JSONObject.NULL or empty.
-	 */
-	public static List<Facility> mapFacilities(JsonNode facilitiesJson) {
-		log.trace("mapFacilities({})", facilitiesJson);
-
-		List<Facility> facilityList = new ArrayList<>();
-
-		if (Utils.checkParamsInvalid(facilitiesJson)) {
-			log.error("Wrong parameters passed: (facilitiesJson: {})", facilitiesJson);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
-
-		for (int i = 0; i < facilitiesJson.size(); i++) {
-			JsonNode facilityJson = facilitiesJson.get(i);
-			Facility facility = Facility.fromPerunJson(facilityJson);
-			facilityList.add(facility);
-		}
-
-		log.trace("mapFacilities() returns: {}", facilityList);
-		return facilityList;
-	}
-
-	/**
-	 * Map JSON response from Perun RPC to User object.
-	 * @param json JSON from Perun with user.
-	 * @return Mapped User object.
-	 * @throws IllegalArgumentException Thrown when param "json" is NULL, equal to JSONObject.NULL or empty.
-	 */
-	public static User mapUser(JsonNode json) {
-		return mapUser(json, null);
-	}
-
-	/**
-	 * Map JSON response from Perun RPC to User object.
-	 * @param json JSON from Perun with user.
-	 * @param userMailAttr mapping of user email attribute, pass NULL if JSON is not RichUser
-	 * @return Mapped User object.
-	 * @throws IllegalArgumentException Thrown when param "json" is NULL, equal to JSONObject.NULL or empty.
-	 */
-	public static User mapUser(JsonNode json, String userMailAttr) {
-		log.trace("mapUser(json: {}, userMailAttr: {})", json, userMailAttr);
-		User user;
-
-		if (Utils.checkParamsInvalid(json)) {
-			log.error("Wrong parameters passed: (json: {})", json);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
-
-		user = User.fromPerunJson(json);
-		if (userMailAttr != null) {
-			ArrayNode attrs = JsonNodeFactory.instance.arrayNode();
-
-			if (json.hasNonNull("attributes")) {
-				attrs = (ArrayNode) json.get("attributes");
-			} else if (json.hasNonNull("userAttributes")) {
-				attrs = (ArrayNode) json.get("userAttributes");
-			}
-
-			for (int i = 0; i < attrs.size(); i++) {
-				JsonNode attrJson = attrs.get(i);
-				String namespace = attrJson.get("namespace").textValue();
-				String friendlyName = attrJson.get("friendlyName").textValue();
-				String fullAttrName = namespace + ':' + friendlyName;
-				if (userMailAttr.equals(fullAttrName)) {
-					user.setEmail(attrJson.get("value").textValue());
+	public static List<Facility> mapFacilities(@NonNull JsonNode json) {
+		List<Facility> facilities = new ArrayList<>();
+		if (!json.isNull() && json.isArray()) {
+			for (JsonNode subJson: json) {
+				Facility mapped = MapperUtils.mapFacility(subJson);
+				if (mapped != null) {
+					facilities.add(mapped);
 				}
 			}
 		}
 
-		log.trace("mapUser() returns: {}", user);
+		return facilities;
+	}
+
+	public static User mapUser(@NonNull JsonNode json) {
+		return MapperUtils.mapUser(json, null);
+	}
+
+	public static User mapUser(@NonNull JsonNode json, String userMailAttr) {
+		String[] requiredParams = new String[] {ID, LAST_NAME};
+		if (!MapperUtils.hasRequiredFields(json, requiredParams)) {
+			return null;
+		}
+		Long id = json.get(ID).asLong();
+		String firstName = json.hasNonNull(FIRST_NAME) ? json.get(FIRST_NAME).textValue() : null;
+		String middleName = json.hasNonNull(MIDDLE_NAME) ? json.get(MIDDLE_NAME).textValue() : null;
+		String lastName = json.get(LAST_NAME).textValue();
+		String titleBefore = json.hasNonNull(TITLE_BEFORE) ? json.get(TITLE_BEFORE).textValue() : null;
+		String titleAfter = json.hasNonNull(TITLE_AFTER) ? json.get(TITLE_AFTER).textValue() : null;
+
+		String name = MapperUtils.composeNameForUser(firstName, middleName, lastName, titleBefore, titleAfter);
+
+		User user = new User(id);
+		user.setName(name);
+
+		if (userMailAttr != null) {
+			user.setEmail(MapperUtils.extractUserEmail(json, userMailAttr));
+		}
 		return user;
 	}
 
-	/**
-	 * Map JSON from Perun RPC to Map of Attributes, where key = attribute name, value = attribute.
-	 * @param attrsJson JSON from Perun with attributes.
-	 * @return Map of Attributes (filled or empty).
-	 * @throws IllegalArgumentException Thrown when input is NULL, equal to JSONObject.NULL or empty.
-	 */
-	public static Map<String, PerunAttribute> mapAttributes(JsonNode attrsJson) {
-		log.trace("mapAttributes({})", attrsJson);
-
-		if (Utils.checkParamsInvalid()) {
-			log.error("Wrong parameters passed: (attrsJson: {})", attrsJson);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
-
-		Map<String, PerunAttribute> attributesMap = new HashMap<>();
-		for (int i = 0; i < attrsJson.size(); i++) {
-			JsonNode attrJson = attrsJson.get(i);
-			PerunAttribute a = PerunAttribute.fromJsonOfPerun(attrJson);
-			PerunAttributeDefinition def = a.getDefinition();
-			a.setDefinition(def);
-			a.setFullName(def.getFullName());
-			attributesMap.put(def.getFullName(), a);
-		}
-
-		log.trace("mapAttributes() returns: {}", attributesMap);
-		return attributesMap;
-	}
-
-	/**
-	 * Map JSON from Perun RPC to PerunAttribute.
-	 * @param attrJson JSON from Perun with attribute.
-	 * @return Mapped PerunAttribute object.
-	 * @throws IllegalArgumentException Thrown when input is NULL, equal to JSONObject.NULL or empty.
-	 */
-	public static PerunAttribute mapAttribute(JsonNode attrJson) {
-		log.trace("mapAttribute({})", attrJson);
-
-		if (Utils.checkParamsInvalid(attrJson)) {
-			log.error("Wrong parameters passed: (attrJson: {})", attrJson);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
-
-		PerunAttribute perunAttribute = PerunAttribute.fromJsonOfPerun(attrJson);
-
-		log.trace("mapAttribute() returns: {}", perunAttribute);
-		return perunAttribute;
-	}
-
-	/**
-	 * Map JSON from Perun RPC to PerunAttributeDefinition
-	 * @param json JSON from Perun with attribute definition.
-	 * @return Mapped PerunAttributeDefinition object.
-	 */
-	public static PerunAttributeDefinition mapAttrDefinition(JsonNode json) {
-		log.trace("mapAttrDefinition({})", json);
-		PerunAttributeDefinition perunAttributeDefinition;
-
-		if (Utils.checkParamsInvalid(json)) {
-			log.error("Wrong parameters passed: (json: {})", json);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
-
-		perunAttributeDefinition = PerunAttributeDefinition.fromPerunJson(json);
-
-		log.trace("mapAttrDefinition() returns: {}", perunAttributeDefinition);
-		return perunAttributeDefinition;
-	}
-
-	public static List<User> mapUsers(JsonNode jsonArray, String userMailAttr) {
+	public static List<User> mapUsers(@NonNull JsonNode json, String userMailAttr) {
 		List<User> mappedUsers = new ArrayList<>();
 
-		if (Utils.checkParamsInvalid(jsonArray)) {
-			log.error("Wrong parameters passed: (json: {})", jsonArray);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
-
-		for (int i = 0; i < jsonArray.size(); i++) {
-			mappedUsers.add(mapUser(jsonArray.get(i), userMailAttr));
+		if (!json.isNull() && json.isArray()) {
+			for (JsonNode subJson: json) {
+				User mapped = MapperUtils.mapUser(subJson, userMailAttr);
+				if (mapped != null) {
+					mappedUsers.add(mapped);
+				}
+			}
 		}
 
 		return mappedUsers;
 	}
 
-	public static Group mapGroup(JsonNode res) {
-		if (Utils.checkParamsInvalid(res)) {
-			log.error("Wrong parameters passed: (res: {})", res);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+	public static PerunAttributeDefinition mapAttributeDefinition(@NonNull JsonNode json) {
+		String[] requiredParams = new String[] {ID, FRIENDLY_NAME, NAMESPACE, DESCRIPTION, TYPE,
+				DISPLAY_NAME, WRITABLE, UNIQUE, ENTITY, BASE_FRIENDLY_NAME, FRIENDLY_NAME_PARAMETER};
+		if (!MapperUtils.hasRequiredFields(json, requiredParams)) {
+			return null;
 		}
 
+		Long id = json.get(ID).asLong();
+		String friendlyName = json.get(FRIENDLY_NAME).textValue();
+		String namespace = json.get(NAMESPACE).textValue();
+		String description = json.get(DESCRIPTION).textValue();
+		String type = json.get(TYPE).textValue();
+		String displayName = json.get(DISPLAY_NAME).textValue();
+		boolean writable = json.get(WRITABLE).asBoolean();
+		boolean unique = json.get(UNIQUE).asBoolean();
+		String entity = json.get(ENTITY).textValue();
+		String baseFriendlyName = json.get(BASE_FRIENDLY_NAME).textValue();
+		String friendlyNameParameter = json.get(FRIENDLY_NAME_PARAMETER).textValue();
+
+		return new PerunAttributeDefinition(id, friendlyName, namespace, description, type, displayName, writable,
+				unique, entity, baseFriendlyName, friendlyNameParameter);
+	}
+
+	public static Map<String, PerunAttribute> mapAttributes(@NonNull JsonNode json) {
+		Map<String, PerunAttribute> attributeMap = new HashMap<>();
+		if (!json.isNull() && json.isArray()) {
+			for (JsonNode subJson: json) {
+				PerunAttribute a = MapperUtils.mapPerunAttribute(subJson);
+				if (a == null) {
+					continue;
+				}
+
+				PerunAttributeDefinition def = a.getDefinition();
+				a.setFullName(def.getFullName());
+				attributeMap.put(def.getFullName(), a);
+			}
+		}
+
+		return attributeMap;
+	}
+
+	public static PerunAttribute mapPerunAttribute(JsonNode json) {
+		PerunAttributeDefinition definition = MapperUtils.mapAttributeDefinition(json);
+		if (definition == null) {
+			return null;
+		}
+
+		JsonNode value = json.get(VALUE);
+		PerunAttribute attr = new PerunAttribute();
+		attr.setDefinition(definition);
+		attr.setValue(value);
+
+		return attr;
+	}
+
+	private static boolean hasRequiredFields(@NonNull JsonNode json, @NonNull String[] params) {
+		if (json.isNull()) {
+			return false;
+		}
+
+		for (String param: params) {
+			if (! json.hasNonNull(param)) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+
+	private static String composeNameForUser(String firstName, String middleName,
+											 String lastName, String titleBefore, String titleAfter)
+	{
+		StringJoiner joiner = new StringJoiner(" ");
+		if (StringUtils.hasText(titleBefore)) {
+			joiner.add(titleBefore);
+		}
+
+		if (StringUtils.hasText(firstName)) {
+			joiner.add(firstName);
+		}
+
+		if (StringUtils.hasText(middleName)) {
+			joiner.add(middleName);
+		}
+
+		if (StringUtils.hasText(lastName)) {
+			joiner.add(lastName);
+		}
+
+		if (StringUtils.hasText(titleAfter)) {
+			joiner.add(titleAfter);
+		}
+
+		return joiner.toString();
+	}
+
+	private static String extractUserEmail(@NonNull JsonNode json, @NonNull String userEmailAttr) {
+		ArrayNode attrs = JsonNodeFactory.instance.arrayNode();
+
+		if (json.hasNonNull(ATTRIBUTES)) {
+			attrs = (ArrayNode) json.get(ATTRIBUTES);
+		} else if (json.hasNonNull(USER_ATTRIBUTES)) {
+			attrs = (ArrayNode) json.get(USER_ATTRIBUTES);
+		}
+
+		for (JsonNode attrJson: attrs) {
+			String namespace = attrJson.get(NAMESPACE).textValue();
+			String friendlyName = attrJson.get(FRIENDLY_NAME).textValue();
+			String fullAttrName = namespace + ':' + friendlyName;
+			if (userEmailAttr.equals(fullAttrName)) {
+				return attrJson.get(VALUE).textValue();
+			}
+		}
+
+		return null;
+	}
+
+	public static Group mapGroup(@NonNull JsonNode res) {
 		Long id = res.get("id").asLong();
 		String shortName = res.get("shortName").asText();
 		String name = res.get("name").asText();
@@ -219,4 +245,5 @@ public class MapperUtils {
 
 		return new Group(id, name, shortName, description, parentGroupId, voId);
 	}
+
 }

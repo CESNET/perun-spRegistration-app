@@ -1,14 +1,13 @@
 package cz.metacentrum.perun.spRegistration.common.models;
 
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.util.StringUtils;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
@@ -21,13 +20,28 @@ import java.time.LocalDateTime;
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor
-@AllArgsConstructor
 public class RequestSignature {
 
-	@NotNull private Long requestId;
-	@NotNull private Long userId;
-	@NotNull private LocalDateTime signedAt;
-	@NotBlank private String name;
+	@NonNull private Long requestId;
+	@NonNull private Long userId;
+	@NonNull private LocalDateTime signedAt;
+	@NonNull private String name;
 	private boolean approved;
+
+	public RequestSignature(Long requestId, Long userId, LocalDateTime signedAt, String name, boolean approved) {
+		this.setRequestId(requestId);
+		this.setUserId(userId);
+		this.setSignedAt(signedAt);
+		this.setName(name);
+		this.setApproved(approved);
+	}
+
+	public void setName(String name) {
+		if (!StringUtils.hasText(name)) {
+			throw new IllegalArgumentException("Name cannot be empty");
+		}
+
+		this.name = name;
+	}
 
 }

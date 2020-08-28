@@ -168,7 +168,8 @@ public class RequestsServiceImpl implements RequestsService {
                 PerunAttribute actualA = actualAttrs.get(a.getFullName());
                 if (!actualA.equals(a)) {
                     attrsChanged = true;
-                    a.setOldValue(actualA.getValue() == null ? "_%UNDEFINED%_" : actualA.getValue());
+                    a.setOldValue(actualA.getValue() == null ?
+                            JsonNodeFactory.instance.textNode("_%UNDEFINED%_") : actualA.getValue());
                 }
             }
         }
@@ -845,7 +846,7 @@ public class RequestsServiceImpl implements RequestsService {
         } else {
             attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getIsSamlAttrName()));
         }
-        attribute.setValue(true);
+        attribute.setValue(JsonNodeFactory.instance.booleanNode(true));
 
         log.trace("generateAuthProtocolAttribute() returns: {}", attribute);
         return attribute;
@@ -856,7 +857,8 @@ public class RequestsServiceImpl implements RequestsService {
 
         PerunAttribute attribute = new PerunAttribute();
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getMasterProxyIdentifierAttrName()));
-        attribute.setValue(attributesProperties.getMasterProxyIdentifierAttrValue());
+        attribute.setValue(JsonNodeFactory.instance.textNode(
+                attributesProperties.getMasterProxyIdentifierAttrValue()));
 
         log.trace("generateMasterProxyIdentifierAttribute() returns: {}", attribute);
         return attribute;
@@ -867,7 +869,9 @@ public class RequestsServiceImpl implements RequestsService {
 
         PerunAttribute attribute = new PerunAttribute();
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getProxyIdentifierAttrName()));
-        attribute.setValue(Collections.singletonList(attributesProperties.getProxyIdentifierAttrValue()));
+        ArrayNode arrayNode = JsonNodeFactory.instance.arrayNode();
+        arrayNode.add(attributesProperties.getProxyIdentifierAttrValue());
+        attribute.setValue(arrayNode);
 
         log.trace("generateProxyIdentifierAttribute() returns: {}", attribute);
         return attribute;
@@ -878,7 +882,7 @@ public class RequestsServiceImpl implements RequestsService {
 
         PerunAttribute attribute = new PerunAttribute();
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getShowOnServiceListAttrName()));
-        attribute.setValue(value);
+        attribute.setValue(JsonNodeFactory.instance.booleanNode(value));
 
         log.trace("generateShowOnServiceListAttribute() returns: {}", attribute);
         return attribute;
@@ -889,7 +893,7 @@ public class RequestsServiceImpl implements RequestsService {
 
         PerunAttribute attribute = new PerunAttribute();
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getIsTestSpAttrName()));
-        attribute.setValue(value);
+        attribute.setValue(JsonNodeFactory.instance.booleanNode(value));
 
         log.trace("generateTestSpAttribute() returns: {}", attribute);
         return attribute;
@@ -902,7 +906,7 @@ public class RequestsServiceImpl implements RequestsService {
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getOidcClientIdAttrName()));
 
         String clientId = ServiceUtils.generateClientId();
-        attribute.setValue(clientId);
+        attribute.setValue(JsonNodeFactory.instance.textNode(clientId));
 
         log.trace("generateClientIdAttribute() returns: {}", attribute);
         return attribute;
@@ -913,7 +917,7 @@ public class RequestsServiceImpl implements RequestsService {
 
         PerunAttribute attribute = new PerunAttribute();
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getManagerGroupAttrName()));
-        attribute.setValue(id);
+        attribute.setValue(JsonNodeFactory.instance.numberNode(id));
 
         log.trace("generateAdminsGroupAttr({}) returns: {}", id, attribute);
         return attribute;
