@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.spRegistration.rest.controllers.common;
+package cz.metacentrum.perun.spRegistration.rest.controllers;
 
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
 import cz.metacentrum.perun.spRegistration.rest.ApiUtils;

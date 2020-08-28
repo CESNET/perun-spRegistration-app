@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.spRegistration.rest.controllers.signatures;
+package cz.metacentrum.perun.spRegistration.rest.controllers;
 
 import cz.metacentrum.perun.spRegistration.common.exceptions.ActiveRequestExistsException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.CodeNotStoredException;
@@ -30,21 +30,21 @@ import java.security.InvalidKeyException;
 import java.util.List;
 
 /**
- * Controller handling USER actions related to Signatures.
+ * Controller handling actions related to Signatures.
  *
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @RestController
 @Slf4j
-public class UserSignaturesController {
+public class SignaturesController {
 
 	private final RequestsService requestsService;
 	private final UtilsService utilsService;
 	private final RequestSignaturesService requestSignaturesService;
 
 	@Autowired
-	public UserSignaturesController(RequestsService requestsService, UtilsService utilsService,
-									RequestSignaturesService requestSignaturesService) {
+	public SignaturesController(RequestsService requestsService, UtilsService utilsService,
+								RequestSignaturesService requestSignaturesService) {
 		this.requestsService = requestsService;
 		this.utilsService = utilsService;
 		this.requestSignaturesService = requestSignaturesService;
