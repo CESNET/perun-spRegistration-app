@@ -165,13 +165,6 @@ public class ApplicationBeans {
         return s.substring(0, 32);
     }
 
-    /**
-     * Reads YAML file and map it into AttributeMappingFromYAML object.
-     *
-     * @param path String path to YAML file with attributes
-     * @return AttributesMappingFromYAML object with mapped attributes
-     * @throws IOException thrown when file does not exist, is empty or does not have the right structure
-     */
     private List<AttrInput> getInputsFromYaml(String path) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         return mapper.readValue(new File(path), new TypeReference<List<AttrInput>>() {});
