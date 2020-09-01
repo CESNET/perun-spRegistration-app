@@ -1,10 +1,10 @@
 package cz.metacentrum.perun.spRegistration.persistence.managers.impl;
 
-import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
 import cz.metacentrum.perun.spRegistration.persistence.managers.LinkCodeManager;
 import cz.metacentrum.perun.spRegistration.persistence.mappers.LinkCodeMapper;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -21,40 +21,41 @@ import java.util.StringJoiner;
 @Slf4j
 public class LinkCodeManagerImpl implements LinkCodeManager {
 
+    public static final String PARAM_HASH = "hash";
+    public static final String PARAM_RECIPIENT = "recipient";
+    public static final String PARAM_SENDER_N = "sender_n";
+    public static final String PARAM_SENDER_E = "sender_e";
+    public static final String PARAM_EXP = "exp";
+    public static final String PARAM_REQ_ID = "req_id";
+    public static final String PARAM_FAC_ID = "fac_id";
+
     private static final String CODES_TABLE = "linkCodes";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final LinkCodeMapper MAPPER = new LinkCodeMapper();
 
     @Autowired
-    public LinkCodeManagerImpl(NamedParameterJdbcTemplate jdbcTemplate) {
+    public LinkCodeManagerImpl(@NonNull NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     @Transactional
     public void create(LinkCode code) throws InternalErrorException {
-        log.trace("create({})", code);
-
-        if (Utils.checkParamsInvalid(code)) {
-            log.error("Wrong arguments passed: (code: {})", code);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
-
-        String query = new StringJoiner(" ")
+       String query = new StringJoiner(" ")
                 .add("INSERT INTO").add(CODES_TABLE)
                 .add("(hash, recipient_email, sender_name, sender_email, expires_at, request_id, facility_id)")
                 .add("VALUES (:hash, :recipient, :sender_n, :sender_e, :exp, :req_id, :fac_id)")
                 .toString();
 
         MapSqlParameterSource parameters = new MapSqlParameterSource();
-        parameters.addValue("hash", code.getHash());
-        parameters.addValue("recipient", code.getRecipientEmail());
-        parameters.addValue("sender_n", code.getSenderName());
-        parameters.addValue("sender_e", code.getSenderEmail());
-        parameters.addValue("exp", code.getExpiresAt().toInstant().toEpochMilli());
-        parameters.addValue("req_id", code.getRequestId());
-        parameters.addValue("fac_id", code.getFacilityId());
+        parameters.addValue(PARAM_HASH, code.getHash());
+        parameters.addValue(PARAM_RECIPIENT, code.getRecipientEmail());
+        parameters.addValue(PARAM_SENDER_N, code.getSenderName());
+        parameters.addValue(PARAM_SENDER_E, code.getSenderEmail());
+        parameters.addValue(PARAM_EXP, code.getExpiresAt().toInstant().toEpochMilli());
+        parameters.addValue(PARAM_REQ_ID, code.getRequestId());
+        parameters.addValue(PARAM_FAC_ID, code.getFacilityId());
 
 
         int insertedCodes = jdbcTemplate.update(query, parameters);
@@ -67,29 +68,22 @@ public class LinkCodeManagerImpl implements LinkCodeManager {
 
     @Override
     @Transactional
-    public void update(LinkCode code) throws InternalErrorException {
-        log.trace("update({})", code);
-
-        if (Utils.checkParamsInvalid(code)) {
-            log.error("Wrong arguments passed: (code: {})", code);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
-
+    public void update(@NonNull LinkCode code) throws InternalErrorException {
         String query = new StringJoiner(" ")
                 .add("UPDATE").add(CODES_TABLE)
                 .add("SET recipient_email = :recipient, sender_name = :sender_n, sender_email = :sender_e,")
                 .add("expires_at = :exp, request_id = :req_id, facility_id = :fac_id")
-                .add("WHERE hash = :hash1")
+                .add("WHERE hash = :hash")
                 .toString();
 
         MapSqlParameterSource parameters = new MapSqlParameterSource();
-        parameters.addValue("hash", code.getHash());
-        parameters.addValue("recipient", code.getRecipientEmail());
-        parameters.addValue("sender_n", code.getSenderName());
-        parameters.addValue("sender_e", code.getSenderEmail());
-        parameters.addValue("exp", code.getExpiresAt().toInstant().toEpochMilli());
-        parameters.addValue("req_id", code.getRequestId());
-        parameters.addValue("fac_id", code.getFacilityId());
+        parameters.addValue(PARAM_RECIPIENT, code.getRecipientEmail());
+        parameters.addValue(PARAM_SENDER_N, code.getSenderName());
+        parameters.addValue(PARAM_SENDER_E, code.getSenderEmail());
+        parameters.addValue(PARAM_EXP, code.getExpiresAt().toInstant().toEpochMilli());
+        parameters.addValue(PARAM_REQ_ID, code.getRequestId());
+        parameters.addValue(PARAM_FAC_ID, code.getFacilityId());
+        parameters.addValue(PARAM_HASH, code.getHash());
 
 
         int updates = jdbcTemplate.update(query, parameters);
@@ -102,21 +96,14 @@ public class LinkCodeManagerImpl implements LinkCodeManager {
 
     @Override
     @Transactional
-    public void delete(String hash) throws InternalErrorException {
-        log.trace("delete({})", hash);
-
-        if (Utils.checkParamsInvalid(hash)) {
-            log.error("Wrong arguments passed: (hash: {})", hash);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
-
+    public void delete(@NonNull String hash) throws InternalErrorException {
         String query = new StringJoiner(" ")
                 .add("DELETE FROM").add(CODES_TABLE)
                 .add("WHERE hash = :hash")
                 .toString();
 
         MapSqlParameterSource parameters = new MapSqlParameterSource();
-        parameters.addValue("hash", hash);
+        parameters.addValue(PARAM_HASH, hash);
 
         int removed = jdbcTemplate.update(query, parameters);
 
@@ -129,8 +116,6 @@ public class LinkCodeManagerImpl implements LinkCodeManager {
     @Override
     @Transactional
     public void deleteExpired() {
-        log.trace("deleteExpired()");
-
         String query = new StringJoiner(" ")
                 .add("DELETE FROM").add(CODES_TABLE)
                 .add("WHERE expires_at <= :now")
@@ -139,20 +124,12 @@ public class LinkCodeManagerImpl implements LinkCodeManager {
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("now", LocalDateTime.now());
 
-        int updates = jdbcTemplate.update(query, parameters);
-        log.debug("removed {} link codes", updates);
+        jdbcTemplate.update(query, parameters);
     }
 
     @Override
-    public void createMultiple(List<LinkCode> codes) throws InternalErrorException {
-        log.trace("createMultiple({})", codes);
-
-        if (Utils.checkParamsInvalid(codes)) {
-            log.error("Wrong arguments passed: (codes: {})", codes);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
-
-        String query = new StringJoiner(" ")
+    public void createMultiple(@NonNull List<LinkCode> codes) throws InternalErrorException {
+       String query = new StringJoiner(" ")
                 .add("INSERT INTO").add(CODES_TABLE)
                 .add("(hash, recipient_email, sender_name, sender_email, expires_at, request_id, facility_id)")
                 .add("VALUES (:hash, :recipient, :sender_n, :sender_e, :exp, :req_id, :fac_id)")
@@ -161,13 +138,13 @@ public class LinkCodeManagerImpl implements LinkCodeManager {
         List<MapSqlParameterSource> batchArgs = new ArrayList<>();
         for (LinkCode code : codes) {
             MapSqlParameterSource parameters = new MapSqlParameterSource();
-            parameters.addValue("hash", code.getHash());
-            parameters.addValue("recipient", code.getRecipientEmail());
-            parameters.addValue("sender_n", code.getSenderName());
-            parameters.addValue("sender_e", code.getSenderEmail());
-            parameters.addValue("exp", code.getExpiresAt().toInstant().toEpochMilli());
-            parameters.addValue("req_id", code.getRequestId());
-            parameters.addValue("fac_id", code.getFacilityId());
+            parameters.addValue(PARAM_HASH, code.getHash());
+            parameters.addValue(PARAM_RECIPIENT, code.getRecipientEmail());
+            parameters.addValue(PARAM_SENDER_N, code.getSenderName());
+            parameters.addValue(PARAM_SENDER_E, code.getSenderEmail());
+            parameters.addValue(PARAM_EXP, code.getExpiresAt().toInstant().toEpochMilli());
+            parameters.addValue(PARAM_REQ_ID, code.getRequestId());
+            parameters.addValue(PARAM_FAC_ID, code.getFacilityId());
             batchArgs.add(parameters);
         }
 
@@ -183,17 +160,16 @@ public class LinkCodeManagerImpl implements LinkCodeManager {
     }
 
     @Override
-    public LinkCode get(String hash) {
-        log.trace("get({})", hash);
-
+    public LinkCode get(@NonNull String hash) {
         String query = new StringJoiner(" ")
                 .add("SELECT * FROM").add(CODES_TABLE)
                 .add("WHERE hash = :hash")
                 .toString();
 
         MapSqlParameterSource parameters = new MapSqlParameterSource();
-        parameters.addValue("hash", hash);
+        parameters.addValue(PARAM_HASH, hash);
 
         return jdbcTemplate.queryForObject(query, parameters, MAPPER);
     }
+
 }

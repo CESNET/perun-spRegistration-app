@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.spRegistration.common.models;
 
-import cz.metacentrum.perun.spRegistration.common.configs.ApprovalsProperties;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -35,10 +34,10 @@ public class LinkCode {
         this.expiresAt = expiresAt;
     }
 
-    public void setExpiresAt(ApprovalsProperties approvalsProperties) {
+    public void setExpiresAt(int plusDays, int plusHours) {
         this.expiresAt = new Timestamp(LocalDateTime.now()
-                .plusHours(approvalsProperties.getConfirmationPeriodHours())
-                .plusDays(approvalsProperties.getConfirmationPeriodDays())
+                .plusDays(plusDays)
+                .plusHours(plusHours)
                 .toInstant(ZoneOffset.UTC).toEpochMilli());
     }
 

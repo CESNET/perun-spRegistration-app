@@ -6,6 +6,7 @@ import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
 import cz.metacentrum.perun.spRegistration.persistence.managers.LinkCodeManager;
 import cz.metacentrum.perun.spRegistration.persistence.managers.RequestSignatureManager;
 import cz.metacentrum.perun.spRegistration.persistence.mappers.RequestSignatureMapper;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -20,43 +21,40 @@ import java.util.StringJoiner;
 @Slf4j
 public class RequestSignatureManagerImpl implements RequestSignatureManager {
 
+    public static final String PARAM_REQUEST_ID = "request_id";
+    public static final String PARAM_USER_ID = "user_id";
+    public static final String PARAM_USERNAME = "username";
+    public static final String PARAM_APPROVED = "approved";
+
     private static final String APPROVALS_TABLE = "approvals";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final LinkCodeManager linkCodeManager;
-    private final RequestSignatureMapper REQUEST_SIGNATURE_MAPPER;
+    private final RequestSignatureMapper requestSignatureMapper;
 
     @Autowired
-    public RequestSignatureManagerImpl(NamedParameterJdbcTemplate jdbcTemplate, LinkCodeManager linkCodeManager) {
+    public RequestSignatureManagerImpl(@NonNull NamedParameterJdbcTemplate jdbcTemplate,
+                                       @NonNull LinkCodeManager linkCodeManager) {
         this.jdbcTemplate = jdbcTemplate;
         this.linkCodeManager = linkCodeManager;
-        REQUEST_SIGNATURE_MAPPER = new RequestSignatureMapper();
+        requestSignatureMapper = new RequestSignatureMapper();
     }
 
     @Override
     @Transactional
-    public boolean addSignature(Long requestId, Long userId, String userName, boolean approved, String code)
-            throws InternalErrorException
+    public void addSignature(@NonNull Long requestId, @NonNull Long userId, @NonNull String userName,
+                             boolean approved, @NonNull String code) throws InternalErrorException
     {
-        log.trace("addSignature(requestId: {}, userId: {}, userName: {}, approved: {})",
-                requestId, userId, userName, approved);
-
-        if (Utils.checkParamsInvalid(requestId, userId, userId, code)) {
-            log.error("Wrong parameters passed: (requestId: {}, user:Id {}, userName: {}, code: {})",
-                    requestId, userId, userName, code);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
-
         String query = new StringJoiner(" ")
                 .add("INSERT INTO").add(APPROVALS_TABLE)
                 .add("(request_id, user_id, name, approved) VALUES (:request_id, :user_id, :username, :approved)")
                 .toString();
 
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("request_id", requestId);
-        params.addValue("user_id", userId);
-        params.addValue("username", userName);
-        params.addValue("approved", approved);
+        params.addValue(PARAM_REQUEST_ID, requestId);
+        params.addValue(PARAM_USER_ID, userId);
+        params.addValue(PARAM_USERNAME, userName);
+        params.addValue(PARAM_APPROVED, approved);
 
         int updatedCount = jdbcTemplate.update(query, params);
 
@@ -69,33 +67,20 @@ public class RequestSignatureManagerImpl implements RequestSignatureManager {
         }
 
         linkCodeManager.delete(code);
-
-        log.trace("addSignature() returns: true");
-        return true;
     }
 
     @Override
     @Transactional
-    public List<RequestSignature> getRequestSignatures(Long requestId) {
-        log.trace("getRequestSignatures({})", requestId);
-
-        if (Utils.checkParamsInvalid(requestId)) {
-            log.error("Illegal parameters passed: (requestId: {})", requestId);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
-
-        String query = new StringJoiner(" ")
+    public List<RequestSignature> getRequestSignatures(@NonNull Long requestId) {
+       String query = new StringJoiner(" ")
                 .add("SELECT * FROM").add(APPROVALS_TABLE)
                 .add("WHERE request_id = :request_id")
                 .toString();
 
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("request_id", requestId);
+        params.addValue(PARAM_REQUEST_ID, requestId);
 
-        List<RequestSignature> foundApprovals = jdbcTemplate.query(query, params, REQUEST_SIGNATURE_MAPPER);
-
-        log.trace("getRequestSignatures returns: {}", foundApprovals);
-
-        return foundApprovals;
+        return jdbcTemplate.query(query, params, requestSignatureMapper);
     }
+
 }

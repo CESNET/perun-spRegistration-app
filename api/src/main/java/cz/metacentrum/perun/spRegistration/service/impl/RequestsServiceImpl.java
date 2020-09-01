@@ -38,6 +38,7 @@ import cz.metacentrum.perun.spRegistration.service.MailsService;
 import cz.metacentrum.perun.spRegistration.service.RequestsService;
 import cz.metacentrum.perun.spRegistration.service.ServiceUtils;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,18 +55,22 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.LANG_EN;
 import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.REQUEST_CREATED;
 import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.REQUEST_MODIFIED;
 
 @Service("requestsService")
 @Slf4j
 public class RequestsServiceImpl implements RequestsService {
+
+    private static final String UNDEFINED = "_%UNDEFINED%_";
 
     private final PerunAdapter perunAdapter;
     private final MailsService mailsService;
@@ -84,18 +89,18 @@ public class RequestsServiceImpl implements RequestsService {
     private List<String> defaultAuthorities;
 
     @Autowired
-    public RequestsServiceImpl(PerunAdapter perunAdapter,
-                               MailsService mailsService,
-                               UtilsService utilsService,
-                               RequestManager requestManager,
-                               LinkCodeManager linkCodeManager,
-                               FacilitiesService facilitiesService,
-                               ApplicationBeans applicationBeans,
-                               ApplicationProperties applicationProperties,
-                               AttributesProperties attributesProperties,
-                               ApprovalsProperties approvalsProperties,
-                               ProvidedServiceManager providedServiceManager,
-                               Config config)
+    public RequestsServiceImpl(@NonNull PerunAdapter perunAdapter,
+                               @NonNull MailsService mailsService,
+                               @NonNull UtilsService utilsService,
+                               @NonNull RequestManager requestManager,
+                               @NonNull LinkCodeManager linkCodeManager,
+                               @NonNull FacilitiesService facilitiesService,
+                               @NonNull Config config,
+                               @NonNull ApplicationBeans applicationBeans,
+                               @NonNull ApplicationProperties applicationProperties,
+                               @NonNull AttributesProperties attributesProperties,
+                               @NonNull ApprovalsProperties approvalsProperties,
+                               @NonNull ProvidedServiceManager providedServiceManager)
     {
         this.perunAdapter = perunAdapter;
         this.mailsService = mailsService;
@@ -140,15 +145,12 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     @Override
-    public Long createFacilityChangesRequest(Long facilityId, Long userId, List<PerunAttribute> attributes)
-            throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException, PerunUnknownException, PerunConnectionException {
-        log.trace("createFacilityChangesRequest(facility: {}, userId: {}, attributes: {})", facilityId, userId, attributes);
-
-        if (Utils.checkParamsInvalid(facilityId, userId, attributes)) {
-            log.error("Wrong parameters passed: (facilityId: {}, userId: {}, attributes: {})",
-                    facilityId, userId, attributes);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        } else if (!utilsService.isFacilityAdmin(facilityId, userId)) {
+    public Long createFacilityChangesRequest(@NonNull Long facilityId, @NonNull Long userId,
+                                             @NonNull List<PerunAttribute> attributes)
+            throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException,
+            PerunUnknownException, PerunConnectionException
+    {
+        if (!utilsService.isAdminForFacility(facilityId, userId)) {
             log.error("User is not registered as facility admin, cannot create request");
             throw new UnauthorizedActionException("User is not registered as facility admin, cannot create request");
         }
@@ -168,7 +170,7 @@ public class RequestsServiceImpl implements RequestsService {
                 if (!actualA.equals(a)) {
                     attrsChanged = true;
                     a.setOldValue(actualA.getValue() == null ?
-                            JsonNodeFactory.instance.textNode("_%UNDEFINED%_") : actualA.getValue());
+                            JsonNodeFactory.instance.textNode(UNDEFINED) : actualA.getValue());
                 }
             }
         }
@@ -177,8 +179,7 @@ public class RequestsServiceImpl implements RequestsService {
             return null;
         }
 
-
-        Request req = createRequest(facilityId, userId, RequestAction.UPDATE_FACILITY, attributes);
+        Request req = this.createRequest(facilityId, userId, RequestAction.UPDATE_FACILITY, attributes);
         if (req.getReqId() == null) {
             log.error("Could not create request");
             throw new InternalErrorException("Could not create request");
@@ -187,30 +188,26 @@ public class RequestsServiceImpl implements RequestsService {
         mailsService.notifyUser(req, REQUEST_CREATED);
         mailsService.notifyAppAdmins(req, REQUEST_CREATED);
 
-        log.trace("createFacilityChangesRequest returns: {}", req.getReqId());
         return req.getReqId();
     }
 
     @Override
-    public Long createRemovalRequest(Long userId, Long facilityId)
-            throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException, PerunUnknownException, PerunConnectionException {
-        log.trace("createRemovalRequest(userId: {}, facilityId: {})", userId, facilityId);
-
-        if (Utils.checkParamsInvalid(userId, facilityId)) {
-            log.error("Wrong parameters passed: (facilityId: {}, userId: {})", facilityId, userId);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        } else if (!utilsService.isFacilityAdmin(facilityId, userId)) {
+    public Long createRemovalRequest(@NonNull Long userId, @NonNull Long facilityId)
+            throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException,
+            PerunUnknownException, PerunConnectionException
+    {
+        if (!utilsService.isAdminForFacility(facilityId, userId)) {
             log.error("User is not registered as facility admin, cannot create request");
             throw new UnauthorizedActionException("User is not registered as facility admin, cannot create request");
         }
 
-        List<String> attrsToFetch = new ArrayList<>(applicationBeans.getAttributeDefinitionMap().keySet());
+        List<String> attrsToFetch = new ArrayList<>(applicationBeans.getAllAttrNames());
         Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facilityId, attrsToFetch);
         boolean isOidc = ServiceUtils.isOidcAttributes(attrs, attributesProperties.getEntityIdAttrName());
-        List<String> keptAttrs = getAttrsToKeep(isOidc);
+        List<String> keptAttrs = this.filterProtocolAttrs(isOidc);
         List<PerunAttribute> facilityAttributes = ServiceUtils.filterFacilityAttrs(attrs, keptAttrs);
 
-        Request req = createRequest(facilityId, userId, RequestAction.DELETE_FACILITY, facilityAttributes);
+        Request req = this.createRequest(facilityId, userId, RequestAction.DELETE_FACILITY, facilityAttributes);
         if (req.getReqId() == null) {
             log.error("Could not create request");
             throw new InternalErrorException("Could not create request");
@@ -219,22 +216,20 @@ public class RequestsServiceImpl implements RequestsService {
         mailsService.notifyUser(req, REQUEST_CREATED);
         mailsService.notifyAppAdmins(req, REQUEST_CREATED);
 
-        log.trace("createRemovalRequest returns: {}", req.getReqId());
         return req.getReqId();
     }
 
     @Override
-    public Long createMoveToProductionRequest(Long facilityId, User user, List<String> authorities)
+    public Long createMoveToProductionRequest(@NonNull Long facilityId, @NonNull User user,
+                                              @NonNull List<String> authorities)
             throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException,
-            BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnsupportedEncodingException, PerunUnknownException, PerunConnectionException {
-        log.trace("requestMoveToProduction(facilityId: {}, userId: {}, authorities: {})", facilityId, user, authorities);
-
-        if (Utils.checkParamsInvalid(facilityId, user)) {
-            log.error("Wrong parameters passed: (facilityId: {}, userId: {})", facilityId, user);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        } else if (!utilsService.isFacilityAdmin(facilityId, user.getId())) {
+            BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnsupportedEncodingException,
+            PerunUnknownException, PerunConnectionException
+    {
+        if (!utilsService.isAdminForFacility(facilityId, user.getId())) {
             log.error("User is not registered as admin for facility, cannot ask for moving to production");
-            throw new UnauthorizedActionException("User is not registered as admin for facility, cannot ask for moving to production");
+            throw new UnauthorizedActionException("User is not registered as admin for facility, cannot ask for" +
+                    " moving to production");
         }
 
         Facility fac = facilitiesService.getFacility(facilityId, user.getId(), true, false);
@@ -243,64 +238,53 @@ public class RequestsServiceImpl implements RequestsService {
             throw new InternalErrorException("Could not retrieve facility for id: " + facilityId);
         }
 
-        List<PerunAttribute> filteredAttributes = filterNotNullAttributes(fac);
+        List<PerunAttribute> filteredAttributes = this.filterNotNullAttributes(fac);
 
-        Request req = createRequest(facilityId, user.getId(), RequestAction.MOVE_TO_PRODUCTION, filteredAttributes);
+        Request req = this.createRequest(facilityId, user.getId(), RequestAction.MOVE_TO_PRODUCTION, filteredAttributes);
 
-        Map<String, String> authoritiesCodesMap = generateCodesForAuthorities(req, authorities, user);
-        Map<String, String> authoritiesLinksMap = generateLinksForAuthorities(authoritiesCodesMap);
+        Map<String, String> authoritiesCodesMap = this.generateCodesForAuthorities(req, authorities, user);
+        Map<String, String> authoritiesLinksMap = this.generateLinksForAuthorities(authoritiesCodesMap);
 
         mailsService.notifyUser(req, REQUEST_CREATED);
         mailsService.notifyAppAdmins(req, REQUEST_CREATED);
         mailsService.notifyAuthorities(req, authoritiesLinksMap);
 
-        log.trace("requestMoveToProduction returns: {}", req.getReqId());
         return req.getReqId();
     }
 
     @Override
-    public boolean updateRequest(Long requestId, Long userId, List<PerunAttribute> attributes)
-            throws UnauthorizedActionException, InternalErrorException {
-        log.trace("updateRequest(requestId: {}, userId: {}, attributes: {})", requestId, userId, attributes);
-        if (requestId == null || userId == null || attributes == null) {
-            log.error("Illegal input - requestId: {}, userId: {}, attributes: {}", requestId, userId, attributes);
-            throw new IllegalArgumentException("Illegal input - requestId: " + requestId + ", userId: " + userId +
-                    ", attributes: " + attributes);
-        }
-
+    public boolean updateRequest(@NonNull Long requestId, @NonNull Long userId,
+                                 @NonNull List<PerunAttribute> attributes)
+            throws UnauthorizedActionException, InternalErrorException
+    {
         Request request = requestManager.getRequestById(requestId);
         if (request == null) {
             log.error("Could not retrieve request for id: {}", requestId);
             throw new InternalErrorException("Could not retrieve request for id: " + requestId);
-        } else if (!utilsService.isAdminInRequest(request.getReqUserId(), userId)) {
+        } else if (!utilsService.isAdminForRequest(request.getReqUserId(), userId)) {
             log.error("User is not registered as admin in request, cannot update it");
             throw new UnauthorizedActionException("User is not registered as admin in request, cannot update it");
         }
 
-        log.info("Updating request");
         request.updateAttributes(attributes, true, applicationBeans);
-
         request.setStatus(RequestStatus.WAITING_FOR_APPROVAL);
         request.setModifiedBy(userId);
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
 
         boolean requestUpdated = requestManager.updateRequest(request);
+        if (!requestUpdated) {
+            return false;
+        }
 
         mailsService.notifyUser(request, REQUEST_MODIFIED);
         mailsService.notifyAppAdmins(request, REQUEST_MODIFIED);
-
-        log.trace("updateRequest returns: {}", requestUpdated);
-        return requestUpdated;
+        return true;
     }
 
     @Override
-    public Request getRequestForSignatureByCode(String code) throws ExpiredCodeException, InternalErrorException {
-        log.trace("getRequestDetailsForSignature({})", code);
-        if (Utils.checkParamsInvalid(code)) {
-            log.error("Wrong parameters passed: (code: {})", code);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
-
+    public Request getRequestForSignatureByCode(@NonNull String code)
+            throws ExpiredCodeException, InternalErrorException
+    {
         LinkCode linkCode = linkCodeManager.get(code);
         if (linkCode == null) {
             log.error("User trying to get request with expired code: {}", code);
@@ -311,7 +295,6 @@ public class RequestsServiceImpl implements RequestsService {
         }
 
         Long requestId = linkCode.getRequestId();
-        log.debug("Fetching request for id: {}", requestId);
         Request request = requestManager.getRequestById(requestId);
 
         if (request == null) {
@@ -319,25 +302,20 @@ public class RequestsServiceImpl implements RequestsService {
             throw new InternalErrorException("Cannot find request from code");
         }
 
-        log.trace("getRequestDetailsForSignature returns: {}", request);
         return request;
     }
 
     @Override
-    public Request getRequest(Long requestId, Long userId)
-            throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException {
-        log.trace("getDetailedRequest(requestId: {}, userId: {})", requestId, userId);
-
-        if (Utils.checkParamsInvalid(requestId, userId)) {
-            log.error("Wrong parameters passed: (requestId: {}, userId: {})", requestId, userId);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
-
+    public Request getRequest(@NonNull Long requestId, @NonNull  Long userId)
+            throws UnauthorizedActionException, InternalErrorException, PerunUnknownException,
+            PerunConnectionException
+    {
         Request request = requestManager.getRequestById(requestId);
         if (request == null) {
             log.error("Could not retrieve request for id: {}", requestId);
             throw new InternalErrorException("Could not retrieve request for id: " + requestId);
-        } else if (!applicationProperties.isAppAdmin(userId) && !utilsService.isAdminInRequest(request.getReqUserId(), userId)) {
+        } else if (!applicationProperties.isAppAdmin(userId)
+                && !utilsService.isAdminForRequest(request.getReqUserId(), userId)) {
             log.error("User cannot view request, user is not requester nor appAdmin");
             throw new UnauthorizedActionException("User cannot view request, user is not a requester");
         }
@@ -353,19 +331,13 @@ public class RequestsServiceImpl implements RequestsService {
             }
         }
 
-        log.trace("getDetailedRequest returns: {}", request);
         return request;
     }
 
     @Override
-    public List<Request> getAllUserRequests(Long userId) throws PerunUnknownException, PerunConnectionException {
-        log.trace("getAllRequestsUserCanAccess({})", userId);
-
-        if (Utils.checkParamsInvalid(userId)) {
-            log.error("Wrong parameters passed: (userId: {})", userId);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
-
+    public List<Request> getAllUserRequests(@NonNull Long userId)
+            throws PerunUnknownException, PerunConnectionException
+    {
         Set<Request> requests = new HashSet<>();
 
         List<Request> userRequests = requestManager.getAllRequestsByUserId(userId);
@@ -381,40 +353,25 @@ public class RequestsServiceImpl implements RequestsService {
             }
         }
 
-        List<Request> unique = new ArrayList<>(requests);
-        log.trace("getAllRequestsUserCanAccess returns: {}", unique);
-        return unique;
+        return new ArrayList<>(requests);
     }
 
     @Override
-    public List<Request> getAllRequests(Long userId) throws UnauthorizedActionException {
-        log.trace("getAllRequests({})", userId);
-
-        if (Utils.checkParamsInvalid(userId)) {
-            log.error("Wrong parameters passed: (userId: {})", userId);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        } else if (!applicationProperties.isAppAdmin(userId)) {
+    public List<Request> getAllRequests(@NonNull Long userId) throws UnauthorizedActionException {
+       if (!applicationProperties.isAppAdmin(userId)) {
             log.error("User cannot list all requests, user is not an admin");
             throw new UnauthorizedActionException("User cannot list all requests, user is not an admin");
         }
 
-        List<Request> result = requestManager.getAllRequests();
-
-        log.trace("getAllRequests returns: {}", result);
-        return result;
+        return requestManager.getAllRequests();
     }
 
     @Override
-    public boolean approveRequest(Long requestId, Long userId)
+    public boolean approveRequest(@NonNull Long requestId, @NonNull Long userId)
             throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException,
             PerunUnknownException, PerunConnectionException
     {
-        log.trace("approveRequest(requestId: {}, userId: {})", requestId, userId);
-
-        if (Utils.checkParamsInvalid(requestId, userId)) {
-            log.error("Wrong parameters passed: (requestId: {}, userId: {})", requestId, userId);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        } else if (!applicationProperties.isAppAdmin(userId)) {
+        if (!applicationProperties.isAppAdmin(userId)) {
             log.error("User is not authorized to approve request");
             throw new UnauthorizedActionException("User is not authorized to approve request");
         }
@@ -423,8 +380,8 @@ public class RequestsServiceImpl implements RequestsService {
         if (request == null) {
             log.error("Could not fetch request with ID: {} from database", requestId);
             throw new InternalErrorException("Could not fetch request with ID: " + requestId + " from database");
-        } else if (!RequestStatus.WAITING_FOR_APPROVAL.equals(request.getStatus())
-                && !RequestStatus.WAITING_FOR_CHANGES.equals(request.getStatus())) {
+        } else if (!this.hasCorrectStatus(request.getStatus(),
+                new RequestStatus[] {RequestStatus.WAITING_FOR_CHANGES, RequestStatus.WAITING_FOR_APPROVAL})) {
             log.error("Cannot approve request, request is not in valid status");
             throw new CannotChangeStatusException("Cannot approve request, request is not in valid status");
         }
@@ -434,33 +391,26 @@ public class RequestsServiceImpl implements RequestsService {
         request.setModifiedBy(userId);
         request.updateAttributes(new ArrayList<>(), false, applicationBeans);
 
-        boolean requestProcessed = processApprovedRequest(request);
-        boolean requestUpdated = requestManager.updateRequest(request);
-        mailsService.notifyUser(request, MailsServiceImpl.REQUEST_STATUS_UPDATED);
-
-        boolean successful = (requestProcessed && requestUpdated);
-
-        if (!successful) {
-            log.error("some operations failed: requestProcessed: {}, requestUpdated: {} for request: {}",
-                    requestProcessed, requestUpdated, request);
-        } else {
-            log.info("Request processed, request updated, notification sent");
+        boolean requestProcessed = this.processApprovedRequest(request);
+        if (!requestProcessed) {
+            log.error("Request has not been processed");
+            return false;
         }
 
-        log.trace("approveRequest() returns: {}", successful);
-        return successful;
+        boolean requestUpdated = requestManager.updateRequest(request);
+        if (!requestUpdated) {
+            log.error("Request has not been updated");
+        }
+
+        mailsService.notifyUser(request, MailsServiceImpl.REQUEST_STATUS_UPDATED);
+        return true;
     }
 
     @Override
-    public boolean rejectRequest(Long requestId, Long userId)
+    public boolean rejectRequest(@NonNull Long requestId, @NonNull Long userId)
             throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException
     {
-        log.trace("rejectRequest(requestId: {}, userId: {})", requestId, userId);
-
-        if (Utils.checkParamsInvalid(requestId, userId)) {
-            log.error("Wrong parameters passed: (requestId: {}, userId: {})", requestId, userId);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        } else if (!applicationProperties.isAppAdmin(userId)) {
+        if (!applicationProperties.isAppAdmin(userId)) {
             log.error("User is not authorized to reject request");
             throw new UnauthorizedActionException("User is not authorized to reject request");
         }
@@ -469,8 +419,8 @@ public class RequestsServiceImpl implements RequestsService {
         if (request == null) {
             log.error("Could not fetch request with ID: {} from database", requestId);
             throw new InternalErrorException("Could not fetch request with ID: " + requestId + " from database");
-        } else if (!RequestStatus.WAITING_FOR_APPROVAL.equals(request.getStatus())
-                && !RequestStatus.WAITING_FOR_CHANGES.equals(request.getStatus())) {
+        } else if (!this.hasCorrectStatus(request.getStatus(),
+                new RequestStatus[] {RequestStatus.WAITING_FOR_APPROVAL, RequestStatus.WAITING_FOR_CHANGES})) {
             log.error("Cannot reject request, request is not in valid status");
             throw new CannotChangeStatusException("Cannot reject request, request is not in valid status");
         }
@@ -480,28 +430,23 @@ public class RequestsServiceImpl implements RequestsService {
         request.setModifiedBy(userId);
 
         boolean requestUpdated = requestManager.updateRequest(request);
-        mailsService.notifyUser(request, MailsServiceImpl.REQUEST_STATUS_UPDATED);
 
-        if (! requestUpdated) {
-            log.error("some operations failed: requestUpdated: false for request: {}", request);
-        } else {
+        if (requestUpdated) {
+            mailsService.notifyUser(request, MailsServiceImpl.REQUEST_STATUS_UPDATED);
             log.info("Request updated, notification sent");
+        } else {
+            log.error("some operations failed: requestUpdated: false for request: {}", request);
         }
 
-        log.trace("rejectRequest() returns: {}", request);
         return requestUpdated;
     }
 
     @Override
-    public boolean askForChanges(Long requestId, Long userId, List<PerunAttribute> attributes)
+    public boolean askForChanges(@NonNull Long requestId, @NonNull Long userId,
+                                 @NonNull List<PerunAttribute> attributes)
             throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException
     {
-        log.trace("askForChanges(requestId: {}, userId: {}, attributes: {})", requestId, userId, attributes);
-
-        if (Utils.checkParamsInvalid(requestId, userId)) {
-            log.error("Wrong parameters passed: (requestId: {}, userId: {})", requestId, userId);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        } else if (!applicationProperties.isAppAdmin(userId)) {
+        if (!applicationProperties.isAppAdmin(userId)) {
             log.error("User is not authorized to ask for changes");
             throw new UnauthorizedActionException("User is not authorized to ask for changes");
         }
@@ -510,8 +455,8 @@ public class RequestsServiceImpl implements RequestsService {
         if (request == null) {
             log.error("Could not fetch request with ID: {} from database", requestId);
             throw new InternalErrorException("Could not fetch request with ID: " + requestId + " from database");
-        } else if (!RequestStatus.WAITING_FOR_APPROVAL.equals(request.getStatus()) &&
-                !RequestStatus.WAITING_FOR_CHANGES.equals(request.getStatus())) {
+        } else if (!this.hasCorrectStatus(request.getStatus(),
+                new RequestStatus[] {RequestStatus.WAITING_FOR_APPROVAL, RequestStatus.WAITING_FOR_CHANGES})) {
             log.error("Cannot ask for changes, request not marked as WFA nor WFC");
             throw new CannotChangeStatusException("Cannot ask for changes, request not marked as WFA nor WFC");
         }
@@ -522,29 +467,21 @@ public class RequestsServiceImpl implements RequestsService {
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
 
         boolean requestUpdated = requestManager.updateRequest(request);
-        mailsService.notifyUser(request, MailsServiceImpl.REQUEST_STATUS_UPDATED);
 
-        if (! requestUpdated) {
-            log.error("some operations failed: requestUpdated: false for request: {}", request);
+        if (requestUpdated) {
+            log.info("Request updated, sending notification");
+            mailsService.notifyUser(request, MailsServiceImpl.REQUEST_STATUS_UPDATED);
         } else {
-            log.info("Request updated, notification sent");
+            log.error("some operations failed: request has not been updated: {}", request);
         }
 
-        log.trace("askForChanges() returns: {}", requestUpdated);
         return requestUpdated;
     }
 
-    private Request createRequest(Long facilityId, Long userId, RequestAction action, List<PerunAttribute> attributes)
+    private Request createRequest(@NonNull Long facilityId, @NonNull Long userId,
+                                  @NonNull RequestAction action, @NonNull List<PerunAttribute> attributes)
             throws InternalErrorException, ActiveRequestExistsException
     {
-        log.trace("createRequest(facilityId: {}, userId: {}, action: {}, attributes: {})",
-                facilityId, userId, action, attributes);
-
-        if (Utils.checkParamsInvalid(userId, action, attributes)) {
-            log.error("Wrong parameters passed: (userId: {}, action: {}, attributes: {})", userId, action, attributes);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
-
         Request request = new Request();
         request.setFacilityId(facilityId);
         request.setStatus(RequestStatus.WAITING_FOR_APPROVAL);
@@ -554,21 +491,17 @@ public class RequestsServiceImpl implements RequestsService {
         request.setModifiedBy(userId);
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
 
-        log.debug("creating request in DB");
         Long requestId = requestManager.createRequest(request);
         if (requestId == null) {
             log.error("Could not create request: {} in DB", request);
             throw new InternalErrorException("Could not create request in DB");
         }
-
         request.setReqId(requestId);
-
-        log.debug("createRequest returns: {}", request);
         return request;
     }
 
-    private boolean processApprovedRequest(Request request) throws InternalErrorException, PerunUnknownException,
-            PerunConnectionException
+    private boolean processApprovedRequest(@NonNull Request request)
+            throws InternalErrorException, PerunUnknownException, PerunConnectionException
     {
         switch(request.getAction()) {
             case REGISTER_NEW_SP:
@@ -584,29 +517,15 @@ public class RequestsServiceImpl implements RequestsService {
         return false;
     }
 
-    private boolean registerNewFacilityToPerun(Request request) throws InternalErrorException {
-        log.trace("registerNewFacilityToPerun({})", request);
-
-        String newName = request.getFacilityName(attributesProperties.getServiceNameAttrName()).get("en");
-        Pattern pattern = Pattern.compile("[^A-Za-z0-9]");
-        Pattern pattern2 = Pattern.compile("_+_");
-
-        newName = Normalizer.normalize(newName, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
-        newName = pattern.matcher(newName).replaceAll("_");
-        newName = pattern2.matcher(newName).replaceAll("_");
-        PerunAttribute clientId = generateClientIdAttribute();
-        String newDesc = ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName()) ?
-                clientId.valueAsString() : request.getAttributes().get(AttributeCategory.PROTOCOL)
-                .get(attributesProperties.getEntityIdAttrName()).valueAsString();
-
-        if (Utils.checkParamsInvalid(newName)) {
-            log.error("Wrong parameters passed: (newName: {})", newName);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
+    private boolean registerNewFacilityToPerun(@NonNull Request request) throws InternalErrorException {
+        String name = this.getNameFromRequest(request);
+        PerunAttribute clientId = this.generateClientIdAttribute();
+        String desc = this.getDescFromRequest(request, clientId);
 
         Facility facility = new Facility(null);
-        facility.setPerunName(newName);
-        facility.setPerunDescription(newDesc);
+        facility.setPerunName(name);
+        facility.setPerunDescription(desc);
+        boolean isOidcService = ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName());
         try {
             facility = perunAdapter.createFacilityInPerun(facility.toJson());
         } catch (Exception e) {
@@ -627,11 +546,12 @@ public class RequestsServiceImpl implements RequestsService {
         sp.setProtocol(ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName()) ?
                 ServiceProtocol.OIDC : ServiceProtocol.SAML);
         Long adminsGroupId;
+        Group adminsGroup = new Group(null, facility.getPerunName(), facility.getPerunName(),
+                "Administrators of SP - " + facility.getPerunName(),
+                applicationProperties.getSpAdminsRootGroupId(),
+                applicationProperties.getSpAdminsRootVoId());
         try {
-            Group adminsGroup = new Group(null, facility.getPerunName(), facility.getPerunName(),
-                    "Administrators of SP - " + facility.getPerunName(),
-                    applicationProperties.getSpAdminsRootGroupId(),
-                    applicationProperties.getSpAdminsRootVoId());
+            providedServiceManager.create(sp);
             adminsGroup = perunAdapter.createGroup(adminsGroup.getParentGroupId(), adminsGroup);
             adminsGroupId = adminsGroup.getId();
             boolean adminSet = perunAdapter.addGroupAsAdmins(facility.getId(), adminsGroupId);
@@ -642,7 +562,7 @@ public class RequestsServiceImpl implements RequestsService {
                     adminSet = perunAdapter.addMemberToGroup(adminsGroupId, memberId);
                 } else {
                     log.error("Could not add requester {} as a member({}) of group {}",
-                            request.getReqUserId(), memberId, adminsGroupId );
+                            request.getReqUserId(), memberId, adminsGroupId);
                 }
             } else {
                 log.error("Could not set created group {} as managers for facility {}", adminsGroupId, facility.getId());
@@ -669,9 +589,8 @@ public class RequestsServiceImpl implements RequestsService {
                 }
 
                 PerunAttribute clientSecret = utilsService.generateClientSecretAttribute();
-                perunConnector.setFacilityAttribute(facility.getId(), clientSecret.toJson());
+                perunAdapter.setFacilityAttribute(facility.getId(), clientSecret.toJson());
             }
-
             attributes.add(adminsGroupAttr.toJson());
             attributes.add(testSp.toJson());
             attributes.add(showOnServiceList.toJson());
@@ -688,35 +607,34 @@ public class RequestsServiceImpl implements RequestsService {
             }
             log.trace("registerNewFacilityToPerun returns: {}", successful);
             return successful;
-        } catch (ConnectorException | JsonProcessingException e) {
+        } catch (JsonProcessingException | PerunUnknownException | PerunConnectionException |
+                BadPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
             log.error("Caught ConnectorException", e);
             try {
                 perunAdapter.deleteFacilityFromPerun(facility.getId());
             } catch (PerunUnknownException | PerunConnectionException ex) {
                 log.error("Caught ConnectorException when deleting facility", ex);
             }
-
             return false;
         }
     }
 
-    private boolean updateFacilityInPerun(Request request) throws InternalErrorException, PerunUnknownException, PerunConnectionException {
-        log.trace("updateFacilityInPerun({})", request);
-
-        if (Utils.checkParamsInvalid(request)) {
-            log.error("Wrong parameters passed: (request: {})", request);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
-
+    private boolean updateFacilityInPerun(@NonNull Request request)
+            throws InternalErrorException, PerunUnknownException, PerunConnectionException
+    {
         Long facilityId = extractFacilityIdFromRequest(request);
 
         Facility actualFacility = perunAdapter.getFacilityById(facilityId);
+        if (actualFacility == null) {
+            log.error("Facility with ID {} does not exist in Perun", facilityId);
+            throw new InternalErrorException("Facility with ID " + facilityId + " does not exist in Perun");
+        }
+
         Map<String, PerunAttribute> oldAttributes = perunAdapter.getFacilityAttributes(facilityId,
                 request.getAttributeNames());
-
-        if (actualFacility == null) {
-            log.error("Facility with ID: {} does not exist in Perun", facilityId);
-            throw new InternalErrorException("Facility with ID: " + facilityId + " does not exist in Perun");
+        if (oldAttributes == null || oldAttributes.isEmpty()) {
+            log.error("Could not fetch actual attributes for facility with id {}", facilityId);
+            throw new InternalErrorException("Could not fetch actual attributes for facility with id " + facilityId);
         }
 
         ProvidedService sp = providedServiceManager.getByFacilityId(facilityId);
@@ -738,12 +656,14 @@ public class RequestsServiceImpl implements RequestsService {
 
             log.trace("updateFacilityInPerun returns: {}", perunAdapter.setFacilityAttributes(request.getFacilityId(),
                     request.getAttributesAsJsonArrayForPerun()));
-            return perunAdapter.setFacilityAttributes(request.getFacilityId(),
+            boolean attrsSet = perunAdapter.setFacilityAttributes(request.getFacilityId(),
                     request.getAttributesAsJsonArrayForPerun());
+            if (!attrsSet) {
+                throw new InternalErrorException("Could not set new attributes for facility");
+            }
+            return true;
         } catch (Exception e) {
-            log.warn("Caught Exception", e);
             try {
-                perunAdapter.updateFacilityInPerun(actualFacility.toJson());
                 ArrayNode oldAttrsArray = JsonNodeFactory.instance.arrayNode();
                 oldAttributes.values().forEach(a -> oldAttrsArray.add(a.toJson()));
                 perunAdapter.setFacilityAttributes(actualFacility.getId(), oldAttrsArray);
@@ -758,15 +678,10 @@ public class RequestsServiceImpl implements RequestsService {
         return true;
     }
 
-    private boolean deleteFacilityFromPerun(Request request) throws InternalErrorException, PerunUnknownException, PerunConnectionException {
-        log.trace("deleteFacilityFromPerun({})", request);
-
-        if (Utils.checkParamsInvalid(request)) {
-            log.error("Wrong parameters passed: (request: {})", request);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
-
-        Long facilityId = extractFacilityIdFromRequest(request);
+    private boolean deleteFacilityFromPerun(@NonNull Request request)
+            throws InternalErrorException, PerunUnknownException, PerunConnectionException
+    {
+        Long facilityId = this.extractFacilityIdFromRequest(request);
 
         PerunAttribute adminsGroupAttr = perunAdapter.getFacilityAttribute(request.getFacilityId(),
                 attributesProperties.getManagerGroupAttrName());
@@ -783,22 +698,53 @@ public class RequestsServiceImpl implements RequestsService {
         boolean facilityRemoved = perunAdapter.deleteFacilityFromPerun(facilityId);
         providedServiceManager.deleteByFacilityId(facilityId);
 
-        if (!facilityRemoved) {
-            log.error("Some operations failed - facilityRemoved: {}", false);
-        } else {
+        if (facilityRemoved) {
             log.info("Facility has been deleted");
+        } else {
+            log.error("Facility has not been deleted");
         }
 
-        log.trace("deleteFacilityFromPerun returns: {}", facilityRemoved);
         return facilityRemoved;
     }
 
-    private boolean moveToProduction(Request request) throws PerunUnknownException, PerunConnectionException {
-        log.trace("requestMoveToProduction({})", request);
+    private boolean setClientIdAttribute(@NonNull Long facilityId, @NonNull PerunAttribute clientId) {
+        for (int i = 0; i < 20; i++) {
+            try {
+                boolean set = perunAdapter.setFacilityAttribute(facilityId, clientId.toJson());
+                if (set) {
+                    return true;
+                }
+            } catch (Exception e) {
+                log.warn("Failed to set attribute clientId with value {} for facility {}",
+                        clientId.valueAsString(), facilityId);
+                clientId = this.generateClientIdAttribute();
+            }
+        }
+        return false;
+    }
 
-        log.info("Updating facility attributes");
-        PerunAttribute testSp = generateTestSpAttribute(false);
-        PerunAttribute showOnServiceList = generateShowOnServiceListAttribute(true);
+    private ArrayNode generateAttributesJsonArray(@NonNull ArrayNode attributes, boolean isOidcService)
+            throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException
+    {
+        if (isOidcService) {
+            PerunAttribute clientSecret = utilsService.generateClientSecretAttribute();
+            attributes.add(clientSecret.toJson());
+        }
+
+        attributes.add(this.generateTestSpAttribute(true).toJson());
+        attributes.add(this.generateShowOnServiceListAttribute(false).toJson());
+        attributes.add(this.generateProxyIdentifiersAttribute().toJson());
+        attributes.add(this.generateMasterProxyIdentifierAttribute().toJson());
+        attributes.add(this.generateAuthProtocolAttribute(isOidcService).toJson());
+
+        return attributes;
+    }
+
+    private boolean moveToProduction(@NonNull Request request)
+            throws PerunUnknownException, PerunConnectionException
+    {
+        PerunAttribute testSp = this.generateTestSpAttribute(false);
+        PerunAttribute showOnServiceList = this.generateShowOnServiceListAttribute(true);
 
         ArrayNode attributes = request.getAttributesAsJsonArrayForPerun();
         attributes.add(testSp.toJson());
@@ -812,33 +758,43 @@ public class RequestsServiceImpl implements RequestsService {
             log.warn("Caught Exception when updating ProvidedService {}", sp, ex);
         }
 
-        boolean attributesSet = perunAdapter.setFacilityAttributes(request.getFacilityId(), attributes);
-
-        log.trace("requestMoveToProduction returns: {}", attributesSet);
-        return attributesSet;
+        return perunAdapter.setFacilityAttributes(request.getFacilityId(), attributes);
     }
 
-    private Long extractFacilityIdFromRequest(Request request) throws InternalErrorException {
-        log.trace("extractFacilityIdFromRequest({})", request);
+    private String getDescFromRequest(@NonNull Request request, @NonNull PerunAttribute clientId) {
+        if (ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName())) {
+            return clientId.valueAsString();
+        } else {
+            return request.getAttributes().get(AttributeCategory.PROTOCOL)
+                    .get(attributesProperties.getEntityIdAttrName()).valueAsString();
+        }
+    }
 
-        if (Utils.checkParamsInvalid(request)) {
-            log.error("Wrong parameters passed: (request: {})",request);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+    private String getNameFromRequest(@NonNull Request request) throws InternalErrorException {
+        Map<String, String> nameAttrValue = request.getFacilityName(attributesProperties.getServiceNameAttrName());
+        if (nameAttrValue.isEmpty() || !nameAttrValue.containsKey(LANG_EN) || nameAttrValue.get(LANG_EN) == null) {
+            throw new InternalErrorException("No name could be found");
         }
 
+        String newName = nameAttrValue.get(LANG_EN);
+        Pattern pattern = Pattern.compile("[^A-Za-z0-9]");
+        Pattern pattern2 = Pattern.compile("_+_");
+
+        newName = Normalizer.normalize(newName, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+        newName = pattern.matcher(newName).replaceAll("_");
+        return pattern2.matcher(newName).replaceAll("_");
+    }
+
+    private Long extractFacilityIdFromRequest(@NonNull Request request) throws InternalErrorException {
         Long facilityId = request.getFacilityId();
         if (facilityId == null) {
             log.error("Request: {} does not have facilityId", request);
             throw new InternalErrorException(Utils.GENERIC_ERROR_MSG);
         }
-
-        log.trace("extractFacilityIdFromRequest() returns: {}", facilityId);
         return facilityId;
     }
 
     private PerunAttribute generateAuthProtocolAttribute(boolean isOidc) {
-        log.trace("generateAuthProtocolAttribute({})", isOidc);
-
         PerunAttribute attribute = new PerunAttribute();
         if (isOidc) {
             attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getIsOidcAttrName()));
@@ -846,68 +802,46 @@ public class RequestsServiceImpl implements RequestsService {
             attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getIsSamlAttrName()));
         }
         attribute.setValue(JsonNodeFactory.instance.booleanNode(true));
-
-        log.trace("generateAuthProtocolAttribute() returns: {}", attribute);
         return attribute;
     }
 
     private PerunAttribute generateMasterProxyIdentifierAttribute() {
-        log.trace("generateMasterProxyIdentifierAttribute()");
-
-        PerunAttribute attribute = new PerunAttribute();
+       PerunAttribute attribute = new PerunAttribute();
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getMasterProxyIdentifierAttrName()));
         attribute.setValue(JsonNodeFactory.instance.textNode(
                 attributesProperties.getMasterProxyIdentifierAttrValue()));
-
-        log.trace("generateMasterProxyIdentifierAttribute() returns: {}", attribute);
         return attribute;
     }
 
     private PerunAttribute generateProxyIdentifiersAttribute() {
-        log.trace("generateProxyIdentifierAttribute()");
-
         PerunAttribute attribute = new PerunAttribute();
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getProxyIdentifierAttrName()));
         ArrayNode arrayNode = JsonNodeFactory.instance.arrayNode();
         arrayNode.add(attributesProperties.getProxyIdentifierAttrValue());
         attribute.setValue(arrayNode);
-
-        log.trace("generateProxyIdentifierAttribute() returns: {}", attribute);
         return attribute;
     }
 
     private PerunAttribute generateShowOnServiceListAttribute(boolean value) {
-        log.trace("generateShowOnServiceListAttribute({})", value);
-
         PerunAttribute attribute = new PerunAttribute();
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getShowOnServiceListAttrName()));
         attribute.setValue(JsonNodeFactory.instance.booleanNode(value));
-
-        log.trace("generateShowOnServiceListAttribute() returns: {}", attribute);
         return attribute;
     }
 
     private PerunAttribute generateTestSpAttribute(boolean value) {
-        log.trace("generateTestSpAttribute({})", value);
-
         PerunAttribute attribute = new PerunAttribute();
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getIsTestSpAttrName()));
         attribute.setValue(JsonNodeFactory.instance.booleanNode(value));
-
-        log.trace("generateTestSpAttribute() returns: {}", attribute);
         return attribute;
     }
 
     private PerunAttribute generateClientIdAttribute() {
-        log.trace("generateClientIdAttribute()");
-
         PerunAttribute attribute = new PerunAttribute();
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getOidcClientIdAttrName()));
 
         String clientId = ServiceUtils.generateClientId();
         attribute.setValue(JsonNodeFactory.instance.textNode(clientId));
-
-        log.trace("generateClientIdAttribute() returns: {}", attribute);
         return attribute;
     }
 
@@ -922,39 +856,32 @@ public class RequestsServiceImpl implements RequestsService {
         return attribute;
     }
 
-    private List<PerunAttribute> filterNotNullAttributes(Facility facility) {
-        log.trace("filterNotNullAttributes({})", facility);
-
-        if (Utils.checkParamsInvalid(facility)) {
-            log.error("Wrong parameters passed: (facility: {})", facility);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+    private List<PerunAttribute> filterNotNullAttributes(@NonNull Facility facility) {
+        if (facility.getAttributes() == null || facility.getAttributes().isEmpty()) {
+            return new LinkedList<>();
         }
-
-        List<PerunAttribute> filteredAttributes = new ArrayList<>();
+        final List<PerunAttribute> filteredAttributes = new LinkedList<>();
         facility.getAttributes()
                 .values()
-                .forEach(
-                        attrsInCategory -> attrsInCategory.values()
-                                .stream()
-                                .filter(attr -> attr.getValue() != null)
-                                .forEach(filteredAttributes::add)
+                .forEach(attrsInCategory -> {
+                            if (attrsInCategory != null && !attrsInCategory.isEmpty()) {
+                                attrsInCategory.values()
+                                        .stream()
+                                        .filter(attr -> attr.getValue() != null)
+                                        .forEach(filteredAttributes::add);
+                            }
+                        }
                 );
 
-        log.trace("filterNotNullAttributes() returns: {}", filteredAttributes);
         return filteredAttributes;
     }
 
-    private Map<String, String> generateCodesForAuthorities(Request request, List<String> authorities, User user)
+    private Map<String, String> generateCodesForAuthorities(@NonNull Request request,
+                                                            @NonNull List<String> authorities,
+                                                            @NonNull User user)
             throws InternalErrorException
     {
-        log.trace("generateCodesForAuthorities(request: {}, authorities: {})", request, authorities);
-
         List<String> emails = new ArrayList<>();
-        if (Utils.checkParamsInvalid(request, authorities)) {
-            log.error("Wrong parameters passed: (request: {}, authorities: {})", request, authorities);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
-
         if (authorities == null || authorities.isEmpty()) {
             emails = approvalsProperties.getDefaultAuthorities();
         } else {
@@ -966,63 +893,48 @@ public class RequestsServiceImpl implements RequestsService {
             }
         }
 
-        List<LinkCode> codes = new ArrayList<>();
+        List<LinkCode> codes = new LinkedList<>();
         Map<String, String> authsCodesMap = new HashMap<>();
 
         for (String authority : emails) {
-            LinkCode code = createRequestCode(authority, user, request.getReqId(), request.getFacilityId());
+            LinkCode code = this.createRequestCode(authority, user, request.getReqId(), request.getFacilityId());
             codes.add(code);
             authsCodesMap.put(authority, code.getHash());
         }
 
         linkCodeManager.createMultiple(codes);
-
-        log.trace("generateCodesForAuthorities() returns: {}", authsCodesMap);
         return authsCodesMap;
     }
 
-    private LinkCode createRequestCode(String authority, User user, Long requestId, Long facilityId) {
-        log.trace("createRequestCode(authority: {}, user: {}, requestId: {}, facilityId: {})",
-                authority, user, requestId, facilityId);
+    private LinkCode createRequestCode(@NonNull String authority, @NonNull User user,
+                                       @NonNull Long requestId, @NonNull Long facilityId)
+    {
         LinkCode code = new LinkCode();
-
         code.setRecipientEmail(authority);
         code.setSenderName(user.getName());
         code.setSenderEmail(user.getEmail());
-        code.setExpiresAt(approvalsProperties);
+        code.setExpiresAt(approvalsProperties.getConfirmationPeriodDays(),
+                approvalsProperties.getConfirmationPeriodHours());
         code.setFacilityId(facilityId);
         code.setRequestId(requestId);
         code.setHash(ServiceUtils.getHash(code.toString()));
-
-        log.trace("createRequestCode(authority: {}, user: {}, requestId: {}, facilityId: {}) returns: {}",
-                authority, user, requestId, facilityId, code);
         return code;
     }
 
-    private Map<String, String> generateLinksForAuthorities(Map<String, String> authorityCodeMap)
-            throws UnsupportedEncodingException {
-        log.trace("generateLinksForAuthorities(authorityCodeMap: {})", authorityCodeMap);
-
-        if (Utils.checkParamsInvalid(authorityCodeMap)) {
-            log.error("Wrong parameters passed: (authorityCodeMap: {})", authorityCodeMap);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
-
+    private Map<String, String> generateLinksForAuthorities(@NonNull Map<String, String> authorityCodeMap)
+            throws UnsupportedEncodingException
+    {
         Map<String, String> linksMap = new HashMap<>();
-
         for (Map.Entry<String, String> entry : authorityCodeMap.entrySet()) {
             String code = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.toString());
             String link = approvalsProperties.getAuthoritiesEndpoint()
                     .concat("?code=").concat(code);
             linksMap.put(entry.getKey(), link);
-            log.debug("Generated code: {}", code); //TODO: remove
         }
-
-        log.trace("generateLinksForAuthorities() returns: {}", linksMap);
         return linksMap;
     }
 
-    private List<String> getAttrsToKeep(boolean isOidc) {
+    private List<String> filterProtocolAttrs(boolean isOidc) {
         List<String> keptAttrs = new ArrayList<>();
 
         keptAttrs.addAll(config.getServiceInputs().stream()
@@ -1054,6 +966,16 @@ public class RequestsServiceImpl implements RequestsService {
         }
 
         return keptAttrs;
+    }
+
+    private boolean hasCorrectStatus(@NonNull RequestStatus status, @NonNull RequestStatus[] allowedStatuses) {
+        for (RequestStatus s: allowedStatuses) {
+            if (s.equals(status)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

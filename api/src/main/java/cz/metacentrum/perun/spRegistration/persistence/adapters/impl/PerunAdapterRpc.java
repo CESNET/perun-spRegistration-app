@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.spRegistration.persistence.adapters.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
@@ -343,13 +342,8 @@ public class PerunAdapterRpc implements PerunAdapter {
 	}
 
 	@Override
-	public Group createGroup(Long parentGroupId, Group group) throws PerunUnknownException, PerunConnectionException {
+	public Group createGroup(@NonNull Long parentGroupId, @NonNull Group group) throws PerunUnknownException, PerunConnectionException {
 		log.trace("createGroup({}, {})", parentGroupId, group);
-
-		if (Utils.checkParamsInvalid(parentGroupId, group)) {
-			log.error("Wrong parameters passed: (parentGroupId: {}, group: {})", parentGroupId, group);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
 
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("parentGroup", parentGroupId);
@@ -363,13 +357,8 @@ public class PerunAdapterRpc implements PerunAdapter {
 	}
 
 	@Override
-	public boolean deleteGroup(Long groupId) throws PerunUnknownException, PerunConnectionException {
+	public boolean deleteGroup(@NonNull Long groupId) throws PerunUnknownException, PerunConnectionException {
 		log.trace("deleteGroup({})", groupId);
-
-		if (Utils.checkParamsInvalid(groupId)) {
-			log.error("Wrong parameters passed: (groupId: {})", groupId);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
 
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("group", groupId);
@@ -383,13 +372,8 @@ public class PerunAdapterRpc implements PerunAdapter {
 	}
 
 	@Override
-	public boolean addGroupAsAdmins(Long facilityId, Long groupId) throws PerunUnknownException, PerunConnectionException {
+	public boolean addGroupAsAdmins(@NonNull Long facilityId, @NonNull Long groupId) throws PerunUnknownException, PerunConnectionException {
 		log.trace("addGroupAsAdmins({}, {})", facilityId, groupId);
-
-		if (Utils.checkParamsInvalid(groupId)) {
-			log.error("Wrong parameters passed: (groupId: {})", groupId);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
 
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("facility", facilityId);
@@ -406,11 +390,6 @@ public class PerunAdapterRpc implements PerunAdapter {
 	public boolean removeGroupFromAdmins(Long facilityId, Long groupId) throws PerunUnknownException, PerunConnectionException {
 		log.trace("removeGroupFromAdmins({}, {})", facilityId, groupId);
 
-		if (Utils.checkParamsInvalid(groupId)) {
-			log.error("Wrong parameters passed: (groupId: {})", groupId);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
-
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("facility", facilityId);
 		params.put("authorizedGroup", groupId);
@@ -425,11 +404,6 @@ public class PerunAdapterRpc implements PerunAdapter {
 	@Override
 	public Long getMemberIdByUser(Long vo, Long user) throws PerunUnknownException, PerunConnectionException {
 		log.trace("getMemberIdByUser({}, {})", vo, user);
-
-		if (Utils.checkParamsInvalid(vo, user)) {
-			log.error("Wrong parameters passed: (vo: {}, user: {})", vo, user);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
 
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("vo", vo);
@@ -446,11 +420,6 @@ public class PerunAdapterRpc implements PerunAdapter {
 	public boolean addMemberToGroup(Long groupId, Long memberId)
 			throws PerunUnknownException, PerunConnectionException {
 		log.trace("addMemberToGroup({}, {})", groupId, memberId);
-
-		if (Utils.checkParamsInvalid(groupId, memberId)) {
-			log.error("Wrong parameters passed: (groupId: {}, memberId: {})", groupId, memberId);
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
 
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("group", groupId);

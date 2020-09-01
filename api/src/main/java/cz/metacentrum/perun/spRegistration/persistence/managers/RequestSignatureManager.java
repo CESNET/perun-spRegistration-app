@@ -14,11 +14,10 @@ public interface RequestSignatureManager {
      * @param userName name of signing user
      * @param approved TRUE if approved, FALSE if rejected
      * @param code code for signature
-     * @return True if everything went OK
      * @throws IllegalArgumentException Thrown when param "requestId" is NULL, when param "userId" is NULL, when param
      * "code" is NULL or empty.
      */
-    boolean addSignature(Long requestId, Long userId, String userName, boolean approved, String code)
+    void addSignature(Long requestId, Long userId, String userName, boolean approved, String code)
             throws InternalErrorException;
 
     /**

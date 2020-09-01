@@ -70,7 +70,7 @@ public interface AddAdminsService {
      * @param hash Hash identifying the addAdmin code
      * @return LinkCode.ts object or null
      */
-    LinkCode getDetails(String hash);
+    LinkCode getCodeByString(String hash);
 
     Facility getFacilityDetails(Long facilityId, User user) throws BadPaddingException, InvalidKeyException,
             IllegalBlockSizeException, InternalErrorException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException;

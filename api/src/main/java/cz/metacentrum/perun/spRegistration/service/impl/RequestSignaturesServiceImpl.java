@@ -15,6 +15,7 @@ import cz.metacentrum.perun.spRegistration.persistence.managers.RequestSignature
 import cz.metacentrum.perun.spRegistration.service.MailsService;
 import cz.metacentrum.perun.spRegistration.service.RequestSignaturesService;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,12 +36,12 @@ public class RequestSignaturesServiceImpl implements RequestSignaturesService {
     private final ApplicationProperties applicationProperties;
 
     @Autowired
-    public RequestSignaturesServiceImpl(RequestSignatureManager requestSignatureManager,
-                                        RequestManager requestManager,
-                                        MailsService mailsService,
-                                        UtilsService utilsService,
-                                        LinkCodeManager linkCodeManager,
-                                        ApplicationProperties applicationProperties)
+    public RequestSignaturesServiceImpl(@NonNull RequestSignatureManager requestSignatureManager,
+                                        @NonNull RequestManager requestManager,
+                                        @NonNull MailsService mailsService,
+                                        @NonNull UtilsService utilsService,
+                                        @NonNull LinkCodeManager linkCodeManager,
+                                        @NonNull ApplicationProperties applicationProperties)
     {
         this.requestSignatureManager = requestSignatureManager;
         this.requestManager = requestManager;
@@ -51,15 +52,9 @@ public class RequestSignaturesServiceImpl implements RequestSignaturesService {
     }
 
     @Override
-    public boolean addSignature(User user, String code, boolean approved) throws ExpiredCodeException, InternalErrorException
+    public boolean addSignature(@NonNull User user, @NonNull String code, boolean approved)
+            throws ExpiredCodeException, InternalErrorException
     {
-        log.trace("signTransferToProduction(user: {}, code: {})", user, code);
-
-        if (Utils.checkParamsInvalid(user, code)) {
-            log.error("Wrong parameters passed: (user: {}, code: {})", user, code);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
-
         LinkCode linkCode = linkCodeManager.get(code);
 
         if (linkCode == null) {
@@ -71,42 +66,30 @@ public class RequestSignaturesServiceImpl implements RequestSignaturesService {
         }
 
         Long requestId = linkCode.getRequestId();
-        boolean signed = requestSignatureManager.addSignature(requestId, user.getId(), user.getName(), approved, code);
+        requestSignatureManager.addSignature(requestId, user.getId(), user.getName(), approved, code);
         Request req = requestManager.getRequestById(requestId);
 
-        log.info("Sending mail notification");
+        log.debug("Sending mail notification");
         mailsService.notifyUser(req, REQUEST_SIGNED);
         mailsService.notifyAppAdmins(req, REQUEST_SIGNED);
-
-        log.trace("signTransferToProduction returns: {}", signed);
-        return signed;
+        return true;
     }
 
     @Override
-    public List<RequestSignature> getSignaturesForRequest(Long requestId, Long userId)
+    public List<RequestSignature> getSignaturesForRequest(@NonNull Long requestId, @NonNull Long userId)
             throws UnauthorizedActionException, InternalErrorException
     {
-        log.trace("getApprovalsOfProductionTransfer(requestId: {}, userId: {})", requestId, userId);
-
-        if (Utils.checkParamsInvalid(requestId, userId)) {
-            log.error("Wrong parameters passed: (requestId: {}, userId: {})" , requestId, userId);
-            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-        }
-
         Request request = requestManager.getRequestById(requestId);
         if (request == null) {
             log.error("Could not retrieve request for id: {}", requestId);
             throw new InternalErrorException(Utils.GENERIC_ERROR_MSG);
         } else if (!applicationProperties.isAppAdmin(userId)
-                && !utilsService.isAdminInRequest(request.getReqUserId(), userId)
-        ){
+                && !utilsService.isAdminForRequest(request.getReqUserId(), userId)) {
             log.error("User is not authorized to view approvals for request: {}", requestId);
             throw new UnauthorizedActionException(Utils.GENERIC_ERROR_MSG);
         }
 
-        List<RequestSignature> result = requestSignatureManager.getRequestSignatures(requestId);
-
-        log.trace("getApprovalsOfProductionTransfer returns: {}", result);
-        return result;
+        return requestSignatureManager.getRequestSignatures(requestId);
     }
+
 }

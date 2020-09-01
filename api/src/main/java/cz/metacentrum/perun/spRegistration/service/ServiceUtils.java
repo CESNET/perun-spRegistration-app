@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.spRegistration.service;
 
+import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
@@ -165,4 +166,27 @@ public class ServiceUtils {
 		}
 		return hexString.toString().toUpperCase();
 	}
+
+	public static Map<String, String> extractFacilityName(Facility facility, AttributesProperties attrsProps) {
+		return ServiceUtils.extractFacilityName(facility.getAttributes().get(AttributeCategory.SERVICE),
+				attrsProps);
+	}
+
+	public static Map<String, String> extractFacilityDescription(Facility facility, AttributesProperties attrsProps) {
+		return ServiceUtils.extractFacilityDescription(facility.getAttributes().get(AttributeCategory.SERVICE),
+				attrsProps);
+	}
+
+	public static Map<String, String> extractFacilityName(Map<String, PerunAttribute> attrs,
+														  AttributesProperties attributesProperties)
+	{
+		return attrs.get(attributesProperties.getServiceNameAttrName()).valueAsMap();
+	}
+
+	public static Map<String, String> extractFacilityDescription(Map<String, PerunAttribute> attrs,
+																 AttributesProperties attributesProperties)
+	{
+		return attrs.get(attributesProperties.getServiceDescAttrName()).valueAsMap();
+	}
+
 }

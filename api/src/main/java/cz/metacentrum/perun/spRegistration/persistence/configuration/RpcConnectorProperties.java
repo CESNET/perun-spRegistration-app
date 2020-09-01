@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -56,4 +55,5 @@ public class RpcConnectorProperties {
                 ", maxConnectionsPerRoute=" + maxConnectionsPerRoute +
                 '}';
     }
+
 }

@@ -2,6 +2,7 @@ package cz.metacentrum.perun.spRegistration.persistence.mappers;
 
 import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -25,8 +26,7 @@ public class LinkCodeMapper implements RowMapper<LinkCode> {
 	private static final String REQUEST_ID_KEY = "request_id";
 
 	@Override
-	public LinkCode mapRow(ResultSet resultSet, int i) throws SQLException {
-		log.trace("mapRow(resultSet: {}, i: {})", resultSet, i);
+	public LinkCode mapRow(@NotNull ResultSet resultSet, int i) throws SQLException {
 		LinkCode code = new LinkCode();
 
 		code.setHash(resultSet.getString(HASH_KEY));
@@ -37,7 +37,6 @@ public class LinkCodeMapper implements RowMapper<LinkCode> {
 		code.setFacilityId(resultSet.getLong(FACILITY_ID_KEY));
 		code.setRequestId(resultSet.getLong(REQUEST_ID_KEY));
 
-		log.trace("mapRow() returns: {}", code);
 		return code;
 	}
 

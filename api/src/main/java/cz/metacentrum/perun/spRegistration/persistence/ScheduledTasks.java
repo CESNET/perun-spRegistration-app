@@ -19,9 +19,7 @@ public class ScheduledTasks {
 
     @Scheduled(cron = "0 0 0 * * *", zone = "Europe/Prague")
     public void removeExpiredCodes() {
-        log.info("removeExpiredCodes() starts");
         linkCodeManager.deleteExpired();
-        log.info("removeExpiredCodes() ends");
     }
 
 }

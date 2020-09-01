@@ -15,8 +15,6 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,22 +47,32 @@ public class Request {
 
 	@JsonIgnore
 	public Map<String, String> getFacilityName(String attrName) {
-		PerunAttribute attr = attributes.get(AttributeCategory.SERVICE).get(attrName);
-		if (attr == null) {
-			return new HashMap<>();
-		} else {
-			return attr.valueAsMap();
+		if (attributes.containsKey(AttributeCategory.SERVICE)) {
+			Map<String, PerunAttribute> serviceAttrs = attributes.get(AttributeCategory.SERVICE);
+			if (serviceAttrs.containsKey(attrName)) {
+				PerunAttribute attr = serviceAttrs.get(attrName);
+				if (attr != null) {
+					return attr.valueAsMap();
+				}
+			}
 		}
+
+		return new HashMap<>();
 	}
 
 	@JsonIgnore
 	public Map<String, String> getFacilityDescription(String attrName) {
-		PerunAttribute attr = attributes.get(AttributeCategory.SERVICE).get(attrName);
-		if (attr == null) {
-			return new HashMap<>();
-		} else {
-			return attr.valueAsMap();
+		if (attributes.containsKey(AttributeCategory.SERVICE)) {
+			Map<String, PerunAttribute> serviceAttrs = attributes.get(AttributeCategory.SERVICE);
+			if (serviceAttrs.containsKey(attrName)) {
+				PerunAttribute attr = serviceAttrs.get(attrName);
+				if (attr != null) {
+					return attr.valueAsMap();
+				}
+			}
 		}
+
+		return new HashMap<>();
 	}
 
 	/**

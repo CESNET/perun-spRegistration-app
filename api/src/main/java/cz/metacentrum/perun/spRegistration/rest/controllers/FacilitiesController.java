@@ -146,7 +146,7 @@ public class FacilitiesController {
 									@PathVariable("hash") String hash) {
 		log.trace("addAdminGetInfo({}, {})", user, hash);
 
-		LinkCode details = addAdminsService.getDetails(hash);
+		LinkCode details = addAdminsService.getCodeByString(hash);
 
 		log.trace("addAdminGetInfo({}, {}) returns: {}", user, hash, details);
 		return details;

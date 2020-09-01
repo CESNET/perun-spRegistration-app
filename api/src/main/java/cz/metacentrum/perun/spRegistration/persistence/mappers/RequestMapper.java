@@ -3,7 +3,6 @@ package cz.metacentrum.perun.spRegistration.persistence.mappers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
 import cz.metacentrum.perun.spRegistration.common.configs.Config;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
@@ -13,7 +12,9 @@ import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -53,7 +54,7 @@ public class RequestMapper implements RowMapper<Request> {
 	}
 
 	@Override
-	public Request mapRow(ResultSet resultSet, int i) throws SQLException {
+	public Request mapRow(@NotNull ResultSet resultSet, int i) throws SQLException {
 		log.trace("mapRow(resultSet: {}, i: {})", resultSet, i);
 
 		String attrsJsonStr = resultSet.getString(ATTRIBUTES_KEY);
@@ -82,35 +83,32 @@ public class RequestMapper implements RowMapper<Request> {
 		return request;
 	}
 
-	private Map<AttributeCategory, Map<String, PerunAttribute>> mapAttributes(String attrsJsonStr) throws JsonProcessingException {
-		log.trace("mapAttributes({})", attrsJsonStr);
-
+	private Map<AttributeCategory, Map<String, PerunAttribute>> mapAttributes(@NonNull String attrsJsonStr)
+			throws JsonProcessingException
+	{
 		Map<AttributeCategory, Map<String, PerunAttribute>> attributes = new HashMap<>();
+		ObjectNode json = (ObjectNode) new ObjectMapper().readTree(attrsJsonStr);
+		Iterator<String> categoryKeys = json.fieldNames();
 
-		if (!Utils.checkParamsInvalid(attrsJsonStr)) {
-			ObjectNode json = (ObjectNode) new ObjectMapper().readTree(attrsJsonStr);
-			Iterator<String> categoryKeys = json.fieldNames();
-
-			while (categoryKeys.hasNext()) {
-				String key = categoryKeys.next();
-				AttributeCategory category = AttributeCategory.fromString(key);
-				ObjectNode categoryJson = (ObjectNode) json.get(key);
-				Map<String, PerunAttribute> mappedAttributesForCategory = new HashMap<>();
-				Iterator<String> attributeKeys = categoryJson.fieldNames();
-				while (attributeKeys.hasNext()) {
-					String attrName = attributeKeys.next();
-					PerunAttribute mappedAttribute = PerunAttribute.fromJsonOfDb(attrName, categoryJson.get(attrName),
-							definitionMap, attrInputMap);
-					if (mappedAttribute != null) {
-						mappedAttributesForCategory.put(attrName, mappedAttribute);
-					}
+		while (categoryKeys.hasNext()) {
+			String key = categoryKeys.next();
+			AttributeCategory category = AttributeCategory.fromString(key);
+			ObjectNode categoryJson = (ObjectNode) json.get(key);
+			Map<String, PerunAttribute> mappedAttributesForCategory = new HashMap<>();
+			Iterator<String> attributeKeys = categoryJson.fieldNames();
+			while (attributeKeys.hasNext()) {
+				String attrName = attributeKeys.next();
+				PerunAttribute mappedAttribute = PerunAttribute.fromJsonOfDb(attrName, categoryJson.get(attrName),
+						definitionMap, attrInputMap);
+				if (mappedAttribute != null) {
+					mappedAttributesForCategory.put(attrName, mappedAttribute);
 				}
-
-				attributes.put(category, mappedAttributesForCategory);
 			}
+
+			attributes.put(category, mappedAttributesForCategory);
 		}
 
-		log.trace("mapAttributes() returns: {}", attributes);
 		return attributes;
 	}
+
 }

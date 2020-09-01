@@ -2,6 +2,7 @@ package cz.metacentrum.perun.spRegistration.persistence.mappers;
 
 import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -22,8 +23,7 @@ public class RequestSignatureMapper implements RowMapper<RequestSignature> {
 	private static final String APPROVED_KEY = "approved";
 
 	@Override
-	public RequestSignature mapRow(ResultSet resultSet, int i) throws SQLException {
-		log.trace("mapRow(resultSet: {}, i: {})", resultSet, i);
+	public RequestSignature mapRow(@NotNull ResultSet resultSet, int i) throws SQLException {
 		RequestSignature approval = new RequestSignature();
 
 		approval.setRequestId(resultSet.getLong(REQUEST_ID_KEY));
@@ -32,7 +32,6 @@ public class RequestSignatureMapper implements RowMapper<RequestSignature> {
 		approval.setName(resultSet.getString(NAME_KEY));
 		approval.setApproved(resultSet.getBoolean(APPROVED_KEY));
 
-		log.trace("mapRow() returns: {}", approval);
 		return approval;
 	}
 }

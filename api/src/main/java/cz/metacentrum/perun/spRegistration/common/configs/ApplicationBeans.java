@@ -18,7 +18,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
-import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -28,6 +27,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 @Getter
@@ -159,6 +159,10 @@ public class ApplicationBeans {
 
     public PerunAttributeDefinition getAttrDefinition(@NonNull String attrFullName) {
         return attributeDefinitionMap.get(attrFullName);
+    }
+
+    public Set<String> getAllAttrNames() {
+        return attributeDefinitionMap.keySet();
     }
 
     // private methods

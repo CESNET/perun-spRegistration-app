@@ -7,6 +7,7 @@ import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinitio
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -20,12 +21,12 @@ import java.util.Map;
 @Slf4j
 public class PersistenceUtils {
 
-	public static void initializeAttributes(PerunAdapter connector,
-													   ApplicationProperties applicationProperties,
-													   Map<String, PerunAttributeDefinition> definitionMap,
-													   Map<String, AttributeCategory> categoryMap,
-													   List<AttrInput> inputs,
-													   AttributeCategory category)
+	public static void initializeAttributes(@NonNull PerunAdapter connector,
+											@NonNull ApplicationProperties applicationProperties,
+											@NonNull Map<String, PerunAttributeDefinition> definitionMap,
+											@NonNull Map<String, AttributeCategory> categoryMap,
+											@NonNull List<AttrInput> inputs,
+											@NonNull AttributeCategory category)
 			throws PerunUnknownException, PerunConnectionException
 	{
 		log.trace("Initializing attribute inputs - START");
