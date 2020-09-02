@@ -35,9 +35,10 @@ public class PerunAttributeDefinition extends PerunEntity {
 	@NonNull private String baseFriendlyName;
 	@NonNull private String friendlyNameParameter;
 
-	public PerunAttributeDefinition(Long id, String friendlyName, String namespace, String description, String type,
-									String displayName, boolean writable, boolean unique, String entity,
-									String baseFriendlyName, String friendlyNameParameter) {
+	public PerunAttributeDefinition(@NonNull Long id, @NonNull String friendlyName, @NonNull String namespace,
+									@NonNull String description, @NonNull String type, @NonNull String displayName,
+									boolean writable, boolean unique, @NonNull String entity,
+									@NonNull String baseFriendlyName, @NonNull String friendlyNameParameter) {
 		super(id);
 		this.setFriendlyName(friendlyName);
 		this.setNamespace(namespace);
@@ -70,60 +71,53 @@ public class PerunAttributeDefinition extends PerunEntity {
 		return res;
 	}
 
-	public void setFriendlyName(String friendlyName) {
+	public void setFriendlyName(@NonNull String friendlyName) {
 		if (!StringUtils.hasText(friendlyName)) {
 			throw new IllegalArgumentException("FriendlyName cannot be empty!");
 		}
 		this.friendlyName = friendlyName;
 	}
 
-	public void setNamespace(String namespace) {
+	public void setNamespace(@NonNull String namespace) {
 		if (!StringUtils.hasText(namespace)) {
 			throw new IllegalArgumentException("Namespace cannot be empty!");
 		}
 		this.namespace = namespace;
 	}
 
-	public void setDescription(String description) {
+	public void setDescription(@NonNull String description) {
 		if (!StringUtils.hasText(description)) {
 			throw new IllegalArgumentException("Description cannot be empty!");
 		}
 		this.description = description;
 	}
 
-	public void setType(String type) {
+	public void setType(@NonNull String type) {
 		if (!StringUtils.hasText(type)) {
 			throw new IllegalArgumentException("Type cannot be empty!");
 		}
 		this.type = type;
 	}
 
-	public void setDisplayName(String displayName) {
+	public void setDisplayName(@NonNull String displayName) {
 		if (!StringUtils.hasText(displayName)) {
 			throw new IllegalArgumentException("DisplayName cannot be empty!");
 		}
 		this.displayName = displayName;
 	}
 
-	public void setEntity(String entity) {
+	public void setEntity(@NonNull String entity) {
 		if (!StringUtils.hasText(entity)) {
 			throw new IllegalArgumentException("Entity cannot be empty!");
 		}
 		this.entity = entity;
 	}
 
-	public void setBaseFriendlyName(String baseFriendlyName) {
+	public void setBaseFriendlyName(@NonNull String baseFriendlyName) {
 		if (!StringUtils.hasText(baseFriendlyName)) {
 			throw new IllegalArgumentException("BaseFriendlyName cannot be empty!");
 		}
 		this.baseFriendlyName = baseFriendlyName;
-	}
-
-	public void setFriendlyNameParameter(String friendlyNameParameter) {
-		if (!StringUtils.hasText(friendlyNameParameter)) {
-			throw new IllegalArgumentException("FriendlyNameParameter cannot be empty!");
-		}
-		this.friendlyNameParameter = friendlyNameParameter;
 	}
 
 	@JsonIgnore

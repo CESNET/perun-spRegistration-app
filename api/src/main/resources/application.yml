@@ -36,7 +36,7 @@ application:
   host_url: "http://spreg.com/spreg"
   secret_key: "secretSaltGoesHere123!X$"
   logout_url: "https://spreg.aai.cesnet.cz/Shibboleth.sso/Logout?target=https%3A%2F%2Fspreg.aai.cesnet.cz%2Fspreg%2F"
-  mails_config: "/etc/perun-spreg/mails.yml
+  mails_config: "/etc/perun-spreg/mails.yml"
 
 attributes:
   user_email_attr_name: "urn:perun:user:attribute-def:def:preferredMail"

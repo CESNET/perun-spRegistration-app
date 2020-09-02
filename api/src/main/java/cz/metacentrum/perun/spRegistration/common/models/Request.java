@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cz.metacentrum.perun.spRegistration.common.SpregUtils;
-import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
+import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestStatus;
@@ -80,7 +80,7 @@ public class Request {
 	 * @return JSON with attributes.
 	 */
 	@JsonIgnore
-	public String getAttributesAsJsonForDb(ApplicationBeans applicationBeans) {
+	public String getAttributesAsJsonForDb(AppBeansContainer appBeansContainer) {
 		if (this.attributes == null || this.attributes.isEmpty()) {
 			return "";
 		}
@@ -91,7 +91,7 @@ public class Request {
 			AttributeCategory category = categoryMapEntry.getKey();
 			Map<String, PerunAttribute> attributeMap = categoryMapEntry.getValue();
 			for (Map.Entry<String, PerunAttribute> a : attributeMap.entrySet()) {
-				PerunAttributeDefinition def = applicationBeans.getAttrDefinition(a.getKey());
+				PerunAttributeDefinition def = appBeansContainer.getAttrDefinition(a.getKey());
 				PerunAttribute attribute = a.getValue();
 				attribute.setDefinition(def);
 				obj.set(a.getKey(), attribute.toJsonForDb());
@@ -133,7 +133,7 @@ public class Request {
 		return null;
 	}
 
-	public void updateAttributes(List<PerunAttribute> attrsToUpdate, boolean clearComment, ApplicationBeans applicationBeans) {
+	public void updateAttributes(List<PerunAttribute> attrsToUpdate, boolean clearComment, AppBeansContainer appBeansContainer) {
 		if (attrsToUpdate == null) {
 			return;
 		}
@@ -143,7 +143,7 @@ public class Request {
 		}
 
 		for (PerunAttribute attr: attrsToUpdate) {
-			AttributeCategory category = applicationBeans.getAttrCategory(attr.getFullName());
+			AttributeCategory category = appBeansContainer.getAttrCategory(attr.getFullName());
 			if (!this.attributes.containsKey(category)) {
 				this.attributes.put(category, new HashMap<>());
 			}
@@ -159,7 +159,7 @@ public class Request {
 				}
 			}
 		}
-		this.attributes = SpregUtils.filterInvalidAttributes(attributes, applicationBeans.getAttributeDefinitionMap());
+		this.attributes = SpregUtils.filterInvalidAttributes(attributes, appBeansContainer.getAttributeDefinitionMap());
 	}
 
 	@JsonIgnore

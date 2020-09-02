@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.spRegistration.persistence.managers.impl;
 
-import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
-import cz.metacentrum.perun.spRegistration.common.configs.Config;
+import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestStatus;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ActiveRequestExistsException;
@@ -54,16 +53,15 @@ public class RequestManagerImpl implements RequestManager {
 
 	private final RequestMapper REQUEST_MAPPER;
 	private final NamedParameterJdbcTemplate jdbcTemplate;
-	private final ApplicationBeans applicationBeans;
+	private final AppBeansContainer appBeansContainer;
 
 	@Autowired
-	public RequestManagerImpl(@NonNull Config config,
-							  @NonNull NamedParameterJdbcTemplate jdbcTemplate,
-							  @NonNull ApplicationBeans applicationBeans)
+	public RequestManagerImpl(@NonNull NamedParameterJdbcTemplate jdbcTemplate,
+							  @NonNull AppBeansContainer appBeansContainer)
 	{
-		REQUEST_MAPPER = new RequestMapper(config, applicationBeans);
+		REQUEST_MAPPER = new RequestMapper(appBeansContainer);
 		this.jdbcTemplate = jdbcTemplate;
-		this.applicationBeans = applicationBeans;
+		this.appBeansContainer = appBeansContainer;
 	}
 
 	@Override
@@ -91,7 +89,7 @@ public class RequestManagerImpl implements RequestManager {
 		params.addValue(PARAM_STATUS, request.getStatus().getAsInt());
 		params.addValue(PARAM_ACTION, request.getAction().getAsInt());
 		params.addValue(PARAM_REQ_USER_ID, request.getReqUserId());
-		params.addValue(PARAM_ATTRIBUTES, request.getAttributesAsJsonForDb(applicationBeans));
+		params.addValue(PARAM_ATTRIBUTES, request.getAttributesAsJsonForDb(appBeansContainer));
 		params.addValue(PARAM_MODIFIED_BY, request.getModifiedBy());
 
 		int updatedCount = jdbcTemplate.update(query, params, key, new String[] {PARAM_ID});
@@ -127,7 +125,7 @@ public class RequestManagerImpl implements RequestManager {
 		params.addValue(PARAM_STATUS, request.getStatus().getAsInt());
 		params.addValue(PARAM_ACTION, request.getAction().getAsInt());
 		params.addValue(PARAM_REQ_USER_ID, request.getReqUserId());
-		params.addValue(PARAM_ATTRIBUTES, request.getAttributesAsJsonForDb(applicationBeans));
+		params.addValue(PARAM_ATTRIBUTES, request.getAttributesAsJsonForDb(appBeansContainer));
 		params.addValue(PARAM_MODIFIED_BY, request.getModifiedBy());
 		params.addValue(PARAM_REQ_ID, request.getReqId());
 

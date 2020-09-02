@@ -18,7 +18,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Setter
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${dev}")
+    @Value("${dev.enabled}")
     public boolean devEnabled;
 
     private final PerunAdapter perunAdapter;
@@ -46,7 +46,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        String path = devEnabled ? "/**" : "/auth/**";
+        String path = (devEnabled ? "" : "/auth" ) + "/**";
         registry.addInterceptor(userSettingInterceptor(perunAdapter, attributesProperties, applicationProperties))
                 .addPathPatterns(path);
     }

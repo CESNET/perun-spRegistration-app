@@ -2,10 +2,10 @@ package cz.metacentrum.perun.spRegistration.rest.controllers;
 
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.ApprovalsProperties;
-import cz.metacentrum.perun.spRegistration.common.configs.Config;
 import cz.metacentrum.perun.spRegistration.common.configs.FrontendProperties;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,45 +28,52 @@ import java.util.Set;
 @Slf4j
 public class ConfigController {
 
-	private final Config config;
-	private final ApplicationProperties applicationProperties;
-	private final FrontendProperties frontendProperties;
-	private final ApprovalsProperties approvalsProperties;
+	@NonNull private final ApplicationProperties applicationProperties;
+	@NonNull private final FrontendProperties frontendProperties;
+	@NonNull private final ApprovalsProperties approvalsProperties;
+	@NonNull private final List<AttrInput> serviceInputs;
+	@NonNull private final List<AttrInput> organizationInputs;
+	@NonNull private final List<AttrInput> membershipInputs;
+	@NonNull private final List<AttrInput> oidcInputs;
+	@NonNull private final List<AttrInput> samlInputs;
 
 	@Autowired
-	public ConfigController(Config config,
-							ApplicationProperties applicationProperties,
+	public ConfigController(ApplicationProperties applicationProperties,
 							FrontendProperties frontendProperties,
-							ApprovalsProperties approvalsProperties) {
-		this.config = config;
+							ApprovalsProperties approvalsProperties,
+							List<AttrInput> serviceInputs,
+							List<AttrInput> organizationInputs,
+							List<AttrInput> membershipInputs,
+							List<AttrInput> oidcInputs,
+							List<AttrInput> samlInputs)
+	{
 		this.applicationProperties = applicationProperties;
 		this.frontendProperties = frontendProperties;
 		this.approvalsProperties = approvalsProperties;
+		this.serviceInputs = serviceInputs;
+		this.organizationInputs = organizationInputs;
+		this.membershipInputs = membershipInputs;
+		this.oidcInputs = oidcInputs;
+		this.samlInputs = samlInputs;
 	}
 
 	@GetMapping(path = "/api/config/oidcInputs")
 	public List<List<AttrInput>> getInputsForOidc() {
-		log.trace("getInputsForOidc()");
 		List<List<AttrInput>> inputs = new ArrayList<>();
-		inputs.add(config.getServiceInputs());
-		inputs.add(config.getOrganizationInputs());
-		inputs.add(config.getOidcInputs());
-		inputs.add(config.getMembershipInputs());
-
-		log.trace("getInputsForOidc() returns: {}", inputs);
+		inputs.add(serviceInputs);
+		inputs.add(organizationInputs);
+		inputs.add(oidcInputs);
+		inputs.add(membershipInputs);
 		return inputs;
 	}
 
 	@GetMapping(path = "/api/config/samlInputs")
 	public List<List<AttrInput>> getInputsForSaml() {
-		log.trace("getInputsForSaml()");
 		List<List<AttrInput>> inputs = new ArrayList<>();
-		inputs.add(config.getServiceInputs());
-		inputs.add(config.getOrganizationInputs());
-		inputs.add(config.getSamlInputs());
-		inputs.add(config.getMembershipInputs());
-
-		log.trace("getInputsForSaml() returns: {}", inputs);
+		inputs.add(serviceInputs);
+		inputs.add(organizationInputs);
+		inputs.add(samlInputs);
+		inputs.add(membershipInputs);
 		return inputs;
 	}
 
@@ -77,49 +84,32 @@ public class ConfigController {
 
 	@GetMapping(path = "/api/config/langs")
 	public List<String> getLangs() {
-		Set<String> langs = applicationProperties.getLanguagesEnabled();
-
-		log.trace("getAvailableLanguages() returns: {}", langs);
-		return new ArrayList<>(langs);
+		return new ArrayList<>(applicationProperties.getLanguagesEnabled());
 	}
 
 	@GetMapping(path = "/api/config/isUserAdmin")
 	public boolean isUserAdmin(@SessionAttribute("user") User user) {
-		boolean isAdmin = applicationProperties.isAppAdmin(user.getId());
-
-		log.trace("isUserAdmin({}) returns: {}", user, isAdmin);
-		return isAdmin;
+		return applicationProperties.isAppAdmin(user.getId());
 	}
 
 	@GetMapping(path = "/api/config/pageConfig")
 	public Map<String, String> getPageConfig() {
-		log.trace("getPageConfig()");
 		Map<String, String> pageConfig = new HashMap<>();
 		pageConfig.put("logoUrl", frontendProperties.getHeaderLogoUrl());
 		pageConfig.put("headerLabel", frontendProperties.getHeaderTitle());
 		pageConfig.put("footerHtml", frontendProperties.getFooterHtml());
 		pageConfig.put("headerHtml", frontendProperties.getHeaderHtml());
 		pageConfig.put("logoutUrl", applicationProperties.getLogoutUrl());
-
-		log.trace("getPageConfig() returns: {}", pageConfig);
 		return pageConfig;
 	}
 
 	@GetMapping(path = "/api/config/specifyAuthoritiesEnabled")
 	public boolean getSpecifyAuthoritiesEnabled() {
-		boolean specifyAuthoritiesEnabled = approvalsProperties.isSpecifyOwn();
-
-		log.trace("getSpecifyAuthoritiesEnabled() returns: {}", specifyAuthoritiesEnabled);
-		return specifyAuthoritiesEnabled;
+		return approvalsProperties.isSpecifyOwn();
 	}
 
 	@GetMapping(path = "/api/config/prodTransferEntries")
 	public Set<String> getProdTransferEntries() {
-		log.trace("getProdTransferEntries()");
-
-		Set<String> entries = approvalsProperties.getTransferAuthoritiesMap().keySet();
-
-		log.trace("getProdTransferEntries() returns: {}", entries);
-		return entries;
+		return approvalsProperties.getTransferAuthoritiesMap().keySet();
 	}
 }

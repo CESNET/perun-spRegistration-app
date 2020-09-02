@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
+import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
@@ -39,7 +39,7 @@ public class UtilsServiceImpl implements UtilsService {
     private final MailsService mailsService;
     private final ApplicationProperties applicationProperties;
     private final AttributesProperties attributesProperties;
-    private final ApplicationBeans applicationBeans;
+    private final AppBeansContainer appBeansContainer;
 
     @Autowired
     public UtilsServiceImpl(@NonNull LinkCodeManager linkCodeManager,
@@ -47,14 +47,14 @@ public class UtilsServiceImpl implements UtilsService {
                             @NonNull MailsServiceImpl mailsService,
                             @NonNull ApplicationProperties applicationProperties,
                             @NonNull AttributesProperties attributesProperties,
-                            @NonNull ApplicationBeans applicationBeans)
+                            @NonNull AppBeansContainer appBeansContainer)
     {
         this.linkCodeManager = linkCodeManager;
         this.perunAdapter = perunAdapter;
         this.mailsService = mailsService;
         this.applicationProperties = applicationProperties;
         this.attributesProperties = attributesProperties;
-        this.applicationBeans = applicationBeans;
+        this.appBeansContainer = appBeansContainer;
     }
 
     @Override
@@ -75,7 +75,7 @@ public class UtilsServiceImpl implements UtilsService {
         PerunAttribute clientSecret = this.generateClientSecretAttribute();
         perunAdapter.setFacilityAttribute(facilityId, clientSecret.toJson());
 
-        String decrypted = ServiceUtils.decrypt(clientSecret.valueAsString(), applicationBeans.getSecretKeySpec());
+        String decrypted = ServiceUtils.decrypt(clientSecret.valueAsString(), appBeansContainer.getSecretKeySpec());
         clientSecret.setValue(JsonNodeFactory.instance.textNode(decrypted));
 
         Facility facility = null;
@@ -112,9 +112,9 @@ public class UtilsServiceImpl implements UtilsService {
     {
         PerunAttribute attribute = new PerunAttribute();
         String clientSecret = ServiceUtils.generateClientSecret();
-        String encryptedClientSecret = ServiceUtils.encrypt(clientSecret, applicationBeans.getSecretKeySpec());
+        String encryptedClientSecret = ServiceUtils.encrypt(clientSecret, appBeansContainer.getSecretKeySpec());
 
-        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getOidcClientSecretAttrName()));
+        attribute.setDefinition(appBeansContainer.getAttrDefinition(attributesProperties.getOidcClientSecretAttrName()));
         attribute.setValue(JsonNodeFactory.instance.textNode(encryptedClientSecret));
         return attribute;
     }

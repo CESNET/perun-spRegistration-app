@@ -2,11 +2,9 @@ package cz.metacentrum.perun.spRegistration.service.impl;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import cz.metacentrum.perun.spRegistration.Utils;
-import cz.metacentrum.perun.spRegistration.common.configs.AppConfig;
-import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
+import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
-import cz.metacentrum.perun.spRegistration.common.configs.Config;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
@@ -45,29 +43,44 @@ public class FacilitiesServiceImpl implements FacilitiesService {
     @NonNull private final UtilsService utilsService;
     @NonNull private final RequestManager requestManager;
     @NonNull private final AttributesProperties attributesProperties;
-    @NonNull private final ApplicationBeans applicationBeans;
+    @NonNull private final AppBeansContainer appBeansContainer;
     @NonNull private final ApplicationProperties applicationProperties;
-    @NonNull private final Config config;
     @NonNull private final ProvidedServiceManager providedServiceManager;
+    @NonNull private final Map<String, AttrInput> attrInputMap;
+    @NonNull private final List<AttrInput> serviceInputs;
+    @NonNull private final List<AttrInput> organizationInputs;
+    @NonNull private final List<AttrInput> membershipInputs;
+    @NonNull private final List<AttrInput> oidcInputs;
+    @NonNull private final List<AttrInput> samlInputs;
 
     @Autowired
     public FacilitiesServiceImpl(PerunAdapter perunAdapter,
                                  UtilsService utilsService,
                                  RequestManager requestManager,
                                  AttributesProperties attributesProperties,
-                                 ApplicationBeans applicationBeans,
+                                 AppBeansContainer appBeansContainer,
                                  ApplicationProperties applicationProperties,
-                                 Config config,
-                                 ProvidedServiceManager providedServiceManager)
+                                 ProvidedServiceManager providedServiceManager,
+                                 Map<String, AttrInput> attrInputMap,
+                                 List<AttrInput> serviceInputs,
+                                 List<AttrInput> organizationInputs,
+                                 List<AttrInput> membershipInputs,
+                                 List<AttrInput> oidcInputs,
+                                 List<AttrInput> samlInputs)
     {
         this.perunAdapter = perunAdapter;
         this.utilsService = utilsService;
         this.requestManager = requestManager;
         this.attributesProperties = attributesProperties;
-        this.applicationBeans = applicationBeans;
+        this.appBeansContainer = appBeansContainer;
         this.applicationProperties = applicationProperties;
-        this.config = config;
         this.providedServiceManager = providedServiceManager;
+        this.attrInputMap = attrInputMap;
+        this.serviceInputs = serviceInputs;
+        this.organizationInputs = organizationInputs;
+        this.membershipInputs = membershipInputs;
+        this.oidcInputs = oidcInputs;
+        this.samlInputs = samlInputs;
     }
 
     @Override
@@ -90,13 +103,13 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         Long activeRequestId = requestManager.getActiveRequestIdByFacilityId(facilityId);
         facility.setActiveRequestId(activeRequestId);
 
-        List<String> attrsToFetch = new ArrayList<>(applicationBeans.getAllAttrNames());
+        List<String> attrsToFetch = new ArrayList<>(appBeansContainer.getAllAttrNames());
         Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facilityId, attrsToFetch);
         boolean isOidc = ServiceUtils.isOidcAttributes(attrs, attributesProperties.getEntityIdAttrName());
         List<String> keptAttrs = this.getAttrsToKeep(isOidc);
         List<PerunAttribute> filteredAttributes = ServiceUtils.filterFacilityAttrs(attrs, keptAttrs);
         Map<AttributeCategory, Map<String, PerunAttribute>> facilityAttributes = this.convertToCategoryMap(filteredAttributes,
-                applicationBeans);
+                appBeansContainer);
         facility.setAttributes(facilityAttributes);
         facility.setName(ServiceUtils.extractFacilityName(facility, attributesProperties));
         facility.setDescription(ServiceUtils.extractFacilityDescription(facility, attributesProperties));
@@ -149,7 +162,7 @@ public class FacilitiesServiceImpl implements FacilitiesService {
                 .values()
                 .forEach(
                         attrsInCategory -> attrsInCategory.values()
-                                .forEach(attr -> attr.setInput(config.getInputMap().get(attr.getFullName())))
+                                .forEach(attr -> attr.setInput(attrInputMap.get(attr.getFullName())))
                 );
 
         log.trace("getDetailedFacilityWithInputs() returns: {}", facility);
@@ -272,39 +285,23 @@ public class FacilitiesServiceImpl implements FacilitiesService {
     private List<String> getAttrsToKeep(boolean isOidc) {
         List<String> keptAttrs = new ArrayList<>();
 
-        keptAttrs.addAll(config.getServiceInputs().stream()
-                .map(AttrInput::getName)
-                .collect(Collectors.toList()));
-
-        keptAttrs.addAll(config.getOrganizationInputs().stream()
-                .map(AttrInput::getName)
-                .collect(Collectors.toList()));
-
-        keptAttrs.addAll(config.getMembershipInputs().stream()
-                .map(AttrInput::getName)
-                .collect(Collectors.toList()));
+        keptAttrs.addAll(serviceInputs.stream().map(AttrInput::getName).collect(Collectors.toList()));
+        keptAttrs.addAll(organizationInputs.stream().map(AttrInput::getName).collect(Collectors.toList()));
+        keptAttrs.addAll(membershipInputs.stream().map(AttrInput::getName).collect(Collectors.toList()));
 
         if (isOidc) {
-            keptAttrs.addAll(config.getOidcInputs()
-                    .stream()
-                    .map(AttrInput::getName)
-                    .collect(Collectors.toList())
-            );
+            keptAttrs.addAll(oidcInputs.stream().map(AttrInput::getName).collect(Collectors.toList()));
             keptAttrs.add(attributesProperties.getOidcClientIdAttrName());
             keptAttrs.add(attributesProperties.getOidcClientSecretAttrName());
         } else {
-            keptAttrs.addAll(config.getSamlInputs()
-                    .stream()
-                    .map(AttrInput::getName)
-                    .collect(Collectors.toList())
-            );
+            keptAttrs.addAll(samlInputs.stream().map(AttrInput::getName).collect(Collectors.toList()));
         }
 
         return keptAttrs;
     }
 
     private Map<AttributeCategory, Map<String, PerunAttribute>> convertToCategoryMap(List<PerunAttribute> filteredAttributes,
-                                                                                     ApplicationBeans appBeans)
+                                                                                     AppBeansContainer appBeans)
     {
         if (filteredAttributes == null) {
             return null;
@@ -319,7 +316,7 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         if (!filteredAttributes.isEmpty()) {
             for (PerunAttribute attribute : filteredAttributes) {
                 AttributeCategory category = appBeans.getAttrCategory(attribute.getFullName());
-                attribute.setInput(config.getInputMap().get(attribute.getFullName()));
+                attribute.setInput(attrInputMap.get(attribute.getFullName()));
                 map.get(category).put(attribute.getFullName(), attribute);
             }
         }
@@ -341,7 +338,7 @@ public class FacilitiesServiceImpl implements FacilitiesService {
                 .get(attributesProperties.getOidcClientIdAttrName());
         String valEncrypted = clientSecret.valueAsString();
         if (decrypt) {
-            return ServiceUtils.decrypt(valEncrypted, applicationBeans.getSecretKeySpec());
+            return ServiceUtils.decrypt(valEncrypted, appBeansContainer.getSecretKeySpec());
         } else {
             return valEncrypted;
         }

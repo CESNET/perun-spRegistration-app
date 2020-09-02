@@ -20,6 +20,7 @@ import java.util.Map;
 
 @Getter
 @Setter
+@ToString
 @EqualsAndHashCode
 @Slf4j
 @Component

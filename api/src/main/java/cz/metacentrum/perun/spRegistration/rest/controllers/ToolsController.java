@@ -1,6 +1,6 @@
 package cz.metacentrum.perun.spRegistration.rest.controllers;
 
-import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
+import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.rest.ApiUtils;
 import cz.metacentrum.perun.spRegistration.service.ServiceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +22,11 @@ import java.util.Map;
 @RestController
 public class ToolsController {
 
-	private final ApplicationBeans applicationBeans;
+	private final AppBeansContainer appBeansContainer;
 
 	@Autowired
-	public ToolsController(ApplicationBeans applicationBeans) {
-		this.applicationBeans = applicationBeans;
+	public ToolsController(AppBeansContainer appBeansContainer) {
+		this.appBeansContainer = appBeansContainer;
 	}
 
 	@PostMapping(path = "/api/tools/encrypt")
@@ -38,7 +38,7 @@ public class ToolsController {
 
 		toEncrypt = ApiUtils.normalizeRequestBodyString(toEncrypt);
 
-		String val = ServiceUtils.encrypt(toEncrypt, applicationBeans.getSecretKeySpec());
+		String val = ServiceUtils.encrypt(toEncrypt, appBeansContainer.getSecretKeySpec());
 		return Collections.singletonMap("value", val);
 	}
 
@@ -51,7 +51,7 @@ public class ToolsController {
 
 		toDecrypt = ApiUtils.normalizeRequestBodyString(toDecrypt);
 
-		String val = ServiceUtils.decrypt(toDecrypt, applicationBeans.getSecretKeySpec());
+		String val = ServiceUtils.decrypt(toDecrypt, appBeansContainer.getSecretKeySpec());
 		return Collections.singletonMap("value", val);
 	}
 }

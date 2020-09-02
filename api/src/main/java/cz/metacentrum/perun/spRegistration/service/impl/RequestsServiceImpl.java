@@ -4,11 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import cz.metacentrum.perun.spRegistration.Utils;
-import cz.metacentrum.perun.spRegistration.common.configs.ApplicationBeans;
+import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.ApprovalsProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
-import cz.metacentrum.perun.spRegistration.common.configs.Config;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestStatus;
@@ -72,18 +71,22 @@ public class RequestsServiceImpl implements RequestsService {
 
     private static final String UNDEFINED = "_%UNDEFINED%_";
 
-    private final PerunAdapter perunAdapter;
-    private final MailsService mailsService;
-    private final UtilsService utilsService;
-    private final RequestManager requestManager;
-    private final LinkCodeManager linkCodeManager;
-    private final FacilitiesService facilitiesService;
-    private final ProvidedServiceManager providedServiceManager;
-    private final ApplicationBeans applicationBeans;
-    private final Config config;
-    private final ApplicationProperties applicationProperties;
-    private final AttributesProperties attributesProperties;
-    private final ApprovalsProperties approvalsProperties;
+    @NonNull private final PerunAdapter perunAdapter;
+    @NonNull private final MailsService mailsService;
+    @NonNull private final UtilsService utilsService;
+    @NonNull private final RequestManager requestManager;
+    @NonNull private final LinkCodeManager linkCodeManager;
+    @NonNull private final FacilitiesService facilitiesService;
+    @NonNull private final AppBeansContainer applicationBeans;
+    @NonNull private final ApplicationProperties applicationProperties;
+    @NonNull private final AttributesProperties attributesProperties;
+    @NonNull private final ApprovalsProperties approvalsProperties;
+    @NonNull private final ProvidedServiceManager providedServiceManager;
+    @NonNull private final List<AttrInput> serviceInputs;
+    @NonNull private final List<AttrInput> organizationInputs;
+    @NonNull private final List<AttrInput> membershipInputs;
+    @NonNull private final List<AttrInput> oidcInputs;
+    @NonNull private final List<AttrInput> samlInputs;
 
     @Value("#{'${mail.approval.default-authorities.mails}'.split(',')}")
     private List<String> defaultAuthorities;
@@ -95,12 +98,16 @@ public class RequestsServiceImpl implements RequestsService {
                                @NonNull RequestManager requestManager,
                                @NonNull LinkCodeManager linkCodeManager,
                                @NonNull FacilitiesService facilitiesService,
-                               @NonNull Config config,
-                               @NonNull ApplicationBeans applicationBeans,
+                               @NonNull AppBeansContainer applicationBeans,
                                @NonNull ApplicationProperties applicationProperties,
                                @NonNull AttributesProperties attributesProperties,
                                @NonNull ApprovalsProperties approvalsProperties,
-                               @NonNull ProvidedServiceManager providedServiceManager)
+                               @NonNull ProvidedServiceManager providedServiceManager,
+                               @NonNull List<AttrInput> serviceInputs,
+                               @NonNull List<AttrInput> organizationInputs,
+                               @NonNull List<AttrInput> membershipInputs,
+                               @NonNull List<AttrInput> oidcInputs,
+                               @NonNull List<AttrInput> samlInputs)
     {
         this.perunAdapter = perunAdapter;
         this.mailsService = mailsService;
@@ -108,12 +115,16 @@ public class RequestsServiceImpl implements RequestsService {
         this.requestManager = requestManager;
         this.linkCodeManager = linkCodeManager;
         this.facilitiesService = facilitiesService;
-        this.providedServiceManager = providedServiceManager;
         this.applicationBeans = applicationBeans;
         this.applicationProperties = applicationProperties;
         this.attributesProperties = attributesProperties;
         this.approvalsProperties = approvalsProperties;
-        this.config = config;
+        this.providedServiceManager = providedServiceManager;
+        this.serviceInputs = serviceInputs;
+        this.organizationInputs = organizationInputs;
+        this.membershipInputs = membershipInputs;
+        this.oidcInputs = oidcInputs;
+        this.samlInputs = samlInputs;
     }
 
     @Override
@@ -937,29 +948,27 @@ public class RequestsServiceImpl implements RequestsService {
     private List<String> filterProtocolAttrs(boolean isOidc) {
         List<String> keptAttrs = new ArrayList<>();
 
-        keptAttrs.addAll(config.getServiceInputs().stream()
+        keptAttrs.addAll(serviceInputs.stream()
                 .map(AttrInput::getName)
                 .collect(Collectors.toList()));
 
-        keptAttrs.addAll(config.getOrganizationInputs().stream()
+        keptAttrs.addAll(organizationInputs.stream()
                 .map(AttrInput::getName)
                 .collect(Collectors.toList()));
 
-        keptAttrs.addAll(config.getMembershipInputs().stream()
+        keptAttrs.addAll(membershipInputs.stream()
                 .map(AttrInput::getName)
                 .collect(Collectors.toList()));
 
         if (isOidc) {
-            keptAttrs.addAll(config.getOidcInputs()
-                    .stream()
+            keptAttrs.addAll(oidcInputs.stream()
                     .map(AttrInput::getName)
                     .collect(Collectors.toList())
             );
             keptAttrs.add(attributesProperties.getOidcClientIdAttrName());
             keptAttrs.add(attributesProperties.getOidcClientSecretAttrName());
         } else {
-            keptAttrs.addAll(config.getSamlInputs()
-                    .stream()
+            keptAttrs.addAll(samlInputs.stream()
                     .map(AttrInput::getName)
                     .collect(Collectors.toList())
             );

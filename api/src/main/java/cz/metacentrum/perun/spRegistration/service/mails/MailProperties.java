@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.spRegistration.service.mails;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ import java.util.Set;
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MailProperties {
 
     public static final String NULL = "@null";
