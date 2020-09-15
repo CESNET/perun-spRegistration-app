@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.spRegistration.common.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -24,6 +25,8 @@ public class User extends PerunEntity {
 
 	@NonNull private String name;
 	private String email;
+
+	@JsonProperty("isAppAdmin")
 	private boolean isAppAdmin = false;
 
 	@JsonIgnore

@@ -48,7 +48,8 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         String path = (devEnabled ? "" : "/auth" ) + "/**";
         registry.addInterceptor(userSettingInterceptor(perunAdapter, attributesProperties, applicationProperties))
-                .addPathPatterns(path);
+                .addPathPatterns(path)
+                .excludePathPatterns("/api/config/**");
     }
 
 }

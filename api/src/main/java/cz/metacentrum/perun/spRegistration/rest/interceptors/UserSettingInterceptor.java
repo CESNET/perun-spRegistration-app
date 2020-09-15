@@ -20,6 +20,9 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 public class UserSettingInterceptor implements HandlerInterceptor {
 
+	public static final String FAKE_USER_HEADER = "fake-usr-hdr";
+	public static final String SESSION_USER = "user";
+
 	private final PerunAdapter connector;
 	private final AttributesProperties attributesProperties;
 	private final ApplicationProperties applicationProperties;
@@ -38,10 +41,10 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 	}
 
 	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-		log.debug("UserSettingInterceptor 'preHandle()'");
-		User userFromRequest = (User) request.getSession().getAttribute("user");
-
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+			throws Exception
+	{
+		User userFromRequest = (User) request.getSession().getAttribute(SESSION_USER);
 
 		if (userFromRequest == null && setUser(request) == null) {
 			String url = request.getRequestURL().toString();
@@ -55,26 +58,20 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 	}
 
 	private User setUser(HttpServletRequest request) throws PerunUnknownException, PerunConnectionException {
-		String userEmailAttr = attributesProperties.getAdministratorContactAttrName();
+		String userEmailAttr = attributesProperties.getUserEmailAttrName();
 		String extSourceProxy = applicationProperties.getProxyIdentifier();
-		log.info("settingUser");
 		String sub;
 
 		if (devEnabled) {
-			sub = request.getHeader("fake-usr-hdr");
+			sub = request.getHeader(FAKE_USER_HEADER);
 		} else {
 			sub = request.getRemoteUser();
 		}
 
-		log.debug("Extracted sub: {}", sub);
-
 		if (sub != null && !sub.isEmpty()) {
-			log.info("Found userId: {} ", sub);
 			User user = connector.getUserWithEmail(sub, extSourceProxy, userEmailAttr);
 			user.setAppAdmin(applicationProperties.isAppAdmin(user.getId()));
-			log.info("Found user: {}", user);
-
-			request.getSession().setAttribute("user", user);
+			request.getSession().setAttribute(SESSION_USER, user);
 			return user;
 		}
 

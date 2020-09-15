@@ -32,7 +32,7 @@
         <!-- APP PROPERTIES -->
         <server.port>8080</server.port>
         <server.url>http://cloud99b.cerit-sc.cz</server.url>
-        <server.contextPath/>
+        <server.contextPath>/spreg</server.contextPath>
 
         <angular.build.profile>prod</angular.build.profile>
         <angular.deploy.url>${server.contextPath}/</angular.deploy.url>
