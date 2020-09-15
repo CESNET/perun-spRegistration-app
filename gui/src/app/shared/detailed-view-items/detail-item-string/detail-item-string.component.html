@@ -2,14 +2,14 @@
                                 [showComment]="!!item.comment"></detail-item-sub-comment-button>
 
 <div class="p-0 m-0">
-  <p class="mb-1">
+  <p class="mb-1 text-break">
     <mat-icon *ngIf="displayOldVal" class="mr-2" matTooltip="{{'REQUESTS.CHANGED_VAL_WARN' | translate}}">warning</mat-icon>
     <span class="font-thick mr-2">{{item.name | itemLocalePipe}}</span>
-    <span [innerHTML]="item.value | detailedViewItemValuePipe"></span>
+    <span class="text-break" [innerHTML]="item.value | detailedViewItemValuePipe"></span>
   </p>
-  <p class="mb-1  text-muted small" *ngIf="displayOldVal">
+  <p class="mb-1 text-break text-muted small" *ngIf="displayOldVal">
     <span class="mr-1">{{'REQUESTS.OLD_VALUE' | translate}}:</span>
-    <span [innerHTML]="item.oldValue | detailedViewItemValuePipe"></span>
+    <span class="text-break" [innerHTML]="item.oldValue | detailedViewItemValuePipe"></span>
   </p>
   <p class="text-muted mb-1">
     <span class="small" [innerHTML]="item.description | itemLocalePipe"></span>

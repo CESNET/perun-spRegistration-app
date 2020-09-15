@@ -6,6 +6,7 @@ import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,17 +24,17 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 	public static final String FAKE_USER_HEADER = "fake-usr-hdr";
 	public static final String SESSION_USER = "user";
 
-	private final PerunAdapter connector;
-	private final AttributesProperties attributesProperties;
-	private final ApplicationProperties applicationProperties;
+	@NonNull private final PerunAdapter connector;
+	@NonNull private final AttributesProperties attributesProperties;
+	@NonNull private final ApplicationProperties applicationProperties;
 
 	@Value("${dev.enabled}")
 	private boolean devEnabled;
 
 	@Autowired
-	public UserSettingInterceptor(PerunAdapter connector,
-								  AttributesProperties attributesProperties,
-								  ApplicationProperties applicationProperties)
+	public UserSettingInterceptor(@NonNull PerunAdapter connector,
+								  @NonNull AttributesProperties attributesProperties,
+								  @NonNull ApplicationProperties applicationProperties)
 	{
 		this.connector = connector;
 		this.attributesProperties = attributesProperties;
@@ -57,7 +58,7 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 		return true;
 	}
 
-	private User setUser(HttpServletRequest request) throws PerunUnknownException, PerunConnectionException {
+	private User setUser(@NonNull HttpServletRequest request) throws PerunUnknownException, PerunConnectionException {
 		String userEmailAttr = attributesProperties.getUserEmailAttrName();
 		String extSourceProxy = applicationProperties.getProxyIdentifier();
 		String sub;

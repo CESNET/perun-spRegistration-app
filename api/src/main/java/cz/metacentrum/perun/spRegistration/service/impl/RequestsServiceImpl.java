@@ -40,6 +40,7 @@ import cz.metacentrum.perun.spRegistration.service.UtilsService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -88,9 +89,6 @@ public class RequestsServiceImpl implements RequestsService {
     @NonNull private final List<AttrInput> oidcInputs;
     @NonNull private final List<AttrInput> samlInputs;
 
-    @Value("#{'${mail.approval.default-authorities.mails}'.split(',')}")
-    private List<String> defaultAuthorities;
-
     @Autowired
     public RequestsServiceImpl(@NonNull PerunAdapter perunAdapter,
                                @NonNull MailsService mailsService,
@@ -103,11 +101,11 @@ public class RequestsServiceImpl implements RequestsService {
                                @NonNull AttributesProperties attributesProperties,
                                @NonNull ApprovalsProperties approvalsProperties,
                                @NonNull ProvidedServiceManager providedServiceManager,
-                               @NonNull List<AttrInput> serviceInputs,
-                               @NonNull List<AttrInput> organizationInputs,
-                               @NonNull List<AttrInput> membershipInputs,
-                               @NonNull List<AttrInput> oidcInputs,
-                               @NonNull List<AttrInput> samlInputs)
+                               @Qualifier("serviceInputs") List<AttrInput> serviceInputs,
+                               @Qualifier("organizationInputs") List<AttrInput> organizationInputs,
+                               @Qualifier("membershipInputs") List<AttrInput> membershipInputs,
+                               @Qualifier("oidcInputs") List<AttrInput> oidcInputs,
+                               @Qualifier("samlInputs") List<AttrInput> samlInputs)
     {
         this.perunAdapter = perunAdapter;
         this.mailsService = mailsService;
@@ -489,7 +487,7 @@ public class RequestsServiceImpl implements RequestsService {
         return requestUpdated;
     }
 
-    private Request createRequest(@NonNull Long facilityId, @NonNull Long userId,
+    private Request createRequest(Long facilityId, @NonNull Long userId,
                                   @NonNull RequestAction action, @NonNull List<PerunAttribute> attributes)
             throws InternalErrorException, ActiveRequestExistsException
     {

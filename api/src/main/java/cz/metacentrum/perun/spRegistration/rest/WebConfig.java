@@ -4,6 +4,7 @@ import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.rest.interceptors.UserSettingInterceptor;
+import lombok.NonNull;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,14 +22,14 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${dev.enabled}")
     public boolean devEnabled;
 
-    private final PerunAdapter perunAdapter;
-    private final AttributesProperties attributesProperties;
-    private final ApplicationProperties applicationProperties;
+    @NonNull private final PerunAdapter perunAdapter;
+    @NonNull private final AttributesProperties attributesProperties;
+    @NonNull private final ApplicationProperties applicationProperties;
 
     @Autowired
-    public WebConfig(PerunAdapter perunAdapter,
-                     AttributesProperties attributesProperties,
-                     ApplicationProperties applicationProperties)
+    public WebConfig(@NonNull PerunAdapter perunAdapter,
+                     @NonNull AttributesProperties attributesProperties,
+                     @NonNull ApplicationProperties applicationProperties)
     {
         this.perunAdapter = perunAdapter;
         this.attributesProperties = attributesProperties;
@@ -37,9 +38,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Bean
     @Autowired
-    public UserSettingInterceptor userSettingInterceptor(PerunAdapter perunAdapter,
-                                                         AttributesProperties attributesProperties,
-                                                         ApplicationProperties applicationProperties )
+    public UserSettingInterceptor userSettingInterceptor(@NonNull PerunAdapter perunAdapter,
+                                                         @NonNull AttributesProperties attributesProperties,
+                                                         @NonNull ApplicationProperties applicationProperties)
     {
         return new UserSettingInterceptor(perunAdapter, attributesProperties, applicationProperties);
     }

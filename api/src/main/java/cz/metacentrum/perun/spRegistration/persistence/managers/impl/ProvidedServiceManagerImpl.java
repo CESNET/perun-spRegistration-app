@@ -8,15 +8,19 @@ import cz.metacentrum.perun.spRegistration.persistence.mappers.ProvidedServiceMa
 import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.StringJoiner;
 
+
+@Component("providedServiceManager")
 public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
 
     private static final Logger log = LoggerFactory.getLogger(ProvidedServiceManagerImpl.class);
@@ -25,6 +29,7 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final ProvidedServiceMapper MAPPER = new ProvidedServiceMapper();
 
+    @Autowired
     public ProvidedServiceManagerImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.jdbcTemplate = namedParameterJdbcTemplate;
     }

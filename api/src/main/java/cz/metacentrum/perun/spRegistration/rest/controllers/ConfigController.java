@@ -8,6 +8,7 @@ import cz.metacentrum.perun.spRegistration.common.models.User;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
@@ -38,14 +39,14 @@ public class ConfigController {
 	@NonNull private final List<AttrInput> samlInputs;
 
 	@Autowired
-	public ConfigController(ApplicationProperties applicationProperties,
-							FrontendProperties frontendProperties,
-							ApprovalsProperties approvalsProperties,
-							List<AttrInput> serviceInputs,
-							List<AttrInput> organizationInputs,
-							List<AttrInput> membershipInputs,
-							List<AttrInput> oidcInputs,
-							List<AttrInput> samlInputs)
+	public ConfigController(@NonNull ApplicationProperties applicationProperties,
+							@NonNull FrontendProperties frontendProperties,
+							@NonNull ApprovalsProperties approvalsProperties,
+							@NonNull @Qualifier("serviceInputs") List<AttrInput> serviceInputs,
+							@NonNull @Qualifier("organizationInputs") List<AttrInput> organizationInputs,
+							@NonNull @Qualifier("membershipInputs") List<AttrInput> membershipInputs,
+							@NonNull @Qualifier("oidcInputs") List<AttrInput> oidcInputs,
+							@NonNull @Qualifier("samlInputs") List<AttrInput> samlInputs)
 	{
 		this.applicationProperties = applicationProperties;
 		this.frontendProperties = frontendProperties;
@@ -88,7 +89,7 @@ public class ConfigController {
 	}
 
 	@GetMapping(path = "/api/config/isUserAdmin")
-	public boolean isUserAdmin(@SessionAttribute("user") User user) {
+	public boolean isUserAdmin(@NonNull @SessionAttribute("user") User user) {
 		return applicationProperties.isAppAdmin(user.getId());
 	}
 

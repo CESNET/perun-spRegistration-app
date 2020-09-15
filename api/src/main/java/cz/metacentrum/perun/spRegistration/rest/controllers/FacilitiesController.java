@@ -17,6 +17,7 @@ import cz.metacentrum.perun.spRegistration.rest.ApiUtils;
 import cz.metacentrum.perun.spRegistration.service.AddAdminsService;
 import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -42,14 +43,14 @@ import java.util.List;
 @Slf4j
 public class FacilitiesController {
 
-	private final FacilitiesService facilitiesService;
-	private final AddAdminsService addAdminsService;
-	private final UtilsService utilsService;
+	@NonNull private final FacilitiesService facilitiesService;
+	@NonNull private final AddAdminsService addAdminsService;
+	@NonNull private final UtilsService utilsService;
 
 	@Autowired
-	public FacilitiesController(FacilitiesService facilitiesService,
-								AddAdminsService addAdminsService,
-								UtilsService utilsService)
+	public FacilitiesController(@NonNull FacilitiesService facilitiesService,
+								@NonNull AddAdminsService addAdminsService,
+								@NonNull UtilsService utilsService)
 	{
 		this.addAdminsService = addAdminsService;
 		this.facilitiesService = facilitiesService;
@@ -57,8 +58,8 @@ public class FacilitiesController {
 	}
 
 	@GetMapping(path = "/api/facility/{facilityId}")
-	public Facility facilityDetail(@SessionAttribute("user") User user,
-								   @PathVariable("facilityId") Long facilityId)
+	public Facility facilityDetail(@NonNull @SessionAttribute("user") User user,
+								   @NonNull @PathVariable("facilityId") Long facilityId)
 			throws UnauthorizedActionException, InternalErrorException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, PerunUnknownException, PerunConnectionException {
 		log.trace("facilityDetail(user(): {}, facilityId: {})", user.getId(), facilityId);
 
@@ -69,8 +70,8 @@ public class FacilitiesController {
 	}
 
 	@GetMapping(path = "/api/facility/signature/{facilityId}")
-	public Facility facilityDetailSignature(@SessionAttribute("user") User user,
-											@PathVariable("facilityId") Long facilityId)
+	public Facility facilityDetailSignature(@NonNull @SessionAttribute("user") User user,
+											@NonNull @PathVariable("facilityId") Long facilityId)
 			throws UnauthorizedActionException, InternalErrorException, BadPaddingException, InvalidKeyException,
 			IllegalBlockSizeException, PerunUnknownException, PerunConnectionException
 	{
@@ -85,7 +86,7 @@ public class FacilitiesController {
 	}
 
 	@GetMapping(path = "/api/userFacilities")
-	public List<ProvidedService> userFacilities(@SessionAttribute("user") User user)
+	public List<ProvidedService> userFacilities(@NonNull @SessionAttribute("user") User user)
 			throws PerunUnknownException, PerunConnectionException
 	{
 		log.trace("userFacilities({})", user.getId());
@@ -97,9 +98,9 @@ public class FacilitiesController {
 	}
 
 	@PostMapping(path = "/api/addAdmins/{facilityId}")
-	public boolean addAdmins(@SessionAttribute("user") User user,
-							 @PathVariable("facilityId") Long facilityId,
-							 @RequestBody List<String> adminEmails)
+	public boolean addAdmins(@NonNull @SessionAttribute("user") User user,
+							 @NonNull @PathVariable("facilityId") Long facilityId,
+							 @NonNull @RequestBody List<String> adminEmails)
 			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException,
 			UnsupportedEncodingException, InternalErrorException, UnauthorizedActionException,
 			PerunUnknownException, PerunConnectionException
@@ -113,8 +114,8 @@ public class FacilitiesController {
 	}
 
 	@PostMapping(path = "/api/addAdmin/confirm")
-	public boolean addAdminConfirm(@SessionAttribute("user") User user,
-								   @RequestBody String code)
+	public boolean addAdminConfirm(@NonNull @SessionAttribute("user") User user,
+								   @NonNull @RequestBody String code)
 			throws BadPaddingException, ExpiredCodeException, IllegalBlockSizeException,
 			InvalidKeyException, InternalErrorException, CodeNotStoredException, PerunUnknownException,
 			PerunConnectionException
@@ -129,8 +130,8 @@ public class FacilitiesController {
 	}
 
 	@PostMapping(path = "/api/addAdmin/reject")
-	public void addAdminReject(@SessionAttribute("user") User user,
-							   @RequestBody String code)
+	public void addAdminReject(@NonNull @SessionAttribute("user") User user,
+							   @NonNull @RequestBody String code)
 			throws BadPaddingException, ExpiredCodeException, IllegalBlockSizeException,
 			InvalidKeyException, InternalErrorException, CodeNotStoredException {
 		log.trace("addAdminReject(user: {}, code: {})", user, code);
@@ -142,8 +143,8 @@ public class FacilitiesController {
 	}
 
 	@GetMapping(path = "/api/addAdmin/getDetails/{hash}")
-	public LinkCode addAdminGetInfo(@SessionAttribute("user") User user,
-									@PathVariable("hash") String hash) {
+	public LinkCode addAdminGetInfo(@NonNull @SessionAttribute("user") User user,
+									@NonNull @PathVariable("hash") String hash) {
 		log.trace("addAdminGetInfo({}, {})", user, hash);
 
 		LinkCode details = addAdminsService.getCodeByString(hash);
@@ -153,8 +154,8 @@ public class FacilitiesController {
 	}
 
 	@GetMapping(path = "/api/addAdmin/getFacilityDetails/{facilityId}")
-	public Facility addAdminGetFacilityDetail(@SessionAttribute("user") User user,
-											  @PathVariable("facilityId") Long facilityId)
+	public Facility addAdminGetFacilityDetail(@NonNull @SessionAttribute("user") User user,
+											  @NonNull @PathVariable("facilityId") Long facilityId)
 			throws BadPaddingException, IllegalBlockSizeException, InternalErrorException,
 			InvalidKeyException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException
 	{
@@ -167,8 +168,8 @@ public class FacilitiesController {
 	}
 
 	@GetMapping(path = "/api/facilityWithInputs/{facilityId}")
-	public Facility getDetailedFacilityWithInputs(@SessionAttribute("user") User user,
-												  @PathVariable("facilityId") Long facilityId)
+	public Facility getDetailedFacilityWithInputs(@NonNull @SessionAttribute("user") User user,
+												  @NonNull @PathVariable("facilityId") Long facilityId)
 			throws UnauthorizedActionException, InternalErrorException, BadPaddingException, InvalidKeyException,
 			IllegalBlockSizeException, PerunUnknownException, PerunConnectionException
 	{
@@ -180,7 +181,9 @@ public class FacilitiesController {
 	}
 
 	@GetMapping(path = "/api/allFacilities")
-	public List<ProvidedService> allFacilities(@SessionAttribute("user") User user) throws UnauthorizedActionException, PerunUnknownException, PerunConnectionException {
+	public List<ProvidedService> allFacilities(@NonNull @SessionAttribute("user") User user)
+			throws UnauthorizedActionException, PerunUnknownException, PerunConnectionException
+	{
 		log.trace("allFacilities({})", user.getId());
 
 		List<ProvidedService> facilityList = facilitiesService.getAllFacilities(user.getId());
@@ -191,9 +194,11 @@ public class FacilitiesController {
 
 	@PostMapping(path = "api/facility/regenerateClientSecret/{facilityId}",
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	public PerunAttribute generateClientSecret(@SessionAttribute("user") User user,
-											   @PathVariable("facilityId") Long facilityId)
-			throws UnauthorizedActionException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, PerunUnknownException, PerunConnectionException {
+	public PerunAttribute generateClientSecret(@NonNull @SessionAttribute("user") User user,
+											   @NonNull @PathVariable("facilityId") Long facilityId)
+			throws UnauthorizedActionException, BadPaddingException, InvalidKeyException,
+			IllegalBlockSizeException, PerunUnknownException, PerunConnectionException
+	{
 		log.trace("generateClientSecret(user: {}, facilityId: {})", user, facilityId);
 		PerunAttribute clientSecret = utilsService.regenerateClientSecret(user.getId(), facilityId);
 

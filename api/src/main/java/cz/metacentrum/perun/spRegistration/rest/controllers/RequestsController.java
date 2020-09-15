@@ -10,6 +10,7 @@ import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.service.RequestsService;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,15 +34,17 @@ import java.util.List;
 @Slf4j
 public class RequestsController {
 
-	private final RequestsService requestsService;
+	@NonNull private final RequestsService requestsService;
 
 	@Autowired
-	public RequestsController(RequestsService requestsService) {
+	public RequestsController(@NonNull RequestsService requestsService) {
 		this.requestsService = requestsService;
 	}
 
 	@GetMapping(path = "/api/userRequests")
-	public List<Request> userRequests(@SessionAttribute("user") User user) throws PerunUnknownException, PerunConnectionException {
+	public List<Request> userRequests(@NonNull @SessionAttribute("user") User user)
+			throws PerunUnknownException, PerunConnectionException
+	{
 		log.trace("userRequests({})", user.getId());
 
 		List<Request> requestList = requestsService.getAllUserRequests(user.getId());
@@ -51,8 +54,9 @@ public class RequestsController {
 	}
 
 	@PostMapping(path = "/api/register")
-	public Long createRegistrationRequest(@SessionAttribute("user") User user,
-										  @RequestBody List<PerunAttribute> attributes) throws InternalErrorException
+	public Long createRegistrationRequest(@NonNull @SessionAttribute("user") User user,
+										  @NonNull @RequestBody List<PerunAttribute> attributes)
+			throws InternalErrorException
 	{
 		log.trace("createRegistrationRequest(user: {}, attributes: {})", user.getId(), attributes);
 
@@ -63,10 +67,12 @@ public class RequestsController {
 	}
 
 	@PostMapping(path = "/api/changeFacility/{facilityId}")
-	public Long createFacilityChangesRequest(@SessionAttribute("user") User user,
-											 @RequestBody List<PerunAttribute> attributes,
-											 @PathVariable("facilityId") Long facilityId)
-			throws ActiveRequestExistsException, InternalErrorException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException {
+	public Long createFacilityChangesRequest(@NonNull @SessionAttribute("user") User user,
+											 @NonNull @RequestBody List<PerunAttribute> attributes,
+											 @NonNull @PathVariable("facilityId") Long facilityId)
+			throws ActiveRequestExistsException, InternalErrorException, UnauthorizedActionException,
+			PerunUnknownException, PerunConnectionException
+	{
 		log.trace("createFacilityChangesRequest(user: {}, facilityId: {}, attributes: {})", user.getId(),
 				facilityId, attributes);
 
@@ -77,9 +83,11 @@ public class RequestsController {
 	}
 
 	@PostMapping(path = "/api/remove/{facilityId}")
-	public Long createRemovalRequest(@SessionAttribute("user") User user,
-									 @PathVariable("facilityId") Long facilityId)
-			throws ActiveRequestExistsException, InternalErrorException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException {
+	public Long createRemovalRequest(@NonNull @SessionAttribute("user") User user,
+									 @NonNull @PathVariable("facilityId") Long facilityId)
+			throws ActiveRequestExistsException, InternalErrorException, UnauthorizedActionException,
+			PerunUnknownException, PerunConnectionException
+	{
 		log.trace("createRemovalRequest(user: {}, facilityId: {})", user.getId(), facilityId);
 
 		Long generatedId = requestsService.createRemovalRequest(user.getId(), facilityId);
@@ -89,9 +97,9 @@ public class RequestsController {
 	}
 
 	@PostMapping(path = "/api/update/{requestId}")
-	public boolean updateRequest(@SessionAttribute("user") User user,
-								 @PathVariable("requestId") Long requestId,
-								 @RequestBody List<PerunAttribute> attributes)
+	public boolean updateRequest(@NonNull @SessionAttribute("user") User user,
+								 @NonNull @PathVariable("requestId") Long requestId,
+								 @NonNull @RequestBody List<PerunAttribute> attributes)
 			throws InternalErrorException, UnauthorizedActionException
 	{
 		log.trace("updateRequest(user: {}, requestId: {}, attributes: {})", user.getId(), requestId, attributes);
@@ -103,9 +111,10 @@ public class RequestsController {
 	}
 
 	@GetMapping(path = "/api/request/{requestId}")
-	public Request requestDetail(@SessionAttribute("user") User user,
-								 @PathVariable("requestId") Long requestId)
-			throws InternalErrorException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException {
+	public Request requestDetail(@NonNull @SessionAttribute("user") User user,
+								 @NonNull @PathVariable("requestId") Long requestId)
+			throws InternalErrorException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException
+	{
 		log.trace("requestDetail(user: {}, requestId: {})", user.getId(), requestId);
 
 		Request request = requestsService.getRequest(requestId, user.getId());
@@ -117,7 +126,7 @@ public class RequestsController {
 	// admin
 
 	@GetMapping(path = "/api/allRequests")
-	public List<Request> allRequests(@SessionAttribute("user") User user)
+	public List<Request> allRequests(@NonNull @SessionAttribute("user") User user)
 			throws UnauthorizedActionException
 	{
 		log.trace("allRequests({})", user.getId());
@@ -129,9 +138,12 @@ public class RequestsController {
 	}
 
 	@PostMapping(path = "/api/approve/{requestId}")
-	public boolean approveRequest(@SessionAttribute("user") User user,
-								  @PathVariable("requestId") Long requestId)
-			throws CannotChangeStatusException, InternalErrorException, UnauthorizedActionException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, PerunUnknownException, PerunConnectionException {
+	public boolean approveRequest(@NonNull @SessionAttribute("user") User user,
+								  @NonNull @PathVariable("requestId") Long requestId)
+			throws CannotChangeStatusException, InternalErrorException, UnauthorizedActionException,
+			BadPaddingException, InvalidKeyException, IllegalBlockSizeException, PerunUnknownException,
+			PerunConnectionException
+	{
 		log.trace("approveRequest(user: {}, requestId: {})", user.getId(), requestId);
 
 		boolean successful = requestsService.approveRequest(requestId, user.getId());
@@ -141,8 +153,8 @@ public class RequestsController {
 	}
 
 	@PostMapping(path = "/api/reject/{requestId}")
-	public boolean rejectRequest(@SessionAttribute("user") User user,
-								 @PathVariable("requestId") Long requestId)
+	public boolean rejectRequest(@NonNull @SessionAttribute("user") User user,
+								 @NonNull @PathVariable("requestId") Long requestId)
 			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException
 	{
 		log.trace("rejectRequest(user: {}, requestId: {})", user.getId(), requestId);
@@ -154,9 +166,9 @@ public class RequestsController {
 	}
 
 	@PostMapping(path = "/api/askForChanges/{requestId}")
-	public boolean askForChanges(@SessionAttribute("user") User user,
-								 @PathVariable("requestId") Long requestId,
-								 @RequestBody List<PerunAttribute> attributes)
+	public boolean askForChanges(@NonNull @SessionAttribute("user") User user,
+								 @NonNull @PathVariable("requestId") Long requestId,
+								 @NonNull @RequestBody List<PerunAttribute> attributes)
 			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException
 	{
 		log.trace("askForChanges(user: {}, requestId: {}, attributes: {})", user.getId(), requestId, attributes);
@@ -166,4 +178,5 @@ public class RequestsController {
 		log.trace("askForChanges() returns: {}", successful);
 		return successful;
 	}
+
 }

@@ -9,12 +9,12 @@
   <p class="text-muted mb-1">
     <span class="small" [innerHTML]="item.description | itemLocalePipe"></span>
   </p>
-  <div class="mb-0" [innerHTML]="item.value | detailedViewItemValuePipe"></div>
+  <div class="mb-0 text-break" [innerHTML]="item.value | detailedViewItemValuePipe"></div>
   <ng-container *ngIf="displayOldVal">
     <p class="mt-1 mb-0 text-muted small">
       <span class="mr-1">{{'REQUESTS.OLD_VALUE' | translate}}:</span>
     </p>
-    <div class="mb-0 text-muted small" [innerHTML]="item.oldValue | detailedViewItemValuePipe"></div>
+    <div class="mb-0 text-muted small text-break" [innerHTML]="item.oldValue | detailedViewItemValuePipe"></div>
   </ng-container>
 </div>
 

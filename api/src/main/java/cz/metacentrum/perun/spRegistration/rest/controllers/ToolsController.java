@@ -3,6 +3,7 @@ package cz.metacentrum.perun.spRegistration.rest.controllers;
 import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.rest.ApiUtils;
 import cz.metacentrum.perun.spRegistration.service.ServiceUtils;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,15 +23,15 @@ import java.util.Map;
 @RestController
 public class ToolsController {
 
-	private final AppBeansContainer appBeansContainer;
+	@NonNull private final AppBeansContainer appBeansContainer;
 
 	@Autowired
-	public ToolsController(AppBeansContainer appBeansContainer) {
+	public ToolsController(@NonNull AppBeansContainer appBeansContainer) {
 		this.appBeansContainer = appBeansContainer;
 	}
 
 	@PostMapping(path = "/api/tools/encrypt")
-	public Map<String, String> encrypt(@RequestBody String toEncrypt)
+	public Map<String, String> encrypt(@NonNull  @RequestBody String toEncrypt)
 			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
 		if (toEncrypt == null) {
 			return null;
@@ -43,7 +44,7 @@ public class ToolsController {
 	}
 
 	@PostMapping(path = "/api/tools/decrypt")
-	public Map<String, String> decrypt(@RequestBody String toDecrypt)
+	public Map<String, String> decrypt(@NonNull @RequestBody String toDecrypt)
 			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
 		if (toDecrypt == null) {
 			return null;
@@ -54,4 +55,5 @@ public class ToolsController {
 		String val = ServiceUtils.decrypt(toDecrypt, appBeansContainer.getSecretKeySpec());
 		return Collections.singletonMap("value", val);
 	}
+
 }

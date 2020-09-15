@@ -23,6 +23,7 @@ import cz.metacentrum.perun.spRegistration.service.UtilsService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.BadPaddingException;
@@ -62,11 +63,11 @@ public class FacilitiesServiceImpl implements FacilitiesService {
                                  ApplicationProperties applicationProperties,
                                  ProvidedServiceManager providedServiceManager,
                                  Map<String, AttrInput> attrInputMap,
-                                 List<AttrInput> serviceInputs,
-                                 List<AttrInput> organizationInputs,
-                                 List<AttrInput> membershipInputs,
-                                 List<AttrInput> oidcInputs,
-                                 List<AttrInput> samlInputs)
+                                 @Qualifier("serviceInputs") List<AttrInput> serviceInputs,
+                                 @Qualifier("organizationInputs") List<AttrInput> organizationInputs,
+                                 @Qualifier("membershipInputs") List<AttrInput> membershipInputs,
+                                 @Qualifier("oidcInputs") List<AttrInput> oidcInputs,
+                                 @Qualifier("samlInputs") List<AttrInput> samlInputs)
     {
         this.perunAdapter = perunAdapter;
         this.utilsService = utilsService;
