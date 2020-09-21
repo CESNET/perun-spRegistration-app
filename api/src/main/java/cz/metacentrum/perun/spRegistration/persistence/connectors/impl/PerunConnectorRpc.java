@@ -267,7 +267,7 @@ public class PerunConnectorRpc implements PerunConnector {
 		params.put("facility", facilityId);
 		params.put("attribute", attrJson);
 
-		boolean successful = (null == makeRpcPostCall(ATTRIBUTES_MANAGER, "setAttribute", params));
+		boolean successful = (null != makeRpcPostCall(ATTRIBUTES_MANAGER, "setAttribute", params));
 
 		log.trace("setFacilityAttribute() returns: {}", successful);
 		return successful;

@@ -8,6 +8,12 @@
                           [isAppAdmin]="isAppAdmin"
                           [includeComment]="includeComment"
                           [displayOldVal]="item.shouldDisplayOldVal(displayOldVal)"></detail-item-string>
+      <detail-item-string *ngSwitchCase="'java.lang.LargeString'"
+                          class="toggleable"
+                          [item]="item"
+                          [isAppAdmin]="isAppAdmin"
+                          [includeComment]="includeComment"
+                          [displayOldVal]="item.shouldDisplayOldVal(displayOldVal)"></detail-item-string>
       <!-- LONG -->
       <detail-item-integer *ngSwitchCase="'java.lang.Long'"
                            [item]="item"
@@ -28,6 +34,11 @@
                        [displayOldVal]="item.shouldDisplayOldVal(displayOldVal)"></detail-item-map>
       <!-- ARRAY -->
       <detail-item-array *ngSwitchCase="'java.util.ArrayList'"
+                         [item]="item"
+                         [isAppAdmin]="isAppAdmin"
+                         [includeComment]="includeComment"
+                         [displayOldVal]="item.shouldDisplayOldVal(displayOldVal)"></detail-item-array>
+      <detail-item-array *ngSwitchCase="'java.util.LargeArrayList'"
                          [item]="item"
                          [isAppAdmin]="isAppAdmin"
                          [includeComment]="includeComment"

@@ -35,8 +35,8 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		log.debug("UserSettingInterceptor 'preHandle()'");
+		User userFromRequest = (User) request.getSession().getAttribute("user");
 
-		User userFromRequest = (User)request.getSession().getAttribute("user");
 
 		if (userFromRequest == null && setUser(request) == null) {
 			String url = request.getRequestURL().toString();

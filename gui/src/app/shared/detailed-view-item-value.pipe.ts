@@ -39,7 +39,7 @@ export class DetailedViewItemValuePipe implements PipeTransform {
       finalVal = DetailedViewItemValuePipe.mailize(finalVal);
     }
 
-    return `<span class="text-dark">${finalVal}</span>`;
+    return `<span class="text-dark text-break">${finalVal}</span>`;
   }
 
   private processObject(value: any): any {
@@ -49,10 +49,10 @@ export class DetailedViewItemValuePipe implements PipeTransform {
         let part = value[key];
         part = DetailedViewItemValuePipe.urlify(part);
         part = DetailedViewItemValuePipe.mailize(part);
-        output += `<li><span class="text-dark">${key}:</span> ${part}</li>`;
+        output += `<li class="text-break"><span class="text-dark">${key}:</span> ${part}</li>`;
       }
     } else {
-      output = `<li>${this.undefText}</li>`;
+      output = `<li class="text-break">${this.undefText}</li>`;
     }
     return `<ul class="m-0 pb-0 text-dark">${output}</ul>`;
   }
@@ -65,10 +65,10 @@ export class DetailedViewItemValuePipe implements PipeTransform {
         let part = val;
         part = DetailedViewItemValuePipe.urlify(part);
         part = DetailedViewItemValuePipe.mailize(part);
-        output += `<li>${part}</li>`;
+        output += `<li class="text-break">${part}</li>`;
       }
     } else {
-      output = `<li>${this.undefText}</li>`;
+      output = `<li class="text-break">${this.undefText}</li>`;
     }
 
     return `<ul class="m-0 pb-0 text-dark">${output}</ul>`;

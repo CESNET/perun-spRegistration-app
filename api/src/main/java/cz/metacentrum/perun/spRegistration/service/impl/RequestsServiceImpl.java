@@ -54,7 +54,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -415,6 +414,7 @@ public class RequestsServiceImpl implements RequestsService {
 
         request.setStatus(RequestStatus.APPROVED);
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
+        request.setModifiedBy(userId);
         request.updateAttributes(new ArrayList<>(), false, appConfig);
 
         boolean requestProcessed = processApprovedRequest(request);
@@ -460,6 +460,7 @@ public class RequestsServiceImpl implements RequestsService {
 
         request.setStatus(RequestStatus.REJECTED);
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
+        request.setModifiedBy(userId);
 
         boolean requestUpdated = requestManager.updateRequest(request);
         mailsService.notifyUser(request, MailsServiceImpl.REQUEST_STATUS_UPDATED);
@@ -500,6 +501,7 @@ public class RequestsServiceImpl implements RequestsService {
 
         request.updateAttributes(attributes, false, appConfig);
         request.setStatus(RequestStatus.WAITING_FOR_CHANGES);
+        request.setModifiedBy(userId);
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
 
         boolean requestUpdated = requestManager.updateRequest(request);

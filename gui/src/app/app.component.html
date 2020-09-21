@@ -9,8 +9,8 @@
       <span class="d-none d-sm-inline-block">{{ appTitle }}</span>
     </a>
     <div class="titlebar-right">
-      <div class="user-info">
-        <div class="d-none d-md-inline-block mr-1" *ngIf="hasUser()">{{ getUser().name }}</div>
+      <div class="user-info" *ngIf="hasUser()">
+        <div class="d-none d-md-inline-block mr-1">{{ getUser().name }}</div>
         <div class="d-md-none d-inline-block">
           <button mat-icon-button class="no-focus-outline d-block" [matMenuTriggerFor]="userDetail">
             <mat-icon>person</mat-icon>
