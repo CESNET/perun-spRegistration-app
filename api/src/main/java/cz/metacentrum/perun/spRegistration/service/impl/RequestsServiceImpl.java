@@ -19,6 +19,7 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionE
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.Group;
+import cz.metacentrum.perun.spRegistration.common.models.InputsContainer;
 import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
@@ -31,7 +32,7 @@ import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownEx
 import cz.metacentrum.perun.spRegistration.persistence.managers.LinkCodeManager;
 import cz.metacentrum.perun.spRegistration.persistence.managers.ProvidedServiceManager;
 import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
-import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
+import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
 import cz.metacentrum.perun.spRegistration.service.MailsService;
 import cz.metacentrum.perun.spRegistration.service.RequestsService;
@@ -40,8 +41,6 @@ import cz.metacentrum.perun.spRegistration.service.UtilsService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.BadPaddingException;
@@ -101,11 +100,7 @@ public class RequestsServiceImpl implements RequestsService {
                                @NonNull AttributesProperties attributesProperties,
                                @NonNull ApprovalsProperties approvalsProperties,
                                @NonNull ProvidedServiceManager providedServiceManager,
-                               @Qualifier("serviceInputs") List<AttrInput> serviceInputs,
-                               @Qualifier("organizationInputs") List<AttrInput> organizationInputs,
-                               @Qualifier("membershipInputs") List<AttrInput> membershipInputs,
-                               @Qualifier("oidcInputs") List<AttrInput> oidcInputs,
-                               @Qualifier("samlInputs") List<AttrInput> samlInputs)
+                               @NonNull InputsContainer inputsContainer)
     {
         this.perunAdapter = perunAdapter;
         this.mailsService = mailsService;
@@ -118,11 +113,11 @@ public class RequestsServiceImpl implements RequestsService {
         this.attributesProperties = attributesProperties;
         this.approvalsProperties = approvalsProperties;
         this.providedServiceManager = providedServiceManager;
-        this.serviceInputs = serviceInputs;
-        this.organizationInputs = organizationInputs;
-        this.membershipInputs = membershipInputs;
-        this.oidcInputs = oidcInputs;
-        this.samlInputs = samlInputs;
+        this.serviceInputs = inputsContainer.getServiceInputs();
+        this.organizationInputs = inputsContainer.getOrganizationInputs();
+        this.membershipInputs = inputsContainer.getMembershipInputs();
+        this.oidcInputs = inputsContainer.getOidcInputs();
+        this.samlInputs = inputsContainer.getSamlInputs();
     }
 
     @Override
@@ -514,13 +509,13 @@ public class RequestsServiceImpl implements RequestsService {
     {
         switch(request.getAction()) {
             case REGISTER_NEW_SP:
-                return registerNewFacilityToPerun(request);
+                return this.registerNewFacilityToPerun(request);
             case UPDATE_FACILITY:
-                return updateFacilityInPerun(request);
+                return this.updateFacilityInPerun(request);
             case DELETE_FACILITY:
-                return deleteFacilityFromPerun(request);
+                return this.deleteFacilityFromPerun(request);
             case MOVE_TO_PRODUCTION:
-                return moveToProduction(request);
+                return this.moveToProduction(request);
         }
 
         return false;
@@ -534,7 +529,6 @@ public class RequestsServiceImpl implements RequestsService {
         Facility facility = new Facility(null);
         facility.setPerunName(name);
         facility.setPerunDescription(desc);
-        boolean isOidcService = ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName());
         try {
             facility = perunAdapter.createFacilityInPerun(facility.toJson());
         } catch (Exception e) {
@@ -576,37 +570,19 @@ public class RequestsServiceImpl implements RequestsService {
             } else {
                 log.error("Could not set created group {} as managers for facility {}", adminsGroupId, facility.getId());
             }
-            PerunAttribute adminsGroupAttr = generateAdminsGroupAttr(adminsGroup.getId());
-            PerunAttribute testSp = generateTestSpAttribute(true);
-            PerunAttribute showOnServiceList = generateShowOnServiceListAttribute(false);
-            PerunAttribute proxyIdentifiers = generateProxyIdentifiersAttribute();
-            PerunAttribute masterProxyIdentifiers = generateMasterProxyIdentifierAttribute();
-            PerunAttribute authProtocol = generateAuthProtocolAttribute(ServiceUtils.isOidcRequest(request,
-                    attributesProperties.getEntityIdAttrName()));
 
             ArrayNode attributes = request.getAttributesAsJsonArrayForPerun();
-            if (ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName())) {
-                for (int i = 0; i < 10; i++) {
-                    try {
-                        perunAdapter.setFacilityAttribute(facility.getId(), clientId.toJson());
-                        break;
-                    } catch (Exception e) {
-                        log.warn("Failed to set attribute clientId with value {} for facility {}",
-                                clientId.valueAsString(), facility.getId());
-                        clientId = generateClientIdAttribute();
-                    }
+            boolean isOidc = ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName());
+            if (isOidc) {
+                if (!setClientIdAttribute(facility.getId(), clientId)) {
+                    throw new InternalErrorException("Could not set client_id");
                 }
 
                 PerunAttribute clientSecret = utilsService.generateClientSecretAttribute();
                 perunAdapter.setFacilityAttribute(facility.getId(), clientSecret.toJson());
             }
-            attributes.add(adminsGroupAttr.toJson());
-            attributes.add(testSp.toJson());
-            attributes.add(showOnServiceList.toJson());
-            attributes.add(proxyIdentifiers.toJson());
-            attributes.add(masterProxyIdentifiers.toJson());
-            attributes.add(authProtocol.toJson());
-            boolean attributesSet = perunConnector.setFacilityAttributes(request.getFacilityId(), attributes);
+            this.fillAttributes(attributes, isOidc, adminsGroupId);
+            boolean attributesSet = perunAdapter.setFacilityAttributes(request.getFacilityId(), attributes);
 
             boolean successful = (adminSet && attributesSet);
             if (!successful) {
@@ -616,8 +592,8 @@ public class RequestsServiceImpl implements RequestsService {
             }
             log.trace("registerNewFacilityToPerun returns: {}", successful);
             return successful;
-        } catch (JsonProcessingException | PerunUnknownException | PerunConnectionException |
-                BadPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
+        } catch (JsonProcessingException | PerunConnectionException | PerunUnknownException | BadPaddingException
+                | InvalidKeyException | IllegalBlockSizeException | InternalErrorException e) {
             log.error("Caught ConnectorException", e);
             try {
                 perunAdapter.deleteFacilityFromPerun(facility.getId());
@@ -697,23 +673,36 @@ public class RequestsServiceImpl implements RequestsService {
         if (adminsGroupAttr == null || adminsGroupAttr.valueAsLong() == null) {
             log.warn("No admins group ID found for facility: {}", facilityId);
         } else {
-            Long groupId = adminsGroupAttr.valueAsLong();
-            boolean removedGroupFromAdmins = perunAdapter.removeGroupFromAdmins(request.getFacilityId(), groupId);
-            if (removedGroupFromAdmins) {
-                perunAdapter.deleteGroup(groupId);
+            try {
+                Long groupId = adminsGroupAttr.valueAsLong();
+                boolean removedGroupFromAdmins = perunAdapter.removeGroupFromAdmins(request.getFacilityId(), groupId);
+                if (removedGroupFromAdmins) {
+                    boolean groupDeleted = !perunAdapter.deleteGroup(groupId);
+                    if (!groupDeleted) {
+                        perunAdapter.addGroupAsAdmins(request.getFacilityId(), groupId);
+                    }
+                } else {
+                    log.warn("Could not delete admins group");
+                    return false;
+                }
+            } catch (PerunUnknownException | PerunConnectionException e) {
+                log.error("Caught {}", e.getClass(), e);
+                return false;
             }
         }
 
-        boolean facilityRemoved = perunAdapter.deleteFacilityFromPerun(facilityId);
-        providedServiceManager.deleteByFacilityId(facilityId);
-
-        if (facilityRemoved) {
-            log.info("Facility has been deleted");
-        } else {
-            log.error("Facility has not been deleted");
+        try {
+            boolean facilityRemoved = perunAdapter.deleteFacilityFromPerun(facilityId);
+            if (facilityRemoved) {
+                providedServiceManager.deleteByFacilityId(facilityId);
+            }
+        } catch (PerunConnectionException | PerunUnknownException e) {
+            return false;
+        } catch (InternalErrorException e) {
+            log.error("Failed to delete ProvidedService");
         }
 
-        return facilityRemoved;
+        return true;
     }
 
     private boolean setClientIdAttribute(@NonNull Long facilityId, @NonNull PerunAttribute clientId) {
@@ -732,7 +721,7 @@ public class RequestsServiceImpl implements RequestsService {
         return false;
     }
 
-    private ArrayNode generateAttributesJsonArray(@NonNull ArrayNode attributes, boolean isOidcService)
+    private void fillAttributes(@NonNull ArrayNode attributes, boolean isOidcService, Long adminsGroupId)
             throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException
     {
         if (isOidcService) {
@@ -745,8 +734,7 @@ public class RequestsServiceImpl implements RequestsService {
         attributes.add(this.generateProxyIdentifiersAttribute().toJson());
         attributes.add(this.generateMasterProxyIdentifierAttribute().toJson());
         attributes.add(this.generateAuthProtocolAttribute(isOidcService).toJson());
-
-        return attributes;
+        attributes.add(this.generateAdminsGroupAttr(adminsGroupId).toJson());
     }
 
     private boolean moveToProduction(@NonNull Request request)
@@ -765,6 +753,7 @@ public class RequestsServiceImpl implements RequestsService {
             providedServiceManager.update(sp);
         } catch (InternalErrorException | JsonProcessingException ex) {
             log.warn("Caught Exception when updating ProvidedService {}", sp, ex);
+            return false;
         }
 
         return perunAdapter.setFacilityAttributes(request.getFacilityId(), attributes);
@@ -854,14 +843,10 @@ public class RequestsServiceImpl implements RequestsService {
         return attribute;
     }
 
-    private PerunAttribute generateAdminsGroupAttr(Long id) {
-        log.trace("generateAdminsGroupAttr({})", id);
-
+    private PerunAttribute generateAdminsGroupAttr(@NonNull Long id) {
         PerunAttribute attribute = new PerunAttribute();
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getManagerGroupAttrName()));
         attribute.setValue(JsonNodeFactory.instance.numberNode(id));
-
-        log.trace("generateAdminsGroupAttr({}) returns: {}", id, attribute);
         return attribute;
     }
 

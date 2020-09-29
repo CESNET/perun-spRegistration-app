@@ -2,6 +2,7 @@ package cz.metacentrum.perun.spRegistration.common.configs;
 
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
+import cz.metacentrum.perun.spRegistration.common.models.InputsContainer;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
@@ -10,7 +11,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -33,25 +33,16 @@ public class AppBeansContainer {
     @NonNull private final Map<String, AttributeCategory> attributeCategoryMap;
     @NonNull private final AttributesProperties attributesProperties;
     @NonNull private final SecretKeySpec secretKeySpec;
-    @NonNull private final List<AttrInput> serviceInputs;
-    @NonNull private final List<AttrInput> organizationInputs;
-    @NonNull private final List<AttrInput> membershipInputs;
-    @NonNull private final List<AttrInput> oidcInputs;
-    @NonNull private final List<AttrInput> samlInputs;
     @NonNull private final Map<String, AttrInput> attrInputMap;
 
     @Autowired
-    public AppBeansContainer(ApplicationProperties applicationProperties,
-                             PerunAdapter perunAdapter,
-                             Map<String, PerunAttributeDefinition> attributeDefinitionMap,
-                             Map<String, AttributeCategory> attributeCategoryMap,
-                             Map<String, AttrInput> attrInputMap,
-                             AttributesProperties attributesProperties,
-                             @Qualifier("serviceInputs") List<AttrInput> serviceInputs,
-                             @Qualifier("organizationInputs") List<AttrInput> organizationInputs,
-                             @Qualifier("membershipInputs") List<AttrInput> membershipInputs,
-                             @Qualifier("oidcInputs") List<AttrInput> oidcInputs,
-                             @Qualifier("samlInputs") List<AttrInput> samlInputs)
+    public AppBeansContainer(@NonNull ApplicationProperties applicationProperties,
+                             @NonNull PerunAdapter perunAdapter,
+                             @NonNull Map<String, PerunAttributeDefinition> attributeDefinitionMap,
+                             @NonNull Map<String, AttributeCategory> attributeCategoryMap,
+                             @NonNull Map<String, AttrInput> attrInputMap,
+                             @NonNull AttributesProperties attributesProperties,
+                             @NonNull InputsContainer inputsContainer)
             throws PerunUnknownException, PerunConnectionException, NoSuchAlgorithmException
     {
         this.applicationProperties = applicationProperties;
@@ -60,18 +51,13 @@ public class AppBeansContainer {
         this.attributeCategoryMap = attributeCategoryMap;
         this.attrInputMap = attrInputMap;
         this.attributesProperties = attributesProperties;
-        this.serviceInputs = serviceInputs;
-        this.organizationInputs = organizationInputs;
-        this.membershipInputs = membershipInputs;
-        this.oidcInputs = oidcInputs;
-        this.samlInputs = samlInputs;
 
         this.initializeDefinitions();
-        this.initInputs(serviceInputs, AttributeCategory.SERVICE);
-        this.initInputs(organizationInputs, AttributeCategory.ORGANIZATION);
-        this.initInputs(membershipInputs, AttributeCategory.ACCESS_CONTROL);
-        this.initInputs(oidcInputs, AttributeCategory.PROTOCOL);
-        this.initInputs(samlInputs, AttributeCategory.PROTOCOL);
+        this.initInputs(inputsContainer.getServiceInputs(), AttributeCategory.SERVICE);
+        this.initInputs(inputsContainer.getOrganizationInputs(), AttributeCategory.ORGANIZATION);
+        this.initInputs(inputsContainer.getMembershipInputs(), AttributeCategory.ACCESS_CONTROL);
+        this.initInputs(inputsContainer.getSamlInputs(), AttributeCategory.PROTOCOL);
+        this.initInputs(inputsContainer.getOidcInputs(), AttributeCategory.PROTOCOL);
 
         this.secretKeySpec = this.generateSecretKeySpec(applicationProperties.getSecretKey());
     }
@@ -114,7 +100,7 @@ public class AppBeansContainer {
 
     // private methods
 
-    private SecretKeySpec generateSecretKeySpec(String secret) throws NoSuchAlgorithmException {
+    private SecretKeySpec generateSecretKeySpec(@NonNull String secret) throws NoSuchAlgorithmException {
         secret = fixSecret(secret);
         MessageDigest sha;
         byte[] key = secret.getBytes(StandardCharsets.UTF_8);

@@ -3,7 +3,7 @@ package cz.metacentrum.perun.spRegistration.persistence.mappers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment;
 import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol;
-import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
+import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;

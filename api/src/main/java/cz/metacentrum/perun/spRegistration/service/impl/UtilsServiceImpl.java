@@ -34,12 +34,12 @@ import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.
 @Slf4j
 public class UtilsServiceImpl implements UtilsService {
 
-    private final LinkCodeManager linkCodeManager;
-    private final PerunAdapter perunAdapter;
-    private final MailsService mailsService;
-    private final ApplicationProperties applicationProperties;
-    private final AttributesProperties attributesProperties;
-    private final AppBeansContainer appBeansContainer;
+    @NonNull private final LinkCodeManager linkCodeManager;
+    @NonNull private final PerunAdapter perunAdapter;
+    @NonNull private final MailsService mailsService;
+    @NonNull private final ApplicationProperties applicationProperties;
+    @NonNull private final AttributesProperties attributesProperties;
+    @NonNull private final AppBeansContainer appBeansContainer;
 
     @Autowired
     public UtilsServiceImpl(@NonNull LinkCodeManager linkCodeManager,
@@ -107,8 +107,8 @@ public class UtilsServiceImpl implements UtilsService {
     }
 
     @Override
-    public PerunAttribute generateClientSecretAttribute() throws BadPaddingException, InvalidKeyException,
-            IllegalBlockSizeException
+    public PerunAttribute generateClientSecretAttribute()
+            throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException
     {
         PerunAttribute attribute = new PerunAttribute();
         String clientSecret = ServiceUtils.generateClientSecret();

@@ -10,7 +10,7 @@ import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.User;
-import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
+import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.rest.ApiUtils;

@@ -3,21 +3,28 @@ package cz.metacentrum.perun.spRegistration.service;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import lombok.NonNull;
 
 import java.util.Map;
 
 public interface MailsService {
-    void notifyAuthorities(Request req, Map<String, String> authoritiesLinksMap);
 
-    boolean notifyNewAdmins(Facility facility, Map<String, String> adminsLinksMap, User user);
+    void notifyAuthorities(@NonNull Request req, @NonNull Map<String, String> authoritiesLinksMap);
 
-    boolean authoritiesApproveProductionTransferNotify(String approvalLink, Request req, String recipient);
+    boolean notifyNewAdmins(@NonNull Facility facility, @NonNull Map<String, String> adminsLinksMap,
+                            @NonNull User user);
 
-    boolean adminAddRemoveNotify(String approvalLink, Facility facility, String recipient, User user);
+    boolean authoritiesApproveProductionTransferNotify(@NonNull String approvalLink,
+                                                       @NonNull Request req,
+                                                       @NonNull String recipient);
 
-    void notifyUser(Request req, String action);
+    boolean adminAddRemoveNotify(@NonNull String approvalLink, @NonNull Facility facility,
+                                 @NonNull String recipient, @NonNull User user);
 
-    void notifyAppAdmins(Request req, String action);
+    void notifyUser(@NonNull Request req, @NonNull String action);
 
-    void notifyClientSecretChanged(Facility facility);
+    void notifyAppAdmins(@NonNull Request req, @NonNull String action);
+
+    void notifyClientSecretChanged(@NonNull Facility facility);
+
 }

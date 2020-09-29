@@ -5,7 +5,7 @@ import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.persistence.managers.ProvidedServiceManager;
 import cz.metacentrum.perun.spRegistration.persistence.mappers.ProvidedServiceMapper;
-import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
+import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

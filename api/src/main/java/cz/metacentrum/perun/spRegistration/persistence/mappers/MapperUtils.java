@@ -47,6 +47,9 @@ public class MapperUtils {
 	public static final String BASE_FRIENDLY_NAME = "baseFriendlyName";
 	public static final String FRIENDLY_NAME_PARAMETER = "friendlyNameParameter";
 	public static final String BEAN_NAME = "beanName";
+	public static final String SHORT_NAME = "shortName";
+	public static final String PARENT_GROUP_ID = "parentGroupId";
+	public static final String VO_ID = "voId";
 
 	public static Facility mapFacility(@NonNull JsonNode json) {
 		String[] requiredParams = new String[] {ID, NAME};
@@ -173,6 +176,27 @@ public class MapperUtils {
 		return attr;
 	}
 
+	public static Group mapGroup(@NonNull JsonNode json) {
+		String[] requiredParams = new String[] {ID, SHORT_NAME, NAME, VO_ID};
+		if (!MapperUtils.hasRequiredFields(json, requiredParams)) {
+			return null;
+		}
+
+		Long id = json.get(ID).asLong();
+		String shortName = json.get(SHORT_NAME).asText();
+		String name = json.get(NAME).asText();
+		String description = json.get(DESCRIPTION).asText();
+		Long parentGroupId = null;
+		if (json.hasNonNull(PARENT_GROUP_ID)) {
+			json.get(PARENT_GROUP_ID).asLong();
+		}
+		Long voId = json.get(VO_ID).asLong();
+
+		return new Group(id, name, shortName, description, parentGroupId, voId);
+	}
+
+	// private methods
+
 	private static boolean hasRequiredFields(@NonNull JsonNode json, @NonNull String[] params) {
 		if (json.isNull()) {
 			return false;
@@ -233,17 +257,6 @@ public class MapperUtils {
 		}
 
 		return null;
-	}
-
-	public static Group mapGroup(@NonNull JsonNode res) {
-		Long id = res.get("id").asLong();
-		String shortName = res.get("shortName").asText();
-		String name = res.get("name").asText();
-		String description = res.get("description").asText();
-		Long parentGroupId = res.get("parentGroupId").asLong();
-		Long voId = res.get("voId").asLong();
-
-		return new Group(id, name, shortName, description, parentGroupId, voId);
 	}
 
 }

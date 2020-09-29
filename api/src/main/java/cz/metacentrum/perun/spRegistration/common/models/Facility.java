@@ -7,8 +7,10 @@ import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,26 +28,62 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 public class Facility extends PerunEntity {
 
-	private String perunName;
-	private String perunDescription;
-	private Map<String, String> name = new HashMap<>();
-	private Map<String, String> description = new HashMap<>();;
+	@NonNull private String perunName;
+	@NonNull private String perunDescription = "";
+	private final Map<String, String> name = new HashMap<>();
+	private final Map<String, String> description = new HashMap<>();;
 	private boolean oidc;
 	private boolean saml;
 	private Long activeRequestId;
 	private boolean testEnv;
 	private boolean editable = false;
-	private List<User> admins = new ArrayList<>();
-	private Map<AttributeCategory, Map<String, PerunAttribute>> attributes = new HashMap<>();
+	private final List<User> admins = new ArrayList<>();
+	private final Map<AttributeCategory, Map<String, PerunAttribute>> attributes = new HashMap<>();
 
 	public Facility(Long id) {
 		super(id);
 	}
 
-	public Facility(Long id, String perunName, String perunDescription) {
+	public Facility(Long id, @NonNull String perunName, @NonNull String perunDescription) {
 		super(id);
+		this.setPerunName(perunName);
+		this.setPerunDescription(perunDescription);
+	}
+
+	public void setPerunName(@NonNull String perunName) {
+		if (!StringUtils.hasText(perunName)) {
+			throw new IllegalArgumentException("PerunName cannot be null nor empty");
+		}
+
 		this.perunName = perunName;
-		this.perunDescription = perunDescription;
+	}
+
+	public void setName(Map<String, String> name) {
+		this.name.clear();
+		if (name != null) {
+			this.name.putAll(name);
+		}
+	}
+
+	public void setDescription(Map<String, String> description) {
+		this.description.clear();
+		if (description != null) {
+			this.description.putAll(description);
+		}
+	}
+
+	public void setAdmins(List<User> admins) {
+		this.admins.clear();
+		if (admins != null) {
+			this.admins.addAll(admins);
+		}
+	}
+
+	public void setAttributes(Map<AttributeCategory, Map<String, PerunAttribute>> attributes) {
+		this.attributes.clear();
+		if (attributes != null) {
+			this.attributes.putAll(attributes);
+		}
 	}
 
 	/**
@@ -64,23 +102,6 @@ public class Facility extends PerunEntity {
 		res.put("beanName", "facility");
 
 		return res;
-	}
-
-	/**
-	 * Convert JSON from perun to facility object
-	 * @param json JSON from Perun
-	 * @return Facility object or null
-	 */
-	public static Facility fromPerunJson(JsonNode json) {
-		if (Utils.checkParamsInvalid(json)) {
-			throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
-		}
-
-		Long id = json.get("id").asLong();
-		String name = json.get("name").textValue();
-		String description = json.hasNonNull("description") ? json.get("description").textValue() : null;
-
-		return new Facility(id, name, description);
 	}
 
 }

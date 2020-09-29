@@ -42,7 +42,7 @@ public class RequestMapper implements RowMapper<Request> {
 	private final Map<String, PerunAttributeDefinition> definitionMap;
 	private final Map<String, AttrInput> attrInputMap;
 
-	public RequestMapper(AppBeansContainer appBeansContainer) {
+	public RequestMapper(@NonNull AppBeansContainer appBeansContainer) {
 		if (appBeansContainer != null) {
 			this.definitionMap = appBeansContainer.getAttributeDefinitionMap();
 			this.attrInputMap = appBeansContainer.getAttrInputMap();

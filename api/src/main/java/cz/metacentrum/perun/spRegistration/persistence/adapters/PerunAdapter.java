@@ -139,19 +139,6 @@ public interface PerunAdapter {
 			throws PerunUnknownException, PerunConnectionException;
 
 	/**
-<<<<<<< master:api/src/main/java/cz/metacentrum/perun/spRegistration/persistence/connectors/PerunConnector.java
-=======
-	 * Add user as an admin (manager) of facility.
-	 * @param facilityId ID of facility.
-	 * @param userId ID of user.
-	 * @return TRUE if everything went OK, FALSE otherwise.
-	 * @throws IllegalArgumentException Thrown when param "facilityId" is NULL, when "userId" is NULL.
-	 */
-	boolean addFacilityAdmin(@NonNull Long facilityId, @NonNull Long userId)
-			throws PerunUnknownException, PerunConnectionException;
-
-	/**
->>>>>>> The great refactor part1:api/src/main/java/cz/metacentrum/perun/spRegistration/persistence/adapters/PerunAdapter.java
 	 * Fetch attribute definition by name.
 	 * @param name Name of the attribute.
 	 * @return Attribute definition

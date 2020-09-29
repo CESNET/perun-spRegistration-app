@@ -8,12 +8,13 @@ import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
+import cz.metacentrum.perun.spRegistration.common.models.InputsContainer;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.persistence.managers.ProvidedServiceManager;
-import cz.metacentrum.perun.spRegistration.persistence.models.ProvidedService;
+import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
@@ -23,7 +24,6 @@ import cz.metacentrum.perun.spRegistration.service.UtilsService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.BadPaddingException;
@@ -55,19 +55,15 @@ public class FacilitiesServiceImpl implements FacilitiesService {
     @NonNull private final List<AttrInput> samlInputs;
 
     @Autowired
-    public FacilitiesServiceImpl(PerunAdapter perunAdapter,
-                                 UtilsService utilsService,
-                                 RequestManager requestManager,
-                                 AttributesProperties attributesProperties,
-                                 AppBeansContainer appBeansContainer,
-                                 ApplicationProperties applicationProperties,
-                                 ProvidedServiceManager providedServiceManager,
-                                 Map<String, AttrInput> attrInputMap,
-                                 @Qualifier("serviceInputs") List<AttrInput> serviceInputs,
-                                 @Qualifier("organizationInputs") List<AttrInput> organizationInputs,
-                                 @Qualifier("membershipInputs") List<AttrInput> membershipInputs,
-                                 @Qualifier("oidcInputs") List<AttrInput> oidcInputs,
-                                 @Qualifier("samlInputs") List<AttrInput> samlInputs)
+    public FacilitiesServiceImpl(@NonNull PerunAdapter perunAdapter,
+                                 @NonNull UtilsService utilsService,
+                                 @NonNull RequestManager requestManager,
+                                 @NonNull AttributesProperties attributesProperties,
+                                 @NonNull AppBeansContainer appBeansContainer,
+                                 @NonNull ApplicationProperties applicationProperties,
+                                 @NonNull ProvidedServiceManager providedServiceManager,
+                                 @NonNull Map<String, AttrInput> attrInputMap,
+                                 @NonNull InputsContainer inputsContainer)
     {
         this.perunAdapter = perunAdapter;
         this.utilsService = utilsService;
@@ -77,11 +73,11 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         this.applicationProperties = applicationProperties;
         this.providedServiceManager = providedServiceManager;
         this.attrInputMap = attrInputMap;
-        this.serviceInputs = serviceInputs;
-        this.organizationInputs = organizationInputs;
-        this.membershipInputs = membershipInputs;
-        this.oidcInputs = oidcInputs;
-        this.samlInputs = samlInputs;
+        this.serviceInputs = inputsContainer.getServiceInputs();
+        this.organizationInputs = inputsContainer.getOrganizationInputs();
+        this.membershipInputs = inputsContainer.getMembershipInputs();
+        this.oidcInputs = inputsContainer.getOidcInputs();
+        this.samlInputs = inputsContainer.getSamlInputs();
     }
 
     @Override

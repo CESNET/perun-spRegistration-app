@@ -56,7 +56,6 @@ public class RequestSignaturesServiceImpl implements RequestSignaturesService {
             throws ExpiredCodeException, InternalErrorException
     {
         LinkCode linkCode = linkCodeManager.get(code);
-
         if (linkCode == null) {
             log.error("User trying to approve request with expired code: {}", code);
             throw new ExpiredCodeException("Code has expired");

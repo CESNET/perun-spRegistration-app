@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
+import cz.metacentrum.perun.spRegistration.common.models.InputsContainer;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -67,13 +69,25 @@ public class AppBeans {
         return this.initInputs(attributesProperties.getAcAttrsConfig());
     }
 
-    private List<AttrInput> getInputsFromYaml(String path) throws IOException {
+    @Bean
+    @Autowired
+    public InputsContainer inputsContainer(@Qualifier("serviceInputs") List<AttrInput> serviceInputs,
+                                           @Qualifier("organizationInputs") List<AttrInput> organizationInputs,
+                                           @Qualifier("membershipInputs") List<AttrInput> membershipInputs,
+                                           @Qualifier("oidcInputs") List<AttrInput> oidcInputs,
+                                           @Qualifier("samlInputs") List<AttrInput> samlInputs)
+    {
+        return new InputsContainer(serviceInputs, organizationInputs, membershipInputs, oidcInputs, samlInputs);
+    }
+
+    // private methods
+
+    private List<AttrInput> getInputsFromYaml(@NonNull String path) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         return mapper.readValue(new File(path), new TypeReference<List<AttrInput>>() {});
     }
 
-
-    private List<AttrInput> initInputs(String config) {
+    private List<AttrInput> initInputs(@NonNull String config) {
         try {
             return this.getInputsFromYaml(config);
         } catch (IOException e) {

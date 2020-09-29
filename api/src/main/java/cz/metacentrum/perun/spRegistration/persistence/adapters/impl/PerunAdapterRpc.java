@@ -254,18 +254,6 @@ public class PerunAdapterRpc implements PerunAdapter {
 	}
 
 	@Override
-	public boolean addFacilityAdmin(@NonNull Long facilityId, @NonNull Long userId)
-			throws PerunUnknownException, PerunConnectionException
-	{
-		Map<String, Object> params = new LinkedHashMap<>();
-		params.put(PARAM_FACILITY, facilityId);
-		params.put(PARAM_USER, userId);
-
-		JsonNode response = perunRpc.call(FACILITIES_MANAGER, "addAdmin", params);
-		return response.isNull();
-	}
-
-	@Override
 	public Set<Long> getFacilityIdsWhereUserIsAdmin(@NonNull Long userId)
 			throws PerunUnknownException, PerunConnectionException
 	{

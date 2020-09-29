@@ -34,4 +34,5 @@ public class RequestSignatureMapper implements RowMapper<RequestSignature> {
 
 		return approval;
 	}
+
 }

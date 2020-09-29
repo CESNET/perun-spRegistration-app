@@ -3,69 +3,43 @@ package cz.metacentrum.perun.spRegistration.common.models;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+import lombok.ToString;
+import org.springframework.util.StringUtils;
 
 import java.util.Objects;
 
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode(callSuper = true)
 public class Group extends PerunEntity {
 
-    private String name;
-    private String shortName;
-    private String description;
+    @NonNull private String name;
+    @NonNull private String shortName;
+    @NonNull private String description;
     private Long parentGroupId;
-    private Long voId;
+    @NonNull private Long voId;
+
     private final String beanName = "Group";
 
     public Group(Long id, String name, String shortName, String description, Long parentGroupId, Long voId) {
         super(id);
+        this.setName(name);
+        this.setShortName(shortName);
+        this.setDescription(description);
+        this.setParentGroupId(parentGroupId);
+        this.setVoId(voId);
+    }
+
+    public void setName(@NonNull String name) {
+        if (!StringUtils.hasText(name)) {
+            throw new IllegalArgumentException("name cannot be empty");
+        }
         this.name = name;
-        this.shortName = shortName;
-        this.description = description;
-        this.parentGroupId = parentGroupId;
-        this.voId = voId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getShortName() {
-        return shortName;
-    }
-
-    public void setShortName(String shortName) {
-        this.shortName = shortName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getBeanName() {
-        return beanName;
-    }
-
-    public Long getParentGroupId() {
-        return parentGroupId;
-    }
-
-    public void setParentGroupId(Long parentGroupId) {
-        this.parentGroupId = parentGroupId;
-    }
-
-    public Long getVoId() {
-        return voId;
-    }
-
-    public void setVoId(Long voId) {
-        this.voId = voId;
     }
 
     public JsonNode toJson() {
@@ -81,32 +55,4 @@ public class Group extends PerunEntity {
         return node;
     }
 
-    @Override
-    public String toString() {
-        return "Group{" +
-                "name='" + name + '\'' +
-                ", shortName='" + shortName + '\'' +
-                ", description='" + description + '\'' +
-                ", parentGroupId=" + parentGroupId +
-                ", voId=" + voId +
-                ", beanName='" + beanName + '\'' +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Group group = (Group) o;
-        return Objects.equals(name, group.name) &&
-                Objects.equals(shortName, group.shortName) &&
-                Objects.equals(description, group.description) &&
-                Objects.equals(parentGroupId, group.parentGroupId) &&
-                Objects.equals(voId, group.voId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, shortName, description, parentGroupId, voId);
-    }
 }
