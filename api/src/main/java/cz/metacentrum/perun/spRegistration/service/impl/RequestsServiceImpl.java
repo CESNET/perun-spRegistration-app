@@ -332,9 +332,11 @@ public class RequestsServiceImpl implements RequestsService {
         if (request.getReqUserId() != null) {
             try {
                 User user = perunConnector.getUserById(request.getReqUserId());
-                request.setUser(user);
+                request.setRequester(user);
+                User modifier = perunConnector.getUserById(request.getModifiedBy());
+                request.setModifier(modifier);
             } catch (ConnectorException e) {
-                log.error("Could not fetch user {} for request {}", request.getReqUserId(), requestId);
+                log.error("Could not fetch requester or modifier for request {}", requestId);
             }
         }
 

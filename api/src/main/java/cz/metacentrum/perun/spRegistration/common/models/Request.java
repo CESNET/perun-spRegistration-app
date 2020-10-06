@@ -28,13 +28,14 @@ public class Request {
 
 	private Long reqId;
 	private Long facilityId;
+	private User requester;
 	private RequestStatus status;
 	private RequestAction action;
 	private Long reqUserId;
 	private Map<AttributeCategory, Map<String, PerunAttribute>> attributes = new HashMap<>();
 	private Timestamp modifiedAt;
 	private Long modifiedBy;
-	private User user;
+	private User modifier;
 
 	public Long getReqId() {
 		return reqId;
@@ -100,12 +101,20 @@ public class Request {
 		this.modifiedBy = modifiedBy;
 	}
 
-	public User getUser() {
-		return user;
+	public User getRequester() {
+		return requester;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setRequester(User requester) {
+		this.requester = requester;
+	}
+
+	public User getModifier() {
+		return modifier;
+	}
+
+	public void setModifier(User modifier) {
+		this.modifier = modifier;
 	}
 
 	@JsonIgnore

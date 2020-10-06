@@ -52,7 +52,6 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
   loading = true;
   request: Request;
   signatures: RequestSignature[];
-  columns: string[] = ['name', 'signedAt', 'approved'];
   expansionPanelDisabled = true;
   icon = true;
 

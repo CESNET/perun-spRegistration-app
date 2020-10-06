@@ -15,9 +15,13 @@
           <div><span class="font-thick mr-1">{{'REQUESTS.DETAIL_EDITED' | translate}}:</span>
             {{ request.modifiedAt | date: 'dd/MM/yyyy'}}
           </div>
-          <div *ngIf="request.user !== null" class="mb-4">
+          <div *ngIf="isApplicationAdmin && request.modifier !== null">
             <span class="font-thick mr-1">{{'REQUESTS.REQUESTER_NAME' | translate}}:</span>
-            {{ request.user.name }} (#{{request.reqUserId}})
+            {{ request.modifier.name }} ({{ request.modifiedAt }})
+          </div>
+          <div *ngIf="request.requester !== null" class="mb-4">
+            <span class="font-thick mr-1">{{'REQUESTS.REQUESTER_NAME' | translate}}:</span>
+            {{ request.requester.name }} (#{{request.reqUserId}})
           </div>
           <ng-container *ngIf="request.action == 'MOVE_TO_PRODUCTION'">
             <h5>{{'REQUESTS.APPROVALS' | translate}}</h5>

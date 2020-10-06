@@ -15,7 +15,8 @@ export class Request extends AttributesEntity {
     this.reqUserId = item.reqUserId;
     this.modifiedAt = item.modifiedAt;
     this.modifiedBy = item.modifiedBy;
-    this.user = new User(item.user);
+    this.requester = new User(item.requester);
+    this.modifier = new User(item.modifier);
   }
 
   reqId: number;
@@ -25,6 +26,7 @@ export class Request extends AttributesEntity {
   reqUserId: number;
   modifiedAt: string;
   modifiedBy: number;
-  user: User;
+  requester: User;
+  modifier: User;
 
 }
