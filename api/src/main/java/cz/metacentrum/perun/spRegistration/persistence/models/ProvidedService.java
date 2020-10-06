@@ -15,17 +15,19 @@ public class ProvidedService {
     private ServiceEnvironment environment;
     private Map<String, String> name;
     private Map<String, String> description;
+    private String identifier;
 
     public ProvidedService() { }
 
     public ProvidedService(Long id, Long facilityId, ServiceProtocol protocol, ServiceEnvironment environment,
-                           Map<String, String> name, Map<String, String> description) {
+                           Map<String, String> name, Map<String, String> description, String identifier) {
         this.id = id;
         this.facilityId = facilityId;
         this.protocol = protocol;
         this.environment = environment;
         this.name = name;
         this.description = description;
+        this.identifier = identifier;
     }
 
     public Long getId() {
@@ -90,5 +92,13 @@ public class ProvidedService {
 
     public void descriptionFromDbJson(String descriptionJson) throws JsonProcessingException {
         this.description = new ObjectMapper().readValue(descriptionJson, Map.class);
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 }

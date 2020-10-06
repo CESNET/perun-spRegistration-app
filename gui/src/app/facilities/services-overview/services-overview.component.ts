@@ -5,6 +5,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import {MatPaginator} from "@angular/material/paginator";
 import {ProvidedService} from "../../core/models/ProvidedService";
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-facilities-overview',
@@ -17,7 +18,8 @@ export class ServicesOverviewComponent implements OnInit, OnDestroy {
   private paginator: MatPaginator;
   private facilitiesSubscription: Subscription;
 
-  constructor(private facilitiesService: FacilitiesService) {
+  constructor(private facilitiesService: FacilitiesService,
+              private translate: TranslateService) {
     this.myFacilities = [];
     this.dataSource = new MatTableDataSource<ProvidedService>([]);
   }
@@ -34,7 +36,7 @@ export class ServicesOverviewComponent implements OnInit, OnDestroy {
     this.setDataSource();
   }
 
-  displayedColumns: string[] = ['id', 'name', 'description', 'environment', 'protocol'];
+  displayedColumns: string[] = ['id', 'name', 'description', 'identifier', 'environment', 'protocol'];
   dataSource: MatTableDataSource<ProvidedService>;
   loading = true;
 
@@ -42,6 +44,29 @@ export class ServicesOverviewComponent implements OnInit, OnDestroy {
     if (!!this.dataSource) {
       if (!!this.sort) {
         this.dataSource.sort = this.sort;
+        this.dataSource.sortingDataAccessor = ((data, sortHeaderId) => {
+          console.log(sortHeaderId);
+          switch (sortHeaderId) {
+            case 'id': return data.id;
+            case 'name': {
+              if (!!data.name && data.name.has(this.translate.currentLang)) {
+                return data.name.get(this.translate.currentLang).toLowerCase();
+              } else {
+                return "";
+              }
+            }
+            case 'description': {
+              if (!!data.description && data.description.has(this.translate.currentLang)) {
+                return data.description.get(this.translate.currentLang).toLowerCase();
+              } else {
+                return "";
+              }
+            }
+            case 'identifier': return data.identifier;
+            case 'environment': return data.environment;
+            case 'protocol': return data.protocol;
+          }
+        });
       }
       if (!!this.paginator) {
         this.dataSource.paginator = this.paginator;

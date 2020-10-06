@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.StringJoiner;
@@ -29,6 +30,7 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
     }
 
     @Override
+    @Transactional
     public ProvidedService create(ProvidedService sp) throws JsonProcessingException, InternalErrorException {
         log.trace("create({})", sp);
 
@@ -39,8 +41,8 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
 
         String query = new StringJoiner(" ")
                 .add("INSERT INTO").add(SPS_TABLE)
-                .add("(facility_id, name, description, environment, protocol)")
-                .add("VALUES (:facility_id, :name, :description, :environment, :protocol)")
+                .add("(facility_id, name, description, environment, protocol, identifier)")
+                .add("VALUES (:facility_id, :name, :description, :environment, :protocol, :identifier)")
                 .toString();
 
         KeyHolder key = new GeneratedKeyHolder();
@@ -50,6 +52,7 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
         params.addValue("description", sp.descriptionAsJsonString());
         params.addValue("environment", sp.getEnvironment().toString());
         params.addValue("protocol", sp.getProtocol().toString());
+        params.addValue("identifier", sp.getIdentifier());
 
         int updatedCount = jdbcTemplate.update(query, params, key, new String[] { "id" });
 
@@ -73,6 +76,7 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
     }
 
     @Override
+    @Transactional
     public void update(ProvidedService sp) throws InternalErrorException, JsonProcessingException {
         log.trace("update({})", sp);
 
@@ -83,7 +87,7 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
 
         String query = new StringJoiner(" ")
                 .add("UPDATE").add(SPS_TABLE)
-                .add("SET facility_id = :facility_id, name = :name, description = :description, environment = :environment, protocol = :protocol")
+                .add("SET facility_id = :facility_id, name = :name, description = :description, environment = :environment, protocol = :protocol, identifier = :identifier")
                 .add("WHERE id = :id")
                 .toString();
 
@@ -93,6 +97,7 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
         params.addValue("description", sp.descriptionAsJsonString());
         params.addValue("environment", sp.getEnvironment().toString());
         params.addValue("protocol", sp.getProtocol().toString());
+        params.addValue("identifier", sp.getIdentifier());
         params.addValue("id", sp.getId());
 
         int updatedCount = jdbcTemplate.update(query, params);
@@ -107,6 +112,7 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) throws InternalErrorException {
         log.trace("delete({})", id);
 
@@ -135,6 +141,7 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
     }
 
     @Override
+    @Transactional
     public void deleteByFacilityId(Long facilityId) throws InternalErrorException {
         log.trace("deleteByFacilityId({})", facilityId);
 

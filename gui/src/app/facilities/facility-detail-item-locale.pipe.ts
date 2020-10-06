@@ -19,7 +19,11 @@ export class FacilityDetailItemLocalePipe implements PipeTransform {
       return value.get(lang.toLowerCase());
     }
 
-    return value.get('en');
+    if (value.has('en')) {
+      return value.get('en');
+    } else {
+      return '-';
+    }
   }
 }
 

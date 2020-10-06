@@ -3,9 +3,9 @@ import {TranslateService} from "@ngx-translate/core";
 import {switchAll} from "rxjs/operators";
 
 @Pipe({
-  name: 'facilityEnvironment'
+  name: 'facilityEnvironmentFromText'
 })
-export class FacilityEnvironmentPipe implements PipeTransform {
+export class FacilityEnvironmentFromTextPipe implements PipeTransform {
 
   private testEnvText: string = "TEXT";
   private prodEnvText: string = "TEXT2";
@@ -21,11 +21,10 @@ export class FacilityEnvironmentPipe implements PipeTransform {
     });
   }
 
-  transform(isTest: any, args?: any): any {
-    if (isTest) {
-      return this.testEnvText;
-    } else {
-      return this.prodEnvText;
+  transform(env: any, args?: any): any {
+    switch(env) {
+      case "TESTING": return this.testEnvText;
+      case "PRODUCTION": return this.prodEnvText;
     }
   }
 

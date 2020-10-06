@@ -609,8 +609,6 @@ public class RequestsServiceImpl implements RequestsService {
                 ServiceProtocol.OIDC : ServiceProtocol.SAML);
         Long adminsGroupId = null;
         try {
-            providedServiceManager.create(sp);
-
             Group adminsGroup = new Group(null, facility.getPerunName(), facility.getPerunName(),
                     "Administrators of SP - " + facility.getPerunName(), appConfig.getSpAdminsRootGroupId(),
                     appConfig.getSpAdminsRootVoId());
@@ -652,6 +650,10 @@ public class RequestsServiceImpl implements RequestsService {
 
                 PerunAttribute clientSecret = utilsService.generateClientSecretAttribute();
                 perunConnector.setFacilityAttribute(facility.getId(), clientSecret.toJson());
+                sp.setIdentifier(clientId.valueAsString());
+            } else {
+                sp.setIdentifier(request.getAttributes().get(AttributeCategory.PROTOCOL)
+                        .get(appConfig.getEntityIdAttribute()).valueAsString());
             }
 
             attributes.add(adminsGroupAttr.toJson());
@@ -661,7 +663,7 @@ public class RequestsServiceImpl implements RequestsService {
             attributes.add(masterProxyIdentifiers.toJson());
             attributes.add(authProtocol.toJson());
             boolean attributesSet = perunConnector.setFacilityAttributes(request.getFacilityId(), attributes);
-
+            providedServiceManager.create(sp);
             boolean successful = (adminSet && attributesSet);
             if (!successful) {
                 log.error("Some operations failed - adminSet: {}, attributesSet: {}", adminSet, attributesSet);
@@ -670,8 +672,8 @@ public class RequestsServiceImpl implements RequestsService {
             }
             log.trace("registerNewFacilityToPerun returns: {}", successful);
             return successful;
-        } catch (ConnectorException | JsonProcessingException e) {
-            log.error("Caught ConnectorException", e);
+        } catch (JsonProcessingException | InternalErrorException | ConnectorException e) {
+            log.error("Caught {}", e.getClass(), e);
             try {
                 if (adminsGroupId != null) {
                     try {
@@ -714,7 +716,7 @@ public class RequestsServiceImpl implements RequestsService {
             throw new InternalErrorException("Facility with ID: " + facilityId + " does not exist in Perun");
         }
 
-        ProvidedService sp = providedServiceManager.get(facilityId);
+        ProvidedService sp = providedServiceManager.getByFacilityId(facilityId);
         Map<String, String> oldName = sp.getName();
         Map<String, String> oldDesc = sp.getDescription();
 
@@ -725,7 +727,6 @@ public class RequestsServiceImpl implements RequestsService {
             } else {
                 log.info("Facility has been updated in Perun");
             }
-            sp = providedServiceManager.get(facilityId);
             sp.setName(request.getFacilityName(appConfig.getServiceNameAttributeName()));
             sp.setDescription(request.getFacilityDescription(appConfig.getServiceDescAttributeName()));
             providedServiceManager.update(sp);
