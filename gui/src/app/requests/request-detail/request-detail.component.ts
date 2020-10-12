@@ -66,6 +66,9 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
   isApplicationAdmin: boolean;
   filterChangedOnly = false;
 
+  displayOldVal: boolean;
+  includeComment: boolean;
+
   private static sortItems(items: DetailViewItem[]): DetailViewItem[] {
     items.sort((a, b) => {
       return a.position - b.position;
@@ -75,30 +78,31 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   private mapAttributes() {
+    const actionUpdate = this.request.action === 'UPDATE_FACILITY';
     this.request.serviceAttrs().forEach((attr, _) => {
       const item = new DetailViewItem(attr);
-      if (item.shouldDisplayOldVal(true)) {
+      if (actionUpdate && item.hasValueChanged()) {
         this.serviceChangedCnt++;
       }
       this.requestAttrsService.push(item);
     });
     this.request.organizationAttrs().forEach((attr, _) => {
       const item = new DetailViewItem(attr);
-      if (item.shouldDisplayOldVal(true)) {
+      if (actionUpdate && item.hasValueChanged()) {
         this.organizationChangedCnt++;
       }
       this.requestAttrsOrganization.push(item);
     });
     this.request.protocolAttrs().forEach((attr, _) => {
       const item = new DetailViewItem(attr);
-      if (item.shouldDisplayOldVal(true)) {
+      if (actionUpdate && item.hasValueChanged()) {
         this.protocolChangedCnt++;
       }
       this.requestAttrsProtocol.push(item);
     });
     this.request.accessControlAttrs().forEach((attr, _) => {
       const item = new DetailViewItem(attr);
-      if (item.shouldDisplayOldVal(true)) {
+      if (actionUpdate && item.hasValueChanged()) {
         this.accessControlChangedCnt++;
       }
       this.requestAttrsAccessControl.push(item);
@@ -115,6 +119,8 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
       this.requestsService.getRequest(params['id']).subscribe(request => {
         this.request = new Request(request);
         this.mapAttributes();
+        this.displayOldVal = request.action === 'UPDATE_FACILITY';
+        this.includeComment = request.status !== 'APPROVED' && request.status !== 'REJECTED';
         this.requestsService.getSignatures(this.request.reqId).subscribe(signatures => {
           this.signatures = signatures.map(s => new RequestSignature(s));
           if (this.signatures.length !== 0) {

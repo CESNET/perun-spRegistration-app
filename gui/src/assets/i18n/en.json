@@ -79,7 +79,7 @@
     "DETAIL_REJECT": "Reject",
     "DETAIL_REQUEST_CHANGES": "Request changes",
     "DETAIL_APPROVE": "Approve",
-    "REQUESTER_NAME": "Requested by",
+    "REQUESTED_BY": "Requested by",
     "REQUEST_CHANGES_COMMENT" : "Comment",
     "SET_REQUEST_WFA" : "Ask for approval",
     "EDIT_REQUEST" : "Change requested settings",

@@ -76,7 +76,7 @@
     "DETAIL_REJECT": "Zamítnout",
     "DETAIL_REQUEST_CHANGES": "Vyžádat změny",
     "DETAIL_APPROVE": "Schválit",
-    "REQUESTER_NAME": "Vyžádal",
+    "REQUESTED_BY": "Vyžádal",
     "REQUEST_CHANGES_COMMENT" : "Komentář",
     "SET_REQUEST_WFA" : "Požádat o schválení",
     "EDIT_REQUEST" : "Upravit požadované nastavení",

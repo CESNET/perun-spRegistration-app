@@ -1,48 +1,48 @@
 <div *ngFor="let item of attrs">
   <div class="border-bottom p-3">
     <ng-container [ngSwitch]="item.type">
-    <!-- STRING -->
+      <!-- STRING -->
       <detail-item-string *ngSwitchCase="'java.lang.String'"
                           class="toggleable"
                           [item]="item"
                           [isAppAdmin]="isAppAdmin"
                           [includeComment]="includeComment"
-                          [displayOldVal]="item.shouldDisplayOldVal(displayOldVal)"></detail-item-string>
+                          [displayOldVal]="displayOldVal && item.hasOldValue()"></detail-item-string>
       <detail-item-string *ngSwitchCase="'java.lang.LargeString'"
                           class="toggleable"
                           [item]="item"
                           [isAppAdmin]="isAppAdmin"
                           [includeComment]="includeComment"
-                          [displayOldVal]="item.shouldDisplayOldVal(displayOldVal)"></detail-item-string>
+                          [displayOldVal]="displayOldVal && item.hasOldValue()"></detail-item-string>
       <!-- LONG -->
       <detail-item-integer *ngSwitchCase="'java.lang.Long'"
                            [item]="item"
                            [isAppAdmin]="isAppAdmin"
                            [includeComment]="includeComment"
-                           [displayOldVal]="item.shouldDisplayOldVal(displayOldVal)"></detail-item-integer>
+                           [displayOldVal]="displayOldVal && item.hasOldValue()"></detail-item-integer>
       <!-- BOOLEAN -->
       <detail-item-boolean *ngSwitchCase="'java.lang.Boolean'"
                            [item]="item"
                            [isAppAdmin]="isAppAdmin"
                            [includeComment]="includeComment"
-                           [displayOldVal]="item.shouldDisplayOldVal(displayOldVal)"></detail-item-boolean>
+                           [displayOldVal]="displayOldVal && item.hasOldValue()"></detail-item-boolean>
       <!-- MAP -->
       <detail-item-map *ngSwitchCase="'java.util.LinkedHashMap'"
                        [item]="item"
                        [isAppAdmin]="isAppAdmin"
                        [includeComment]="includeComment"
-                       [displayOldVal]="item.shouldDisplayOldVal(displayOldVal)"></detail-item-map>
+                       [displayOldVal]="displayOldVal && item.hasOldValue()"></detail-item-map>
       <!-- ARRAY -->
       <detail-item-array *ngSwitchCase="'java.util.ArrayList'"
                          [item]="item"
                          [isAppAdmin]="isAppAdmin"
                          [includeComment]="includeComment"
-                         [displayOldVal]="item.shouldDisplayOldVal(displayOldVal)"></detail-item-array>
+                         [displayOldVal]="displayOldVal && item.hasOldValue()"></detail-item-array>
       <detail-item-array *ngSwitchCase="'java.util.LargeArrayList'"
                          [item]="item"
                          [isAppAdmin]="isAppAdmin"
                          [includeComment]="includeComment"
-                         [displayOldVal]="item.shouldDisplayOldVal(displayOldVal)"></detail-item-array>
+                         [displayOldVal]="displayOldVal && item.hasOldValue()"></detail-item-array>
     </ng-container>
   </div>
 </div>

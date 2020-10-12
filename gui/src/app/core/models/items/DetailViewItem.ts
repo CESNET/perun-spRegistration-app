@@ -50,8 +50,100 @@ export class DetailViewItem {
   position: number;
   type: string;
 
-  public shouldDisplayOldVal(displayOldVal: boolean): boolean {
-    return displayOldVal && this.oldValue;
+  public hasValueChanged(): boolean {
+    switch (this.type) {
+      case 'java.lang.Boolean': {
+        console.log(this.urn + ' old: ' + this.oldValue);
+        console.log(this.urn + ' new: ' + this.value);
+        console.log(this.urn + ' comparation: ' +  (this.oldValue !== undefined
+          && this.oldValue !== null
+          && this.oldValue !== this.value));
+        return this.oldValue !== undefined
+          && this.oldValue !== null
+          && this.oldValue !== this.value;
+      }
+      case 'java.lang.String':
+      case 'java.lang.LargeString' :
+      case 'java.lang.Integer':
+        //return this.oldValue !== this.value;
+      case 'java.util.ArrayList':
+      case 'java.util.LargeArrayList':
+        //return !DetailViewItem.arrayValuesAreEqual(this.value, this.oldValue);
+      case 'java.util.LinkedHashMap':
+        //return !DetailViewItem.mapValuesEqual(this.value, this.oldValue);
+        return this.oldValue;
+    }
+    return false;
   }
+
+  public hasOldValue(): boolean {
+    switch (this.type) {
+      case 'java.lang.Boolean': {
+        return this.oldValue !== undefined
+          && this.oldValue !== null
+          && this.oldValue !== this.value;
+      }
+      case 'java.lang.String':
+      case 'java.lang.LargeString' :
+      case 'java.lang.Integer':
+      //return this.oldValue !== this.value;
+      case 'java.util.ArrayList':
+      case 'java.util.LargeArrayList':
+      //return !DetailViewItem.arrayValuesAreEqual(this.value, this.oldValue);
+      case 'java.util.LinkedHashMap':
+        //return !DetailViewItem.mapValuesEqual(this.value, this.oldValue);
+        return this.oldValue !== undefined && this.oldValue !== null;
+    }
+    return false;
+  }
+
+  private static arrayValuesAreEqual(v1: string[], v2: string[]) {
+    if (v1 === undefined) {
+      return v2 === undefined;
+    } else if (v1 === null) {
+      return v2 === null;
+    }
+
+    if (v2 === undefined || v2 === null) {
+      return false;
+    }
+
+    if (v1.length !== v2.length) {
+      return false;
+    }
+
+    v1.sort().forEach(el => {
+      if (v2.indexOf(el) === -1) {
+        return false;
+      }
+    });
+    return true;
+  }
+
+  private static mapValuesEqual(v1: Map<string, string>, v2: Map<string, string>) {
+    if (v1 === undefined) {
+      return v2 === undefined;
+    } else if (v1 === null) {
+      return v2 === null;
+    }
+
+    if (v2 === undefined || v2 === null) {
+      return false;
+    }
+
+    if (v1.size !== v2.size) {
+      return false;
+    }
+
+    v1.forEach((value: string, key: string) => {
+      if (!v2.has(key)) {
+        return false;
+      } else if (value !== v2.get(key)) {
+        return false;
+      }
+    });
+    return true;
+  }
+
 
 }

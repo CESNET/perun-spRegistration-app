@@ -16,11 +16,11 @@
             {{ request.modifiedAt | date: 'dd/MM/yyyy'}}
           </div>
           <div *ngIf="isApplicationAdmin && request.modifier !== null">
-            <span class="font-thick mr-1">{{'REQUESTS.REQUESTER_NAME' | translate}}:</span>
-            {{ request.modifier.name }} ({{ request.modifiedAt }})
+            <span class="font-thick mr-1">{{'REQUESTS.MODIFIED_BY' | translate}}:</span>
+            {{ request.modifier.name }} ({{ request.modifiedAt | date: 'dd/MM/yyyy' }})
           </div>
           <div *ngIf="request.requester !== null" class="mb-4">
-            <span class="font-thick mr-1">{{'REQUESTS.REQUESTER_NAME' | translate}}:</span>
+            <span class="font-thick mr-1">{{'REQUESTS.REQUESTED_BY' | translate}}:</span>
             {{ request.requester.name }} (#{{request.reqUserId}})
           </div>
           <ng-container *ngIf="request.action == 'MOVE_TO_PRODUCTION'">
@@ -84,9 +84,9 @@
               </ng-template>
               <detailed-view-items [attrs]="requestAttrsService"
                                    [isAppAdmin]="isApplicationAdmin"
-                                   [displayOldVal]="request.action === 'UPDATE_FACILITY'"
+                                   [displayOldVal]="displayOldVal"
                                    [filterChangedOnly]="filterChangedOnly"
-                                   [includeComment]="request.status !== 'APPROVED' && request.status !== 'REJECTED'"></detailed-view-items>
+                                   [includeComment]="includeComment"></detailed-view-items>
             </mat-tab>
             <!-- ORGANIZATION -->
             <mat-tab>
@@ -98,9 +98,9 @@
               </ng-template>
               <detailed-view-items [attrs]="requestAttrsOrganization"
                                    [isAppAdmin]="isApplicationAdmin"
-                                   [displayOldVal]="request.action === 'UPDATE_FACILITY'"
+                                   [displayOldVal]="displayOldVal"
                                    [filterChangedOnly]="filterChangedOnly"
-                                   [includeComment]="request.status !== 'APPROVED' && request.status !== 'REJECTED'"></detailed-view-items>
+                                   [includeComment]="includeComment"></detailed-view-items>
             </mat-tab>
             <!-- PROTOCOL -->
             <mat-tab>
@@ -112,9 +112,9 @@
               </ng-template>
               <detailed-view-items [attrs]="requestAttrsProtocol"
                                    [isAppAdmin]="isApplicationAdmin"
-                                   [displayOldVal]="request.action === 'UPDATE_FACILITY'"
+                                   [displayOldVal]="displayOldVal"
                                    [filterChangedOnly]="filterChangedOnly"
-                                   [includeComment]="request.status !== 'APPROVED' && request.status !== 'REJECTED'"></detailed-view-items>
+                                   [includeComment]="includeComment"></detailed-view-items>
             </mat-tab>
             <!-- ACCESS_CONTROL -->
             <mat-tab>
@@ -126,9 +126,9 @@
               </ng-template>
               <detailed-view-items [attrs]="requestAttrsAccessControl"
                                    [isAppAdmin]="isApplicationAdmin"
-                                   [displayOldVal]="request.action === 'UPDATE_FACILITY'"
+                                   [displayOldVal]="displayOldVal"
                                    [filterChangedOnly]="filterChangedOnly"
-                                   [includeComment]="request.status !== 'APPROVED' && request.status !== 'REJECTED'"></detailed-view-items>
+                                   [includeComment]="includeComment"></detailed-view-items>
             </mat-tab>
           </mat-tab-group>
         </div>
