@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.spRegistration.persistence.adapters.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
@@ -398,6 +399,9 @@ public class PerunAdapterRpc implements PerunAdapter {
 		params.put("user", user);
 
 		JsonNode res = perunRpc.call(MEMBERS_MANAGER, "getMemberByUser", params);
+		if (res == null || (res instanceof NullNode) || res.isNull()) {
+			throw new PerunUnknownException("User is not member in VO");
+		}
 		Long id = res.get("id").asLong();
 
 		log.trace("getMemberIdByUser({}, {}) returns: {}", vo, user, id);

@@ -31,12 +31,13 @@ import java.util.Set;
  */
 @Getter
 @Setter
-@ToString(exclude = {"attributes", "user"})
-@EqualsAndHashCode(exclude = {"attributes", "user"})
+@ToString(exclude = {"attributes", "requester"})
+@EqualsAndHashCode(exclude = {"attributes", "requester"})
 public class Request {
 
 	@NonNull private Long reqId;
 	private Long facilityId;
+	private Long reqUserId;
 	private User requester;
 	@NonNull private RequestAction action;
 	@NonNull private RequestStatus status;

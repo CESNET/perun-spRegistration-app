@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import cz.metacentrum.perun.spRegistration.persistence.mappers.MapperUtils;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
@@ -21,6 +22,7 @@ import org.springframework.util.StringUtils;
 @Setter
 @ToString
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
 public class PerunAttributeDefinition extends PerunEntity {
 
 	@NonNull private String friendlyName;

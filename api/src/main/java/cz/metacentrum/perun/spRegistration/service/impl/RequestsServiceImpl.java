@@ -326,12 +326,12 @@ public class RequestsServiceImpl implements RequestsService {
 
         if (request.getReqUserId() != null) {
             try {
-                User user = perunConnector.getUserById(request.getReqUserId());
+                User user = perunAdapter.getUserById(request.getReqUserId());
                 request.setRequester(user);
-                User modifier = perunConnector.getUserById(request.getModifiedBy());
+                User modifier = perunAdapter.getUserById(request.getModifiedBy());
                 request.setModifier(modifier);
-            } catch (ConnectorException e) {
-                log.error("Could not fetch requester or modifier for request {}", requestId);
+            } catch (PerunConnectionException | PerunUnknownException e) {
+                log.warn("Could not fetch requester or modifier of request", e);
             }
         }
 
@@ -548,12 +548,15 @@ public class RequestsServiceImpl implements RequestsService {
         sp.setEnvironment(ServiceEnvironment.TESTING);
         sp.setProtocol(ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName()) ?
                 ServiceProtocol.OIDC : ServiceProtocol.SAML);
+        sp.setIdentifier(sp.getProtocol().equals(ServiceProtocol.SAML) ?
+                request.getAttributes().get(AttributeCategory.PROTOCOL).get(attributesProperties.getEntityIdAttrName()).valueAsString() :
+                request.getAttributes().get(AttributeCategory.PROTOCOL).get(attributesProperties.getOidcClientIdAttrName()).valueAsString());
         Long adminsGroupId;
-        Group adminsGroup = new Group(null, facility.getPerunName(), facility.getPerunName(),
-                "Administrators of SP - " + facility.getPerunName(),
-                applicationProperties.getSpAdminsRootGroupId(),
-                applicationProperties.getSpAdminsRootVoId());
         try {
+            Group adminsGroup = new Group(null, facility.getPerunName(), facility.getPerunName(),
+                    "Administrators of SP - " + facility.getPerunName(),
+                    applicationProperties.getSpAdminsRootGroupId(),
+                    applicationProperties.getSpAdminsRootVoId());
             providedServiceManager.create(sp);
             adminsGroup = perunAdapter.createGroup(adminsGroup.getParentGroupId(), adminsGroup);
             adminsGroupId = adminsGroup.getId();

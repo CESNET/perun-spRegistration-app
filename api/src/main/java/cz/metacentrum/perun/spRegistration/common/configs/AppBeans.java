@@ -10,7 +10,6 @@ import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinitio
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -39,48 +38,38 @@ public class AppBeans {
         return new HashMap<>();
     }
 
-    @Bean("serviceInputs")
-    @Autowired
-    public List<AttrInput> serviceInputs(@NonNull AttributesProperties attributesProperties) {
-        return this.initInputs(attributesProperties.getServiceAttributesConfig());
-    }
-
-    @Bean("organizationInputs")
-    @Autowired
-    public List<AttrInput> organizationInputs(@NonNull AttributesProperties attributesProperties) {
-        return this.initInputs(attributesProperties.getOrganizationAttrsConfig());
-    }
-
-    @Bean("samlInputs")
-    @Autowired
-    public List<AttrInput> samlInputs(@NonNull AttributesProperties attributesProperties) {
-        return this.initInputs(attributesProperties.getSamlAttrsConfig());
-    }
-
-    @Bean("oidcInputs")
-    @Autowired
-    public List<AttrInput> oidcInputs(@NonNull AttributesProperties attributesProperties) {
-        return this.initInputs(attributesProperties.getOidcAttrsConfig());
-    }
-
-    @Bean("membershipInputs")
-    @Autowired
-    public List<AttrInput> membershipInputs(@NonNull AttributesProperties attributesProperties) {
-        return this.initInputs(attributesProperties.getAcAttrsConfig());
-    }
-
     @Bean
     @Autowired
-    public InputsContainer inputsContainer(@Qualifier("serviceInputs") List<AttrInput> serviceInputs,
-                                           @Qualifier("organizationInputs") List<AttrInput> organizationInputs,
-                                           @Qualifier("membershipInputs") List<AttrInput> membershipInputs,
-                                           @Qualifier("oidcInputs") List<AttrInput> oidcInputs,
-                                           @Qualifier("samlInputs") List<AttrInput> samlInputs)
+    public InputsContainer inputsContainer(AttributesProperties attributesProperties)
     {
-        return new InputsContainer(serviceInputs, organizationInputs, membershipInputs, oidcInputs, samlInputs);
+        return new InputsContainer(serviceInputs(attributesProperties),
+                organizationInputs(attributesProperties),
+                membershipInputs(attributesProperties),
+                oidcInputs(attributesProperties),
+                samlInputs(attributesProperties));
     }
 
     // private methods
+
+    private List<AttrInput> serviceInputs(@NonNull AttributesProperties attributesProperties) {
+        return this.initInputs(attributesProperties.getServiceAttributesConfig());
+    }
+
+    private List<AttrInput> organizationInputs(@NonNull AttributesProperties attributesProperties) {
+        return this.initInputs(attributesProperties.getOrganizationAttrsConfig());
+    }
+
+    private List<AttrInput> samlInputs(@NonNull AttributesProperties attributesProperties) {
+        return this.initInputs(attributesProperties.getSamlAttrsConfig());
+    }
+
+    private List<AttrInput> oidcInputs(@NonNull AttributesProperties attributesProperties) {
+        return this.initInputs(attributesProperties.getOidcAttrsConfig());
+    }
+
+    private List<AttrInput> membershipInputs(@NonNull AttributesProperties attributesProperties) {
+        return this.initInputs(attributesProperties.getAcAttrsConfig());
+    }
 
     private List<AttrInput> getInputsFromYaml(@NonNull String path) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());

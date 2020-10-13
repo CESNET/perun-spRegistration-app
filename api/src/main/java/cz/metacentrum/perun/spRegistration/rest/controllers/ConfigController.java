@@ -4,11 +4,11 @@ import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.ApprovalsProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.FrontendProperties;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
+import cz.metacentrum.perun.spRegistration.common.models.InputsContainer;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
@@ -42,20 +42,16 @@ public class ConfigController {
 	public ConfigController(@NonNull ApplicationProperties applicationProperties,
 							@NonNull FrontendProperties frontendProperties,
 							@NonNull ApprovalsProperties approvalsProperties,
-							@NonNull @Qualifier("serviceInputs") List<AttrInput> serviceInputs,
-							@NonNull @Qualifier("organizationInputs") List<AttrInput> organizationInputs,
-							@NonNull @Qualifier("membershipInputs") List<AttrInput> membershipInputs,
-							@NonNull @Qualifier("oidcInputs") List<AttrInput> oidcInputs,
-							@NonNull @Qualifier("samlInputs") List<AttrInput> samlInputs)
+							@NonNull InputsContainer inputsContainer)
 	{
 		this.applicationProperties = applicationProperties;
 		this.frontendProperties = frontendProperties;
 		this.approvalsProperties = approvalsProperties;
-		this.serviceInputs = serviceInputs;
-		this.organizationInputs = organizationInputs;
-		this.membershipInputs = membershipInputs;
-		this.oidcInputs = oidcInputs;
-		this.samlInputs = samlInputs;
+		this.serviceInputs = inputsContainer.getServiceInputs();
+		this.organizationInputs = inputsContainer.getOrganizationInputs();
+		this.membershipInputs = inputsContainer.getMembershipInputs();
+		this.oidcInputs = inputsContainer.getOidcInputs();
+		this.samlInputs = inputsContainer.getSamlInputs();
 	}
 
 	@GetMapping(path = "/api/config/oidcInputs")
