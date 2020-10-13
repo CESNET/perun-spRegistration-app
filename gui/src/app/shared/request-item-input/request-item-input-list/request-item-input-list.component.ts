@@ -98,7 +98,7 @@ export class RequestItemInputListComponent implements RequestItem, OnInit {
       for (let i = 0; i < this.values.length; i++) {
         const value = this.values[i];
 
-        if (value.trim().length === 0) {
+        if (value === undefined || value === null || value.trim().length === 0) {
           this.form.form.controls['value-' + i].markAsTouched();
           this.form.form.controls['value-' + i].setErrors({'incorrect' : true});
           this.form.form.controls['value-' + i].updateValueAndValidity();

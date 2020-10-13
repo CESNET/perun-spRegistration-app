@@ -40,9 +40,12 @@ export class RequestItemInputComponent implements RequestItem, AfterViewInit {
     } else if (this.applicationItem.type === 'java.lang.Boolean') {
       this.item = this.booleanItem;
     } else if ((this.applicationItem.type === 'java.util.ArrayList' || this.applicationItem.type === 'java.util.LargeArrayList')
-        && (this.applicationItem.allowedValues === null || this.applicationItem.allowedValues.length === 0)) {
+        && (this.applicationItem.allowedValues === null || this.applicationItem.allowedValues.length === 0))
+    {
       this.item = this.listItem;
-    } else if ((this.applicationItem.type === 'java.util.ArrayList' || this.applicationItem.type === 'java.util.LargeArrayList') && this.applicationItem.allowedValues.length > 0) {
+    } else if ((this.applicationItem.type === 'java.util.ArrayList' || this.applicationItem.type === 'java.util.LargeArrayList')
+        && this.applicationItem.allowedValues.length > 0)
+    {
       this.item = this.selectItem;
     } else if (this.applicationItem.type === 'java.util.LinkedHashMap') {
       this.item = this.mapItem;

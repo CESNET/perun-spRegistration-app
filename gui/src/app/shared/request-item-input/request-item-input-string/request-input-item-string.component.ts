@@ -58,6 +58,7 @@ export class RequestInputItemStringComponent implements RequestItem, OnInit {
 
   hasCorrectValue(): boolean {
     this.resetErrors();
+    console.log(this.applicationItem.name);
     if (!RequestInputItemStringComponent.hasValue(this.value)) {
       if (this.applicationItem.required) {
         this.missingValueError = true;
