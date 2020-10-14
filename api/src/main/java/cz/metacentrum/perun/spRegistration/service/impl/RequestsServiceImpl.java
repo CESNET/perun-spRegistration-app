@@ -16,6 +16,7 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.ActiveRequestExists
 import cz.metacentrum.perun.spRegistration.common.exceptions.CannotChangeStatusException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
+import cz.metacentrum.perun.spRegistration.common.exceptions.ProcessingException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
@@ -533,16 +534,17 @@ public class RequestsServiceImpl implements RequestsService {
                 throw new InternalErrorException("Setting new attributes has failed");
             }
         } catch (PerunUnknownException | PerunConnectionException | InternalErrorException e) {
-            final Long spId = sp != null ? sp.getId() : null;
-            if (spId != null) {
+            if (sp!= null && sp.getId() != null) {
+                final Long spId = sp.getId();
                 ((ExecuteAndSwallowException) () -> providedServiceManager.delete(spId)).execute(log);
             }
-            final Long admGrId = adminsGroupId;
-            if (admGrId != null) {
+
+            if (adminsGroupId != null) {
+                final Long admGrId = adminsGroupId;
                 ((ExecuteAndSwallowException) () -> perunAdapter.deleteGroup(admGrId)).execute(log);
             }
-            final Long facId = facility.getId();
-            if (facId != null) {
+            if (facility.getId() != null) {
+                final Long facId = facility.getId();
                 ((ExecuteAndSwallowException) () -> perunAdapter.deleteFacilityFromPerun(facId)).execute(log);
             }
             return false;
@@ -613,7 +615,7 @@ public class RequestsServiceImpl implements RequestsService {
             return false;
         }
 
-        ProvidedService sp = providedServiceManager.getByFacilityId(facilityId);
+        final ProvidedService sp = providedServiceManager.getByFacilityId(facilityId);
         if (sp == null) {
             log.error("Could not fetch SP from local DB (facility id = {})", facilityId);
             return false;
@@ -633,60 +635,89 @@ public class RequestsServiceImpl implements RequestsService {
             if (!providedServiceManager.update(sp)) {
                 throw new InternalErrorException("Failed to update SP in local DB");
             }
-        } catch (PerunUnknownException | PerunConnectionException | InternalErrorException | JsonProcessingException e) {
-            ArrayNode oldAttrsArray = JsonNodeFactory.instance.arrayNode();
-            oldAttributes.values().forEach(a -> oldAttrsArray.add(a.toJson()));
-            ((ExecuteAndSwallowException) () -> perunAdapter.setFacilityAttributes(
-                    actualFacility.getId(), oldAttrsArray)).execute(log);
+        } catch (PerunUnknownException | PerunConnectionException | InternalErrorException
+                | JsonProcessingException e)
+        {
+            this.rollBackAttrChanges(oldAttributes, actualFacility.getId());
             if (spUpdateRollback) {
-                sp.setDescription(oldDesc);
-                sp.setName(oldName);
-                ((ExecuteAndSwallowException) () -> providedServiceManager.update(sp)).execute(log);
+                this.rollBackSpChanges(sp, oldName, oldDesc, sp.getEnvironment());
             }
             return false;
         }
         return true;
     }
 
-    private boolean deleteFacilityFromPerun(@NonNull Request request)
-            throws InternalErrorException, PerunUnknownException, PerunConnectionException
+    private void rollBackAttrChanges(Map<String, PerunAttribute> oldAttributes, Long facilityId) {
+        ArrayNode oldAttrsArray = JsonNodeFactory.instance.arrayNode();
+        oldAttributes.values().forEach(a -> oldAttrsArray.add(a.toJson()));
+        ((ExecuteAndSwallowException) () -> perunAdapter.setFacilityAttributes(
+                facilityId, oldAttrsArray)).execute(log);
+    }
+
+    private void rollBackSpChanges(final ProvidedService sp, Map<String, String> oldName,
+                                   Map<String, String> oldDesc, ServiceEnvironment env)
     {
+        sp.setDescription(oldDesc);
+        sp.setName(oldName);
+        sp.setEnvironment(env);
+        ((ExecuteAndSwallowException) () -> providedServiceManager.update(sp)).execute(log);
+    }
+
+    private boolean deleteFacilityFromPerun(@NonNull Request request) throws InternalErrorException {
         Long facilityId = this.extractFacilityIdFromRequest(request);
-
-        PerunAttribute adminsGroupAttr = perunAdapter.getFacilityAttribute(request.getFacilityId(),
-                attributesProperties.getManagerGroupAttrName());
-        if (adminsGroupAttr == null || adminsGroupAttr.valueAsLong() == null) {
-            log.warn("No admins group ID found for facility: {}", facilityId);
-        } else {
-            try {
-                Long groupId = adminsGroupAttr.valueAsLong();
-                boolean removedGroupFromAdmins = perunAdapter.removeGroupFromAdmins(request.getFacilityId(), groupId);
-                if (removedGroupFromAdmins) {
-                    boolean groupDeleted = !perunAdapter.deleteGroup(groupId);
-                    if (!groupDeleted) {
-                        perunAdapter.addGroupAsAdmins(request.getFacilityId(), groupId);
-                    }
-                } else {
-                    log.warn("Could not delete admins group");
-                    return false;
-                }
-            } catch (PerunUnknownException | PerunConnectionException e) {
-                log.error("Caught {}", e.getClass(), e);
-                return false;
-            }
-        }
-
         try {
-            boolean facilityRemoved = perunAdapter.deleteFacilityFromPerun(facilityId);
-            if (facilityRemoved) {
-                providedServiceManager.deleteByFacilityId(facilityId);
+            boolean spDeleted = false;
+            ProvidedService sp;
+            try {
+                sp = providedServiceManager.getByFacilityId(facilityId);
+                if (sp != null && sp.getId() != null) {
+                    spDeleted = providedServiceManager.delete(sp.getId());
+                }
+            } catch (InternalErrorException e) {
+                log.error("Failed to delete provided service");
+                throw new ProcessingException("Failed to delete provided service");
             }
-        } catch (PerunConnectionException | PerunUnknownException e) {
+            if (!spDeleted) {
+                throw new ProcessingException("Failed to delete SP object in local storage");
+            }
+            if (!this.deleteFacility(sp, facilityId)) {
+                throw new ProcessingException("Failed to delete facility from perun");
+            }
+            this.deleteAdminsGroup(facilityId);
+        } catch (ProcessingException e) {
+            log.error("Caught Processing exception: {}", e.getMessage(), e);
             return false;
-        } catch (InternalErrorException e) {
-            log.error("Failed to delete ProvidedService");
         }
 
+        return true;
+    }
+
+    private void deleteAdminsGroup(Long facilityId) throws ProcessingException {
+        try {
+            PerunAttribute adminsGroupAttr = perunAdapter.getFacilityAttribute(facilityId,
+                    attributesProperties.getManagerGroupAttrName());
+            if (adminsGroupAttr == null || adminsGroupAttr.valueAsLong() == null) {
+                log.warn("No admins group ID found for facility: {}", facilityId);
+            } else {
+                boolean groupDeleted = perunAdapter.deleteGroup(adminsGroupAttr.valueAsLong());
+                if (!groupDeleted) {
+                    log.warn("Admins group {} has not been deleted", adminsGroupAttr.valueAsLong());
+                    //todo: reschedule this action
+                }
+            }
+        } catch (PerunUnknownException | PerunConnectionException e) {
+            throw new ProcessingException("Perun exception caught when deleting admins group", e);
+        }
+    }
+
+    private boolean deleteFacility(final ProvidedService sp, Long facilityId) throws ProcessingException {
+        try {
+            perunAdapter.deleteFacilityFromPerun(facilityId);
+        } catch (PerunUnknownException | PerunConnectionException e) {
+            sp.setId(null);
+            ((ExecuteAndSwallowException) () -> providedServiceManager.create(sp)).execute(log);
+            throw new ProcessingException("Failed to delete facility form perun");
+        }
         return true;
     }
 
@@ -722,9 +753,7 @@ public class RequestsServiceImpl implements RequestsService {
         attributes.add(this.generateAdminsGroupAttr(adminsGroupId).toJson());
     }
 
-    private boolean moveToProduction(@NonNull Request request)
-            throws PerunUnknownException, PerunConnectionException
-    {
+    private boolean moveToProduction(@NonNull Request request) {
         PerunAttribute testSp = this.generateTestSpAttribute(false);
         PerunAttribute showOnServiceList = this.generateShowOnServiceListAttribute(true);
 
@@ -737,11 +766,19 @@ public class RequestsServiceImpl implements RequestsService {
         try {
             providedServiceManager.update(sp);
         } catch (InternalErrorException | JsonProcessingException ex) {
-            log.warn("Caught Exception when updating ProvidedService {}", sp, ex);
+            log.warn("Could not update SP to Production environment: {}", sp, ex);
             return false;
         }
 
-        return perunAdapter.setFacilityAttributes(request.getFacilityId(), attributes);
+        try {
+            if (!perunAdapter.setFacilityAttributes(request.getFacilityId(), attributes)) {
+                throw new ProcessingException("Failed to update attributes");
+            }
+        } catch (PerunConnectionException | PerunUnknownException | ProcessingException e) {
+            this.rollBackSpChanges(sp, sp.getName(), sp.getDescription(), ServiceEnvironment.TESTING);
+            return false;
+        }
+        return true;
     }
 
     private String getDescFromRequest(@NonNull Request request, @NonNull PerunAttribute clientId) {
