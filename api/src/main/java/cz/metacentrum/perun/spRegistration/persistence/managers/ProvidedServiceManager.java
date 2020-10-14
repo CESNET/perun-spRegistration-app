@@ -10,11 +10,11 @@ public interface ProvidedServiceManager {
 
     ProvidedService create(ProvidedService sp) throws JsonProcessingException, InternalErrorException;
 
-    void update(ProvidedService sp) throws InternalErrorException, JsonProcessingException;
+    boolean update(ProvidedService sp) throws InternalErrorException, JsonProcessingException;
 
-    void delete(Long id) throws InternalErrorException;
+    boolean delete(Long id) throws InternalErrorException;
 
-    void deleteByFacilityId(Long facilityId) throws InternalErrorException;
+    boolean deleteByFacilityId(Long facilityId) throws InternalErrorException;
 
     ProvidedService get(Long id);
 

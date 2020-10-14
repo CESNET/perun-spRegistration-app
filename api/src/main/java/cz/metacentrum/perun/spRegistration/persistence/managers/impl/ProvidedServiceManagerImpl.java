@@ -82,7 +82,7 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
 
     @Override
     @Transactional
-    public void update(ProvidedService sp) throws InternalErrorException, JsonProcessingException {
+    public boolean update(ProvidedService sp) throws JsonProcessingException {
         log.trace("update({})", sp);
 
         if (Utils.checkParamsInvalid(sp)) {
@@ -92,7 +92,8 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
 
         String query = new StringJoiner(" ")
                 .add("UPDATE").add(SPS_TABLE)
-                .add("SET facility_id = :facility_id, name = :name, description = :description, environment = :environment, protocol = :protocol, identifier = :identifier")
+                .add("SET facility_id = :facility_id, name = :name, description = :description, " +
+                        "environment = :environment, protocol = :protocol, identifier = :identifier")
                 .add("WHERE id = :id")
                 .toString();
 
@@ -104,21 +105,12 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
         params.addValue("protocol", sp.getProtocol().toString());
         params.addValue("identifier", sp.getIdentifier());
         params.addValue("id", sp.getId());
-
-        int updatedCount = jdbcTemplate.update(query, params);
-
-        if (updatedCount == 0) {
-            log.error("Zero sps have been updated");
-            throw new InternalErrorException("Zero sps have been updated");
-        } else if (updatedCount > 1) {
-            log.error("Only one sp should have been updated");
-            throw new InternalErrorException("Only one sp should have been updated");
-        }
+        return this.executeUpdate(query, params);
     }
 
     @Override
     @Transactional
-    public void delete(Long id) throws InternalErrorException {
+    public boolean delete(Long id) {
         log.trace("delete({})", id);
 
         if (Utils.checkParamsInvalid(id)) {
@@ -133,21 +125,12 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
 
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
-
-        int updatedCount = jdbcTemplate.update(query, params);
-
-        if (updatedCount == 0) {
-            log.error("Zero sps have been deleted");
-            throw new InternalErrorException("Zero sps have been deleted");
-        } else if (updatedCount > 1) {
-            log.error("Only one sp should have been deleted");
-            throw new InternalErrorException("Only one sp should have been deleted");
-        }
+        return this.executeUpdate(query, params);
     }
 
     @Override
     @Transactional
-    public void deleteByFacilityId(Long facilityId) throws InternalErrorException {
+    public boolean deleteByFacilityId(Long facilityId) {
         log.trace("deleteByFacilityId({})", facilityId);
 
         if (Utils.checkParamsInvalid(facilityId)) {
@@ -162,16 +145,7 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
 
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("facility_id", facilityId);
-
-        int updatedCount = jdbcTemplate.update(query, params);
-
-        if (updatedCount == 0) {
-            log.error("Zero sps have been deleted");
-            throw new InternalErrorException("Zero sps have been deleted");
-        } else if (updatedCount > 1) {
-            log.error("Only one sp should have been deleted");
-            throw new InternalErrorException("Only one sp should have been deleted");
-        }
+        return this.executeUpdate(query, params);
     }
 
     @Override
@@ -257,5 +231,18 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
 
         log.trace("getAll returns: {}", providedServices);
         return providedServices;
+    }
+
+    private boolean executeUpdate(String query, MapSqlParameterSource params) {
+        int updatedCount = jdbcTemplate.update(query, params);
+
+        if (updatedCount == 0) {
+            log.error("Zero sps have been deleted");
+            throw new RuntimeException("Rollback needed");
+        } else if (updatedCount > 1) {
+            throw new RuntimeException("Rollback needed");
+        } else {
+            return true;
+        }
     }
 }

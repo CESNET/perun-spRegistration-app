@@ -9,6 +9,7 @@ import cz.metacentrum.perun.spRegistration.common.models.Group;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import cz.metacentrum.perun.spRegistration.persistence.adapters.AdapterUtils;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.connectors.PerunConnectorRpc;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
@@ -75,15 +76,18 @@ public class PerunAdapterRpc implements PerunAdapter {
 	}
 
 	@Override
-	public Facility createFacilityInPerun(@NonNull JsonNode facilityJson)
+	public Facility createFacilityInPerun(@NonNull String name, String description)
 			throws PerunUnknownException, PerunConnectionException
 	{
-		if (facilityJson.isNull()) {
-			throw new IllegalArgumentException("FacilityJson cannot be NULL JSON object");
+		if (!StringUtils.hasText(name)) {
+			throw new IllegalArgumentException("Name cannot be NULL nor EMPTY");
+		}
+		if (description == null) {
+			description = "";
 		}
 
 		Map<String, Object> params = new LinkedHashMap<>();
-		params.put(PARAM_FACILITY, facilityJson);
+		params.put(PARAM_FACILITY, AdapterUtils.generateFacilityJson(name, description));
 
 		JsonNode response = perunRpc.call(FACILITIES_MANAGER, "createFacility", params);
 		return MapperUtils.mapFacility(response);

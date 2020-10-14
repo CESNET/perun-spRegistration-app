@@ -21,13 +21,7 @@ import java.util.Set;
  */
 public interface PerunAdapter {
 
-	/**
-	 * Create facility in Perun.
-	 * @param facilityJson JSON of facility to be created.
-	 * @return Created facility.
-	 * @throws IllegalArgumentException Thrown when param "facilityJson" is NULL, equals JSONObject.NULL or empty.
-	 */
-	Facility createFacilityInPerun(@NonNull JsonNode facilityJson)
+	Facility createFacilityInPerun(@NonNull String name, String description)
 			throws PerunUnknownException, PerunConnectionException;
 
 	/**
