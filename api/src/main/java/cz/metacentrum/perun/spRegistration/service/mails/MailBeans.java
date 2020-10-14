@@ -58,7 +58,7 @@ public class MailBeans {
         }
     }
 
-    private MailProperties getMailPropertiesFromYaml(@NonNull String path) throws IOException {
+    private MailProperties getMailPropertiesFromYaml(String path) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         return mapper.readValue(new File(path), new TypeReference<MailProperties>() {});
     }

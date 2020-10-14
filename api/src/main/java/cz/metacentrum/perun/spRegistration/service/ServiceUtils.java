@@ -5,6 +5,7 @@ import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.DigestUtils;
 
@@ -22,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Utility class containing methods for services.
@@ -43,31 +43,7 @@ public class ServiceUtils {
 		}
 	}
 
-	/**
-	 * Transform list of facilities into Map, where key is ID, value is Facility object.
-	 *
-	 * @param list List to be transformed
-	 * @return NULL when input is NULL, empty Map when input is empty, List converted to Map otherwise.
-	 */
-	public static Map<Long, Facility> transformListToMapFacilities(List<Facility> list) {
-		if (list == null) {
-			return null;
-		} else if (list.isEmpty()) {
-			return new HashMap<>();
-		} else {
-			return list.stream().collect(Collectors.toMap(Facility::getId, facility -> facility));
-		}
-	}
-
-	/**
-	 * Filter facility attributes - keep only ones with name in list.
-	 * @param attrsMap Map of attributes to be filtered.
-	 * @param toKeep Names of attributes that should be kept.
-	 * @return NULL if param "attrsMap" or "toKeep" is NULL, empty map if param "attrsMap" or "toKeep" is empty,
-	 * Filtered map otherwise.
-	 */
 	public static List<PerunAttribute> filterFacilityAttrs(Map<String, PerunAttribute> attrsMap, List<String> toKeep) {
-		log.trace("filterFacilityAttrs(attrsMap: {}, toKeep: {})", attrsMap, toKeep);
 		if (attrsMap == null) {
 			return null;
 		} else if (attrsMap.isEmpty()) {
@@ -83,66 +59,51 @@ public class ServiceUtils {
 			filteredAttributes.add(attrsMap.get(keptAttr));
 		}
 
-		log.trace("filterFacilityAttrs() returns: {}", filteredAttributes);
 		return filteredAttributes;
 	}
 
-	/**
-	 * Decide if request is for OIDC service.
-	 * @param request Request
-	 * @param entityIdAttr Identifier of entity id attr.
-	 * @return True if is OIDC service request, false otherwise.
-	 */
-	public static boolean isOidcRequest(Request request, String entityIdAttr) {
-		log.trace("isOidcRequest(request: {})", request);
+	public static boolean isOidcRequest(@NonNull Request request, @NonNull String entityIdAttr) {
+		if (request.getAttributes() == null || request.getAttributes().get(AttributeCategory.PROTOCOL) == null) {
+			throw new IllegalArgumentException("Request does not contain required category in attrs");
+		}
 		boolean isOidc = true;
 		if (request.getAttributes().get(AttributeCategory.PROTOCOL).containsKey(entityIdAttr)) {
 			isOidc = (null == request.getAttributes().get(AttributeCategory.PROTOCOL).get(entityIdAttr).getValue());
 		}
-
-		log.trace("isOidcRequest() returns: {}", isOidc);
 		return isOidc;
 	}
 
-	/**
-	 * Decide if attributes are of OIDC service.
-	 * @param attributes Map of attributes, key is name, value is attribute
-	 * @param entityIdAttr Identifier of entity id attr.
-	 * @return True if attributes are of OIDC service, false otherwise.
-	 */
-	public static boolean isOidcAttributes(Map<String, PerunAttribute> attributes, String entityIdAttr) {
-		log.trace("isOidcAttributes(attributes: {})", attributes);
+	public static boolean isOidcAttributes(@NonNull Map<String, PerunAttribute> attributes,
+										   @NonNull String entityIdAttr)
+	{
 		boolean isOidc = true;
-
 		if (attributes.containsKey(entityIdAttr)) {
 			isOidc = (null == attributes.get(entityIdAttr).getValue());
 		}
-
-		log.trace("isOidcAttributes() returns: {}", isOidc);
 		return isOidc;
 	}
 
-	public static String encrypt(String strToEncrypt, SecretKeySpec secretKeySpec)
-			throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException {
+	public static String encrypt(String strToEncrypt, @NonNull SecretKeySpec secretKeySpec)
+			throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException
+	{
+		if (strToEncrypt == null || strToEncrypt.equalsIgnoreCase("null")) {
+			return null;
+		}
 		Base64.Encoder b64enc = Base64.getUrlEncoder();
-
 		cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
-		byte[] encrypted = cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8));
-
-		return b64enc.encodeToString(encrypted);
+		return b64enc.encodeToString(cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8)));
 	}
 
-	public static String decrypt(String strToDecrypt, SecretKeySpec secretKeySpec) throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-		if (strToDecrypt == null || strToDecrypt.equals("null")) {
+	public static String decrypt(String strToDecrypt, @NonNull SecretKeySpec secretKeySpec)
+			throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException
+	{
+		if (strToDecrypt == null || strToDecrypt.equalsIgnoreCase("null")) {
 			return null;
 		}
 
 		Base64.Decoder b64dec = Base64.getUrlDecoder();
-
 		cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
-		byte[] decrypted = cipher.doFinal(b64dec.decode(strToDecrypt));
-
-		return new String(decrypted);
+		return new String(cipher.doFinal(b64dec.decode(strToDecrypt)));
 	}
 
 	public static String generateClientId() {
@@ -156,7 +117,7 @@ public class ServiceUtils {
 		return uuid;
 	}
 
-	public static String getHash(String input) {
+	public static String getHash(@NonNull String input) {
 		byte[] digest = DigestUtils.md5Digest(input.getBytes());
 		StringBuilder hexString = new StringBuilder();
 		for (byte b : digest) {
@@ -167,26 +128,38 @@ public class ServiceUtils {
 		return hexString.toString().toUpperCase();
 	}
 
-	public static Map<String, String> extractFacilityName(Facility facility, AttributesProperties attrsProps) {
+	public static Map<String, String> extractFacilityName(@NonNull Facility facility,
+														  @NonNull AttributesProperties attrsProps)
+	{
 		return ServiceUtils.extractFacilityName(facility.getAttributes().get(AttributeCategory.SERVICE),
 				attrsProps);
 	}
 
-	public static Map<String, String> extractFacilityDescription(Facility facility, AttributesProperties attrsProps) {
+	public static Map<String, String> extractFacilityDescription(@NonNull Facility facility,
+																 @NonNull AttributesProperties attrsProps)
+	{
 		return ServiceUtils.extractFacilityDescription(facility.getAttributes().get(AttributeCategory.SERVICE),
 				attrsProps);
 	}
 
-	public static Map<String, String> extractFacilityName(Map<String, PerunAttribute> attrs,
-														  AttributesProperties attributesProperties)
+	public static Map<String, String> extractFacilityName(@NonNull Map<String, PerunAttribute> attrs,
+														  @NonNull AttributesProperties attributesProperties)
 	{
-		return attrs.get(attributesProperties.getServiceNameAttrName()).valueAsMap();
+		if (attrs.containsKey(attributesProperties.getServiceNameAttrName())) {
+			return attrs.get(attributesProperties.getServiceNameAttrName()).valueAsMap();
+		} else {
+			return new HashMap<>();
+		}
 	}
 
-	public static Map<String, String> extractFacilityDescription(Map<String, PerunAttribute> attrs,
-																 AttributesProperties attributesProperties)
+	public static Map<String, String> extractFacilityDescription(@NonNull Map<String, PerunAttribute> attrs,
+																 @NonNull AttributesProperties attributesProperties)
 	{
-		return attrs.get(attributesProperties.getServiceDescAttrName()).valueAsMap();
+		if (attrs.containsKey(attributesProperties.getServiceDescAttrName())) {
+			return attrs.get(attributesProperties.getServiceDescAttrName()).valueAsMap();
+		} else {
+			return new HashMap<>();
+		}
 	}
 
 }

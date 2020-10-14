@@ -47,14 +47,4 @@ public class MailTemplate {
         return message.getOrDefault(lang, "");
     }
 
-    public String getInLang(String type, String lang) {
-        if (type.equalsIgnoreCase("subject")) {
-            return subject.get(lang);
-        } else if (type.equalsIgnoreCase("message")) {
-            return message.get(lang);
-        }
-
-        return null;
-    }
-
 }

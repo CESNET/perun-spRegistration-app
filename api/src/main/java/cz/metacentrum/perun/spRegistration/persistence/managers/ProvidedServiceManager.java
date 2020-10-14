@@ -5,6 +5,7 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorExcept
 import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ProvidedServiceManager {
 
@@ -21,6 +22,8 @@ public interface ProvidedServiceManager {
     List<ProvidedService> getAll();
 
     List<ProvidedService> getAllForFacilities(List<Long> facilityIds);
+
+    List<ProvidedService> getAllForFacilities(Set<Long> facilityIds);
 
     ProvidedService getByFacilityId(Long facilityId);
 }

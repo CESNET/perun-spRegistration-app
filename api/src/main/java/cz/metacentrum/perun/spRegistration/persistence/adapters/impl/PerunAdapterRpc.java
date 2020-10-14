@@ -135,7 +135,6 @@ public class PerunAdapterRpc implements PerunAdapter {
 
 		List<User> admins = this.getAdminsForFacility(facilityId, attributesProperties.getUserEmailAttrName());
 		facility.setAdmins(admins);
-
 		return facility;
 	}
 
@@ -254,7 +253,6 @@ public class PerunAdapterRpc implements PerunAdapter {
 		if (emailAttribute != null) {
 			user.setEmail(emailAttribute.valueAsString());
 		}
-
 		return user;
 	}
 
@@ -266,7 +264,6 @@ public class PerunAdapterRpc implements PerunAdapter {
 		if (facilities == null) {
 			return new HashSet<>();
 		}
-
 		return facilities.stream().map(Facility::getId).collect(Collectors.toSet());
 	}
 
@@ -335,69 +332,53 @@ public class PerunAdapterRpc implements PerunAdapter {
 	}
 
 	@Override
-	public Group createGroup(@NonNull Long parentGroupId, @NonNull Group group) throws PerunUnknownException, PerunConnectionException {
-		log.trace("createGroup({}, {})", parentGroupId, group);
-
+	public Group createGroup(@NonNull Long parentGroupId, @NonNull Group group)
+			throws PerunUnknownException, PerunConnectionException
+	{
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("parentGroup", parentGroupId);
 		params.put("group", group.toJson());
 
 		JsonNode res = perunRpc.call(GROUPS_MANAGER, "createGroup", params);
-		Group g = MapperUtils.mapGroup(res);
-
-		log.trace("createGroup({}, {}) returns: {}", parentGroupId, group, g);
-		return g;
+		return MapperUtils.mapGroup(res);
 	}
 
 	@Override
 	public boolean deleteGroup(@NonNull Long groupId) throws PerunUnknownException, PerunConnectionException {
-		log.trace("deleteGroup({})", groupId);
-
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("group", groupId);
 		params.put("force", true);
 
 		JsonNode res = perunRpc.call(GROUPS_MANAGER, "deleteGroup", params);
-		boolean result = res == null || res.isNull();
-
-		log.trace("deleteGroup({}) returns: {}", groupId, result);
-		return result;
+		return res == null || res.isNull();
 	}
 
 	@Override
-	public boolean addGroupAsAdmins(@NonNull Long facilityId, @NonNull Long groupId) throws PerunUnknownException, PerunConnectionException {
-		log.trace("addGroupAsAdmins({}, {})", facilityId, groupId);
-
+	public boolean addGroupAsAdmins(@NonNull Long facilityId, @NonNull Long groupId)
+			throws PerunUnknownException, PerunConnectionException
+	{
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("facility", facilityId);
 		params.put("authorizedGroup", groupId);
 
 		JsonNode res = perunRpc.call(FACILITIES_MANAGER, "addAdmin", params);
-		boolean result = res == null || res.isNull();
-
-		log.trace("addGroupAsAdmins({}, {}) returns: {}", facilityId, groupId, result);
-		return result;
+		return res == null || res.isNull();
 	}
 
 	@Override
-	public boolean removeGroupFromAdmins(Long facilityId, Long groupId) throws PerunUnknownException, PerunConnectionException {
-		log.trace("removeGroupFromAdmins({}, {})", facilityId, groupId);
-
+	public boolean removeGroupFromAdmins(@NonNull Long facilityId, @NonNull Long groupId)
+			throws PerunUnknownException, PerunConnectionException
+	{
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("facility", facilityId);
 		params.put("authorizedGroup", groupId);
 
 		JsonNode res = perunRpc.call(FACILITIES_MANAGER, "removeAdmin", params);
-		boolean result = res == null || res.isNull();
-
-		log.trace("removeGroupFromAdmins({}, {}) returns: {}", facilityId, groupId, result);
-		return result;
+		return res == null || res.isNull();
 	}
 
 	@Override
 	public Long getMemberIdByUser(Long vo, Long user) throws PerunUnknownException, PerunConnectionException {
-		log.trace("getMemberIdByUser({}, {})", vo, user);
-
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("vo", vo);
 		params.put("user", user);
@@ -406,29 +387,30 @@ public class PerunAdapterRpc implements PerunAdapter {
 		if (res == null || (res instanceof NullNode) || res.isNull()) {
 			throw new PerunUnknownException("User is not member in VO");
 		}
-		Long id = res.get("id").asLong();
-
-		log.trace("getMemberIdByUser({}, {}) returns: {}", vo, user, id);
-		return id;
+		return res.get("id").asLong();
 	}
 
 	@Override
-	public boolean addMemberToGroup(Long groupId, Long memberId)
-			throws PerunUnknownException, PerunConnectionException {
-		log.trace("addMemberToGroup({}, {})", groupId, memberId);
-
+	public boolean addMemberToGroup(Long groupId, Long memberId) throws PerunUnknownException, PerunConnectionException {
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("group", groupId);
 		params.put("member", memberId);
 
 		JsonNode res = perunRpc.call(GROUPS_MANAGER, "addMember", params);
-		boolean result = res == null || res.isNull();
-
-		log.trace("addMemberToGroup({}, {}) returns: {}", groupId, memberId, result);
-		return result;
+		return res == null || res.isNull();
 	}
 
-	private PerunAttribute getUserAttribute(@NonNull Long userId, @NonNull String attributeName)
+	@Override
+	public boolean removeMemberFromGroup(Long groupId, Long memberId) throws PerunUnknownException, PerunConnectionException {
+		Map<String, Object> params = new LinkedHashMap<>();
+		params.put("group", groupId);
+		params.put("member", memberId);
+
+		JsonNode res = perunRpc.call(GROUPS_MANAGER, "removeMember", params);
+		return res == null || res.isNull();
+	}
+
+	private PerunAttribute getUserAttribute(Long userId, String attributeName)
 			throws PerunUnknownException, PerunConnectionException
 	{
 		if (!StringUtils.hasText(attributeName)) {

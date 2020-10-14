@@ -90,11 +90,7 @@ public class RequestsServiceImpl implements RequestsService {
     @NonNull private final AttributesProperties attributesProperties;
     @NonNull private final ApprovalsProperties approvalsProperties;
     @NonNull private final ProvidedServiceManager providedServiceManager;
-    @NonNull private final List<AttrInput> serviceInputs;
-    @NonNull private final List<AttrInput> organizationInputs;
-    @NonNull private final List<AttrInput> membershipInputs;
-    @NonNull private final List<AttrInput> oidcInputs;
-    @NonNull private final List<AttrInput> samlInputs;
+    @NonNull private final InputsContainer inputsContainer;
 
     @Autowired
     public RequestsServiceImpl(@NonNull PerunAdapter perunAdapter,
@@ -121,11 +117,7 @@ public class RequestsServiceImpl implements RequestsService {
         this.attributesProperties = attributesProperties;
         this.approvalsProperties = approvalsProperties;
         this.providedServiceManager = providedServiceManager;
-        this.serviceInputs = inputsContainer.getServiceInputs();
-        this.organizationInputs = inputsContainer.getOrganizationInputs();
-        this.membershipInputs = inputsContainer.getMembershipInputs();
-        this.oidcInputs = inputsContainer.getOidcInputs();
-        this.samlInputs = inputsContainer.getSamlInputs();
+        this.inputsContainer = inputsContainer;
     }
 
     @Override
@@ -463,8 +455,10 @@ public class RequestsServiceImpl implements RequestsService {
         return true;
     }
 
-    private Request createRequest(Long facilityId, @NonNull Long userId,
-                                  @NonNull RequestAction action, @NonNull List<PerunAttribute> attributes)
+    // private methods
+
+    private Request createRequest(Long facilityId, Long userId,
+                                  RequestAction action, List<PerunAttribute> attributes)
             throws InternalErrorException, ActiveRequestExistsException
     {
         Request request = new Request();
@@ -484,7 +478,7 @@ public class RequestsServiceImpl implements RequestsService {
         return request;
     }
 
-    private boolean processApprovedRequest(@NonNull Request request)
+    private boolean processApprovedRequest(Request request)
             throws InternalErrorException, PerunUnknownException, PerunConnectionException
     {
         switch(request.getAction()) {
@@ -495,13 +489,13 @@ public class RequestsServiceImpl implements RequestsService {
             case DELETE_FACILITY:
                 return this.deleteFacilityFromPerun(request);
             case MOVE_TO_PRODUCTION:
-                return this.moveToProduction(request);
+                return this.moveToProduction(request.getFacilityId());
         }
 
         return false;
     }
 
-    private boolean registerNewService(@NonNull Request request) throws InternalErrorException {
+    private boolean registerNewService(Request request) throws InternalErrorException {
         String name = this.getNameFromRequest(request);
         PerunAttribute clientId = this.generateClientIdAttribute();
         String desc = this.getDescFromRequest(request, clientId);
@@ -552,52 +546,7 @@ public class RequestsServiceImpl implements RequestsService {
         return true;
     }
 
-    private boolean setFacilityAttributes(Request request, Long facilityId, Long adminsGroupId, PerunAttribute clientId) {
-        try {
-            ArrayNode attributes = request.getAttributesAsJsonArrayForPerun();
-            boolean isOidc = ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName());
-            if (isOidc) {
-                if (!setClientIdAttribute(facilityId, clientId)) {
-                    return false;
-                }
-                PerunAttribute clientSecret = utilsService.generateClientSecretAttribute();
-                perunAdapter.setFacilityAttribute(facilityId, clientSecret.toJson());
-            }
-            this.fillAttributes(attributes, isOidc, adminsGroupId);
-            return perunAdapter.setFacilityAttributes(request.getFacilityId(), attributes);
-        } catch (PerunUnknownException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException
-                | PerunConnectionException e)
-        {
-            log.error("Failure when setting attributes: {}", e.getMessage(), e);
-            return false;
-        }
-    }
-
-    private ProvidedService createSp(Long facilityId, Request request) {
-        ProvidedService sp = new ProvidedService();
-
-        sp.setFacilityId(facilityId);
-        sp.setName(request.getFacilityName(attributesProperties.getServiceNameAttrName()));
-        sp.setDescription(request.getFacilityDescription(attributesProperties.getServiceDescAttrName()));
-        sp.setEnvironment(ServiceEnvironment.TESTING);
-        sp.setProtocol(ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName()) ?
-                ServiceProtocol.OIDC : ServiceProtocol.SAML);
-        sp.setIdentifier(sp.getProtocol().equals(ServiceProtocol.SAML) ?
-                request.getAttributes().get(AttributeCategory.PROTOCOL)
-                        .get(attributesProperties.getEntityIdAttrName()).valueAsString() :
-                request.getAttributes().get(AttributeCategory.PROTOCOL)
-                        .get(attributesProperties.getOidcClientIdAttrName()).valueAsString());
-
-        try {
-            sp = providedServiceManager.create(sp);
-        } catch (JsonProcessingException | InternalErrorException e) {
-            log.error("Creating SP in DB has failed");
-            return null;
-        }
-        return (sp == null || sp.getId() == null) ? null : sp;
-    }
-
-    private boolean updateFacilityInPerun(@NonNull Request request)
+    private boolean updateFacilityInPerun(Request request)
             throws InternalErrorException, PerunUnknownException, PerunConnectionException
     {
         Long facilityId = this.extractFacilityIdFromRequest(request);
@@ -647,23 +596,7 @@ public class RequestsServiceImpl implements RequestsService {
         return true;
     }
 
-    private void rollBackAttrChanges(Map<String, PerunAttribute> oldAttributes, Long facilityId) {
-        ArrayNode oldAttrsArray = JsonNodeFactory.instance.arrayNode();
-        oldAttributes.values().forEach(a -> oldAttrsArray.add(a.toJson()));
-        ((ExecuteAndSwallowException) () -> perunAdapter.setFacilityAttributes(
-                facilityId, oldAttrsArray)).execute(log);
-    }
-
-    private void rollBackSpChanges(final ProvidedService sp, Map<String, String> oldName,
-                                   Map<String, String> oldDesc, ServiceEnvironment env)
-    {
-        sp.setDescription(oldDesc);
-        sp.setName(oldName);
-        sp.setEnvironment(env);
-        ((ExecuteAndSwallowException) () -> providedServiceManager.update(sp)).execute(log);
-    }
-
-    private boolean deleteFacilityFromPerun(@NonNull Request request) throws InternalErrorException {
+    private boolean deleteFacilityFromPerun(Request request) throws InternalErrorException {
         Long facilityId = this.extractFacilityIdFromRequest(request);
         try {
             boolean spDeleted = false;
@@ -690,6 +623,95 @@ public class RequestsServiceImpl implements RequestsService {
         }
 
         return true;
+    }
+
+    private boolean moveToProduction(Long facilityId) {
+        PerunAttribute testSp = this.generateTestSpAttribute(false);
+        PerunAttribute showOnServiceList = this.generateShowOnServiceListAttribute(true);
+
+        ArrayNode attributes = JsonNodeFactory.instance.arrayNode();
+        attributes.add(testSp.toJson());
+        attributes.add(showOnServiceList.toJson());
+
+        ProvidedService sp = providedServiceManager.getByFacilityId(facilityId);
+        sp.setEnvironment(ServiceEnvironment.PRODUCTION);
+        try {
+            providedServiceManager.update(sp);
+        } catch (InternalErrorException | JsonProcessingException ex) {
+            log.warn("Could not update SP to Production environment: {}", sp, ex);
+            return false;
+        }
+
+        try {
+            if (!perunAdapter.setFacilityAttributes(facilityId, attributes)) {
+                throw new ProcessingException("Failed to update attributes");
+            }
+        } catch (PerunConnectionException | PerunUnknownException | ProcessingException e) {
+            this.rollBackSpChanges(sp, sp.getName(), sp.getDescription(), ServiceEnvironment.TESTING);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean setFacilityAttributes(Request request, Long facilityId, Long adminsGroupId, PerunAttribute clientId) {
+        try {
+            ArrayNode attributes = request.getAttributesAsJsonArrayForPerun();
+            boolean isOidc = ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName());
+            if (isOidc) {
+                if (!setClientIdAttribute(facilityId, clientId)) {
+                    return false;
+                }
+                PerunAttribute clientSecret = utilsService.generateClientSecretAttribute();
+                perunAdapter.setFacilityAttribute(facilityId, clientSecret.toJson());
+            }
+            this.fillAttributes(attributes, isOidc, adminsGroupId);
+            return perunAdapter.setFacilityAttributes(request.getFacilityId(), attributes);
+        } catch (PerunUnknownException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException
+                | PerunConnectionException e)
+        {
+            log.error("Failure when setting attributes: {}", e.getMessage(), e);
+            return false;
+        }
+    }
+
+    private ProvidedService createSp(Long facilityId, Request request) {
+        ProvidedService sp = new ProvidedService();
+
+        sp.setFacilityId(facilityId);
+        sp.setName(request.getFacilityName(attributesProperties.getServiceNameAttrName()));
+        sp.setDescription(request.getFacilityDescription(attributesProperties.getServiceDescAttrName()));
+        sp.setEnvironment(ServiceEnvironment.TESTING);
+        sp.setProtocol(ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName()) ?
+                ServiceProtocol.OIDC : ServiceProtocol.SAML);
+        sp.setIdentifier(sp.getProtocol().equals(ServiceProtocol.SAML) ?
+                request.getAttributes().get(AttributeCategory.PROTOCOL)
+                        .get(attributesProperties.getEntityIdAttrName()).valueAsString() :
+                request.getAttributes().get(AttributeCategory.PROTOCOL)
+                        .get(attributesProperties.getOidcClientIdAttrName()).valueAsString());
+
+        try {
+            sp = providedServiceManager.create(sp);
+        } catch (JsonProcessingException | InternalErrorException e) {
+            log.error("Creating SP in DB has failed");
+            return null;
+        }
+        return (sp == null || sp.getId() == null) ? null : sp;
+    }
+
+    private void rollBackAttrChanges(Map<String, PerunAttribute> oldAttributes, Long facilityId) {
+        ArrayNode oldAttrsArray = JsonNodeFactory.instance.arrayNode();
+        oldAttributes.values().forEach(a -> oldAttrsArray.add(a.toJson()));
+        ((ExecuteAndSwallowException) () -> perunAdapter.setFacilityAttributes(
+                facilityId, oldAttrsArray)).execute(log);
+    }
+
+    private void rollBackSpChanges(final ProvidedService sp, Map<String, String> oldName,
+                                   Map<String, String> oldDesc, ServiceEnvironment env)
+    {
+        sp.setDescription(oldDesc);
+        sp.setName(oldName);
+        sp.setEnvironment(env);
+        ((ExecuteAndSwallowException) () -> providedServiceManager.update(sp)).execute(log);
     }
 
     private void deleteAdminsGroup(Long facilityId) throws ProcessingException {
@@ -721,7 +743,7 @@ public class RequestsServiceImpl implements RequestsService {
         return true;
     }
 
-    private boolean setClientIdAttribute(@NonNull Long facilityId, @NonNull PerunAttribute clientId) {
+    private boolean setClientIdAttribute(Long facilityId, PerunAttribute clientId) {
         for (int i = 0; i < 20; i++) {
             try {
                 boolean set = perunAdapter.setFacilityAttribute(facilityId, clientId.toJson());
@@ -737,7 +759,7 @@ public class RequestsServiceImpl implements RequestsService {
         return false;
     }
 
-    private void fillAttributes(@NonNull ArrayNode attributes, boolean isOidcService, Long adminsGroupId)
+    private void fillAttributes(ArrayNode attributes, boolean isOidcService, Long adminsGroupId)
             throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException
     {
         if (isOidcService) {
@@ -753,35 +775,7 @@ public class RequestsServiceImpl implements RequestsService {
         attributes.add(this.generateAdminsGroupAttr(adminsGroupId).toJson());
     }
 
-    private boolean moveToProduction(@NonNull Request request) {
-        PerunAttribute testSp = this.generateTestSpAttribute(false);
-        PerunAttribute showOnServiceList = this.generateShowOnServiceListAttribute(true);
-
-        ArrayNode attributes = request.getAttributesAsJsonArrayForPerun();
-        attributes.add(testSp.toJson());
-        attributes.add(showOnServiceList.toJson());
-
-        ProvidedService sp = providedServiceManager.getByFacilityId(request.getFacilityId());
-        sp.setEnvironment(ServiceEnvironment.PRODUCTION);
-        try {
-            providedServiceManager.update(sp);
-        } catch (InternalErrorException | JsonProcessingException ex) {
-            log.warn("Could not update SP to Production environment: {}", sp, ex);
-            return false;
-        }
-
-        try {
-            if (!perunAdapter.setFacilityAttributes(request.getFacilityId(), attributes)) {
-                throw new ProcessingException("Failed to update attributes");
-            }
-        } catch (PerunConnectionException | PerunUnknownException | ProcessingException e) {
-            this.rollBackSpChanges(sp, sp.getName(), sp.getDescription(), ServiceEnvironment.TESTING);
-            return false;
-        }
-        return true;
-    }
-
-    private String getDescFromRequest(@NonNull Request request, @NonNull PerunAttribute clientId) {
+    private String getDescFromRequest(Request request, PerunAttribute clientId) {
         if (ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName())) {
             return clientId.valueAsString();
         } else {
@@ -790,7 +784,7 @@ public class RequestsServiceImpl implements RequestsService {
         }
     }
 
-    private String getNameFromRequest(@NonNull Request request) throws InternalErrorException {
+    private String getNameFromRequest(Request request) throws InternalErrorException {
         Map<String, String> nameAttrValue = request.getFacilityName(attributesProperties.getServiceNameAttrName());
         if (nameAttrValue.isEmpty() || !nameAttrValue.containsKey(LANG_EN) || nameAttrValue.get(LANG_EN) == null) {
             throw new InternalErrorException("No name could be found");
@@ -805,7 +799,7 @@ public class RequestsServiceImpl implements RequestsService {
         return pattern2.matcher(newName).replaceAll("_");
     }
 
-    private Long extractFacilityIdFromRequest(@NonNull Request request) throws InternalErrorException {
+    private Long extractFacilityIdFromRequest(Request request) throws InternalErrorException {
         Long facilityId = request.getFacilityId();
         if (facilityId == null) {
             log.error("Request: {} does not have facilityId", request);
@@ -865,14 +859,14 @@ public class RequestsServiceImpl implements RequestsService {
         return attribute;
     }
 
-    private PerunAttribute generateAdminsGroupAttr(@NonNull Long id) {
+    private PerunAttribute generateAdminsGroupAttr(Long id) {
         PerunAttribute attribute = new PerunAttribute();
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getManagerGroupAttrName()));
         attribute.setValue(JsonNodeFactory.instance.numberNode(id));
         return attribute;
     }
 
-    private List<PerunAttribute> filterNonNullAttributes(@NonNull Facility facility) {
+    private List<PerunAttribute> filterNonNullAttributes(Facility facility) {
         if (facility.getAttributes() == null || facility.getAttributes().isEmpty()) {
             return new LinkedList<>();
         }
@@ -892,9 +886,7 @@ public class RequestsServiceImpl implements RequestsService {
         return filteredAttributes;
     }
 
-    private Map<String, String> generateCodesForAuthorities(@NonNull Request request,
-                                                            @NonNull List<String> authorities,
-                                                            @NonNull User user)
+    private Map<String, String> generateCodesForAuthorities(Request request, List<String> authorities, User user)
             throws InternalErrorException
     {
         List<String> emails = new ArrayList<>();
@@ -922,8 +914,8 @@ public class RequestsServiceImpl implements RequestsService {
         return authsCodesMap;
     }
 
-    private LinkCode createRequestCode(@NonNull String authority, @NonNull User user,
-                                       @NonNull Long requestId, @NonNull Long facilityId)
+    private LinkCode createRequestCode(String authority, User user,
+                                       Long requestId, Long facilityId)
     {
         LinkCode code = new LinkCode();
         code.setRecipientEmail(authority);
@@ -954,27 +946,27 @@ public class RequestsServiceImpl implements RequestsService {
     private List<String> filterProtocolAttrs(boolean isOidc) {
         List<String> keptAttrs = new ArrayList<>();
 
-        keptAttrs.addAll(serviceInputs.stream()
+        keptAttrs.addAll(inputsContainer.getServiceInputs().stream()
                 .map(AttrInput::getName)
                 .collect(Collectors.toList()));
 
-        keptAttrs.addAll(organizationInputs.stream()
+        keptAttrs.addAll(inputsContainer.getOrganizationInputs().stream()
                 .map(AttrInput::getName)
                 .collect(Collectors.toList()));
 
-        keptAttrs.addAll(membershipInputs.stream()
+        keptAttrs.addAll(inputsContainer.getMembershipInputs().stream()
                 .map(AttrInput::getName)
                 .collect(Collectors.toList()));
 
         if (isOidc) {
-            keptAttrs.addAll(oidcInputs.stream()
+            keptAttrs.addAll(inputsContainer.getOidcInputs().stream()
                     .map(AttrInput::getName)
                     .collect(Collectors.toList())
             );
             keptAttrs.add(attributesProperties.getOidcClientIdAttrName());
             keptAttrs.add(attributesProperties.getOidcClientSecretAttrName());
         } else {
-            keptAttrs.addAll(samlInputs.stream()
+            keptAttrs.addAll(inputsContainer.getSamlInputs().stream()
                     .map(AttrInput::getName)
                     .collect(Collectors.toList())
             );
@@ -983,7 +975,7 @@ public class RequestsServiceImpl implements RequestsService {
         return keptAttrs;
     }
 
-    private boolean hasCorrectStatus(@NonNull RequestStatus status, @NonNull RequestStatus[] allowedStatuses) {
+    private boolean hasCorrectStatus(RequestStatus status, RequestStatus[] allowedStatuses) {
         for (RequestStatus s: allowedStatuses) {
             if (s.equals(status)) {
                 return true;

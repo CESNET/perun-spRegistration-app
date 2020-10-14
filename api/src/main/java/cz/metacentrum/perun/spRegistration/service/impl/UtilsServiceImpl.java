@@ -87,7 +87,7 @@ public class UtilsServiceImpl implements UtilsService {
         }
         if (facility == null) {
             facility = new Facility(facilityId, facilityId.toString(), facilityId.toString());
-            Map<String, String> map = new HashMap<>();;
+            Map<String, String> map = new HashMap<>();
             map.put(LANG_EN, facilityId.toString());
             map.put(LANG_CS, facilityId.toString());
             facility.setName(map);

@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
+import cz.metacentrum.perun.spRegistration.common.ExecuteAndSwallowException;
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.ApprovalsProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
@@ -76,13 +77,11 @@ public class AddAdminsServiceImpl implements AddAdminsService {
             PerunUnknownException, PerunConnectionException
     {
         if (!utilsService.isAdminForFacility(facilityId, user.getId())) {
-            log.error("User cannot request adding admins to facility, user is not an admin");
             throw new UnauthorizedActionException("User cannot request adding admins to facility, user is not an admin");
         }
 
         Facility facility = perunAdapter.getFacilityById(facilityId);
         if (facility == null) {
-            log.error("Could not fetch facility for id: {}", facilityId);
             throw new InternalErrorException("Could not find facility for id: " + facilityId);
         }
 
@@ -102,11 +101,10 @@ public class AddAdminsServiceImpl implements AddAdminsService {
 
     @Override
     public boolean confirmAddAdmin(@NonNull User user, @NonNull String code)
-            throws ExpiredCodeException, InternalErrorException, PerunUnknownException, PerunConnectionException {
+            throws ExpiredCodeException, InternalErrorException, PerunUnknownException, PerunConnectionException
+    {
         LinkCode linkCode = linkCodeManager.get(code);
-
         if (linkCode == null) {
-            log.error("User trying to become admin with invalid code: {}", code);
             throw new ExpiredCodeException("Code is invalid");
         }
 
@@ -120,12 +118,14 @@ public class AddAdminsServiceImpl implements AddAdminsService {
             throw new InternalErrorException("No admins group found for service");
         }
         boolean added = perunAdapter.addMemberToGroup(adminsGroupAttribute.valueAsLong(), memberId);
-        if (!added) {
-            log.error("some operations failed: added: false");
-        } else {
-            linkCodeManager.delete(code);
-            log.info("Admin added, code deleted");
-            return added;
+        if (added) {
+            try {
+                linkCodeManager.delete(code);
+            } catch (Exception e) {
+                ((ExecuteAndSwallowException) () -> perunAdapter.removeMemberFromGroup(
+                        adminsGroupAttribute.valueAsLong(), memberId)).execute(log);
+                return false;
+            }
         }
 
         return true;
@@ -136,7 +136,6 @@ public class AddAdminsServiceImpl implements AddAdminsService {
             throws ExpiredCodeException, InternalErrorException
     {
         LinkCode linkCode = linkCodeManager.get(code);
-
         if (linkCode == null) {
             log.error("User trying to become reject becoming with invalid code: {}", code);
             throw new ExpiredCodeException("Code is invalid");
@@ -164,8 +163,10 @@ public class AddAdminsServiceImpl implements AddAdminsService {
         return facility;
     }
 
-    private Map<String, String> generateCodesForAdmins(@NonNull List<String> admins, @NonNull User user,
-                                                       @NonNull Long facility)
+    // private methods
+
+    private Map<String, String> generateCodesForAdmins(List<String> admins, User user,
+                                                       Long facility)
             throws InternalErrorException
     {
         List<LinkCode> codes = new ArrayList<>();
@@ -183,7 +184,7 @@ public class AddAdminsServiceImpl implements AddAdminsService {
         return adminCodesMap;
     }
 
-    private Map<String, String> generateLinksForAdmins(@NonNull Map<String, String> adminCodeMap)
+    private Map<String, String> generateLinksForAdmins(Map<String, String> adminCodeMap)
             throws UnsupportedEncodingException
     {
         Map<String, String> linksMap = new HashMap<>();

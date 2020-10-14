@@ -167,4 +167,6 @@ public interface PerunAdapter {
 	Long getMemberIdByUser(Long vo, Long user) throws PerunUnknownException, PerunConnectionException;
 
 	boolean addMemberToGroup(Long groupId, Long memberId) throws PerunUnknownException, PerunConnectionException;
+
+	boolean removeMemberFromGroup(Long valueAsLong, Long memberId) throws PerunUnknownException, PerunConnectionException;
 }

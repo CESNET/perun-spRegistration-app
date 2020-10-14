@@ -16,7 +16,10 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 
 
@@ -206,6 +209,11 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
 
         log.trace("getAll returns: {}", providedServices);
         return providedServices;
+    }
+
+    @Override
+    public List<ProvidedService> getAllForFacilities(Set<Long> facilityIds) {
+        return this.getAllForFacilities(new LinkedList<>(facilityIds));
     }
 
     @Override

@@ -17,11 +17,12 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Utility class for sending email notifications.
@@ -118,6 +119,7 @@ public class MailsServiceImpl implements MailsService {
 			if (!this.adminAddRemoveNotify(link, facility, email, user)) {
 				log.warn("Failed to send approval notification to {} for facility id: {}, link: {}, user: {}",
 						email, facility.getId(), link, user);
+				//todo: reschedule this sending
 			}
 		}
 
@@ -175,6 +177,7 @@ public class MailsServiceImpl implements MailsService {
 			log.debug("Sent mail to user: {}", userMail);
 		} else {
 			log.warn("Failed to send notification ({}, {}) to {}", subject, message, userMail);
+			//todo: reschedule this sending
 		}
 	}
 
@@ -193,6 +196,7 @@ public class MailsServiceImpl implements MailsService {
 				log.debug("Sent mail to admin: {}", adminMail);
 			} else {
 				log.warn("Failed to send admin notification to: {}", adminMail);
+				//todo: reschedule this sending
 			}
 		}
 	}
@@ -217,13 +221,16 @@ public class MailsServiceImpl implements MailsService {
 				log.debug("Sent mail to admin: {}", email);
 			} else {
 				log.warn("Failed to send client secret changed notification to: {}", email);
+				//todo: reschedule this sending
 			}
 		}
 
 		log.debug("notifyClientSecretChanged() has sent {} notifications out of {}", sentCount, emails.size());
 	}
 
-	private String replaceApprovalLink(@NonNull String containerString, @NonNull String link) {
+	// private methods
+
+	private String replaceApprovalLink(String containerString, String link) {
 		if (containerString.contains(APPROVAL_LINK_FIELD)) {
 			return containerString.replaceAll(APPROVAL_LINK_FIELD, wrapInAnchorElement(link));
 		}
@@ -231,7 +238,7 @@ public class MailsServiceImpl implements MailsService {
 		return containerString;
 	}
 
-	private String replacePlaceholders(@NonNull String containerString, @NonNull Facility fac) {
+	private String replacePlaceholders(String containerString, Facility fac) {
 		containerString = this.replacePlaceholder(containerString, EN_SERVICE_NAME_FIELD,
 				fac.getName().get(LANG_EN), STR_EMPTY);
 		containerString = this.replacePlaceholder(containerString, EN_SERVICE_DESCRIPTION_FIELD,
@@ -246,7 +253,7 @@ public class MailsServiceImpl implements MailsService {
 		return containerString;
 	}
 
-	private String replacePlaceholders(@NonNull String containerString, @NonNull Request req) {
+	private String replacePlaceholders(String containerString, Request req) {
 		String requestLink = applicationProperties.getHostUrl() + "/auth/requests/detail/" + req.getReqId();
 
 		containerString = this.replacePlaceholder(containerString, REQUEST_ID_FIELD,
@@ -278,13 +285,11 @@ public class MailsServiceImpl implements MailsService {
 		return containerString;
 	}
 
-	private String wrapInAnchorElement(@NonNull String link) {
+	private String wrapInAnchorElement(String link) {
 		return "<a href=\"" + link + "\">" + link + "</a>";
 	}
 
-	private String replacePlaceholder(@NonNull String container, @NonNull String replaceKey,
-									  @NonNull String replaceWith, @NonNull String def)
-	{
+	private String replacePlaceholder(String container, String replaceKey, String replaceWith, String def) {
 		if (container.contains(replaceKey)) {
 			if (replaceWith != null) {
 				return container.replace(replaceKey, replaceWith);
@@ -296,7 +301,7 @@ public class MailsServiceImpl implements MailsService {
 		return container;
 	}
 
-	private MailTemplate getTemplate(@NonNull String action, @NonNull String role) {
+	private MailTemplate getTemplate(String action, String role) {
 		String key = getMailTemplateKey(role, action);
 		MailTemplate template = templates.getOrDefault(key, null);
 		if (template == null) {
@@ -307,7 +312,7 @@ public class MailsServiceImpl implements MailsService {
 		return template;
 	}
 
-	private MailTemplate getTemplate(@NonNull String key) {
+	private MailTemplate getTemplate(String key) {
 		MailTemplate template = templates.getOrDefault(key, null);
 		if (template == null) {
 			log.error("Could not fetch mail template for key {} ", key);
@@ -317,7 +322,7 @@ public class MailsServiceImpl implements MailsService {
 		return template;
 	}
 
-	private String getMailTemplateKey(@NonNull String role, @NonNull String action) {
+	private String getMailTemplateKey(String role, String action) {
 		if (ROLE_ADMIN.equalsIgnoreCase(role)) {
 			switch (action) {
 				case REQUEST_CREATED:
@@ -347,12 +352,12 @@ public class MailsServiceImpl implements MailsService {
 					throw new IllegalArgumentException("Unrecognized action");
 			}
 		}
-		
+
 		log.error("Cannot recognize role {}", role);
 		throw new IllegalArgumentException("Unrecognized role");
 	}
 
-	private String constructSubject(@NonNull MailTemplate template) {
+	private String constructSubject(MailTemplate template) {
 		StringJoiner joiner = new StringJoiner(" / ");
 		for (String lang: applicationProperties.getLanguagesEnabled()) {
 			String subj = template.getSubjectInLang(lang);
@@ -364,7 +369,7 @@ public class MailsServiceImpl implements MailsService {
 		return mailProperties.getSubjectPrefix() + joiner.toString();
 	}
 
-	private String constructMessage(@NonNull MailTemplate template) {
+	private String constructMessage(MailTemplate template) {
 		StringJoiner joiner = new StringJoiner("<br/><br/><hr/><br/>");
 		for (String lang: applicationProperties.getLanguagesEnabled()) {
 			String msg = template.getMessageInLang(lang);
@@ -376,11 +381,11 @@ public class MailsServiceImpl implements MailsService {
 		return joiner.toString();
 	}
 
-	private boolean sendMail(@NonNull String to, @NonNull String subject, @NonNull String msg) {
+	private boolean sendMail(String to, String subject, String msg) {
 		try {
 			MimeMessage message = mailSender.createMimeMessage();
 
-			MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.toString());
+			MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF_8.toString());
 			helper.setFrom(mailProperties.getFrom());
 			helper.setTo(to);
 			helper.setSubject(subject);
