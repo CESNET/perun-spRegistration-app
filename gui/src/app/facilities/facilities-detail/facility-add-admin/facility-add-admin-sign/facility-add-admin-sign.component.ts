@@ -38,7 +38,7 @@ export class FacilityAddAdminSignComponent implements OnInit, OnDestroy {
       this.facilitiesService.addAdminGetDetails(this.hash).subscribe(details => {
         if (details) {
           this.details = new LinkCode(details);
-          this.facilitiesService.getFacility(this.details.facilityId).subscribe(response => {
+          this.facilitiesService.addAdminGetFacilityDetails(this.details.facilityId).subscribe(response => {
             this.facility = new Facility(response);
             this.mapAttributes();
             this.loading = false;
