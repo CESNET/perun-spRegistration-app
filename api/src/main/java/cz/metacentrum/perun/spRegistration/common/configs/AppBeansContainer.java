@@ -58,32 +58,7 @@ public class AppBeansContainer {
         this.initInputs(inputsContainer.getMembershipInputs(), AttributeCategory.ACCESS_CONTROL);
         this.initInputs(inputsContainer.getSamlInputs(), AttributeCategory.PROTOCOL);
         this.initInputs(inputsContainer.getOidcInputs(), AttributeCategory.PROTOCOL);
-
         this.secretKeySpec = this.generateSecretKeySpec(applicationProperties.getSecretKey());
-    }
-
-    private void initializeDefinitions() throws PerunUnknownException, PerunConnectionException {
-        List<String> attrNames = this.attributesProperties.getAttrNames();
-        for (String attrName: attrNames) {
-            PerunAttributeDefinition def = perunAdapter.getAttributeDefinition(attrName);
-            if (def != null) {
-                this.attributeDefinitionMap.put(attrName, def);
-            } else {
-                log.error("Null attribute definition for attribute name: {}!", attrName);
-                throw new IllegalStateException("Cannot initialize attribute definition for name " + attrName);
-            }
-        }
-    }
-
-    private void initInputs(@NonNull List<AttrInput> attrInputs, AttributeCategory category)
-            throws PerunUnknownException, PerunConnectionException
-    {
-        for (AttrInput a: attrInputs) {
-            PerunAttributeDefinition definition = perunAdapter.getAttributeDefinition(a.getName());
-            attrInputMap.put(a.getName(), a);
-            attributeCategoryMap.put(a.getName(), category);
-            attributeDefinitionMap.put(a.getName(), definition);
-        }
     }
 
     public AttributeCategory getAttrCategory(@NonNull String attrFullName) {
@@ -100,7 +75,31 @@ public class AppBeansContainer {
 
     // private methods
 
-    private SecretKeySpec generateSecretKeySpec(@NonNull String secret) throws NoSuchAlgorithmException {
+    private void initializeDefinitions() throws PerunUnknownException, PerunConnectionException {
+        List<String> attrNames = this.attributesProperties.getAttrNames();
+        for (String attrName: attrNames) {
+            PerunAttributeDefinition def = perunAdapter.getAttributeDefinition(attrName);
+            if (def != null) {
+                this.attributeDefinitionMap.put(attrName, def);
+            } else {
+                log.error("Null attribute definition for attribute name: {}!", attrName);
+                throw new IllegalStateException("Cannot initialize attribute definition for name " + attrName);
+            }
+        }
+    }
+
+    private void initInputs(List<AttrInput> attrInputs, AttributeCategory category)
+            throws PerunUnknownException, PerunConnectionException
+    {
+        for (AttrInput a: attrInputs) {
+            PerunAttributeDefinition definition = perunAdapter.getAttributeDefinition(a.getName());
+            attrInputMap.put(a.getName(), a);
+            attributeCategoryMap.put(a.getName(), category);
+            attributeDefinitionMap.put(a.getName(), definition);
+        }
+    }
+
+    private SecretKeySpec generateSecretKeySpec(String secret) throws NoSuchAlgorithmException {
         secret = fixSecret(secret);
         MessageDigest sha;
         byte[] key = secret.getBytes(StandardCharsets.UTF_8);

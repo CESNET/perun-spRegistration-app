@@ -1,7 +1,9 @@
 package cz.metacentrum.perun.spRegistration.common.configs;
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -14,6 +16,8 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @EqualsAndHashCode
 @Slf4j
+@NoArgsConstructor
+@AllArgsConstructor
 @Component
 @ConfigurationProperties(prefix = "jdbc")
 public class JdbcProperties {

@@ -8,7 +8,6 @@ import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectio
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -31,7 +30,6 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 	@Value("${dev.enabled}")
 	private boolean devEnabled;
 
-	@Autowired
 	public UserSettingInterceptor(@NonNull PerunAdapter connector,
 								  @NonNull AttributesProperties attributesProperties,
 								  @NonNull ApplicationProperties applicationProperties)
@@ -58,8 +56,8 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 		return true;
 	}
 
-	private User setUser(@NonNull HttpServletRequest request) throws PerunUnknownException, PerunConnectionException {
-		String userEmailAttr = attributesProperties.getUserEmailAttrName();
+	private User setUser(HttpServletRequest request) throws PerunUnknownException, PerunConnectionException {
+		String userEmailAttr = attributesProperties.getNames().getUserEmail();
 		String extSourceProxy = applicationProperties.getProxyIdentifier();
 		String sub;
 

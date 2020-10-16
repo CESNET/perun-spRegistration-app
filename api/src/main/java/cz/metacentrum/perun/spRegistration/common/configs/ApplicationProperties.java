@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -31,9 +32,9 @@ public class ApplicationProperties {
     @NotNull private AttributesProperties attributesProperties;
     @NotNull private ApprovalsProperties approvalsProperties;
     @NotNull private FrontendProperties frontendProperties;
-    @NotNull private Long spAdminsRootVoId;
-    @NotNull private Long spAdminsRootGroupId;
-    @NotBlank private String mailsConfig;
+    @NotNull private Long spAdminsVoId;
+    @NotNull private Long spAdminsParentGroupId;
+    @NotBlank private String mailsConfigFilePath;
 
     @Override
     public String toString() {
@@ -45,8 +46,14 @@ public class ApplicationProperties {
                 ", secretKey='*******************'" +
                 ", hostUrl='" + hostUrl + '\'' +
                 ", logoutUrl='" + logoutUrl + '\'' +
-                ", mailsConfig='" + mailsConfig + '\'' +
+                ", mailsConfig='" + mailsConfigFilePath + '\'' +
                 '}';
+    }
+
+    @PostConstruct
+    public void postInit() {
+        log.info("Initialized application properties");
+        log.debug("{}", this.toString());
     }
 
     public boolean isAppAdmin(@NonNull Long id) {

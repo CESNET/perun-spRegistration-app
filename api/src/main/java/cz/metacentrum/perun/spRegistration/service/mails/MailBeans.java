@@ -49,7 +49,7 @@ public class MailBeans {
     @Bean
     @Autowired
     public MailProperties mailProperties(@NonNull ApplicationProperties applicationProperties) {
-        String path = applicationProperties.getMailsConfig();
+        String path = applicationProperties.getMailsConfigFilePath();
         try {
             return this.getMailPropertiesFromYaml(path);
         } catch (IOException e) {

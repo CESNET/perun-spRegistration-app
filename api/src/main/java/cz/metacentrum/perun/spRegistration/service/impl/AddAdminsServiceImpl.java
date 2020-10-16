@@ -86,12 +86,12 @@ public class AddAdminsServiceImpl implements AddAdminsService {
         }
 
         Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facility.getId(), Arrays.asList(
-                attributesProperties.getServiceNameAttrName(), attributesProperties.getServiceDescAttrName())
+                attributesProperties.getNames().getServiceName(), attributesProperties.getNames().getServiceDesc())
         );
 
         if (attrs != null) {
-            facility.setName(attrs.get(attributesProperties.getServiceNameAttrName()).valueAsMap());
-            facility.setDescription(attrs.get(attributesProperties.getServiceDescAttrName()).valueAsMap());
+            facility.setName(attrs.get(attributesProperties.getNames().getServiceName()).valueAsMap());
+            facility.setDescription(attrs.get(attributesProperties.getNames().getServiceDesc()).valueAsMap());
         }
 
         Map<String, String> adminCodeMap = this.generateCodesForAdmins(admins, user, facilityId);
@@ -108,12 +108,12 @@ public class AddAdminsServiceImpl implements AddAdminsService {
             throw new ExpiredCodeException("Code is invalid");
         }
 
-        Long memberId = perunAdapter.getMemberIdByUser(applicationProperties.getSpAdminsRootVoId(), user.getId());
+        Long memberId = perunAdapter.getMemberIdByUser(applicationProperties.getSpAdminsVoId(), user.getId());
         if (memberId == null) {
             throw new InternalErrorException("No member could be found for user");
         }
         PerunAttribute adminsGroupAttribute = perunAdapter.getFacilityAttribute(
-                linkCode.getFacilityId(), attributesProperties.getManagerGroupAttrName());
+                linkCode.getFacilityId(), attributesProperties.getNames().getManagerGroup());
         if (adminsGroupAttribute == null || adminsGroupAttribute.valueAsLong() == null) {
             throw new InternalErrorException("No admins group found for service");
         }
@@ -203,8 +203,8 @@ public class AddAdminsServiceImpl implements AddAdminsService {
         code.setRecipientEmail(admin);
         code.setSenderName(user.getName());
         code.setSenderEmail(user.getEmail());
-        code.setExpiresAt(approvalsProperties.getConfirmationPeriodDays(),
-                approvalsProperties.getConfirmationPeriodHours());
+        code.setExpiresAt(approvalsProperties.getConfirmationPeriod().getDays(),
+                approvalsProperties.getConfirmationPeriod().getHours());
         code.setFacilityId(facility);
         code.setHash(ServiceUtils.getHash(code.toString()));
         return code;

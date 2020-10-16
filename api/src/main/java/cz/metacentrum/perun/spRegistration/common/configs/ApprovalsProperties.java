@@ -23,28 +23,21 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 @Slf4j
+@NoArgsConstructor
+@AllArgsConstructor
 @Component
 @ConfigurationProperties(prefix = "approvals")
 public class ApprovalsProperties {
 
-    private int confirmationPeriodDays = 30;
-    private int confirmationPeriodHours = 0;
-    private boolean specifyOwn = true;
+    @NonNull private ConfirmationPeriod confirmationPeriod;
     @NotBlank private String adminsEndpoint = "https://dev.spreg.aai.cesnet.cz/spreg/auth/facilities/addAdmin/sign";
     @NotBlank private String authoritiesEndpoint = "https://dev.spreg.aai.cesnet.cz/spreg/auth/sign";
-    private final Map<String, List<String>> transferAuthoritiesMap = new HashMap<>();
-    @NotEmpty private List<String> defaultAuthorities;
+    @NonNull private TransferAuthorities transferAuthorities;
 
     @PostConstruct
     public void postInit() {
         log.info("Initialized approvals properties");
         log.debug("{}", this.toString());
-    }
-
-    public void setTransferAuthoritiesMap(@NonNull List<TransferAuthoritiesMapEntry> entries) {
-       for (TransferAuthoritiesMapEntry entry: entries) {
-           transferAuthoritiesMap.put(entry.getDisplayValue(), entry.getEmails());
-       }
     }
 
     @Getter
@@ -53,9 +46,42 @@ public class ApprovalsProperties {
     @EqualsAndHashCode
     @NoArgsConstructor
     @AllArgsConstructor
-    private static class TransferAuthoritiesMapEntry {
+    public static class TransferAuthorities {
+        private boolean allowInput = true;
+        @NotEmpty private List<String> defaultEntries;
+        private final Map<String, List<String>> selectionEntries = new HashMap<>();
+
+        public void setSelectionEntries(List<TransferAuthoritiesMapEntry> entries) {
+            if (entries == null || entries.isEmpty()) {
+                log.warn("No selection entries provided");
+                return;
+            }
+            for (TransferAuthoritiesMapEntry entry: entries) {
+                selectionEntries.put(entry.getDisplayValue(), entry.getEmails());
+            }
+        }
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    @EqualsAndHashCode
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class TransferAuthoritiesMapEntry {
         @NotBlank private String displayValue;
         @NotEmpty private List<String> emails;
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    @EqualsAndHashCode
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ConfirmationPeriod {
+        private int days = 30;
+        private int hours = 0;
     }
 
 }

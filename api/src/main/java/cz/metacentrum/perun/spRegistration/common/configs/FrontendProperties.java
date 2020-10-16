@@ -1,7 +1,9 @@
 package cz.metacentrum.perun.spRegistration.common.configs;
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
@@ -17,6 +19,8 @@ import javax.annotation.PostConstruct;
 @ToString
 @EqualsAndHashCode
 @Slf4j
+@NoArgsConstructor
+@AllArgsConstructor
 @Component
 @ConfigurationProperties(prefix = "frontend")
 public class FrontendProperties {
@@ -32,7 +36,7 @@ public class FrontendProperties {
         log.debug("{}", this.toString());
     }
 
-    public void setHeaderLogoUrl(String headerLogoUrl) {
+    public void setHeaderLogoUrl(@NonNull String headerLogoUrl) {
         if (!StringUtils.hasText(headerLogoUrl)) {
             throw new IllegalArgumentException("HeaderLogoURL cannot be empty");
         }

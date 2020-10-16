@@ -170,7 +170,7 @@ public class MailsServiceImpl implements MailsService {
 		subject = this.replacePlaceholders(subject, req);
 		message = this.replacePlaceholders(message, req);
 
-		String userMail = req.getAdminContact(attributesProperties.getAdministratorContactAttrName());
+		String userMail = req.getAdminContact(attributesProperties.getNames().getAdministratorContact());
 
 		boolean sent = this.sendMail(userMail, subject, message);
 		if (sent) {
@@ -261,9 +261,9 @@ public class MailsServiceImpl implements MailsService {
 		containerString = this.replacePlaceholder(containerString, EN_NEW_STATUS_FIELD,
 				req.getStatus().toString(LANG_EN), STR_EMPTY);
 		containerString = this.replacePlaceholder(containerString, EN_SERVICE_NAME_FIELD,
-				req.getFacilityName(attributesProperties.getServiceNameAttrName()).get(LANG_EN), STR_EMPTY);
+				req.getFacilityName(attributesProperties.getNames().getServiceName()).get(LANG_EN), STR_EMPTY);
 		containerString = this.replacePlaceholder(containerString, EN_SERVICE_DESCRIPTION_FIELD,
-				req.getFacilityDescription(attributesProperties.getServiceDescAttrName()).get(LANG_EN), STR_EMPTY);
+				req.getFacilityDescription(attributesProperties.getNames().getServiceDesc()).get(LANG_EN), STR_EMPTY);
 		containerString = this.replacePlaceholder(containerString, REQUEST_DETAIL_LINK_FIELD,
 				wrapInAnchorElement(requestLink), "-");
 		containerString = this.replacePlaceholder(containerString, EN_ACTION_FIELD,
@@ -275,9 +275,9 @@ public class MailsServiceImpl implements MailsService {
 			containerString = this.replacePlaceholder(containerString, CS_NEW_STATUS_FIELD,
 					req.getStatus().toString(LANG_CS), STR_EMPTY);
 			containerString = this.replacePlaceholder(containerString, CS_SERVICE_NAME_FIELD,
-					req.getFacilityName(attributesProperties.getServiceNameAttrName()).get(LANG_CS), STR_EMPTY);
+					req.getFacilityName(attributesProperties.getNames().getServiceName()).get(LANG_CS), STR_EMPTY);
 			containerString = this.replacePlaceholder(containerString, CS_SERVICE_DESCRIPTION_FIELD,
-					req.getFacilityDescription(attributesProperties.getServiceDescAttrName()).get(LANG_CS), STR_EMPTY);
+					req.getFacilityDescription(attributesProperties.getNames().getServiceDesc()).get(LANG_CS), STR_EMPTY);
 			containerString = this.replacePlaceholder(containerString, CS_ACTION_FIELD,
 					req.getAction().toString(LANG_CS), STR_EMPTY);
 		}

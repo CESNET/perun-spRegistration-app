@@ -7,7 +7,6 @@ import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.InputsContainer;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -40,43 +39,43 @@ public class AppBeans {
 
     @Bean
     @Autowired
-    public InputsContainer inputsContainer(AttributesProperties attributesProperties)
+    public InputsContainer inputsContainer(InputConfigFilePathsProperties inputConfigFilePathsProperties)
     {
-        return new InputsContainer(serviceInputs(attributesProperties),
-                organizationInputs(attributesProperties),
-                membershipInputs(attributesProperties),
-                oidcInputs(attributesProperties),
-                samlInputs(attributesProperties));
+        return new InputsContainer(serviceInputs(inputConfigFilePathsProperties),
+                organizationInputs(inputConfigFilePathsProperties),
+                membershipInputs(inputConfigFilePathsProperties),
+                oidcInputs(inputConfigFilePathsProperties),
+                samlInputs(inputConfigFilePathsProperties));
     }
 
     // private methods
 
-    private List<AttrInput> serviceInputs(@NonNull AttributesProperties attributesProperties) {
-        return this.initInputs(attributesProperties.getServiceAttributesConfig());
+    private List<AttrInput> serviceInputs(InputConfigFilePathsProperties inputConfigFilePathsProperties) {
+        return this.initInputs(inputConfigFilePathsProperties.getService());
     }
 
-    private List<AttrInput> organizationInputs(@NonNull AttributesProperties attributesProperties) {
-        return this.initInputs(attributesProperties.getOrganizationAttrsConfig());
+    private List<AttrInput> organizationInputs(InputConfigFilePathsProperties inputConfigFilePathsProperties) {
+        return this.initInputs(inputConfigFilePathsProperties.getOrganization());
     }
 
-    private List<AttrInput> samlInputs(@NonNull AttributesProperties attributesProperties) {
-        return this.initInputs(attributesProperties.getSamlAttrsConfig());
+    private List<AttrInput> samlInputs(InputConfigFilePathsProperties inputConfigFilePathsProperties) {
+        return this.initInputs(inputConfigFilePathsProperties.getSaml());
     }
 
-    private List<AttrInput> oidcInputs(@NonNull AttributesProperties attributesProperties) {
-        return this.initInputs(attributesProperties.getOidcAttrsConfig());
+    private List<AttrInput> oidcInputs(InputConfigFilePathsProperties inputConfigFilePathsProperties) {
+        return this.initInputs(inputConfigFilePathsProperties.getOidc());
     }
 
-    private List<AttrInput> membershipInputs(@NonNull AttributesProperties attributesProperties) {
-        return this.initInputs(attributesProperties.getAcAttrsConfig());
+    private List<AttrInput> membershipInputs(InputConfigFilePathsProperties inputConfigFilePathsProperties) {
+        return this.initInputs(inputConfigFilePathsProperties.getAccessControl());
     }
 
-    private List<AttrInput> getInputsFromYaml(@NonNull String path) throws IOException {
+    private List<AttrInput> getInputsFromYaml(String path) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         return mapper.readValue(new File(path), new TypeReference<List<AttrInput>>() {});
     }
 
-    private List<AttrInput> initInputs(@NonNull String config) {
+    private List<AttrInput> initInputs(String config) {
         try {
             return this.getInputsFromYaml(config);
         } catch (IOException e) {

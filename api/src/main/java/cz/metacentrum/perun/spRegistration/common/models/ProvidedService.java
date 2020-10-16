@@ -1,81 +1,57 @@
 package cz.metacentrum.perun.spRegistration.common.models;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment;
 import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.Setter;
+import lombok.ToString;
+import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@NoArgsConstructor
 public class ProvidedService {
 
-    private Long id;
-    private Long facilityId;
-    private ServiceProtocol protocol;
-    private ServiceEnvironment environment;
-    private Map<String, String> name;
-    private Map<String, String> description;
-    private String identifier;
+    @NonNull private Long id;
+    @NonNull private Long facilityId;
+    @NonNull private ServiceProtocol protocol;
+    @NonNull private ServiceEnvironment environment;
+    @NonNull private Map<String, String> name;
+    @NonNull private Map<String, String> description;
+    @NonNull private String identifier;
 
-    public ProvidedService() { }
+    public ProvidedService(@NonNull Long id,
+                           @NonNull Long facilityId,
+                           @NonNull ServiceProtocol protocol,
+                           @NonNull ServiceEnvironment environment,
+                           @NonNull Map<String, String> name,
+                           @NonNull Map<String, String> description,
+                           @NonNull String identifier)
+    {
+        this.setId(id);
+        this.setFacilityId(facilityId);
+        this.setProtocol(protocol);
+        this.setEnvironment(environment);
+        this.setName(name);
+        this.setDescription(description);
+        this.setIdentifier(identifier);
+    }
 
-    public ProvidedService(Long id, Long facilityId, ServiceProtocol protocol, ServiceEnvironment environment,
-                           Map<String, String> name, Map<String, String> description, String identifier) {
-        this.id = id;
-        this.facilityId = facilityId;
-        this.protocol = protocol;
-        this.environment = environment;
-        this.name = name;
-        this.description = description;
+    public void setIdentifier(@NonNull String identifier) {
+        if (!StringUtils.hasText(identifier)) {
+            throw new IllegalArgumentException("Identifier cannot be null nor empty");
+        }
         this.identifier = identifier;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getFacilityId() {
-        return facilityId;
-    }
-
-    public void setFacilityId(Long facilityId) {
-        this.facilityId = facilityId;
-    }
-
-    public ServiceProtocol getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(ServiceProtocol protocol) {
-        this.protocol = protocol;
-    }
-
-    public ServiceEnvironment getEnvironment() {
-        return environment;
-    }
-
-    public void setEnvironment(ServiceEnvironment environment) {
-        this.environment = environment;
-    }
-
-    public Map<String, String> getName() {
-        return name;
-    }
-
-    public void setName(Map<String, String> name) {
-        this.name = name;
-    }
-
-    public Map<String, String> getDescription() {
-        return description;
-    }
-
-    public void setDescription(Map<String, String> description) {
-        this.description = description;
     }
 
     public String nameAsJsonString() throws JsonProcessingException {
@@ -87,18 +63,11 @@ public class ProvidedService {
     }
 
     public void nameFromDbJson(String nameJson) throws JsonProcessingException {
-        this.name = new ObjectMapper().readValue(nameJson, Map.class);
+        this.name = new ObjectMapper().readValue(nameJson, new TypeReference<Map<String, String>>() {});
     }
 
     public void descriptionFromDbJson(String descriptionJson) throws JsonProcessingException {
-        this.description = new ObjectMapper().readValue(descriptionJson, Map.class);
+        this.description = new ObjectMapper().readValue(descriptionJson, new TypeReference<Map<String, String>>() {});
     }
 
-    public String getIdentifier() {
-        return identifier;
-    }
-
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
-    }
 }

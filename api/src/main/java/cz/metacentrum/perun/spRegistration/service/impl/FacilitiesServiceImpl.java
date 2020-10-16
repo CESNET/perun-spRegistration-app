@@ -93,7 +93,7 @@ public class FacilitiesServiceImpl implements FacilitiesService {
 
         List<String> attrsToFetch = new ArrayList<>(appBeansContainer.getAllAttrNames());
         Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facilityId, attrsToFetch);
-        boolean isOidc = ServiceUtils.isOidcAttributes(attrs, attributesProperties.getEntityIdAttrName());
+        boolean isOidc = ServiceUtils.isOidcAttributes(attrs, attributesProperties.getNames().getEntityId());
         List<String> keptAttrs = this.getAttrsToKeep(isOidc);
         List<PerunAttribute> filteredAttributes = ServiceUtils.filterFacilityAttrs(attrs, keptAttrs);
         Map<AttributeCategory, Map<String, PerunAttribute>> facilityAttributes =
@@ -103,13 +103,13 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         facility.setDescription(ServiceUtils.extractFacilityDescription(facility, attributesProperties));
         facility.setAttributes(facilityAttributes);
         facility.setActiveRequestId(activeRequestId);
-        facility.setTestEnv(attrs.get(attributesProperties.getIsTestSpAttrName()).valueAsBoolean());
+        facility.setTestEnv(attrs.get(attributesProperties.getNames().getIsTestSp()).valueAsBoolean());
 
         if (isOidc && includeClientCredentials) {
             String clientSecretValue = this.extractClientSecretValueDecrypted(facility);
             facility.getAttributes()
                     .get(AttributeCategory.PROTOCOL)
-                    .get(attributesProperties.getOidcClientIdAttrName())
+                    .get(attributesProperties.getNames().getOidcClientId())
                     .setValue(JsonNodeFactory.instance.textNode(clientSecretValue));
         }
 
@@ -119,9 +119,9 @@ public class FacilitiesServiceImpl implements FacilitiesService {
 
         Map<String, PerunAttribute> additionalAttributes = perunAdapter.getFacilityAttributes(facility.getId(),
                 Arrays.asList(
-                        attributesProperties.getIsOidcAttrName(),
-                        attributesProperties.getIsSamlAttrName(),
-                        attributesProperties.getMasterProxyIdentifierAttrName()
+                        attributesProperties.getNames().getIsOidc(),
+                        attributesProperties.getNames().getIsSaml(),
+                        attributesProperties.getNames().getMasterProxyIdentifier()
                 ));
 
         this.fillProtocolAttributes(facility, additionalAttributes);
@@ -193,9 +193,9 @@ public class FacilitiesServiceImpl implements FacilitiesService {
 
     private void clearOidcCredentials(Facility facility) {
         facility.getAttributes().get(AttributeCategory.PROTOCOL)
-                .remove(attributesProperties.getOidcClientIdAttrName());
+                .remove(attributesProperties.getNames().getOidcClientId());
         facility.getAttributes().get(AttributeCategory.PROTOCOL)
-                .remove(attributesProperties.getOidcClientSecretAttrName());
+                .remove(attributesProperties.getNames().getOidcClientSecret());
     }
 
     private List<String> getAttrsToKeep(boolean isOidc) {
@@ -211,8 +211,8 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         if (isOidc) {
             keptAttrs.addAll(inputsContainer.getOidcInputs()
                     .stream().map(AttrInput::getName).collect(Collectors.toList()));
-            keptAttrs.add(attributesProperties.getOidcClientIdAttrName());
-            keptAttrs.add(attributesProperties.getOidcClientSecretAttrName());
+            keptAttrs.add(attributesProperties.getNames().getOidcClientId());
+            keptAttrs.add(attributesProperties.getNames().getOidcClientSecret());
         } else {
             keptAttrs.addAll(inputsContainer.getSamlInputs()
                     .stream().map(AttrInput::getName).collect(Collectors.toList()));
@@ -249,16 +249,16 @@ public class FacilitiesServiceImpl implements FacilitiesService {
     {
         PerunAttribute clientSecret = facility.getAttributes()
                 .get(AttributeCategory.PROTOCOL)
-                .get(attributesProperties.getOidcClientIdAttrName());
+                .get(attributesProperties.getNames().getOidcClientId());
         String valEncrypted = clientSecret.valueAsString();
         return ServiceUtils.decrypt(valEncrypted, appBeansContainer.getSecretKeySpec());
     }
 
     private void fillFacilityEditable(Facility facility, Map<String, PerunAttribute> additionalAttributes) {
         if (additionalAttributes != null
-                && additionalAttributes.containsKey(attributesProperties.getMasterProxyIdentifierAttrName())) {
+                && additionalAttributes.containsKey(attributesProperties.getNames().getMasterProxyIdentifier())) {
             PerunAttribute masterProxyIdentifierAttribute = additionalAttributes
-                    .get(attributesProperties.getMasterProxyIdentifierAttrName());
+                    .get(attributesProperties.getNames().getMasterProxyIdentifier());
 
             if (masterProxyIdentifierAttribute != null) {
                 facility.setEditable(masterProxyIdentifierAttribute.valueAsBoolean());
@@ -267,17 +267,17 @@ public class FacilitiesServiceImpl implements FacilitiesService {
     }
 
     private void fillProtocolAttributes(Facility facility, Map<String, PerunAttribute> attributeMap) {
-        if (attributeMap.containsKey(attributesProperties.getIsOidcAttrName())) {
-            PerunAttribute isOidc = attributeMap.get(attributesProperties.getIsOidcAttrName());
+        if (attributeMap.containsKey(attributesProperties.getNames().getIsOidc())) {
+            PerunAttribute isOidc = attributeMap.get(attributesProperties.getNames().getIsOidc());
             if (isOidc != null) {
-                facility.setOidc(attributeMap.get(attributesProperties.getIsOidcAttrName()).valueAsBoolean());
+                facility.setOidc(attributeMap.get(attributesProperties.getNames().getIsOidc()).valueAsBoolean());
             }
         }
 
-        if (attributeMap.containsKey(attributesProperties.getIsSamlAttrName())) {
-            PerunAttribute isSaml = attributeMap.get(attributesProperties.getIsSamlAttrName());
+        if (attributeMap.containsKey(attributesProperties.getNames().getIsSaml())) {
+            PerunAttribute isSaml = attributeMap.get(attributesProperties.getNames().getIsSaml());
             if (isSaml != null) {
-                facility.setSaml(attributeMap.get(attributesProperties.getIsSamlAttrName()).valueAsBoolean());
+                facility.setSaml(attributeMap.get(attributesProperties.getNames().getIsSaml()).valueAsBoolean());
             }
         }
 
@@ -285,8 +285,8 @@ public class FacilitiesServiceImpl implements FacilitiesService {
 
     private List<Facility> getFacilitiesByProxyIdentifier() throws PerunUnknownException, PerunConnectionException {
         return perunAdapter.getFacilitiesByProxyIdentifier(
-                attributesProperties.getProxyIdentifierAttrName(),
-                attributesProperties.getProxyIdentifierAttrValue()
+                attributesProperties.getNames().getProxyIdentifier(),
+                attributesProperties.getValues().getProxyIdentifier()
         );
     }
 

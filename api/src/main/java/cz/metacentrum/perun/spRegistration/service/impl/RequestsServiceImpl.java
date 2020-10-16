@@ -206,7 +206,7 @@ public class RequestsServiceImpl implements RequestsService {
 
         List<String> attrsToFetch = new ArrayList<>(applicationBeans.getAllAttrNames());
         Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facilityId, attrsToFetch);
-        boolean isOidc = ServiceUtils.isOidcAttributes(attrs, attributesProperties.getEntityIdAttrName());
+        boolean isOidc = ServiceUtils.isOidcAttributes(attrs, attributesProperties.getNames().getEntityId());
         List<String> keptAttrs = this.filterProtocolAttrs(isOidc);
         List<PerunAttribute> facilityAttributes = ServiceUtils.filterFacilityAttrs(attrs, keptAttrs);
 
@@ -579,8 +579,8 @@ public class RequestsServiceImpl implements RequestsService {
                 throw new InternalErrorException("Failed to update attributes to new ones");
             }
             spUpdateRollback = true;
-            sp.setName(request.getFacilityName(attributesProperties.getServiceNameAttrName()));
-            sp.setDescription(request.getFacilityDescription(attributesProperties.getServiceDescAttrName()));
+            sp.setName(request.getFacilityName(attributesProperties.getNames().getServiceName()));
+            sp.setDescription(request.getFacilityDescription(attributesProperties.getNames().getServiceDesc()));
             if (!providedServiceManager.update(sp)) {
                 throw new InternalErrorException("Failed to update SP in local DB");
             }
@@ -656,7 +656,7 @@ public class RequestsServiceImpl implements RequestsService {
     private boolean setFacilityAttributes(Request request, Long facilityId, Long adminsGroupId, PerunAttribute clientId) {
         try {
             ArrayNode attributes = request.getAttributesAsJsonArrayForPerun();
-            boolean isOidc = ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName());
+            boolean isOidc = ServiceUtils.isOidcRequest(request, attributesProperties.getNames().getEntityId());
             if (isOidc) {
                 if (!setClientIdAttribute(facilityId, clientId)) {
                     return false;
@@ -678,16 +678,16 @@ public class RequestsServiceImpl implements RequestsService {
         ProvidedService sp = new ProvidedService();
 
         sp.setFacilityId(facilityId);
-        sp.setName(request.getFacilityName(attributesProperties.getServiceNameAttrName()));
-        sp.setDescription(request.getFacilityDescription(attributesProperties.getServiceDescAttrName()));
+        sp.setName(request.getFacilityName(attributesProperties.getNames().getServiceName()));
+        sp.setDescription(request.getFacilityDescription(attributesProperties.getNames().getServiceDesc()));
         sp.setEnvironment(ServiceEnvironment.TESTING);
-        sp.setProtocol(ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName()) ?
+        sp.setProtocol(ServiceUtils.isOidcRequest(request, attributesProperties.getNames().getEntityId()) ?
                 ServiceProtocol.OIDC : ServiceProtocol.SAML);
         sp.setIdentifier(sp.getProtocol().equals(ServiceProtocol.SAML) ?
                 request.getAttributes().get(AttributeCategory.PROTOCOL)
-                        .get(attributesProperties.getEntityIdAttrName()).valueAsString() :
+                        .get(attributesProperties.getNames().getEntityId()).valueAsString() :
                 request.getAttributes().get(AttributeCategory.PROTOCOL)
-                        .get(attributesProperties.getOidcClientIdAttrName()).valueAsString());
+                        .get(attributesProperties.getNames().getOidcClientId()).valueAsString());
 
         try {
             sp = providedServiceManager.create(sp);
@@ -717,7 +717,7 @@ public class RequestsServiceImpl implements RequestsService {
     private void deleteAdminsGroup(Long facilityId) throws ProcessingException {
         try {
             PerunAttribute adminsGroupAttr = perunAdapter.getFacilityAttribute(facilityId,
-                    attributesProperties.getManagerGroupAttrName());
+                    attributesProperties.getNames().getManagerGroup());
             if (adminsGroupAttr == null || adminsGroupAttr.valueAsLong() == null) {
                 log.warn("No admins group ID found for facility: {}", facilityId);
             } else {
@@ -776,16 +776,16 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     private String getDescFromRequest(Request request, PerunAttribute clientId) {
-        if (ServiceUtils.isOidcRequest(request, attributesProperties.getEntityIdAttrName())) {
+        if (ServiceUtils.isOidcRequest(request, attributesProperties.getNames().getEntityId())) {
             return clientId.valueAsString();
         } else {
             return request.getAttributes().get(AttributeCategory.PROTOCOL)
-                    .get(attributesProperties.getEntityIdAttrName()).valueAsString();
+                    .get(attributesProperties.getNames().getEntityId()).valueAsString();
         }
     }
 
     private String getNameFromRequest(Request request) throws InternalErrorException {
-        Map<String, String> nameAttrValue = request.getFacilityName(attributesProperties.getServiceNameAttrName());
+        Map<String, String> nameAttrValue = request.getFacilityName(attributesProperties.getNames().getServiceName());
         if (nameAttrValue.isEmpty() || !nameAttrValue.containsKey(LANG_EN) || nameAttrValue.get(LANG_EN) == null) {
             throw new InternalErrorException("No name could be found");
         }
@@ -811,9 +811,9 @@ public class RequestsServiceImpl implements RequestsService {
     private PerunAttribute generateAuthProtocolAttribute(boolean isOidc) {
         PerunAttribute attribute = new PerunAttribute();
         if (isOidc) {
-            attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getIsOidcAttrName()));
+            attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getNames().getIsOidc()));
         } else {
-            attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getIsSamlAttrName()));
+            attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getNames().getIsSaml()));
         }
         attribute.setValue(JsonNodeFactory.instance.booleanNode(true));
         return attribute;
@@ -821,38 +821,38 @@ public class RequestsServiceImpl implements RequestsService {
 
     private PerunAttribute generateMasterProxyIdentifierAttribute() {
        PerunAttribute attribute = new PerunAttribute();
-        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getMasterProxyIdentifierAttrName()));
+        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getNames().getMasterProxyIdentifier()));
         attribute.setValue(JsonNodeFactory.instance.textNode(
-                attributesProperties.getMasterProxyIdentifierAttrValue()));
+                attributesProperties.getValues().getMasterProxyIdentifier()));
         return attribute;
     }
 
     private PerunAttribute generateProxyIdentifiersAttribute() {
         PerunAttribute attribute = new PerunAttribute();
-        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getProxyIdentifierAttrName()));
+        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getNames().getProxyIdentifier()));
         ArrayNode arrayNode = JsonNodeFactory.instance.arrayNode();
-        arrayNode.add(attributesProperties.getProxyIdentifierAttrValue());
+        arrayNode.add(attributesProperties.getValues().getProxyIdentifier());
         attribute.setValue(arrayNode);
         return attribute;
     }
 
     private PerunAttribute generateShowOnServiceListAttribute(boolean value) {
         PerunAttribute attribute = new PerunAttribute();
-        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getShowOnServiceListAttrName()));
+        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getNames().getShowOnServiceList()));
         attribute.setValue(JsonNodeFactory.instance.booleanNode(value));
         return attribute;
     }
 
     private PerunAttribute generateTestSpAttribute(boolean value) {
         PerunAttribute attribute = new PerunAttribute();
-        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getIsTestSpAttrName()));
+        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getNames().getIsTestSp()));
         attribute.setValue(JsonNodeFactory.instance.booleanNode(value));
         return attribute;
     }
 
     private PerunAttribute generateClientIdAttribute() {
         PerunAttribute attribute = new PerunAttribute();
-        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getOidcClientIdAttrName()));
+        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getNames().getOidcClientId()));
 
         String clientId = ServiceUtils.generateClientId();
         attribute.setValue(JsonNodeFactory.instance.textNode(clientId));
@@ -861,7 +861,7 @@ public class RequestsServiceImpl implements RequestsService {
 
     private PerunAttribute generateAdminsGroupAttr(Long id) {
         PerunAttribute attribute = new PerunAttribute();
-        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getManagerGroupAttrName()));
+        attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getNames().getManagerGroup()));
         attribute.setValue(JsonNodeFactory.instance.numberNode(id));
         return attribute;
     }
@@ -891,9 +891,9 @@ public class RequestsServiceImpl implements RequestsService {
     {
         List<String> emails = new ArrayList<>();
         if (authorities == null || authorities.isEmpty()) {
-            emails = approvalsProperties.getDefaultAuthorities();
+            emails = approvalsProperties.getTransferAuthorities().getDefaultEntries();
         } else {
-            Map<String, List<String>> authsMap = approvalsProperties.getTransferAuthoritiesMap();
+            Map<String, List<String>> authsMap = approvalsProperties.getTransferAuthorities().getSelectionEntries();
             for (String authoritiesInput: authorities) {
                 if (authsMap.containsKey(authoritiesInput)) {
                     emails.addAll(authsMap.get(authoritiesInput));
@@ -921,8 +921,8 @@ public class RequestsServiceImpl implements RequestsService {
         code.setRecipientEmail(authority);
         code.setSenderName(user.getName());
         code.setSenderEmail(user.getEmail());
-        code.setExpiresAt(approvalsProperties.getConfirmationPeriodDays(),
-                approvalsProperties.getConfirmationPeriodHours());
+        code.setExpiresAt(approvalsProperties.getConfirmationPeriod().getDays(),
+                approvalsProperties.getConfirmationPeriod().getHours());
         code.setFacilityId(facilityId);
         code.setRequestId(requestId);
         code.setHash(ServiceUtils.getHash(code.toString()));
@@ -963,8 +963,8 @@ public class RequestsServiceImpl implements RequestsService {
                     .map(AttrInput::getName)
                     .collect(Collectors.toList())
             );
-            keptAttrs.add(attributesProperties.getOidcClientIdAttrName());
-            keptAttrs.add(attributesProperties.getOidcClientSecretAttrName());
+            keptAttrs.add(attributesProperties.getNames().getOidcClientId());
+            keptAttrs.add(attributesProperties.getNames().getOidcClientSecret());
         } else {
             keptAttrs.addAll(inputsContainer.getSamlInputs().stream()
                     .map(AttrInput::getName)
@@ -993,7 +993,7 @@ public class RequestsServiceImpl implements RequestsService {
             log.error("Could not set group {} as managers for facility {}", adminsGroupId, facilityId);
             return false;
         }
-        Long memberId = perunAdapter.getMemberIdByUser(applicationProperties.getSpAdminsRootVoId(), requesterId);
+        Long memberId = perunAdapter.getMemberIdByUser(applicationProperties.getSpAdminsVoId(), requesterId);
         if (memberId != null) {
             log.error("Could not set user {} as manager in group {}, user does not have member",
                     requesterId, adminsGroupId);
@@ -1007,8 +1007,8 @@ public class RequestsServiceImpl implements RequestsService {
     {
         Group adminsGroup = new Group(null, perunFacilityName, perunFacilityName,
                 "Administrators of SP - " + perunFacilityName,
-                applicationProperties.getSpAdminsRootGroupId(),
-                applicationProperties.getSpAdminsRootVoId());
+                applicationProperties.getSpAdminsParentGroupId(),
+                applicationProperties.getSpAdminsVoId());
         adminsGroup = perunAdapter.createGroup(adminsGroup.getParentGroupId(), adminsGroup);
         if (adminsGroup == null || adminsGroup.getId() == null) {
             throw new InternalErrorException("Could not create admins group");

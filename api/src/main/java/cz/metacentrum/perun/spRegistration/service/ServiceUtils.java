@@ -145,8 +145,8 @@ public class ServiceUtils {
 	public static Map<String, String> extractFacilityName(@NonNull Map<String, PerunAttribute> attrs,
 														  @NonNull AttributesProperties attributesProperties)
 	{
-		if (attrs.containsKey(attributesProperties.getServiceNameAttrName())) {
-			return attrs.get(attributesProperties.getServiceNameAttrName()).valueAsMap();
+		if (attrs.containsKey(attributesProperties.getNames().getServiceName())) {
+			return attrs.get(attributesProperties.getNames().getServiceName()).valueAsMap();
 		} else {
 			return new HashMap<>();
 		}
@@ -155,8 +155,8 @@ public class ServiceUtils {
 	public static Map<String, String> extractFacilityDescription(@NonNull Map<String, PerunAttribute> attrs,
 																 @NonNull AttributesProperties attributesProperties)
 	{
-		if (attrs.containsKey(attributesProperties.getServiceDescAttrName())) {
-			return attrs.get(attributesProperties.getServiceDescAttrName()).valueAsMap();
+		if (attrs.containsKey(attributesProperties.getNames().getServiceDesc())) {
+			return attrs.get(attributesProperties.getNames().getServiceDesc()).valueAsMap();
 		} else {
 			return new HashMap<>();
 		}

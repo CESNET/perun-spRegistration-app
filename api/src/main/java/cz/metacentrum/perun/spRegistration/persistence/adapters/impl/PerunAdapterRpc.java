@@ -133,7 +133,7 @@ public class PerunAdapterRpc implements PerunAdapter {
 			return null;
 		}
 
-		List<User> admins = this.getAdminsForFacility(facilityId, attributesProperties.getUserEmailAttrName());
+		List<User> admins = this.getAdminsForFacility(facilityId, attributesProperties.getNames().getUserEmail());
 		facility.setAdmins(admins);
 		return facility;
 	}

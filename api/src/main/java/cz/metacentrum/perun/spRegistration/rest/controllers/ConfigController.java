@@ -102,11 +102,11 @@ public class ConfigController {
 
 	@GetMapping(path = "/api/config/specifyAuthoritiesEnabled")
 	public boolean getSpecifyAuthoritiesEnabled() {
-		return approvalsProperties.isSpecifyOwn();
+		return approvalsProperties.getTransferAuthorities().isAllowInput();
 	}
 
 	@GetMapping(path = "/api/config/prodTransferEntries")
 	public Set<String> getProdTransferEntries() {
-		return approvalsProperties.getTransferAuthoritiesMap().keySet();
+		return approvalsProperties.getTransferAuthorities().getSelectionEntries().keySet();
 	}
 }
