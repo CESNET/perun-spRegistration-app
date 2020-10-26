@@ -19,6 +19,7 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorExcept
 import cz.metacentrum.perun.spRegistration.common.exceptions.ProcessingException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
+import cz.metacentrum.perun.spRegistration.common.models.AuditLog;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.Group;
 import cz.metacentrum.perun.spRegistration.common.models.InputsContainer;
@@ -32,6 +33,7 @@ import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment;
 import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
+import cz.metacentrum.perun.spRegistration.persistence.managers.AuditLogsManager;
 import cz.metacentrum.perun.spRegistration.persistence.managers.LinkCodeManager;
 import cz.metacentrum.perun.spRegistration.persistence.managers.ProvidedServiceManager;
 import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
@@ -43,6 +45,10 @@ import cz.metacentrum.perun.spRegistration.service.UtilsService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -62,6 +68,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -78,12 +85,16 @@ import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.
 public class RequestsServiceImpl implements RequestsService {
 
     private static final String UNDEFINED = "_%UNDEFINED%_";
+    private static final String AUDIT_TABLE = "audit";
+    private static final String SERVICE_TO_REQUEST_TABLE = "service_to_request";
+
 
     @NonNull private final PerunAdapter perunAdapter;
     @NonNull private final MailsService mailsService;
     @NonNull private final UtilsService utilsService;
     @NonNull private final RequestManager requestManager;
     @NonNull private final LinkCodeManager linkCodeManager;
+    @NonNull private final AuditLogsManager auditLogsManager;
     @NonNull private final FacilitiesService facilitiesService;
     @NonNull private final AppBeansContainer applicationBeans;
     @NonNull private final ApplicationProperties applicationProperties;
@@ -91,6 +102,7 @@ public class RequestsServiceImpl implements RequestsService {
     @NonNull private final ApprovalsProperties approvalsProperties;
     @NonNull private final ProvidedServiceManager providedServiceManager;
     @NonNull private final InputsContainer inputsContainer;
+    @NonNull private final NamedParameterJdbcTemplate jdbcTemplate;
 
     @Autowired
     public RequestsServiceImpl(@NonNull PerunAdapter perunAdapter,
@@ -98,19 +110,22 @@ public class RequestsServiceImpl implements RequestsService {
                                @NonNull UtilsService utilsService,
                                @NonNull RequestManager requestManager,
                                @NonNull LinkCodeManager linkCodeManager,
+                               @NonNull AuditLogsManager auditLogsManager,
                                @NonNull FacilitiesService facilitiesService,
                                @NonNull AppBeansContainer applicationBeans,
                                @NonNull ApplicationProperties applicationProperties,
                                @NonNull AttributesProperties attributesProperties,
                                @NonNull ApprovalsProperties approvalsProperties,
                                @NonNull ProvidedServiceManager providedServiceManager,
-                               @NonNull InputsContainer inputsContainer)
+                               @NonNull InputsContainer inputsContainer,
+                               @NonNull NamedParameterJdbcTemplate jdbcTemplate)
     {
         this.perunAdapter = perunAdapter;
         this.mailsService = mailsService;
         this.utilsService = utilsService;
         this.requestManager = requestManager;
         this.linkCodeManager = linkCodeManager;
+        this.auditLogsManager = auditLogsManager;
         this.facilitiesService = facilitiesService;
         this.applicationBeans = applicationBeans;
         this.applicationProperties = applicationProperties;
@@ -118,6 +133,7 @@ public class RequestsServiceImpl implements RequestsService {
         this.approvalsProperties = approvalsProperties;
         this.providedServiceManager = providedServiceManager;
         this.inputsContainer = inputsContainer;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -374,6 +390,8 @@ public class RequestsServiceImpl implements RequestsService {
             throw new CannotChangeStatusException("Cannot approve request, request is not in valid status");
         }
 
+        RequestStatus oldStatus = request.getStatus();
+
         request.setStatus(APPROVED);
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
         request.setModifiedBy(userId);
@@ -389,6 +407,8 @@ public class RequestsServiceImpl implements RequestsService {
             return false;
         }
 
+        createAuditLog(requestId, userId, oldStatus, request.getStatus());
+        createServiceToRequestLog(request.getFacilityId(), requestId);
         mailsService.notifyUser(request, MailsServiceImpl.REQUEST_STATUS_UPDATED);
         return true;
     }
@@ -410,6 +430,8 @@ public class RequestsServiceImpl implements RequestsService {
             throw new CannotChangeStatusException("Cannot reject request, request is not in valid status");
         }
 
+        RequestStatus oldStatus = request.getStatus();
+
         request.setStatus(REJECTED);
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
         request.setModifiedBy(userId);
@@ -419,6 +441,7 @@ public class RequestsServiceImpl implements RequestsService {
         if (!requestUpdated) {
             return false;
         }
+        createAuditLog(requestId, userId, oldStatus, request.getStatus());
         mailsService.notifyUser(request, MailsServiceImpl.REQUEST_STATUS_UPDATED);
         return true;
     }
@@ -441,6 +464,8 @@ public class RequestsServiceImpl implements RequestsService {
             throw new CannotChangeStatusException("Cannot ask for changes, request not marked as WFA nor WFC");
         }
 
+        RequestStatus oldStatus = request.getStatus();
+
         request.updateAttributes(attributes, false, applicationBeans);
         request.setStatus(WAITING_FOR_CHANGES);
         request.setModifiedBy(userId);
@@ -451,8 +476,49 @@ public class RequestsServiceImpl implements RequestsService {
         if (!requestUpdated) {
             return false;
         }
+
+        createAuditLog(requestId, userId, oldStatus, request.getStatus());
         mailsService.notifyUser(request, MailsServiceImpl.REQUEST_STATUS_UPDATED);
         return true;
+    }
+
+    @Override
+    public List<AuditLog> getAllAuditLogs(@NonNull Long adminId) throws UnauthorizedActionException {
+        if (!applicationProperties.isAppAdmin(adminId)) {
+            throw new UnauthorizedActionException("User cannot list all audit logs, user is not an admin");
+        }
+        return auditLogsManager.getAllAuditLogs();
+    }
+
+    @Override
+    public AuditLog getAuditLog(@NonNull Long auditLogId, @NonNull Long userId) throws UnauthorizedActionException, InternalErrorException {
+        AuditLog auditLog = auditLogsManager.getAuditLogById(auditLogId);
+        if (auditLog == null) {
+            log.error("Could not retrieve audit log for id: {}", auditLogId);
+            throw new InternalErrorException("Could not retrieve audit log for id: " + auditLogId);
+        } else if (!applicationProperties.isAppAdmin(userId)) {
+            log.error("User cannot view audit log, user is not an admin");
+            throw new UnauthorizedActionException("User cannot view request, user is not an admin");
+        }
+
+        return auditLog;
+    }
+
+    @Override
+    public List<AuditLog> getAuditLogsByReqId(@NonNull Long reqId, @NonNull Long adminId) throws UnauthorizedActionException {
+        if (!applicationProperties.isAppAdmin(adminId)) {
+            throw new UnauthorizedActionException("User cannot list all audit logs, user is not an admin");
+        }
+        return auditLogsManager.getAuditLogsByReqId(reqId);
+    }
+
+    @Override
+    public List<AuditLog> getAuditLogsByService(@NonNull Long facilityId, @NonNull Long adminId) throws UnauthorizedActionException {
+        if (!applicationProperties.isAppAdmin(adminId)) {
+            throw new UnauthorizedActionException("User cannot list audit logs by service, user is not an admin");
+        }
+        Request request = requestManager.getRequestById(1L);
+        return auditLogsManager.getAuditLogsByService(providedServiceManager.getByFacilityId(facilityId).getId());
     }
 
     // private methods
@@ -475,6 +541,7 @@ public class RequestsServiceImpl implements RequestsService {
             throw new InternalErrorException("Could not create request in DB");
         }
         request.setReqId(requestId);
+        createAuditLog(requestId, userId, null, request.getStatus());
         return request;
     }
 
@@ -994,7 +1061,7 @@ public class RequestsServiceImpl implements RequestsService {
             return false;
         }
         Long memberId = perunAdapter.getMemberIdByUser(applicationProperties.getSpAdminsVoId(), requesterId);
-        if (memberId != null) {
+        if (memberId == null) {
             log.error("Could not set user {} as manager in group {}, user does not have member",
                     requesterId, adminsGroupId);
             return false;
@@ -1014,6 +1081,69 @@ public class RequestsServiceImpl implements RequestsService {
             throw new InternalErrorException("Could not create admins group");
         }
         return adminsGroup.getId();
-    }   
+    }
+
+    private void createAuditLog(Long requestId, Long userId, RequestStatus oldStatus, RequestStatus newStatus) {
+        try {
+            String changeMessage;
+
+            if (oldStatus != null) {
+                changeMessage = "Status of the request has been changed from " + oldStatus.toString() + " to " + newStatus.toString();
+            } else {
+                changeMessage = "New request has been created and got status " + newStatus;
+            }
+
+            String query = new StringJoiner(" ")
+                    .add("INSERT INTO").add(AUDIT_TABLE)
+                    .add("(request_id, change_made_by, change_description)")
+                    .add("VALUES (:request_id, :change_made_by, :change_description)")
+                    .toString();
+
+            KeyHolder key = new GeneratedKeyHolder();
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            params.addValue("request_id", requestId);
+            params.addValue("change_made_by", userId);
+            params.addValue("change_description", changeMessage);
+
+            int updatedCount = jdbcTemplate.update(query, params, key, new String[] { "id" });
+            if (updatedCount == 0) {
+                log.error("Zero rows have been inserted");
+                throw new InternalErrorException("Zero rows have been inserted");
+            } else if (updatedCount > 1) {
+                log.error("Only one row should have been inserted");
+                throw new InternalErrorException("Only one row should have been inserted");
+            }
+        } catch (Exception ex) {
+            log.error("Error creating audit log: " + ex);
+        }
+    }
+
+    private void createServiceToRequestLog(Long facilityId, Long requestId) {
+        try {
+            Long serviceId = providedServiceManager.getByFacilityId(facilityId).getId();
+
+            String query = new StringJoiner(" ")
+                    .add("INSERT INTO").add(SERVICE_TO_REQUEST_TABLE)
+                    .add("(service_id, request_id)")
+                    .add("VALUES (:service_id, :request_id)")
+                    .toString();
+
+            KeyHolder key = new GeneratedKeyHolder();
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            params.addValue("service_id", serviceId);
+            params.addValue("request_id", requestId);
+
+            int updatedCount = jdbcTemplate.update(query, params, key, new String[] { "service_id", "request_id" });
+            if (updatedCount == 0) {
+                log.error("Zero rows have been inserted");
+                throw new InternalErrorException("Zero rows have been inserted");
+            } else if (updatedCount > 1) {
+                log.error("Only one row should have been inserted");
+                throw new InternalErrorException("Only one row should have been inserted");
+            }
+        } catch (Exception ex) {
+            log.error("Error creating service_to_request log: " + ex);
+        }
+    }
 
 }

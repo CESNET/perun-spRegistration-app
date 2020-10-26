@@ -4,6 +4,7 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.ActiveRequestExists
 import cz.metacentrum.perun.spRegistration.common.exceptions.CannotChangeStatusException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
+import cz.metacentrum.perun.spRegistration.common.models.AuditLog;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.models.User;
@@ -177,6 +178,57 @@ public class RequestsController {
 
 		log.trace("askForChanges() returns: {}", successful);
 		return successful;
+	}
+
+	@GetMapping(path = "/api/audit/getAllAuditLogs")
+	public List<AuditLog> allAuditLogs(@NonNull @SessionAttribute("user") User user)
+			throws UnauthorizedActionException
+	{
+		log.trace("allAuditLogs({})", user.getId());
+
+		List<AuditLog> auditLogsList = requestsService.getAllAuditLogs(user.getId());
+
+		log.trace("allAuditLogs() returns: {}", auditLogsList);
+		return auditLogsList;
+	}
+
+	@GetMapping(path = "/api/audit/getLogsByReqId/{reqId}")
+	public List<AuditLog> auditLogsByReqId(@NonNull @SessionAttribute("user") User user,
+										   @NonNull @PathVariable("reqId") Long reqId)
+			throws UnauthorizedActionException
+	{
+		log.trace("auditLogsByReqId(user: {}, reqId: {})", user.getId(), reqId);
+
+		List<AuditLog> auditLogsList = requestsService.getAuditLogsByReqId(reqId, user.getId());
+
+		log.trace("auditLogsByReqId() returns: {}", auditLogsList);
+		return auditLogsList;
+	}
+
+	@GetMapping(path = "/api/audit/getAuditLogById/{auditLogId}")
+	public AuditLog auditLogDetail(@NonNull @SessionAttribute("user") User user,
+								   @NonNull @PathVariable("auditLogId") Long auditLogId)
+			throws InternalErrorException, UnauthorizedActionException
+	{
+		log.trace("auditLogDetail(user: {}, auditLogId: {})", user.getId(), auditLogId);
+
+		AuditLog auditLog = requestsService.getAuditLog(auditLogId, user.getId());
+
+		log.trace("auditLogDetail() returns: {}", auditLog);
+		return auditLog;
+	}
+
+	@GetMapping(path = "/api/audit/getAuditLogsByService/{facilityId}")
+	public List<AuditLog> auditLogsByService(@NonNull @SessionAttribute("user") User user,
+								   @NonNull @PathVariable("facilityId") Long facilityId)
+			throws UnauthorizedActionException
+	{
+		log.trace("auditLogsByService(user: {}, facilityId: {})", user.getId(), facilityId);
+
+		List<AuditLog> auditLogs = requestsService.getAuditLogsByService(facilityId, user.getId());
+
+		log.trace("auditLogsByService() returns: {}", auditLogs);
+		return auditLogs;
 	}
 
 }

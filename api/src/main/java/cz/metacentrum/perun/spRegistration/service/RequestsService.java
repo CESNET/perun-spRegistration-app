@@ -5,6 +5,7 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.CannotChangeStatusE
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
+import cz.metacentrum.perun.spRegistration.common.models.AuditLog;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.models.User;
@@ -63,5 +64,13 @@ public interface RequestsService {
 
     boolean askForChanges(@NonNull Long requestId, @NonNull Long userId, @NonNull List<PerunAttribute> attributes)
             throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException;
+
+    List<AuditLog> getAllAuditLogs(@NonNull Long adminId) throws UnauthorizedActionException;
+
+    AuditLog getAuditLog(@NonNull Long auditLogId, @NonNull Long userId) throws UnauthorizedActionException, InternalErrorException;
+
+    List<AuditLog> getAuditLogsByReqId(@NonNull Long reqId, @NonNull Long adminId) throws UnauthorizedActionException;
+
+    List<AuditLog> getAuditLogsByService(@NonNull Long facilityId, @NonNull Long adminId) throws UnauthorizedActionException;
 
 }

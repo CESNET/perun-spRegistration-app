@@ -98,6 +98,7 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         List<PerunAttribute> filteredAttributes = ServiceUtils.filterFacilityAttrs(attrs, keptAttrs);
         Map<AttributeCategory, Map<String, PerunAttribute>> facilityAttributes =
                 this.convertToCategoryMap(filteredAttributes);
+        facility.setAttributes(facilityAttributes);
 
         facility.setName(ServiceUtils.extractFacilityName(facility, attributesProperties));
         facility.setDescription(ServiceUtils.extractFacilityDescription(facility, attributesProperties));
@@ -261,7 +262,8 @@ public class FacilitiesServiceImpl implements FacilitiesService {
                     .get(attributesProperties.getNames().getMasterProxyIdentifier());
 
             if (masterProxyIdentifierAttribute != null) {
-                facility.setEditable(masterProxyIdentifierAttribute.valueAsBoolean());
+                facility.setEditable(attributesProperties.getValues().getMasterProxyIdentifier().equals(
+                        masterProxyIdentifierAttribute.valueAsString()));
             }
         }
     }
