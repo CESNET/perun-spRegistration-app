@@ -53,11 +53,6 @@ export class DetailViewItem {
   public hasValueChanged(): boolean {
     switch (this.type) {
       case 'java.lang.Boolean': {
-        console.log(this.urn + ' old: ' + this.oldValue);
-        console.log(this.urn + ' new: ' + this.value);
-        console.log(this.urn + ' comparation: ' +  (this.oldValue !== undefined
-          && this.oldValue !== null
-          && this.oldValue !== this.value));
         return this.oldValue !== undefined
           && this.oldValue !== null
           && this.oldValue !== this.value;
@@ -65,13 +60,12 @@ export class DetailViewItem {
       case 'java.lang.String':
       case 'java.lang.LargeString' :
       case 'java.lang.Integer':
-        //return this.oldValue !== this.value;
+        return this.oldValue !== this.value;
       case 'java.util.ArrayList':
       case 'java.util.LargeArrayList':
-        //return !DetailViewItem.arrayValuesAreEqual(this.value, this.oldValue);
+        return !DetailViewItem.arrayValuesAreEqual(this.value, this.oldValue);
       case 'java.util.LinkedHashMap':
-        //return !DetailViewItem.mapValuesEqual(this.value, this.oldValue);
-        return this.oldValue;
+        return !DetailViewItem.mapValuesEqual(this.value, this.oldValue);
     }
     return false;
   }
@@ -86,13 +80,12 @@ export class DetailViewItem {
       case 'java.lang.String':
       case 'java.lang.LargeString' :
       case 'java.lang.Integer':
-      //return this.oldValue !== this.value;
+        return this.oldValue !== this.value;
       case 'java.util.ArrayList':
       case 'java.util.LargeArrayList':
-      //return !DetailViewItem.arrayValuesAreEqual(this.value, this.oldValue);
+        return !DetailViewItem.arrayValuesAreEqual(this.value, this.oldValue);
       case 'java.util.LinkedHashMap':
-        //return !DetailViewItem.mapValuesEqual(this.value, this.oldValue);
-        return this.oldValue !== undefined && this.oldValue !== null;
+        return !DetailViewItem.mapValuesEqual(this.value, this.oldValue);
     }
     return false;
   }
@@ -131,19 +124,19 @@ export class DetailViewItem {
       return false;
     }
 
-    if (v1.size !== v2.size) {
+    if (Object.keys(v1).length !== Object.keys(v2).length) {
       return false;
     }
 
-    v1.forEach((value: string, key: string) => {
-      if (!v2.has(key)) {
+    Object.keys(v1).forEach(function (key) {
+      const value = v1[key];
+      if (!v2.hasOwnProperty(key)) {
         return false;
-      } else if (value !== v2.get(key)) {
+      } else if (value !== v2[key]) {
         return false;
       }
+      return true;
     });
-    return true;
   }
-
 
 }

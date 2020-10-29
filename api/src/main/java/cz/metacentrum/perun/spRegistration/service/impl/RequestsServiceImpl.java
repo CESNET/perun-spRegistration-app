@@ -190,9 +190,8 @@ public class RequestsServiceImpl implements RequestsService {
                 PerunAttribute actualA = actualAttrs.get(a.getFullName());
                 if (!Objects.equals(a.getValue(), actualA.getValue())) {
                     attrsChanged = true;
-                    a.setOldValue(actualA.getValue() == null ?
-                            JsonNodeFactory.instance.textNode(UNDEFINED) : actualA.getValue());
                 }
+                a.setOldValue(actualA.getValue());
             }
         }
 
