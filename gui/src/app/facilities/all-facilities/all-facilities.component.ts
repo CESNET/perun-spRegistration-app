@@ -67,6 +67,25 @@ export class AllFacilitiesComponent implements OnInit, OnDestroy {
           }
         });
       }
+      this.dataSource.filterPredicate = (data: ProvidedService, filter: string) => {
+        const id = data.id;
+        let name = '';
+        if (!!data.name && data.name.has(this.translate.currentLang)) {
+          name = data.name.get(this.translate.currentLang)
+            .replace(/\s/g, '').toLowerCase();
+        }
+        let desc = '';
+        if (!!data.description && data.description.has(this.translate.currentLang)) {
+          desc = data.description.get(this.translate.currentLang)
+            .replace(/\s/g, '').toLowerCase();
+        }
+        const protocol = data.protocol.replace(/\s/g, '').toLowerCase();
+        const env = data.environment.replace(/\s/g, '').toLowerCase();
+        const identifier = data.identifier.replace(/\s/g, '').toLowerCase();
+
+        return id.toString() === filter || name.includes(filter) || desc.includes(filter) || protocol.includes(filter)
+          || env.includes(filter) || identifier.includes(filter);
+      };
       if (!!this.paginator) {
         this.dataSource.paginator = this.paginator;
       }
