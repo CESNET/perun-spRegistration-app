@@ -21,11 +21,10 @@ export class FacilityEnvironmentPipe implements PipeTransform {
     });
   }
 
-  transform(isTest: any, args?: any): any {
-    if (isTest) {
-      return this.testEnvText;
-    } else {
-      return this.prodEnvText;
+  transform(env: any, args?: any): any {
+    switch(env) {
+      case "TESTING": return this.testEnvText;
+      case "PRODUCTION": return this.prodEnvText;
     }
   }
 

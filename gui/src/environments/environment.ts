@@ -1,4 +1,4 @@
 export const environment = {
     production: false,
-    api_url: 'http://spreg.com/spreg/api',
+    api_url: 'http://localhost/spreg/api',
 };

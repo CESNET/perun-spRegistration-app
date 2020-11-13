@@ -21,30 +21,34 @@ export class ApplicationItem {
     }
 
     this.required = item.required;
-    this.displayPosition = item.displayPosition;
     this.displayed = item.displayed;
-    this.regex = item.regex;
+    this.editable = item.editable;
     this.type = item.type;
-    this.allowedKeys = item.allowedKeys;
     this.allowedValues = item.allowedValues;
-    this.comment = item.comment;
-    this.oldValue = item.oldValue;
-    this.isEdit = item.isEdit;
+    this.displayPosition = item.displayPosition;
+    this.regex = item.regex;
+    this.allowedKeys = item.allowedKeys;
+    if (item.hasOwnProperty('comment')) {
+      this.comment = item.comment;
+    }
+    if (item.hasOwnProperty('oldValue')) {
+      this.oldValue = item.oldValue;
+    }
   }
 
   name: string;
-  required: boolean;
-  displayPosition: number;
-  displayed: boolean;
-  regex: string;
-  description: Map<string, string>;
   displayName: Map<string, string>;
+  description: Map<string, string>;
+  required: boolean;
+  displayed: boolean;
+  editable: boolean = false;
   type: string;
-  allowedKeys: string[];
   allowedValues: string[];
+  displayPosition: number;
+  regex: string;
+  allowedKeys: string[];
   comment: string;
   oldValue: any;
-  isEdit: boolean;
 
   public getLocalizedName(lang: string) {
     if (this.displayName.has(lang)) {

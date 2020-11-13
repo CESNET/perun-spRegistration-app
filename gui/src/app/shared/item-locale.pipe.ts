@@ -19,10 +19,6 @@ export class ItemLocalePipe implements PipeTransform {
       return '';
     }
 
-    if (value === undefined || value === null) {
-      return '-';
-    }
-
     if (value.has(lang.toLowerCase())) {
       return value.get(lang.toLowerCase());
     }

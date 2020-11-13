@@ -14,7 +14,7 @@
           </p>
           <p>
             <span class="font-thick mr-1">{{'FACILITIES.ENVIRONMENT' | translate}}: </span>
-            {{facility.testEnv | facilityEnvironment}}
+            {{facility.environment | facilityEnvironment}}
           </p>
         </div>
         <!-- BUTTONS -->
@@ -26,14 +26,14 @@
               {{'FACILITIES.SEE_ACTIVE_REQUEST' | translate}}
             </button>
           </ng-container>
-          <ng-container *ngIf="facility.editable && !facility.activeRequestId">
+          <ng-container *ngIf="!facility.activeRequestId">
             <button class="btn-block mb-1" mat-raised-button color="accent"
                     [routerLink]="['/auth/facilities/edit', facility.id]">
               {{'FACILITIES.EDIT_FACILITY' | translate}}
             </button>
           </ng-container>
-          <ng-container *ngIf="facility.editable && !facility.activeRequestId">
-            <button class="btn-block mb-1" mat-raised-button color="accent" *ngIf="facility.testEnv"
+          <ng-container *ngIf="!facility.activeRequestId">
+            <button class="btn-block mb-1" mat-raised-button color="accent" *ngIf="facility.environment.toUpperCase() !== 'PRODUCTION'"
                     (click)="moveToProduction()">
               {{'FACILITIES.MOVE_TO_PRODUCTION' | translate}}
             </button>
@@ -57,7 +57,7 @@
         </mat-tab>
         <!-- PROTOCOL -->
         <mat-tab label="{{ 'COMMON.ATTRIBUTES.PROTOCOL' | translate }}">
-          <div class="col-sm-12 text-right mb-2" *ngIf="facility.oidc" >
+          <div class="col-sm-12 text-right mb-2" *ngIf="facility.protocolUsed.toUpperCase() === 'OIDC'" >
             <button class="col-md-3 col-sm-6 mt-3 mr-0" mat-raised-button color="accent" (click)="openClientSecretDialog()">
               {{'FACILITIES.REGENERATE_CLIENT_SECRET' | translate}}
             </button>

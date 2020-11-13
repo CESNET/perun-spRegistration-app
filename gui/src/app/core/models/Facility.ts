@@ -1,5 +1,6 @@
 import {User} from './User';
 import {AttributesEntity} from "./AttributesEntity";
+import {FacilityDetailUserItem} from "./items/FacilityDetailUserItem";
 
 export class Facility extends AttributesEntity {
   constructor(item: any) {
@@ -24,19 +25,16 @@ export class Facility extends AttributesEntity {
       }
     }
 
-    this.testEnv = item.testEnv;
     this.activeRequestId = item.activeRequestId;
-    this.editable = item.editable;
-    this.saml = item.saml;
-    this.oidc = item.oidc;
-    if (this.saml && this.oidc) {
-      this.protocolType = "SAML / OIDC";
-    } else if (this.saml) {
-      this.protocolType = "SAML";
-    } else if (this.oidc) {
-      this.protocolType = "OIDC";
+    this.environment = item.environment;
+    this.protocolUsed = item.protocol;
+
+    this.managers = [];
+    if (item.managers) {
+      item.managers.forEach(user => {
+        this.managers.push(new User(user));
+      });
     }
-    this.admins = item.admins;
   }
 
   id: number;
@@ -44,12 +42,9 @@ export class Facility extends AttributesEntity {
   perunDescription: string;
   name: Map<string, string>;
   description: Map<string, string>;
-  testEnv: boolean;
+  environment: string;
+  protocolUsed: string;
   activeRequestId: number;
-  editable: boolean;
-  saml: boolean;
-  oidc: boolean;
-  protocolType: string;
-  admins: User[];
+  managers: User[];
 
 }

@@ -14,14 +14,12 @@ import { AllFacilitiesComponent } from './all-facilities/all-facilities.componen
 import { FacilitiesEditComponent } from './facilities-edit/facilities-edit.component';
 import {FacilityEnvironmentPipe} from './facility-environment.pipe';
 import {MatTabsModule} from '@angular/material/tabs';
-import {FacilityProtocolPipe} from './facility-protocol.pipe';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatPaginatorIntl, MatPaginatorModule} from '@angular/material/paginator';
 import {TranslateService} from "@ngx-translate/core";
 import { PaginatorI18n } from '../core/parts/paginatorI18n';
 import {FacilityDetailItemLocalePipe} from "./facility-detail-item-locale.pipe";
 import {FacilitiesDetailClientSecretDialogComponent} from "./facilities-detail/facilities-detail-client-secret-dialog/facilities-detail-client-secret-dialog.component";
-import {FacilityEnvironmentFromTextPipe} from './facility-environment-fromText.pipe';
 
 @NgModule({
   imports: [
@@ -45,8 +43,6 @@ import {FacilityEnvironmentFromTextPipe} from './facility-environment-fromText.p
     FacilityAddAdminSignComponent,
     AllFacilitiesComponent,
     FacilityEnvironmentPipe,
-    FacilityEnvironmentFromTextPipe,
-    FacilityProtocolPipe,
     FacilityDetailItemLocalePipe
   ],
   providers: [

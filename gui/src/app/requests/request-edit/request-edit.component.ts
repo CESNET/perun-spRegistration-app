@@ -83,7 +83,7 @@ export class RequestEditComponent implements OnInit {
     attr.input.oldValue = attr.value;
 
     if (attr.comment) {
-      attr.input.isEdit = true;
+      attr.input.editable = true;
       attr.input.comment = attr.comment;
       commentedDest.push(attr.input);
     } else {

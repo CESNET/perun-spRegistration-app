@@ -65,8 +65,8 @@ export class DocumentSignComponent implements OnInit, OnDestroy {
   }
 
   private mapAdmins() {
-    this.facility.admins.forEach(user => {
-      this.facilityAdmins.push(new FacilityDetailUserItem(new User(user)));
+    this.facility.managers.forEach(user => {
+      this.facilityAdmins.push(new FacilityDetailUserItem(user));
     });
   }
 

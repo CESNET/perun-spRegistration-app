@@ -75,8 +75,8 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
 
   private mapAdmins() {
     this.facilityAdmins = [];
-    this.facility.admins.forEach(user => {
-      this.facilityAdmins.push(new FacilityDetailUserItem(new User(user)));
+    this.facility.managers.forEach(user => {
+      this.facilityAdmins.push(new FacilityDetailUserItem(user));
     });
   }
 

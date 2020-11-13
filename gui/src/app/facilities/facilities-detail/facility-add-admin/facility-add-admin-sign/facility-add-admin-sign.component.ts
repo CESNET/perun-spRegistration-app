@@ -79,28 +79,24 @@ export class FacilityAddAdminSignComponent implements OnInit, OnDestroy {
   }
 
   addAdminConfirm(): void {
-    this.facilitiesService.addAdminConfirm(this.hash).subscribe(response => {
-      if (response) {
-        this.translate.get('FACILITIES.ADD_ADMIN_SUCCESS').subscribe(successMessage => {
-          this.snackBar.open(successMessage, null, {duration: 5000});
-          this.router.navigate(['/auth']);
-        });
-      } else {
-        this.router.navigate(['/notFound']);
-      }
+    this.facilitiesService.addAdminConfirm(this.hash).subscribe(_ => {
+      this.translate.get('FACILITIES.ADD_ADMIN_SUCCESS').subscribe(successMessage => {
+        this.snackBar.open(successMessage, null, {duration: 5000});
+        this.router.navigate(['/auth']);
+      });
+    }, error => {
+      this.router.navigate(['/notFound']);
     });
   }
 
   addAdminReject(): void {
-    this.facilitiesService.addAdminReject(this.hash).subscribe(response => {
-      if (response) {
-        this.translate.get('FACILITIES.REJ_ADMIN_SUCCESS').subscribe(successMessage => {
-          const snackBarRef = this.snackBar.open(successMessage, null, {duration: 5000});
-          this.router.navigate(['/auth']);
-        });
-      } else {
-        this.router.navigate(['/notFound']);
-      }
+    this.facilitiesService.addAdminReject(this.hash).subscribe(_ => {
+      this.translate.get('FACILITIES.REJ_ADMIN_SUCCESS').subscribe(successMessage => {
+        this.snackBar.open(successMessage, null, {duration: 5000});
+        this.router.navigate(['/auth']);
+      });
+    }, error => {
+      this.router.navigate(['/notFound']);
     });
   }
 
