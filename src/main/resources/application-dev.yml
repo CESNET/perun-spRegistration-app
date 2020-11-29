@@ -37,6 +37,7 @@ application:
   mails_config_file_path: "/etc/perun-spreg/mails.yml"
   sp_managers_vo_id: 1
   sp_managers_parent_group_id: 1
+  startup_sync_enabled: false
 
 attributes:
   names:

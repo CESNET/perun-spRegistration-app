@@ -35,6 +35,7 @@ public class ApplicationProperties {
     @NotNull private Long spManagersVoId;
     @NotNull private Long spManagersParentGroupId;
     @NotBlank private String mailsConfigFilePath;
+    @NotNull private boolean startupSyncEnabled = false;
 
     @Override
     public String toString() {
@@ -47,6 +48,7 @@ public class ApplicationProperties {
                 ", hostUrl='" + hostUrl + '\'' +
                 ", logoutUrl='" + logoutUrl + '\'' +
                 ", mailsConfig='" + mailsConfigFilePath + '\'' +
+                ", startupSyncEnabled='" + startupSyncEnabled + '\'' +
                 '}';
     }
 
