@@ -26,13 +26,17 @@ public class Group extends PerunEntity {
 
     private final String beanName = "Group";
 
-    public Group(Long id, String name, String shortName, String description, Long parentGroupId, Long voId) {
-        super(id);
+    public Group(String name, String shortName, String description, Long parentGroupId, Long voId) {
         this.setName(name);
         this.setShortName(shortName);
         this.setDescription(description);
         this.setParentGroupId(parentGroupId);
         this.setVoId(voId);
+    }
+
+    public Group(Long id, String name, String shortName, String description, Long parentGroupId, Long voId) {
+        this(name,shortName, description, parentGroupId, voId);
+        this.setId(id);
     }
 
     public void setName(@NonNull String name) {

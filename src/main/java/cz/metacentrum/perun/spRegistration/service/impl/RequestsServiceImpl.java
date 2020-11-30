@@ -1012,7 +1012,7 @@ public class RequestsServiceImpl implements RequestsService {
     private Long createAdminsGroup(String perunFacilityName)
             throws PerunUnknownException, PerunConnectionException, InternalErrorException
     {
-        Group adminsGroup = new Group(null, perunFacilityName, perunFacilityName,
+        Group adminsGroup = new Group(perunFacilityName, perunFacilityName,
                 "Administrators of SP - " + perunFacilityName,
                 applicationProperties.getSpManagersParentGroupId(),
                 applicationProperties.getSpManagersVoId());
