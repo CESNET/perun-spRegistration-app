@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.spRegistration.service;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
@@ -77,7 +78,7 @@ public class ServiceUtils {
 		}
 		boolean isOidc = true;
 		if (request.getAttributes().get(AttributeCategory.PROTOCOL).containsKey(entityIdAttr)) {
-			isOidc = (null == request.getAttributes().get(AttributeCategory.PROTOCOL).get(entityIdAttr).getValue());
+			isOidc = (request.getAttributes().get(AttributeCategory.PROTOCOL).get(entityIdAttr).getValue().isNull());
 		}
 		return isOidc;
 	}
@@ -87,7 +88,7 @@ public class ServiceUtils {
 	{
 		boolean isOidc = true;
 		if (attributes.containsKey(entityIdAttr)) {
-			isOidc = (null == attributes.get(entityIdAttr).getValue());
+			isOidc = (attributes.get(entityIdAttr).getValue().isNull());
 		}
 		return isOidc;
 	}
