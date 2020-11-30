@@ -218,12 +218,12 @@ public class FacilitiesServiceImpl implements FacilitiesService {
     {
         PerunAttribute clientSecret = facility.getAttributes()
                 .get(AttributeCategory.PROTOCOL)
-                .get(attributesProperties.getNames().getOidcClientId());
+                .get(attributesProperties.getNames().getOidcClientSecret());
         String clientSecretValue = ServiceUtils.decrypt(clientSecret.valueAsString(),
                 applicationBeans.getSecretKeySpec());
         facility.getAttributes()
                 .get(AttributeCategory.PROTOCOL)
-                .get(attributesProperties.getNames().getOidcClientId())
+                .get(attributesProperties.getNames().getOidcClientSecret())
                 .setValue(JsonNodeFactory.instance.textNode(clientSecretValue));
     }
 
