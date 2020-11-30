@@ -48,6 +48,9 @@ public interface RequestsService {
 
     List<Request> getAllUserRequests(@NonNull Long userId) throws PerunUnknownException, PerunConnectionException;
 
+    boolean cancelRequest(@NonNull Long requestId, @NonNull Long userId)
+            throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException;
+
     List<Request> getAllRequests(@NonNull Long adminId) throws UnauthorizedActionException;
 
     Request getRequestForSignatureByCode(@NonNull String code)

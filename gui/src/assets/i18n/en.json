@@ -92,7 +92,8 @@
       "APPROVED": "Approved",
       "REJECTED": "Rejected",
       "WFA": "Waiting for approval",
-      "WFC": "Changes requested by administrator"
+      "WFC": "Changes requested by administrator",
+      "CANCELED": "Canceled"
     },
     "ACTIONPIPE": {
       "REGISTER_NEW_SP": "Register new service",
@@ -103,17 +104,21 @@
     "CHANGED_TO_WFC": "Successfully requested changes",
     "COMMENTS_FROM_ADMIN": "Comments from administrator",
     "SET_WFC": "Request changes",
+    "SET_WFC_DONE": "Changes requested",
     "APPROVED": "Request approved",
     "REJECTED": "Request rejected",
+    "CANCELED": "Request canceled",
     "ARE_YOU_SURE_APPROVE": "Are you sure you want to approve this request?",
     "ARE_YOU_SURE_REJECT": "Are you sure you want to reject this request?",
     "ARE_YOU_SURE_SET_WFC": "Are you sure you want to set status to 'Waiting for changes'?",
+    "ARE_YOU_SURE_CANCEL": "Are you sure you want to set cancel this request?",
     "NO_COMMENT": "Value is OK",
     "DETAIL_APPROVED": "Approved",
     "SEE_FACILITY": "Service detail",
     "OLD_VALUE": "Previous value",
     "CHANGED_VAL_WARN": "A proposal has been made to change this value",
-    "TAB_BADGE_TOOLTIP": "If there is a number, it indicates amount of changes in the category"
+    "TAB_BADGE_TOOLTIP": "If there is a number, it indicates amount of changes in the category",
+    "CANCEL_REQUEST": "Cancel"
   },
   "FACILITIES": {
     "IDENTIFIER": "ClientID/EntityID",

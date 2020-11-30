@@ -104,6 +104,15 @@ public class RequestsController {
 		return requestsService.getRequest(requestId, user.getId());
 	}
 
+	@PostMapping(path = "/api/cancel/{requestId}")
+	public boolean cancelRequest(@NonNull @SessionAttribute("user") User user,
+								 @NonNull @PathVariable("requestId") Long requestId)
+			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException
+	{
+		// auth done at the service level, cannot do it here
+		return requestsService.cancelRequest(requestId, user.getId());
+	}
+
 	// admin
 
 	@GetMapping(path = "/api/allRequests")

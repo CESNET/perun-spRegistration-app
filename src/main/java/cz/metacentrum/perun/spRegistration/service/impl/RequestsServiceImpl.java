@@ -335,6 +335,40 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     @Override
+    public boolean cancelRequest(Long requestId, Long userId) throws UnauthorizedActionException, InternalErrorException {
+        if (Utils.checkParamsInvalid(requestId, userId)) {
+            log.error("Wrong parameters passed: (userId: {}, action: {})", userId, userId);
+            throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
+        }
+        Request request = requestManager.getRequestById(requestId);
+        if (request == null) {
+            log.error("Could not fetch request with ID: {} from database", requestId);
+            throw new InternalErrorException("Could not fetch request with ID: " + requestId + " from database");
+        } else if (!applicationProperties.isAppAdmin(userId)
+                && !utilsService.isAdminForRequest(request.getReqUserId(), userId)) {
+            throw new UnauthorizedActionException("Cannot cancel request");
+        }
+
+        if (RequestAction.MOVE_TO_PRODUCTION.equals(request.getAction())) {
+            int removedCodes = linkCodeManager.deleteForRequest(request.getReqId());
+            log.info("Removed {} codes", removedCodes);
+        }
+
+        request.setModifiedBy(userId);
+        request.setStatus(RequestStatus.CANCELED);
+        request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
+        boolean requestUpdated = requestManager.updateRequest(request);
+        mailsService.notifyUser(request, MailsServiceImpl.REQUEST_CANCELED);
+
+        if (!requestUpdated) {
+            log.error("some operations failed: requestUpdated: false for request: {}", request);
+        } else {
+            log.info("Request updated, notification sent");
+        }
+        return requestUpdated;
+    }
+
+    @Override
     public List<Request> getAllRequests(@NonNull Long userId) {
         return requestManager.getAllRequests();
     }

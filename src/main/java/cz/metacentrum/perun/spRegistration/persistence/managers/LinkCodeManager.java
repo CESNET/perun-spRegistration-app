@@ -18,4 +18,7 @@ public interface LinkCodeManager {
     void createMultiple(List<LinkCode> linkCodes) throws InternalErrorException;
 
     LinkCode get(String hash);
+
+    int deleteForRequest(Long requestId);
+
 }

@@ -12,11 +12,11 @@ import {AppComponent} from '../../app.component';
 import {RequestSignature} from '../../core/models/RequestSignature';
 import {RequestDetailDialogComponent} from './request-detail-dialog/request-detail-dialog.component';
 import {DetailViewItem} from '../../core/models/items/DetailViewItem';
-import {DetailedViewItemsComponent} from '../../shared/detailed-view-items/detailed-view-items.component';
 
 export interface DialogData {
-  isApprove: boolean;
-  isSetWFC: boolean;
+  isApprove: false;
+  isSetWFC: false;
+  isCancel: false;
   parent: RequestDetailComponent;
 }
 
@@ -61,6 +61,7 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
   successApproveMessage: string;
   successRejectMessage: string;
   successSetWFCMessage: string;
+  successCancelMessage: string;
   noCommentErrorMessage: string;
 
   isApplicationAdmin: boolean;
@@ -136,7 +137,8 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
     this.translate.get('COMMON.ERROR').subscribe(value => this.noCommentErrorMessage = value);
     this.translate.get('REQUESTS.REJECTED').subscribe(value => this.successRejectMessage = value);
     this.translate.get('REQUESTS.APPROVED').subscribe(value => this.successApproveMessage = value);
-    this.translate.get('REQUESTS.SET_WFC').subscribe(value => this.successSetWFCMessage = value);
+    this.translate.get('REQUESTS.SET_WFC_DONE').subscribe(value => this.successSetWFCMessage = value);
+    this.translate.get('REQUESTS.CANCELED').subscribe(value => this.successCancelMessage = value);
     this.isApplicationAdmin = AppComponent.isApplicationAdmin();
   }
 
@@ -157,21 +159,28 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
   openApproveDialog(): void {
     this.dialog.open(RequestDetailDialogComponent, {
       width: '400px',
-      data: {isApprove: true, isSetWFC: false, parent: this}
+      data: {isApprove: true, isSetWFC: false, isCancel: false, parent: this}
     });
   }
 
   openRejectDialog(): void {
     this.dialog.open(RequestDetailDialogComponent, {
       width: '400px',
-      data: {isApprove: false, isSetWFC: false, parent: this}
+      data: {isApprove: false, isSetWFC: false, isCancel: false, parent: this}
     });
   }
 
   openSetWFCDialog(): void {
     this.dialog.open(RequestDetailDialogComponent, {
       width: '400px',
-      data: {isApprove: false, isSetWFC: true, parent: this}
+      data: {isApprove: false, isSetWFC: true , isCancel: false, parent: this}
+    });
+  }
+
+  openCancelDialog(): void {
+    this.dialog.open(RequestDetailDialogComponent, {
+      width: '400px',
+      data: {isApprove: false, isSetWFC: false, isCancel: true, parent: this}
     });
   }
 
@@ -195,6 +204,17 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
     this.requestsService.approveRequest(this.request.reqId).subscribe(_ => {
       this.loading = false;
       this.snackBar.open(this.successApproveMessage, null, {duration: 6000});
+      this.router.navigate(['/auth/requests/allRequests']).then();
+    }, error => {
+      console.log('Error');
+      console.log(error);
+    });
+  }
+
+  cancel() {
+    this.requestsService.cancelRequest(this.request.reqId).subscribe(_ => {
+      this.loading = false;
+      this.snackBar.open(this.successCancelMessage, null, {duration: 6000});
       this.router.navigate(['/auth/requests/allRequests']).then();
     }, error => {
       console.log('Error');

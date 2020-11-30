@@ -62,6 +62,11 @@
               {{'REQUESTS.EDIT_REQUEST' | translate}}
             </button>
           </ng-container>
+          <ng-container *ngIf="(request.status=='WAITING_FOR_APPROVAL' || request.status=='WAITING_FOR_CHANGES')">
+            <button class="btn-block" mat-raised-button color="warn" (click)="openCancelDialog()">
+              {{'REQUESTS.CANCEL_REQUEST' | translate}}
+            </button>
+          </ng-container>
         </div>
       </div>
     </div>

@@ -23,6 +23,8 @@ export class RequestDetailDialogComponent implements OnInit {
       this.translate.get('REQUESTS.ARE_YOU_SURE_APPROVE').subscribe(value => this.promptText = value);
     } else if (this.data.isSetWFC) {
       this.translate.get('REQUESTS.ARE_YOU_SURE_SET_WFC').subscribe(value => this.promptText = value);
+    } else if (this.data.isCancel) {
+      this.translate.get('REQUESTS.ARE_YOU_SURE_CANCEL').subscribe(value => this.promptText = value);
     } else {
       this.translate.get('REQUESTS.ARE_YOU_SURE_REJECT').subscribe(value => this.promptText = value);
     }
@@ -38,6 +40,8 @@ export class RequestDetailDialogComponent implements OnInit {
       this.data.parent.approve();
     } else if (this.data.isSetWFC) {
       this.data.parent.requestChanges();
+    } else if (this.data.isCancel) {
+      this.data.parent.cancel();
     } else {
       this.data.parent.reject();
     }

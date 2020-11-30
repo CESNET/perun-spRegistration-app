@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from "./api.service";
-import { Observable } from "rxjs";
-import { Request } from "../models/Request";
-import {PerunAttribute} from "../models/PerunAttribute";
-import {RequestSignature} from "../models/RequestSignature";
+import { Observable } from 'rxjs';
+import { Request } from '../models/Request';
+import { PerunAttribute } from '../models/PerunAttribute';
+import { RequestSignature } from '../models/RequestSignature';
 
 @Injectable({
   providedIn: 'root'
@@ -52,6 +52,10 @@ export class RequestsService {
 
   getSignatures(id: number): Observable<RequestSignature[]> {
     return this.apiService.get(`/viewApprovals/${id}`);
+  }
+
+  cancelRequest(id: number): Observable<boolean>{
+    return this.apiService.post(`/cancel/${id}`);
   }
 
 }

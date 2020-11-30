@@ -89,7 +89,8 @@
       "APPROVED": "Schváleno",
       "REJECTED": "Zamítnuto",
       "WFA": "Čeká na schválení",
-      "WFC": "Administrátor vyžádal změny"
+      "WFC": "Administrátor vyžádal změny",
+      "CANCELED": "Zrušeno"
     },
     "ACTIONPIPE": {
       "REGISTER_NEW_SP": "Registrace nové služby",
@@ -100,17 +101,21 @@
     "CHANGED_TO_WFC": "Změny byly vyžádany",
     "COMMENTS_FROM_ADMIN": "Komentáře od administrátora",
     "SET_WFC": "Vyžádat změny",
+    "SET_WFC_DONE": "Změny byly vyžádany",
     "APPROVED": "Žádost schválena",
     "REJECTED": "Žádost zamítnuta",
+    "CANCELED": "Žádost zrušena",
     "ARE_YOU_SURE_APPROVE": "Jste si jistý, že chcete schvalit tuhle žádost?",
     "ARE_YOU_SURE_REJECT": "Jste si jistý, že chcete zamítnout tuhle žádost?",
     "ARE_YOU_SURE_SET_WFC": "Jste si jistý, že chcete vyžádát změny?",
+    "ARE_YOU_SURE_CANCEL": "Jste si jistý, že chcete zrušit tuhle žádost?",
     "NO_COMMENT": "Hodnota je v pořádku",
     "DETAIL_APPROVED": "Potvrzení",
     "SEE_FACILITY": "Detail služby",
     "OLD_VALUE": "Původní hodnota",
     "CHANGED_VAL_WARN": "U této hodnoty došlo byla navrhnuta změna",
-    "TAB_BADGE_TOOLTIP": "Pokud je zobrzaeno číslo, tato hodnota indikuje počet změn v dané kategorii"
+    "TAB_BADGE_TOOLTIP": "Pokud je zobrzaeno číslo, tato hodnota indikuje počet změn v dané kategorii",
+    "CANCEL_REQUEST": "Zrušit"
   },
   "FACILITIES": {
     "IDENTIFIER": "ClientID/EntityID",

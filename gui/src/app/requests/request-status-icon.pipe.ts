@@ -13,7 +13,8 @@ export class RequestStatusIconPipe implements PipeTransform {
       case "APPROVED": {
         return `<i class="material-icons green mb-0">done</i>`;
       }
-      case "REJECTED": {
+      case "REJECTED":
+      case "CANCELED": {
         return `<i class="material-icons red mb-0">clear</i>`;
       }
       case "WAITING_FOR_APPROVAL": {

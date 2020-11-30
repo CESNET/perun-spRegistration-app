@@ -22,6 +22,9 @@ export class RequestStatusLangPipe implements PipeTransform {
       case "WAITING_FOR_CHANGES": {
         return'REQUESTS.STATUSPIPE.WFC';
       }
+      case "CANCELED": {
+        return'REQUESTS.STATUSPIPE.CANCELED';
+      }
       default: {
         return '';
       }

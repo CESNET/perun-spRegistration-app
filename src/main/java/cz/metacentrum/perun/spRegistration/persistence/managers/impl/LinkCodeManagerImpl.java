@@ -177,4 +177,21 @@ public class LinkCodeManagerImpl implements LinkCodeManager {
         }
     }
 
+    @Override
+    public int deleteForRequest(Long reqId) {
+        log.trace("deleteExpired()");
+
+        String query = new StringJoiner(" ")
+                .add("DELETE FROM").add(CODES_TABLE)
+                .add("WHERE request_id = :req_id")
+                .toString();
+
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("req_id", reqId);
+
+        int updates = jdbcTemplate.update(query, parameters);
+        log.debug("removed {} link codes", updates);
+        return updates;
+    }
+
 }
