@@ -219,6 +219,9 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         PerunAttribute clientSecret = facility.getAttributes()
                 .get(AttributeCategory.PROTOCOL)
                 .get(attributesProperties.getNames().getOidcClientSecret());
+        log.error("prop: {}", attributesProperties.getNames().getOidcClientSecret());
+        log.error("attr: {}", clientSecret);
+        log.error("all protocol attrs: {}", facility.getAttributes().get(AttributeCategory.PROTOCOL));
         String clientSecretValue = ServiceUtils.decrypt(clientSecret.valueAsString(),
                 applicationBeans.getSecretKeySpec());
         facility.getAttributes()
