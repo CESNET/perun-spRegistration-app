@@ -85,6 +85,7 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         facility.setProtocol(service.getProtocol());
         facility.setActiveRequestId(requestManager.getActiveRequestIdByFacilityId(facilityId));
         facility.setAttributes(getFacilityAttributes(facilityId));
+        log.warn("{}", facility.getAttributes());
 
         if (!includeClientCredentials) {
             clearOidcCredentials(facility);
@@ -209,7 +210,7 @@ public class FacilitiesServiceImpl implements FacilitiesService {
     private Map<AttributeCategory, Map<String, PerunAttribute>> getFacilityAttributes(Long facilityId)
             throws PerunUnknownException, PerunConnectionException
     {
-        return convertToCategoryMap(ServiceUtils.getFacilityAttributes(applicationBeans,facilityId,
+        return convertToCategoryMap(ServiceUtils.getFacilityAttributes(applicationBeans, facilityId,
                 attributesProperties, inputsContainer, perunAdapter));
     }
 
@@ -219,9 +220,6 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         PerunAttribute clientSecret = facility.getAttributes()
                 .get(AttributeCategory.PROTOCOL)
                 .get(attributesProperties.getNames().getOidcClientSecret());
-        log.error("prop: {}", attributesProperties.getNames().getOidcClientSecret());
-        log.error("attr: {}", clientSecret);
-        log.error("all protocol attrs: {}", facility.getAttributes().get(AttributeCategory.PROTOCOL));
         String clientSecretValue = ServiceUtils.decrypt(clientSecret.valueAsString(),
                 applicationBeans.getSecretKeySpec());
         facility.getAttributes()

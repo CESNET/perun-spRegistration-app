@@ -206,6 +206,7 @@ public class ServiceUtils {
 		Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facilityId, attrsToFetch);
 		boolean isOidc = ServiceUtils.isOidcAttributes(attrs, attributesProperties.getNames().getEntityId());
 		Set<String> keptAttrs = ServiceUtils.getAttrNames(inputsContainer, isOidc, attributesProperties);
+		log.info("{}", keptAttrs);
 		return ServiceUtils.filterFacilityAttrs(attrs, keptAttrs);
 	}
 }
