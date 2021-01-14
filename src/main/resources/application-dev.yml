@@ -38,6 +38,7 @@ application:
   sp_managers_vo_id: 1
   sp_managers_parent_group_id: 1
   startup_sync_enabled: false
+  dev_user_identifier: "someone@einfra.cesnet.cz"
 
 attributes:
   names:
@@ -54,11 +55,12 @@ attributes:
     is_saml: "urn:perun:facility:attribute-def:def:isSamlFacility"
     service_name: "urn:perun:facility:attribute-def:def:serviceName"
     service_desc: "urn:perun:facility:attribute-def:def:serviceDescription"
+    manager_group: "urn:perun:facility:attribute-def:def:rpManagersGroupId"
   values:
     proxy_identifier: "XYZ"
     master_proxy_identifier: "https://login.cesnet.cz/idp/"
 
-input_config_file_paths:
+inputs.config.paths:
   service: "/etc/perun-spreg/attrs/service.yml"
   organization: "/etc/perun-spreg/attrs/org.yml"
   saml: "/etc/perun-spreg/attrs/saml.yml"

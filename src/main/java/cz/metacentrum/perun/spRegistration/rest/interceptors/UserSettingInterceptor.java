@@ -61,7 +61,7 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 		String sub;
 
 		if (devEnabled) {
-			sub = request.getHeader(FAKE_USER_HEADER);
+			sub = applicationProperties.getDevUserIdentifier();
 		} else {
 			sub = request.getRemoteUser();
 		}
