@@ -6,6 +6,7 @@ import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.Group;
+import cz.metacentrum.perun.spRegistration.common.models.Member;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.common.models.User;
@@ -410,6 +411,16 @@ public class PerunAdapterRpc implements PerunAdapter {
 		return res == null || res.isNull();
 	}
 
+	@Override
+	public boolean removeMembersFromGroup(Long groupId, List<Long> membersIds) throws PerunUnknownException, PerunConnectionException {
+		Map<String, Object> params = new LinkedHashMap<>();
+		params.put("group", groupId);
+		params.put("members", membersIds);
+
+		JsonNode res = perunRpc.call(GROUPS_MANAGER, "removeMembers", params);
+		return res == null || res.isNull();
+	}
+
 	private PerunAttribute getUserAttribute(Long userId, String attributeName)
 			throws PerunUnknownException, PerunConnectionException
 	{
@@ -423,6 +434,16 @@ public class PerunAdapterRpc implements PerunAdapter {
 
 		JsonNode attr = perunRpc.call(ATTRIBUTES_MANAGER, "getAttribute", params);
 		return MapperUtils.mapPerunAttribute(attr);
+	}
+
+	@Override
+	public List<Member> getGroupMembers(Long groupId) throws PerunUnknownException, PerunConnectionException {
+		Map<String, Object> params = new LinkedHashMap<>();
+		params.put("group", groupId);
+
+		JsonNode res = perunRpc.call(GROUPS_MANAGER, "getGroupMembers", params);
+
+		return MapperUtils.mapMembers(res);
 	}
 
 }

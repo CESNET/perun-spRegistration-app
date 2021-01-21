@@ -3,6 +3,7 @@ package cz.metacentrum.perun.spRegistration.persistence.adapters;
 import com.fasterxml.jackson.databind.JsonNode;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.Group;
+import cz.metacentrum.perun.spRegistration.common.models.Member;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.common.models.User;
@@ -169,4 +170,8 @@ public interface PerunAdapter {
 	boolean addMemberToGroup(Long groupId, Long memberId) throws PerunUnknownException, PerunConnectionException;
 
 	boolean removeMemberFromGroup(Long valueAsLong, Long memberId) throws PerunUnknownException, PerunConnectionException;
+
+	boolean removeMembersFromGroup(Long groupId, List<Long> membersIds) throws PerunUnknownException, PerunConnectionException;
+
+	List<Member> getGroupMembers(Long groupId) throws PerunUnknownException, PerunConnectionException;
 }

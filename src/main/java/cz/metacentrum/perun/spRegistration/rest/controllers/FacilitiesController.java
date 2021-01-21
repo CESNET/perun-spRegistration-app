@@ -15,6 +15,7 @@ import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownEx
 import cz.metacentrum.perun.spRegistration.rest.ApiUtils;
 import cz.metacentrum.perun.spRegistration.service.AddAdminsService;
 import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
+import cz.metacentrum.perun.spRegistration.service.RemoveAdminsService;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -44,14 +45,17 @@ public class FacilitiesController {
 
 	@NonNull private final FacilitiesService facilitiesService;
 	@NonNull private final AddAdminsService addAdminsService;
+	@NonNull private final RemoveAdminsService removeAdminsService;
 	@NonNull private final UtilsService utilsService;
 
 	@Autowired
 	public FacilitiesController(@NonNull FacilitiesService facilitiesService,
 								@NonNull AddAdminsService addAdminsService,
+								@NonNull RemoveAdminsService removeAdminsService,
 								@NonNull UtilsService utilsService)
 	{
 		this.addAdminsService = addAdminsService;
+		this.removeAdminsService = removeAdminsService;
 		this.facilitiesService = facilitiesService;
 		this.utilsService = utilsService;
 	}
@@ -165,6 +169,18 @@ public class FacilitiesController {
 			throw new UnauthorizedActionException();
 		}
 		return utilsService.regenerateClientSecret(user.getId(), facilityId);
+	}
+
+	@PostMapping(path = "/api/removeAdmins/{facilityId}")
+	public boolean removeAdmins(@NonNull @SessionAttribute("user") User user,
+							 @NonNull @PathVariable("facilityId") Long facilityId,
+							 @NonNull @RequestBody List<Long> adminsToRemoveIds)
+			throws InternalErrorException, UnauthorizedActionException,
+			PerunUnknownException, PerunConnectionException {
+		if (!utilsService.isAdminForFacility(facilityId, user.getId())) {
+			throw new UnauthorizedActionException();
+		}
+		return removeAdminsService.removeAdmins(user, facilityId, adminsToRemoveIds);
 	}
 
 }

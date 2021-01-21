@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.apache.catalina.connector.Connector;
 import org.apache.coyote.ajp.AbstractAjpProtocol;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,9 @@ public class WebConfig implements WebMvcConfigurer {
     @NonNull private final PerunAdapter perunAdapter;
     @NonNull private final AttributesProperties attributesProperties;
     @NonNull private final ApplicationProperties applicationProperties;
+
+    @Value("${dev.enabled:false}")
+    private boolean devEnabled;
 
     @Autowired
     public WebConfig(@NonNull PerunAdapter perunAdapter,
@@ -44,10 +48,18 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        String path = "/auth/**";
-        registry.addInterceptor(userSettingInterceptor(perunAdapter, attributesProperties, applicationProperties))
-                .addPathPatterns(path)
-                .excludePathPatterns("/api/config/**");
+        if (devEnabled) {
+            String path = "/**";
+            registry.addInterceptor(userSettingInterceptor(perunAdapter, attributesProperties, applicationProperties))
+                    .addPathPatterns(path)
+                    .excludePathPatterns("/api/config/**", "/", "");
+        } else {
+            String path = "/auth/**";
+
+            registry.addInterceptor(userSettingInterceptor(perunAdapter, attributesProperties, applicationProperties))
+                    .addPathPatterns(path)
+                    .excludePathPatterns("/api/config/**");
+        }
     }
 
     @Bean

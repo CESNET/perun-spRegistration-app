@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.Group;
+import cz.metacentrum.perun.spRegistration.common.models.Member;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.common.models.User;
@@ -50,6 +51,8 @@ public class MapperUtils {
 	public static final String SHORT_NAME = "shortName";
 	public static final String PARENT_GROUP_ID = "parentGroupId";
 	public static final String VO_ID = "voId";
+	public static final String USER_ID = "userId";
+	public static final String STATUS = "status";
 
 	public static Facility mapFacility(@NonNull JsonNode json) {
 		String[] requiredParams = new String[] {ID, NAME};
@@ -193,6 +196,33 @@ public class MapperUtils {
 		Long voId = json.get(VO_ID).asLong();
 
 		return new Group(id, name, shortName, description, parentGroupId, voId);
+	}
+
+	public static Member mapMember(@NonNull JsonNode json) {
+		String[] requiredParams = new String[] {ID, USER_ID, VO_ID, STATUS};
+		if (!MapperUtils.hasRequiredFields(json, requiredParams)) {
+			return null;
+		}
+
+		Long id = json.get(ID).asLong();
+		Long userId = json.get(USER_ID).asLong();
+		Long voId = json.get(VO_ID).asLong();
+		String status = json.get(STATUS).asText();
+
+		return new Member(id, userId, voId, status);
+	}
+
+	public static List<Member> mapMembers(@NonNull JsonNode json) {
+		List<Member> members = new ArrayList<>();
+
+		if (!json.isNull() && json.isArray()) {
+			for (JsonNode subJson: json) {
+				Member mappedMember = MapperUtils.mapMember(subJson);
+				members.add(mappedMember);
+			}
+		}
+
+		return members;
 	}
 
 	// private methods
