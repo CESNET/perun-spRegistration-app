@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,11 +37,11 @@ public class RemoveAdminsServiceImpl implements RemoveAdminsService {
     }
 
     @Override
-    public boolean removeAdmins(@NonNull User user, @NonNull Long facilityId, @NonNull List<Long> adminsToRemoveIds)
+    public boolean removeAdmin(@NonNull User user, @NonNull Long facilityId, @NonNull Long adminToRemoveId)
             throws InternalErrorException, PerunUnknownException, PerunConnectionException
     {
-        Long memberId = perunAdapter.getMemberIdByUser(applicationProperties.getSpManagersVoId(), user.getId());
-        if (memberId == null) {
+        Long userMemberId = perunAdapter.getMemberIdByUser(applicationProperties.getSpManagersVoId(), user.getId());
+        if (userMemberId == null) {
             throw new InternalErrorException();
         }
 
@@ -53,13 +52,24 @@ public class RemoveAdminsServiceImpl implements RemoveAdminsService {
         }
 
         List<Member> allGroupMembers = perunAdapter.getGroupMembers(adminsGroupAttribute.valueAsLong());
-        List<Long> allAdminsIds = allGroupMembers.stream().map(Member::getId).collect(Collectors.toList());
 
-        if (allAdminsIds.size() <= adminsToRemoveIds.size()) {
+        if (allGroupMembers.size() <= 1) {
             return false;
         }
 
-        return perunAdapter.removeMembersFromGroup(adminsGroupAttribute.valueAsLong(), adminsToRemoveIds);
+        Long adminMemberId;
+
+        try {
+            adminMemberId = perunAdapter.getMemberIdByUser(applicationProperties.getSpManagersVoId(), adminToRemoveId);
+        } catch (PerunUnknownException ex) {
+            return false;
+        }
+
+        if (adminMemberId == null) {
+            return false;
+        }
+
+        return perunAdapter.removeMemberFromGroup(adminsGroupAttribute.valueAsLong(), adminMemberId);
     }
 
 }

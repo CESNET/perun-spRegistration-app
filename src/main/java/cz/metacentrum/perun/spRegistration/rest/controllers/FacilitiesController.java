@@ -171,16 +171,16 @@ public class FacilitiesController {
 		return utilsService.regenerateClientSecret(user.getId(), facilityId);
 	}
 
-	@PostMapping(path = "/api/removeAdmins/{facilityId}")
-	public boolean removeAdmins(@NonNull @SessionAttribute("user") User user,
+	@PostMapping(path = "/api/removeAdmin/{facilityId}")
+	public boolean removeAdmin(@NonNull @SessionAttribute("user") User user,
 							 @NonNull @PathVariable("facilityId") Long facilityId,
-							 @NonNull @RequestBody List<Long> adminsToRemoveIds)
+							 @NonNull @RequestBody Long adminToRemoveUserId)
 			throws InternalErrorException, UnauthorizedActionException,
 			PerunUnknownException, PerunConnectionException {
 		if (!utilsService.isAdminForFacility(facilityId, user.getId())) {
 			throw new UnauthorizedActionException();
 		}
-		return removeAdminsService.removeAdmins(user, facilityId, adminsToRemoveIds);
+		return removeAdminsService.removeAdmin(user, facilityId, adminToRemoveUserId);
 	}
 
 }

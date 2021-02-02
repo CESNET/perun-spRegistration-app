@@ -3,6 +3,7 @@ export class User {
     if (!item) {
       return;
     }
+    this.id = item.id
     this.name = item.name;
     if (item.hasOwnProperty('email')) {
       this.email = item.email;
@@ -13,6 +14,7 @@ export class User {
     this.isAppAdmin = item.isAppAdmin;
   }
 
+  id: number;
   name: string;
   email: string;
   facilitiesWhereUserIsAdmin: number[];

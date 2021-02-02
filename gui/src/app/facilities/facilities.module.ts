@@ -20,6 +20,7 @@ import {TranslateService} from "@ngx-translate/core";
 import { PaginatorI18n } from '../core/parts/paginatorI18n';
 import {FacilityDetailItemLocalePipe} from "./facility-detail-item-locale.pipe";
 import {FacilitiesDetailClientSecretDialogComponent} from "./facilities-detail/facilities-detail-client-secret-dialog/facilities-detail-client-secret-dialog.component";
+import {FacilitiesRemoveAdminDialogComponent} from "./facilities-detail/facilities-remove-admin-dialog/facilities-remove-admin-dialog.component";
 
 @NgModule({
   imports: [
@@ -38,6 +39,7 @@ import {FacilitiesDetailClientSecretDialogComponent} from "./facilities-detail/f
     FacilitiesEditComponent,
     FacilityMoveToProductionComponent,
     FacilitiesDetailDeleteDialogComponent,
+    FacilitiesRemoveAdminDialogComponent,
     FacilitiesDetailClientSecretDialogComponent,
     FacilityAddAdminComponent,
     FacilityAddAdminSignComponent,

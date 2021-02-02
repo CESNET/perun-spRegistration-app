@@ -125,6 +125,7 @@
     "DELETE_FACILITY": "Odebrat službu",
     "EDIT_FACILITY": "Upravit službu",
     "ADD_ADMIN": "Přidat správce",
+    "REMOVE_ADMIN": "Odebrat správce",
     "MOVE_TO_PRODUCTION" : "Přesunout do produkce",
     "MOVE_TO_PRODUCTION_TITLE_1" : "Přesunout Službu #",
     "MOVE_TO_PRODUCTION_TITLE_2" : "do produkce",
@@ -139,6 +140,8 @@
     "DOCUMENT_SIGN_TITLE": "Podepsání žádosti o přesun do produkce",
     "DOCUMENT_SIGN_SUCCESS": "Žádost byla podepsána",
     "ARE_YOU_SURE_DELETE": "Jste si jistý, že chcete vymazat službu:",
+    "ARE_YOU_SURE_REMOVE_ADMIN": "Chystáte se odebrat následujícího správce:",
+    "ARE_YOU_SURE_REMOVE_ADMIN_CONTINUE": "Pokračovat?",
     "GO_TO_FACILITY_DETAIL": "Přejít na detail služby",
     "ACTIVE_REQUEST_WARNING": "Pro tuto službu existuje žádost čekající na schválení",
     "SEE_ACTIVE_REQUEST": "Přejít na žádost",
@@ -165,7 +168,11 @@
     "MANAGER_NAME": "Jméno správce",
     "MANAGER_EMAIL": "Kontaktní email",
     "PROTOCOL": "SAML/OIDC",
-    "ARE_YOU_SURE_REGENERATE_CLIENT_SECRET": "Ste si jist, že chcete vygenerovat nové CLIENT_SECRET? Předchozí hodnota už nebude použitelná."
+    "ARE_YOU_SURE_REGENERATE_CLIENT_SECRET": "Ste si jist, že chcete vygenerovat nové CLIENT_SECRET? Předchozí hodnota už nebude použitelná.",
+    "DETAIL": {
+      "ADMIN_REMOVED": "Manažer byl odebrán",
+      "ADMIN_NOT_REMOVED": "Chyba při odebírání manažera"
+    }
   },
   "TOOLS": {
     "CRYPTO_TITLE": "Šifrování",

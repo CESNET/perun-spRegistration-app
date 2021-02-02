@@ -10,7 +10,7 @@ import lombok.ToString;
 /**
  * Representation of Member.
  *
- * @author Dominik Baranek <baranek@ics.muni.cz>;
+ * @author Dominik Baranek <baranek@ics.muni.cz>
  */
 @Getter
 @Setter

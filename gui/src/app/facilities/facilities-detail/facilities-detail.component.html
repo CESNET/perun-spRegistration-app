@@ -77,7 +77,16 @@
           </div>
           <div class="w-100"></div>
           <div class="col" *ngFor="let manager of facilityAdmins">
-            <p class="border-bottom">{{manager.name}}: <a href="mailto:{{manager.email}}">{{manager.email}}</a></p>
+            <div class="row">
+              <div class="col-md-4">
+                <p class="border-bottom">{{manager.name}}: <a href="mailto:{{manager.email}}">{{manager.email}}</a></p>
+              </div>
+              <div class="col-md-8">
+                <button mat-raised-button color="warn" (click)="openRemoveAdminDialog(manager.name, manager.id)">
+                  {{'FACILITIES.REMOVE_ADMIN' | translate}}
+                </button>
+              </div>
+            </div>
           </div>
         </mat-tab>
       </mat-tab-group>

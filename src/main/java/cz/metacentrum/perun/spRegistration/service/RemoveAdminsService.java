@@ -6,11 +6,9 @@ import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectio
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import lombok.NonNull;
 
-import java.util.List;
-
 public interface RemoveAdminsService {
 
-    boolean removeAdmins(@NonNull User user, @NonNull Long facilityId, @NonNull List<Long> allAdminsIds)
+    boolean removeAdmin(@NonNull User user, @NonNull Long facilityId, @NonNull Long AdminId)
             throws InternalErrorException, PerunUnknownException, PerunConnectionException;
 
 }

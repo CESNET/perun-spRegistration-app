@@ -84,4 +84,8 @@ export class FacilitiesService {
   regenerateClientSecret(id: number): Observable<PerunAttribute> {
     return this.apiService.post('/facility/regenerateClientSecret/' + id);
   }
+
+  removeAdmin(facilityId: number, adminId: number): Observable<boolean> {
+    return this.apiService.post('/removeAdmin/' + facilityId, adminId);
+  }
 }

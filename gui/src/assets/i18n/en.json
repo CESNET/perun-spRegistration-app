@@ -128,6 +128,7 @@
     "DELETE_FACILITY": "Remove service",
     "EDIT_FACILITY": "Modify settings",
     "ADD_ADMIN": "Add managers",
+    "REMOVE_ADMIN": "Remove manager",
     "MOVE_TO_PRODUCTION" : "Move to production",
     "MOVE_TO_PRODUCTION_TITLE_1" : "Transfer service #",
     "MOVE_TO_PRODUCTION_TITLE_2" : "to production",
@@ -142,6 +143,8 @@
     "DOCUMENT_SIGN_TITLE": "Approve / reject request for transfer to production environment",
     "DOCUMENT_SIGN_SUCCESS": "Your approval / rejection has been stored",
     "ARE_YOU_SURE_DELETE": "Are you sure you want to delete service:",
+    "ARE_YOU_SURE_REMOVE_ADMIN": "You are going to remove the following admin:",
+    "ARE_YOU_SURE_REMOVE_ADMIN_CONTINUE": "Continue?",
     "GO_TO_FACILITY_DETAIL": "Go to service detail",
     "ACTIVE_REQUEST_WARNING": "There already exists an active request for this service",
     "SEE_ACTIVE_REQUEST": "View request",
@@ -168,7 +171,11 @@
     "MANAGER_NAME": "Name",
     "MANAGER_EMAIL": "Contact email",
     "PROTOCOL": "SAML/OIDC",
-    "ARE_YOU_SURE_REGENERATE_CLIENT_SECRET": "Are you sure you want to generate a new CLIENT_SECRET? The old value will not be usable anymore."
+    "ARE_YOU_SURE_REGENERATE_CLIENT_SECRET": "Are you sure you want to generate a new CLIENT_SECRET? The old value will not be usable anymore.",
+    "DETAIL": {
+      "ADMIN_REMOVED": "Manager has been removed",
+      "ADMIN_NOT_REMOVED": "An error has occurred when removing manager"
+    }
   },
   "TOOLS": {
     "CRYPTO_TITLE": "Crypto",

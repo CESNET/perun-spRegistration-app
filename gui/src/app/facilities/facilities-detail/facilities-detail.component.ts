@@ -8,14 +8,22 @@ import {FacilitiesDetailDeleteDialogComponent} from './facilities-detail-delete-
 import {RequestsService} from '../../core/services/requests.service';
 import {Subscription} from 'rxjs';
 import {PerunAttribute} from "../../core/models/PerunAttribute";
-import {User} from "../../core/models/User";
 import {FacilityDetailUserItem} from "../../core/models/items/FacilityDetailUserItem";
 import {DetailViewItem} from "../../core/models/items/DetailViewItem";
 import {FacilitiesDetailClientSecretDialogComponent} from "./facilities-detail-client-secret-dialog/facilities-detail-client-secret-dialog.component";
+import {FacilitiesRemoveAdminDialogComponent} from "./facilities-remove-admin-dialog/facilities-remove-admin-dialog.component";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {TranslateService} from "@ngx-translate/core";
 
 export interface DialogData {
   parent: FacilitiesDetailComponent;
   facilityName: Map<string, string>;
+}
+
+export interface DialogData2 {
+  parent: FacilitiesDetailComponent
+  userName: Map<string, string>;
+  userId: number;
 }
 
 @Component({
@@ -31,6 +39,8 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
     private requestsService: RequestsService,
     private router: Router,
     public dialog: MatDialog,
+    private snackBar: MatSnackBar,
+    private translate: TranslateService
   ) { }
 
   private sub: Subscription;
@@ -49,6 +59,10 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
   running = 0;
 
   isUserAdmin: boolean;
+
+  adminRemoveSuccessText: string;
+  adminRemoveFailText: string;
+  snackBarDurationMs = 5000;
 
   private mapAttributes() {
     this.facility.serviceAttrs().forEach((attr, _) => {
@@ -100,6 +114,10 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
     });
 
     this.isUserAdmin = AppComponent.isApplicationAdmin();
+    this.translate.get('FACILITIES.DETAIL.ADMIN_NOT_REMOVED')
+      .subscribe(value => this.adminRemoveFailText = value);
+    this.translate.get('FACILITIES.DETAIL.ADMIN_REMOVED')
+      .subscribe(value => this.adminRemoveSuccessText = value);
   }
 
   loadMoveToProductionActive(activeRequestId: number) {
@@ -123,6 +141,13 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
     });
   }
 
+  openRemoveAdminDialog(userName: string, userId: number): void {
+    this.dialog.open(FacilitiesRemoveAdminDialogComponent, {
+      width: '50%',
+      data: {parent: this, userName: userName, userId: userId}
+    });
+  }
+
   openClientSecretDialog(): void {
     this.dialog.open(FacilitiesDetailClientSecretDialogComponent, {
       width: '50%',
@@ -139,6 +164,22 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
 
   addFacilityAdmin(): void {
     this.router.navigateByUrl('auth/facilities/addAdmin/' + this.facility.id );
+  }
+
+  removeFacilityAdmin(adminToRemoveId: number): void {
+    this.facilitiesService.removeAdmin(this.facility.id, adminToRemoveId).subscribe(result => {
+      this.loading = false;
+      if (result) {
+        this.snackBar.open(this.adminRemoveSuccessText, null, {duration: this.snackBarDurationMs});
+        if (AppComponent.getUser().id === adminToRemoveId) {
+          this.router.navigateByUrl('auth');
+        } else {
+          this.ngOnInit();
+        }
+      } else {
+        this.snackBar.open(this.adminRemoveFailText, null, {duration: this.snackBarDurationMs});
+      }
+    });
   }
 
   regenerateClientSecret(): void {
