@@ -19,7 +19,7 @@ export class RequestItemInputBooleanComponent implements OnInit, RequestItem {
   @ViewChild('form', {static: false})
   form: NgForm;
 
-  value = false;
+  value: boolean = false;
   expectedValueChangedError = false;
 
   ngOnInit(): void {

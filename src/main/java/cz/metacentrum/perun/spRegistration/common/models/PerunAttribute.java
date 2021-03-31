@@ -80,7 +80,7 @@ public class PerunAttribute {
 				this.value = JsonNodeFactory.instance.booleanNode(false);
 			}
 		}
-		this.oldValue = null;
+		this.oldValue = JsonNodeFactory.instance.nullNode();
 		this.comment = null;
 		this.input = null;
 	}
@@ -145,14 +145,24 @@ public class PerunAttribute {
 
 	public void setValue(@NonNull String type, JsonNode value) {
 		if (PerunAttribute.isNullValue(value)) {
-			if (!BOOLEAN_TYPE.equals(type)) {
-				this.value = JsonNodeFactory.instance.nullNode();
-				return;
-			} else {
-				value = JsonNodeFactory.instance.booleanNode(false);
+			switch (type) {
+				case BOOLEAN_TYPE:
+					value = JsonNodeFactory.instance.booleanNode(false);
+					break;
+				case STRING_TYPE:
+					value = JsonNodeFactory.instance.textNode("");
+					break;
+				case INTEGER_TYPE:
+					value = JsonNodeFactory.instance.nullNode();
+					break;
+				case ARRAY_TYPE:
+					value = JsonNodeFactory.instance.arrayNode();
+					break;
+				case MAP_TYPE:
+					value = JsonNodeFactory.instance.objectNode();
+					break;
 			}
 		}
-
 		this.value = value;
 	}
 

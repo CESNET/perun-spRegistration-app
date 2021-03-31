@@ -12,11 +12,9 @@ import {RequestItemInputUtils} from "../request-item-input-utils/request-item-in
 })
 export class RequestItemInputSelectComponent implements RequestItem, OnInit {
 
-  constructor() {
-    this.values = [];
-  }
+  constructor() { }
 
-  values: string[];
+  values: string[] = [];
 
   @Input()
   applicationItem: ApplicationItem;

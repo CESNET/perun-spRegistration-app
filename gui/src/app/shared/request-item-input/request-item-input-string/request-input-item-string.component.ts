@@ -16,7 +16,7 @@ export class RequestInputItemStringComponent implements RequestItem, OnInit {
   @Input()
   applicationItem: ApplicationItem;
 
-  value = '';
+  value: string = '';
 
   @ViewChild('form', {static: false})
   form: NgForm;

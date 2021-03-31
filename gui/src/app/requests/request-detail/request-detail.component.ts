@@ -47,11 +47,12 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
   protocolChangedCnt = Number(0);
   accessControlChangedCnt = Number(0);
 
+  request: Request = null;
+  signatures: RequestSignature[] = [];
+
   displayedColumns: string[] = ['name', 'value'];
 
   loading = true;
-  request: Request;
-  signatures: RequestSignature[];
   expansionPanelDisabled = true;
   icon = true;
 
@@ -64,7 +65,7 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
   successCancelMessage: string;
   noCommentErrorMessage: string;
 
-  isApplicationAdmin: boolean;
+  isApplicationAdmin: boolean = false;
   filterChangedOnly = false;
 
   displayOldVal: boolean;
@@ -116,6 +117,7 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   ngOnInit() {
+    this.resetFields();
     this.sub = this.route.params.subscribe(params => {
       this.requestsService.getRequest(params['id']).subscribe(request => {
         this.request = new Request(request);
@@ -300,4 +302,18 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
     return (counter && counter > 0) ? counter.toString() : '';
   }
 
+  private resetFields() {
+    this.requestAttrsService = [];
+    this.requestAttrsOrganization = [];
+    this.requestAttrsProtocol = [];
+    this.requestAttrsAccessControl = [];
+
+    this.serviceChangedCnt = Number(0);
+    this.organizationChangedCnt = Number(0);
+    this.protocolChangedCnt = Number(0);
+    this.accessControlChangedCnt = Number(0);
+
+    this.request = undefined;
+    this.signatures = [];
+  }
 }
