@@ -148,7 +148,7 @@ public class RequestsServiceImpl implements RequestsService {
             //this cannot happen as the registration is for new service and thus facility id will be always null
         }
 
-        if (req == null || req.getReqId() == null) {
+        if (req == null) {
             throw new InternalErrorException("Could not create request");
         }
 
@@ -189,9 +189,6 @@ public class RequestsServiceImpl implements RequestsService {
         }
 
         Request req = createRequest(facilityId, userId, RequestAction.UPDATE_FACILITY, attributes);
-        if (req.getReqId() == null) {
-            throw new InternalErrorException("Could not create request");
-        }
 
         mailsService.notifyUser(req, REQUEST_CREATED);
         mailsService.notifyAppAdmins(req, REQUEST_CREATED);
@@ -207,9 +204,6 @@ public class RequestsServiceImpl implements RequestsService {
                 attributesProperties, inputsContainer, perunAdapter);
 
         Request req = createRequest(facilityId, userId, RequestAction.DELETE_FACILITY, facilityAttributes);
-        if (req.getReqId() == null) {
-            throw new InternalErrorException("Could not create request");
-        }
 
         mailsService.notifyUser(req, REQUEST_CREATED);
         mailsService.notifyAppAdmins(req, REQUEST_CREATED);
@@ -221,18 +215,17 @@ public class RequestsServiceImpl implements RequestsService {
     public Long createMoveToProductionRequest(@NonNull Long facilityId, @NonNull User user,
                                               @NonNull List<String> authorities)
             throws InternalErrorException, ActiveRequestExistsException, BadPaddingException, InvalidKeyException,
-            IllegalBlockSizeException, UnsupportedEncodingException, PerunUnknownException, PerunConnectionException
+            IllegalBlockSizeException, UnsupportedEncodingException, PerunUnknownException, PerunConnectionException,
+            UnauthorizedActionException
     {
-        Facility fac = facilitiesService.getFacilityForSignature(facilityId, user.getId());
+        Facility fac = facilitiesService.getFacility(facilityId, user.getId(), false);
         if (fac == null) {
             throw new InternalErrorException("Could not retrieve facility for id: " + facilityId);
         }
 
-        List<PerunAttribute> filteredAttributes = filterNonNullAttributes(fac);
-        Request req = createRequest(facilityId, user.getId(), RequestAction.MOVE_TO_PRODUCTION, filteredAttributes);
-        if (req.getReqId() == null) {
-            throw new InternalErrorException("Could not create request");
-        }
+        List<PerunAttribute> attrs = new ArrayList<>();
+        fac.getAttributes().values().stream().map(Map::values).forEach(attrs::addAll);
+        Request req = createRequest(facilityId, user.getId(), RequestAction.MOVE_TO_PRODUCTION, attrs);
 
         Map<String, String> authoritiesLinksMap = generateLinksForAuthorities(req, authorities, user);
 
@@ -488,8 +481,6 @@ public class RequestsServiceImpl implements RequestsService {
         ProvidedService service = providedServiceManager.getByFacilityId(facilityId);
         if (service == null) {
             throw new IllegalArgumentException();
-        } else if (service.getId() == null) {
-            throw new InternalErrorException();
         }
         return auditLogsManager.getAuditLogsByService(service.getId());
     }
@@ -567,7 +558,7 @@ public class RequestsServiceImpl implements RequestsService {
                 throw new InternalErrorException("Setting new attributes has failed");
             }
         } catch (Exception e) {
-            if (sp != null && sp.getId() != null) {
+            if (sp != null) {
                 final Long spId = sp.getId();
                 ((ExecuteAndSwallowException) () -> providedServiceManager.delete(spId)).execute(log);
             }
@@ -639,7 +630,7 @@ public class RequestsServiceImpl implements RequestsService {
         try {
             try {
                 sp = providedServiceManager.getByFacilityId(facilityId);
-                if (sp != null && sp.getId() != null) {
+                if (sp != null) {
                     spDeleted = providedServiceManager.delete(sp.getId());
                 }
             } catch (InternalErrorException e) {
@@ -734,7 +725,7 @@ public class RequestsServiceImpl implements RequestsService {
             log.error("Creating SP in DB has failed");
             return null;
         }
-        return (sp == null || sp.getId() == null) ? null : sp;
+        return sp;
     }
 
     private void rollBackAttrChanges(Map<String, PerunAttribute> oldAttributes, Long facilityId) {
@@ -775,8 +766,14 @@ public class RequestsServiceImpl implements RequestsService {
         try {
             perunAdapter.deleteFacilityFromPerun(facilityId);
         } catch (Exception e) {
-            sp.setId(null);
-            ((ExecuteAndSwallowException) () -> providedServiceManager.create(sp)).execute(log);
+            final ProvidedService restored = new ProvidedService();
+            restored.setFacilityId(sp.getFacilityId());
+            restored.setName(sp.getName());
+            restored.setDescription(sp.getDescription());
+            restored.setIdentifier(sp.getIdentifier());
+            restored.setEnvironment(sp.getEnvironment());
+            restored.setProtocol(sp.getProtocol());
+            ((ExecuteAndSwallowException) () -> providedServiceManager.create(restored)).execute(log);
             throw new ProcessingException("Failed to delete facility form perun");
         }
         return true;
