@@ -55,18 +55,8 @@ public class PerunAttribute {
 	{
 		this.definition = definition;
 		this.fullName = fullName;
-		this.value = value;
-		if (definition != null && BOOLEAN_TYPE.equals(definition.getType())) {
-			if (value == null) {
-				this.value = JsonNodeFactory.instance.booleanNode(false);
-			}
-		}
-		this.oldValue = oldValue;
-		if (definition != null && BOOLEAN_TYPE.equals(definition.getType())) {
-			if (oldValue == null) {
-				this.value = JsonNodeFactory.instance.booleanNode(false);
-			}
-		}
+		this.value = resolveValue(definition.getType(), value);
+		this.oldValue = resolveValue(definition.getType(), oldValue);
 		this.comment = comment;
 		this.input = input;
 	}
@@ -75,12 +65,8 @@ public class PerunAttribute {
 		this.definition = attributeDefinition;
 		this.fullName = attributeDefinition.getFullName();
 		this.value = value;
-		if (BOOLEAN_TYPE.equals(definition.getType())) {
-			if (value == null) {
-				this.value = JsonNodeFactory.instance.booleanNode(false);
-			}
-		}
-		this.oldValue = JsonNodeFactory.instance.nullNode();
+		this.value = resolveValue(attributeDefinition.getType(), value);
+		this.oldValue = resolveValue(attributeDefinition.getType(), null);
 		this.comment = null;
 		this.input = null;
 	}
@@ -144,26 +130,25 @@ public class PerunAttribute {
 	}
 
 	public void setValue(@NonNull String type, JsonNode value) {
+		this.value = value;
+	}
+
+	private JsonNode resolveValue(@NonNull String type, JsonNode value) {
 		if (PerunAttribute.isNullValue(value)) {
 			switch (type) {
 				case BOOLEAN_TYPE:
-					value = JsonNodeFactory.instance.booleanNode(false);
-					break;
+					return JsonNodeFactory.instance.booleanNode(false);
 				case STRING_TYPE:
-					value = JsonNodeFactory.instance.textNode("");
-					break;
+					return JsonNodeFactory.instance.textNode("");
 				case INTEGER_TYPE:
-					value = JsonNodeFactory.instance.nullNode();
-					break;
+					return JsonNodeFactory.instance.nullNode();
 				case ARRAY_TYPE:
-					value = JsonNodeFactory.instance.arrayNode();
-					break;
+					return JsonNodeFactory.instance.arrayNode();
 				case MAP_TYPE:
-					value = JsonNodeFactory.instance.objectNode();
-					break;
+					return JsonNodeFactory.instance.objectNode();
 			}
 		}
-		this.value = value;
+		return value;
 	}
 
 	public String valueAsString() {
