@@ -130,7 +130,7 @@ public class PerunAttribute {
 	}
 
 	public void setValue(@NonNull String type, JsonNode value) {
-		this.value = value;
+		this.value = resolveValue(type, value);
 	}
 
 	private JsonNode resolveValue(@NonNull String type, JsonNode value) {

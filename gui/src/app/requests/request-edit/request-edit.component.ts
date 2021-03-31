@@ -80,6 +80,9 @@ export class RequestEditComponent implements OnInit {
   }
 
   private static pushInput(attr: PerunAttribute, commentedDest: ApplicationItem[], regularDest: ApplicationItem[]) {
+    if (!attr.input.editable) {
+      return;
+    }
     attr.input.oldValue = attr.value;
 
     if (attr.comment) {
