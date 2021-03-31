@@ -88,9 +88,9 @@ export class NewRequestComponent implements OnInit {
     this.configService.getProtocolsEnabled().subscribe(protocols => {
       this.enabledProtocols = protocols;
       this.loading = false;
-      if (protocols.indexOf('OIDC') === -1) {
+      if (this.enabledProtocols.indexOf('oidc') === -1) {
         this.samlSelected();
-      } else if (protocols.indexOf('SAML') === -1) {
+      } else if (this.enabledProtocols.indexOf('saml') === -1) {
         this.oidcSelected();
       }
     }, error => {
@@ -132,9 +132,7 @@ export class NewRequestComponent implements OnInit {
 
     this.configService.getSamlApplicationItems().subscribe(items => {
       items = items.map(category => category.map(item => new ApplicationItem(item)));
-      console.log(items);
       this.applicationItemGroups = NewRequestComponent.sortItems(NewRequestComponent.filterItems(items));
-      console.log(this.applicationItemGroups);
       this.revealForm();
     });
   }

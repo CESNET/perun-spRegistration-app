@@ -9,6 +9,7 @@ import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownEx
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 public class UserSettingInterceptor implements HandlerInterceptor {
 
-	public static final String FAKE_USER_HEADER = "fake-usr-hdr";
 	public static final String SESSION_USER = "user";
 
 	@Value("${dev.enabled:false}")
@@ -43,12 +43,11 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception
 	{
-		if (request.getSession().getAttribute(SESSION_USER) == null
-				&& setUser(request) == null) {
+		if (request.getSession().getAttribute(SESSION_USER) == null && setUser(request) == null) {
 			String url = request.getRequestURL().toString();
-			int index = url.indexOf("/spreg/");
+			int index = url.indexOf(request.getContextPath());
 			url = url.substring(0, index);
-			response.sendRedirect(url + "/spreg/");
+			response.sendRedirect(url + request.getContextPath());
 			return false;
 		}
 
@@ -65,7 +64,7 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 		} else {
 			sub = request.getRemoteUser();
 		}
-		if (sub != null && !sub.isEmpty()) {
+		if (StringUtils.hasText(sub)) {
 			User user = connector.getUserWithEmail(sub, extSourceProxy, userEmailAttr);
 			if (user == null) {
 				return null;
