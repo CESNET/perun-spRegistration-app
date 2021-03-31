@@ -139,7 +139,7 @@
 
     <profiles>
         <profile>
-            <id>build-ui</id>
+            <id>ui</id>
             <build>
                 <plugins>
                     <plugin>

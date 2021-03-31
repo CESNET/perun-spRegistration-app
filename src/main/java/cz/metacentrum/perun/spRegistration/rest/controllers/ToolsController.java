@@ -34,9 +34,6 @@ public class ToolsController {
 	public Map<String, String> encrypt(@NonNull  @RequestBody String toEncrypt)
 			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException
 	{
-		if (toEncrypt == null) {
-			return null;
-		}
 
 		toEncrypt = ApiUtils.normalizeRequestBodyString(toEncrypt);
 
@@ -46,10 +43,8 @@ public class ToolsController {
 
 	@PostMapping(path = "/api/tools/decrypt")
 	public Map<String, String> decrypt(@NonNull @RequestBody String toDecrypt)
-			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
-		if (toDecrypt == null) {
-			return null;
-		}
+			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException
+	{
 
 		toDecrypt = ApiUtils.normalizeRequestBodyString(toDecrypt);
 
