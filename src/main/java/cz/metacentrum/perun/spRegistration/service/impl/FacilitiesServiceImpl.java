@@ -135,7 +135,7 @@ public class FacilitiesServiceImpl implements FacilitiesService {
                 .map(PerunEntity::getId)
                 .collect(Collectors.toSet());
 
-        Set<Long> userFacilitiesIds = proxyFacilities.stream()
+        Set<Long> userFacilitiesIds = userFacilities.stream()
                 .map(PerunEntity::getId)
                 .collect(Collectors.toSet());
 

@@ -17,6 +17,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -249,9 +250,9 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
 
     @Override
     public List<ProvidedService> getAllForFacilities(List<Long> facilityIds) {
-        log.trace("getAll()");
+        log.trace("getAll({})", facilityIds);
         if (facilityIds == null || facilityIds.isEmpty()) {
-            return getAll();
+            return new ArrayList<>();
         }
 
         MapSqlParameterSource params = new MapSqlParameterSource();
