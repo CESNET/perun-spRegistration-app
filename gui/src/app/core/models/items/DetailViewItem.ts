@@ -80,12 +80,13 @@ export class DetailViewItem {
 
     v1 = v1.sort();
     v2 = v2.sort();
+    let result = true;
     for (let i = 0; i < v1.length; i++) {
       if (v1[i] !== v2[i]) {
-        return false;
+        result = false;
       }
     }
-    return true;
+    return result;
   }
 
   private static mapValuesAreEqual(v1: Object, v2: Object) {
@@ -99,15 +100,16 @@ export class DetailViewItem {
       return false;
     }
 
+    let result = true;
     Object.keys(v1).forEach(function(key) {
       const value = v1[key];
       if (!v2.hasOwnProperty(key)) {
-        return false;
+        result = false;
       } else if (value !== v2[key]) {
-        return false;
+        result = false;
       }
     });
-    return true;
+    return result;
   }
 
 }
