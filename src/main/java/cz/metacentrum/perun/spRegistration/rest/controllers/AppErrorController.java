@@ -16,15 +16,17 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 public class AppErrorController implements ErrorController {
 
-	@GetMapping(value = "/error")
+	public static final String PATH = "/error";
+
+	@GetMapping(value = PATH)
 	public String handleError(HttpServletRequest request) {
 		log.trace("handleError({})", request.getRequestURL());
-		return "/resources/static/index.html";
+		return "forward:index.html";
 	}
 
 	@Override
 	public String getErrorPath() {
-		log.trace("getErrorPath()");
-		return "/error";
+		return PATH;
 	}
+
 }

@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.2.RELEASE</version>
+        <version>2.4.4</version>
     </parent>
 
     <groupId>cz.metacentrum.perun</groupId>
@@ -20,15 +20,14 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>11</java.version>
-        <node.version>v14.8.0</node.version>
-        <npm.version>6.14.8</npm.version>
+        <node.version>v15.12.0</node.version>
+        <npm.version>7.7.6</npm.version>
         <!-- OTHER -->
         <server.contextPath>/spreg</server.contextPath>
         <angular.deploy.url>${server.contextPath}/</angular.deploy.url>
         <angular.base.href>${server.contextPath}/</angular.base.href>
-        <angular.api.url>http://localhost/spreg/api</angular.api.url>
+        <angular.api.url>http://localhost:8080/spreg/api</angular.api.url>
     </properties>
 
     <dependencies>
@@ -98,16 +97,28 @@
         <finalName>spreg</finalName>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
-            <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
+                    <execution>
+                        <id>filter-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.basedir}/src/main/resources/static/</outputDirectory>
+                            <encoding>UTF-8</encoding>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/gui/dist/service-creation/</directory>
+                                    <includes>
+                                        <include>*.js</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>copy-resources</id>
                         <phase>process-sources</phase>
@@ -120,7 +131,7 @@
                             <resources>
                                 <resource>
                                     <directory>${project.basedir}/gui/dist/service-creation/</directory>
-                                    <filtering>true</filtering>
+                                    <filtering>false</filtering>
                                 </resource>
                             </resources>
                         </configuration>
@@ -145,7 +156,7 @@
                     <plugin>
                         <groupId>com.github.eirslett</groupId>
                         <artifactId>frontend-maven-plugin</artifactId>
-                        <version>1.9.1</version>
+                        <version>1.11.3</version>
                         <configuration>
                             <nodeVersion>${node.version}</nodeVersion>
                             <npmVersion>${npm.version}</npmVersion>
@@ -205,13 +216,13 @@
             </build>
         </profile>
         <profile>
-            <id>build-ui-dev</id>
+            <id>ui.dev</id>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>com.github.eirslett</groupId>
                         <artifactId>frontend-maven-plugin</artifactId>
-                        <version>1.9.1</version>
+                        <version>1.11.3</version>
                         <configuration>
                             <nodeVersion>${node.version}</nodeVersion>
                             <npmVersion>${npm.version}</npmVersion>

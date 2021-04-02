@@ -27,8 +27,6 @@ public class AuthController {
 		if (sess != null && sess.getAttribute(USER) != null) {
 			user = (User) sess.getAttribute(USER);
 		}
-
-		log.trace("getUser() returns: {}", user);
 		return user;
 	}
 
@@ -36,9 +34,8 @@ public class AuthController {
 	public boolean unsetUser(HttpServletRequest req) {
 		HttpSession sess = req.getSession();
 		if (sess != null && sess.getAttribute(USER) != null) {
-			sess.setAttribute(USER, null);
+			sess.removeAttribute(USER);
 		}
-
 		return true;
 	}
 
