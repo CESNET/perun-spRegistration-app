@@ -45,7 +45,7 @@ public class UserSettingInterceptor implements HandlerInterceptor {
 	{
 		if (request.getSession().getAttribute(SESSION_USER) == null && setUser(request) == null) {
 			String url = request.getRequestURL().toString();
-			int index = url.indexOf(request.getContextPath());
+			int index = url.lastIndexOf(request.getContextPath());
 			url = url.substring(0, index);
 			response.sendRedirect(url + request.getContextPath());
 			return false;
