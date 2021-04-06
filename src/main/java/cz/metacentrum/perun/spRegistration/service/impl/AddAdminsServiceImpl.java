@@ -149,6 +149,9 @@ public class AddAdminsServiceImpl implements AddAdminsService {
     {
         List<LinkCode> codes = new ArrayList<>();
         Map<String, String> adminCodesMap = new HashMap<>();
+        if (admins.isEmpty()) {
+            return adminCodesMap;
+        }
 
         for (String admin : admins) {
             LinkCode code = createAddAdminCode(admin, user, facility);

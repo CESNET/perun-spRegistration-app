@@ -119,8 +119,9 @@ public class PerunAttribute {
 			return null;
 		}
 
-		JsonNode newValue = json.get("newValue");
-		JsonNode oldValue = json.get("oldValue");
+		String type = json.get("type").textValue();
+		JsonNode newValue = PerunAttribute.resolveValue(type, json.get("newValue"));
+		JsonNode oldValue = PerunAttribute.resolveValue(type, json.get("oldValue"));
 		String comment = json.hasNonNull("comment") ? json.get("comment").textValue() : null;
 
 		PerunAttributeDefinition def = attributeDefinitionMap.get(name);
@@ -133,7 +134,7 @@ public class PerunAttribute {
 		this.value = resolveValue(type, value);
 	}
 
-	private JsonNode resolveValue(@NonNull String type, JsonNode value) {
+	private static JsonNode resolveValue(@NonNull String type, JsonNode value) {
 		if (PerunAttribute.isNullValue(value)) {
 			switch (type) {
 				case BOOLEAN_TYPE:

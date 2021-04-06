@@ -88,6 +88,7 @@ export class NewRequestComponent implements OnInit {
     this.configService.getProtocolsEnabled().subscribe(protocols => {
       this.enabledProtocols = protocols;
       this.loading = false;
+      this.enabledProtocols.forEach(v => v.toLowerCase());
       if (this.enabledProtocols.indexOf('oidc') === -1) {
         this.samlSelected();
       } else if (this.enabledProtocols.indexOf('saml') === -1) {

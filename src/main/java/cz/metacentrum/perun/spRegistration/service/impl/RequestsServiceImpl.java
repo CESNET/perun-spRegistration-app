@@ -928,6 +928,9 @@ public class RequestsServiceImpl implements RequestsService {
         List<String> emails = new ArrayList<>();
         if (authorities == null || authorities.isEmpty()) {
             emails = approvalsProperties.getTransferAuthorities().getDefaultEntries();
+            if (emails.isEmpty()) {
+                return new HashMap<>();
+            }
         } else {
             Map<String, List<String>> authsMap = approvalsProperties.getTransferAuthorities().getSelectionEntries();
             for (String authoritiesInput: authorities) {
