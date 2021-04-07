@@ -225,7 +225,8 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         facility.getAttributes()
                 .get(AttributeCategory.PROTOCOL)
                 .get(attributesProperties.getNames().getOidcClientSecret())
-                .setValue(JsonNodeFactory.instance.textNode(clientSecretValue));
+                .setValue(clientSecret.getDefinition().getType(),
+                        JsonNodeFactory.instance.textNode(clientSecretValue));
     }
 
 }

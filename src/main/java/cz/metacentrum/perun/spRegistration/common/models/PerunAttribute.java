@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InconvertibleValueException;
 import cz.metacentrum.perun.spRegistration.persistence.mappers.MapperUtils;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,7 +46,9 @@ public class PerunAttribute {
 	public final static String LARGE_ARRAY_LIST_TYPE = "java.util.LargeArrayList";
 
 	private PerunAttributeDefinition definition;
+	@Setter(AccessLevel.PRIVATE)
 	private JsonNode value;
+	@Setter(AccessLevel.PRIVATE)
 	private JsonNode oldValue;
 	private String comment;
 	private String fullName;
@@ -131,8 +134,20 @@ public class PerunAttribute {
 		return new PerunAttribute(def, name, newValue, oldValue, comment, input);
 	}
 
+	public void setValue(JsonNode value) {
+		this.value = resolveValue(this.definition.getType(), value);
+	}
+
+	public void setOldValue(JsonNode value) {
+		this.oldValue = resolveValue(this.definition.getType(), value);
+	}
+
 	public void setValue(@NonNull String type, JsonNode value) {
 		this.value = resolveValue(type, value);
+	}
+
+	public void setOldValue(@NonNull String type, JsonNode value) {
+		this.oldValue = resolveValue(type, value);
 	}
 
 	private static JsonNode resolveValue(@NonNull String type, JsonNode value) {
@@ -280,7 +295,7 @@ public class PerunAttribute {
 
 	private InconvertibleValueException inconvertible(String clazzName) {
 		return new InconvertibleValueException("Cannot convert value of attribute to " + clazzName +
-				" for object: " + this.toString());
+				" for object: " + this);
 	}
 
 	private static boolean isNullValue(JsonNode value) {

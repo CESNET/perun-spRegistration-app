@@ -179,7 +179,7 @@ public class RequestsServiceImpl implements RequestsService {
                 if (!Objects.equals(a.getValue(), actualA.getValue())) {
                     attrsChanged = true;
                 }
-                a.setOldValue(actualA.getValue());
+                a.setOldValue(actualA.getDefinition().getType(), actualA.getValue());
             }
         }
 
@@ -849,14 +849,14 @@ public class RequestsServiceImpl implements RequestsService {
         } else {
             attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getNames().getIsSaml()));
         }
-        attribute.setValue(JsonNodeFactory.instance.booleanNode(true));
+        attribute.setValue(attribute.getDefinition().getType(), JsonNodeFactory.instance.booleanNode(true));
         return attribute;
     }
 
     private PerunAttribute generateMasterProxyIdentifierAttribute() {
        PerunAttribute attribute = new PerunAttribute();
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getNames().getMasterProxyIdentifier()));
-        attribute.setValue(JsonNodeFactory.instance.textNode(
+        attribute.setValue(attribute.getDefinition().getType(),  JsonNodeFactory.instance.textNode(
                 attributesProperties.getValues().getMasterProxyIdentifier()));
         return attribute;
     }
@@ -866,21 +866,21 @@ public class RequestsServiceImpl implements RequestsService {
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getNames().getProxyIdentifier()));
         ArrayNode arrayNode = JsonNodeFactory.instance.arrayNode();
         arrayNode.add(attributesProperties.getValues().getProxyIdentifier());
-        attribute.setValue(arrayNode);
+        attribute.setValue(attribute.getDefinition().getType(),  arrayNode);
         return attribute;
     }
 
     private PerunAttribute generateShowOnServiceListAttribute(boolean value) {
         PerunAttribute attribute = new PerunAttribute();
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getNames().getShowOnServiceList()));
-        attribute.setValue(JsonNodeFactory.instance.booleanNode(value));
+        attribute.setValue(attribute.getDefinition().getType(),  JsonNodeFactory.instance.booleanNode(value));
         return attribute;
     }
 
     private PerunAttribute generateTestSpAttribute(boolean value) {
         PerunAttribute attribute = new PerunAttribute();
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getNames().getIsTestSp()));
-        attribute.setValue(JsonNodeFactory.instance.booleanNode(value));
+        attribute.setValue(attribute.getDefinition().getType(),  JsonNodeFactory.instance.booleanNode(value));
         return attribute;
     }
 
@@ -889,14 +889,14 @@ public class RequestsServiceImpl implements RequestsService {
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getNames().getOidcClientId()));
 
         String clientId = ServiceUtils.generateClientId();
-        attribute.setValue(JsonNodeFactory.instance.textNode(clientId));
+        attribute.setValue(attribute.getDefinition().getType(),  JsonNodeFactory.instance.textNode(clientId));
         return attribute;
     }
 
     private PerunAttribute generateAdminsGroupAttr(Long id) {
         PerunAttribute attribute = new PerunAttribute();
         attribute.setDefinition(applicationBeans.getAttrDefinition(attributesProperties.getNames().getManagerGroup()));
-        attribute.setValue(JsonNodeFactory.instance.numberNode(id));
+        attribute.setValue(attribute.getDefinition().getType(),  JsonNodeFactory.instance.numberNode(id));
         return attribute;
     }
 

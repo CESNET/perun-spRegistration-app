@@ -174,7 +174,7 @@ public class MapperUtils {
 		JsonNode value = json.get(VALUE);
 		PerunAttribute attr = new PerunAttribute();
 		attr.setDefinition(definition);
-		attr.setValue(value);
+		attr.setValue(definition.getType(), value);
 
 		return attr;
 	}

@@ -72,7 +72,7 @@ public class UtilsServiceImpl implements UtilsService {
         perunAdapter.setFacilityAttribute(facilityId, clientSecret.toJson());
 
         String decrypted = ServiceUtils.decrypt(clientSecret.valueAsString(), appBeansContainer.getSecretKeySpec());
-        clientSecret.setValue(JsonNodeFactory.instance.textNode(decrypted));
+        clientSecret.setValue(clientSecret.getDefinition().getType(), JsonNodeFactory.instance.textNode(decrypted));
 
         Facility facility = null;
         try {
@@ -111,7 +111,7 @@ public class UtilsServiceImpl implements UtilsService {
         String encryptedClientSecret = ServiceUtils.encrypt(clientSecret, appBeansContainer.getSecretKeySpec());
 
         attribute.setDefinition(appBeansContainer.getAttrDefinition(attributesProperties.getNames().getOidcClientSecret()));
-        attribute.setValue(JsonNodeFactory.instance.textNode(encryptedClientSecret));
+        attribute.setValue(attribute.getDefinition().getType(), JsonNodeFactory.instance.textNode(encryptedClientSecret));
         return attribute;
     }
 
