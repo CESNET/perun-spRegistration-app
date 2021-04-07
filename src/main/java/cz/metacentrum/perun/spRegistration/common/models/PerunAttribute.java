@@ -47,7 +47,9 @@ public class PerunAttribute {
 	public final static String LARGE_ARRAY_LIST_TYPE = "java.util.LargeArrayList";
 
 	private PerunAttributeDefinition definition;
+	@Setter(AccessLevel.PRIVATE)
 	private JsonNode value;
+	@Setter(AccessLevel.PRIVATE)
 	private JsonNode oldValue;
 	private String comment;
 	private String fullName;
@@ -131,6 +133,14 @@ public class PerunAttribute {
 		AttrInput input = inputMap.get(name);
 
 		return new PerunAttribute(def, name, newValue, oldValue, comment, input);
+	}
+
+	public void setValue(JsonNode value) {
+		this.value = resolveValue(this.definition.getType(), value);
+	}
+
+	public void setOldValue(JsonNode value) {
+		this.oldValue = resolveValue(this.definition.getType(), value);
 	}
 
 	public void setValue(@NonNull String type, JsonNode value) {
