@@ -545,7 +545,7 @@ public class RequestsServiceImpl implements RequestsService {
         ProvidedService sp = null;
         Long adminsGroupId = null;
         try {
-            sp = createSp(facility.getId(), request);
+            sp = createSp(facility.getId(), request, clientId);
             if (sp == null) {
                 throw new InternalErrorException("Could not create SP");
             }
@@ -557,7 +557,7 @@ public class RequestsServiceImpl implements RequestsService {
                 throw new InternalErrorException("Setting new attributes has failed");
             }
         } catch (Exception e) {
-            log.error("Caught an exception when processing approved request to create service {}", e);
+            log.error("Caught an exception when processing approved request to create service", e);
             if (sp != null) {
                 final Long spId = sp.getId();
                 ((ExecuteAndSwallowException) () -> providedServiceManager.delete(spId)).execute(log);
@@ -704,7 +704,7 @@ public class RequestsServiceImpl implements RequestsService {
         }
     }
 
-    private ProvidedService createSp(Long facilityId, Request request) {
+    private ProvidedService createSp(Long facilityId, Request request, PerunAttribute clientId) {
         ProvidedService sp = new ProvidedService();
 
         sp.setFacilityId(facilityId);
@@ -715,9 +715,7 @@ public class RequestsServiceImpl implements RequestsService {
                 ServiceProtocol.OIDC : ServiceProtocol.SAML);
         sp.setIdentifier(sp.getProtocol().equals(ServiceProtocol.SAML) ?
                 request.getAttributes().get(AttributeCategory.PROTOCOL)
-                        .get(attributesProperties.getNames().getEntityId()).valueAsString() :
-                request.getAttributes().get(AttributeCategory.PROTOCOL)
-                        .get(attributesProperties.getNames().getOidcClientId()).valueAsString());
+                        .get(attributesProperties.getNames().getEntityId()).valueAsString() : clientId.valueAsString());
 
         try {
             sp = providedServiceManager.create(sp);
