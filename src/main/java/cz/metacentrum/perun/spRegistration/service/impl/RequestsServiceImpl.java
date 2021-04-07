@@ -579,8 +579,7 @@ public class RequestsServiceImpl implements RequestsService {
                 throw new InternalErrorException("Setting new attributes has failed");
             }
         } catch (Exception e) {
-            log.error("Caught an exception when processing approved request to create service {}",
-                    e.getClass().getSimpleName(), e);
+            log.error("Caught an exception when processing approved request to create service", e);
             if (sp != null) {
                 final Long spId = sp.getId();
                 ((ExecuteAndSwallowException) () -> providedServiceManager.delete(spId)).execute(log);
