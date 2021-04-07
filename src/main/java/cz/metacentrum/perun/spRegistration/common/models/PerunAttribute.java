@@ -40,6 +40,7 @@ public class PerunAttribute {
 	public final static String BOOLEAN_TYPE = "java.lang.Boolean";
 	public final static String ARRAY_TYPE = "java.util.ArrayList";
 	public final static String MAP_TYPE = "java.util.LinkedHashMap";
+	//TODO: remove, but we have to modify all requests in DB
 	public final static String LARGE_STRING_TYPE = "java.lang.LargeString";
 	public final static String LARGE_ARRAY_LIST_TYPE = "java.util.LargeArrayList";
 

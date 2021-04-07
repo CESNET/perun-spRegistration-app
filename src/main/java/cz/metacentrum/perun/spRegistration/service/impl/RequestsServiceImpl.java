@@ -138,17 +138,16 @@ public class RequestsServiceImpl implements RequestsService {
             throws InternalErrorException
     {
         if (attributes.isEmpty()) {
+            log.error("No attributes provided");
             throw new IllegalArgumentException("Attribute list is empty");
         }
 
-        Request req = null;
+        Request req;
         try {
             req = createRequest(null, userId, RequestAction.REGISTER_NEW_SP, attributes);
         } catch (ActiveRequestExistsException e) {
-            //this cannot happen as the registration is for new service and thus facility id will be always null
-        }
-
-        if (req == null) {
+            //this should not happen as the registration is for new service and thus facility id will be always null
+            log.error("Caught {} when creating registration of a new service", e.getClass().getSimpleName(), e);
             throw new InternalErrorException("Could not create request");
         }
 
@@ -558,6 +557,7 @@ public class RequestsServiceImpl implements RequestsService {
                 throw new InternalErrorException("Setting new attributes has failed");
             }
         } catch (Exception e) {
+            log.error("Caught an exception when processing approved request to create service {}", e);
             if (sp != null) {
                 final Long spId = sp.getId();
                 ((ExecuteAndSwallowException) () -> providedServiceManager.delete(spId)).execute(log);
