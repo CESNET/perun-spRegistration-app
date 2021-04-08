@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.spRegistration.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
@@ -15,6 +16,7 @@ import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownEx
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -84,11 +86,11 @@ public class ServiceUtils {
 	}
 
 	public static boolean isOidcAttributes(@NonNull Map<String, PerunAttribute> attributes,
-										   @NonNull String entityIdAttr)
+										   @NonNull String clientIdAttr)
 	{
-		boolean isOidc = true;
-		if (attributes.containsKey(entityIdAttr)) {
-			isOidc = (attributes.get(entityIdAttr).getValue().isNull());
+		boolean isOidc = false;
+		if (attributes.containsKey(clientIdAttr)) {
+			isOidc = !PerunAttribute.isEmptyValue(attributes.get(clientIdAttr).getValue());
 		}
 		return isOidc;
 	}
@@ -205,7 +207,7 @@ public class ServiceUtils {
 	{
 		List<String> attrsToFetch = new ArrayList<>(applicationBeans.getAllAttrNames());
 		Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facilityId, attrsToFetch);
-		boolean isOidc = ServiceUtils.isOidcAttributes(attrs, attributesProperties.getNames().getEntityId());
+		boolean isOidc = ServiceUtils.isOidcAttributes(attrs, attributesProperties.getNames().getOidcClientId());
 		Set<String> keptAttrs = ServiceUtils.getAttrNames(inputsContainer, isOidc, attributesProperties);
 		log.info("{}", keptAttrs);
 		return ServiceUtils.filterFacilityAttrs(attrs, keptAttrs);

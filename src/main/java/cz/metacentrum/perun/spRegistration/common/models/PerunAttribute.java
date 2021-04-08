@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -298,11 +299,27 @@ public class PerunAttribute {
 				" for object: " + this);
 	}
 
-	private static boolean isNullValue(JsonNode value) {
+	public static boolean isNullValue(JsonNode value) {
 		return value == null ||
-				value instanceof NullNode ||
-				value.isNull() ||
-				"null".equalsIgnoreCase(value.asText());
+					value instanceof NullNode ||
+					value.isNull() ||
+					"null".equalsIgnoreCase(value.textValue());
+	}
+
+	public static boolean isEmptyValue(JsonNode value) {
+		if (value == null || value instanceof NullNode) {
+			return true;
+		} else if (value.isNull()) {
+			return true;
+		} else if (value.isTextual()) {
+			String v = value.asText();
+			return v == null || "null".equalsIgnoreCase(v) || !StringUtils.hasText(v);
+		} else if (value.isBoolean()) {
+			return false;
+		} else if (value.isArray() || value.isObject() || value.isContainerNode()) {
+			return value.isEmpty();
+		}
+		return false;
 	}
 
 }
