@@ -106,8 +106,12 @@ public class SignaturesController {
 	@GetMapping(path = "/api/viewApprovals/{requestId}")
 	public List<RequestSignature> getApprovals(@NonNull @SessionAttribute("user") User user,
 											   @NonNull @PathVariable("requestId") Long requestId)
-			throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException {
-		if (!utilsService.isAdminForRequest(requestId, user)) {
+			throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException
+	{
+		Request req = requestsService.getRequest(requestId, user.getId());
+		if (req == null) {
+			throw new InternalErrorException("Request has not been found");
+		} else if (!utilsService.isAdminForRequest(req, user)) {
 			throw new UnauthorizedActionException("User is not authorized to perform this action");
 		}
 		return requestSignaturesService.getSignaturesForRequest(requestId, user.getId());

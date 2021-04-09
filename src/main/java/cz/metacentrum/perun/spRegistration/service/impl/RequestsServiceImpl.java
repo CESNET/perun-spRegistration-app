@@ -256,12 +256,12 @@ public class RequestsServiceImpl implements RequestsService {
     @Override
     public boolean updateRequest(@NonNull Long requestId, @NonNull Long userId,
                                  @NonNull List<PerunAttribute> attributes)
-            throws UnauthorizedActionException, InternalErrorException
+            throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException
     {
         Request request = requestManager.getRequestById(requestId);
         if (request == null) {
             throw new InternalErrorException("Could not retrieve request for id: " + requestId);
-        } else if (!utilsService.isAdminForRequest(request.getReqUserId(), userId)) {
+        } else if (!utilsService.isAdminForRequest(request, userId)) {
             throw new UnauthorizedActionException("User is not registered as admin in request, cannot update it");
         }
 
@@ -302,12 +302,12 @@ public class RequestsServiceImpl implements RequestsService {
 
     @Override
     public Request getRequest(@NonNull Long requestId, @NonNull  Long userId)
-            throws UnauthorizedActionException, InternalErrorException
+            throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException
     {
         Request request = requestManager.getRequestById(requestId);
         if (request == null) {
             throw new InternalErrorException("Could not retrieve request for id: " + requestId);
-        } else if (!utilsService.isAdminForRequest(request.getReqUserId(), userId)) {
+        } else if (!utilsService.isAdminForRequest(request, userId)) {
             throw new UnauthorizedActionException("User cannot view request, user is not a requester");
         }
 
@@ -347,7 +347,9 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     @Override
-    public boolean cancelRequest(Long requestId, Long userId) throws UnauthorizedActionException, InternalErrorException {
+    public boolean cancelRequest(Long requestId, Long userId)
+            throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException
+    {
         if (Utils.checkParamsInvalid(requestId, userId)) {
             log.error("Wrong parameters passed: (userId: {}, action: {})", userId, userId);
             throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
@@ -357,7 +359,7 @@ public class RequestsServiceImpl implements RequestsService {
             log.error("Could not fetch request with ID: {} from database", requestId);
             throw new InternalErrorException("Could not fetch request with ID: " + requestId + " from database");
         } else if (!applicationProperties.isAppAdmin(userId)
-                && !utilsService.isAdminForRequest(request.getReqUserId(), userId)) {
+                && !utilsService.isAdminForRequest(request, userId)) {
             throw new UnauthorizedActionException("Cannot cancel request");
         }
 

@@ -26,6 +26,7 @@ import java.security.InvalidKeyException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.LANG_CS;
@@ -140,18 +141,21 @@ public class UtilsServiceImpl implements UtilsService {
     }
 
     @Override
-    public boolean isAdminForRequest(@NonNull Long reqUserId, @NonNull Long userId) {
-        return reqUserId.equals(userId) || applicationProperties.isAppAdmin(userId);
+    public boolean isAdminForRequest(@NonNull Request request, @NonNull Long userId)
+            throws PerunUnknownException, PerunConnectionException
+    {
+        boolean res = Objects.equals(request.getReqUserId(), userId);
+        if (!res && request.getFacilityId() != null) {
+            res = this.isAdminForFacility(request.getFacilityId(), userId);
+        }
+        return res;
     }
 
     @Override
-    public boolean isAdminForRequest(@NonNull Long reqUserId, @NonNull User user) {
-        return this.isAdminForRequest(reqUserId, user.getId());
-    }
-
-    @Override
-    public boolean isAdminForRequest(@NonNull Request request, @NonNull User user) {
-        return this.isAdminForRequest(request.getReqUserId(), user.getId());
+    public boolean isAdminForRequest(@NonNull Request request, @NonNull User user)
+            throws PerunUnknownException, PerunConnectionException
+    {
+        return this.isAdminForRequest(request, user.getId());
     }
 
     @Override

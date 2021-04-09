@@ -89,7 +89,7 @@ public class RequestsController {
 	public boolean updateRequest(@NonNull @SessionAttribute("user") User user,
 								 @NonNull @PathVariable("requestId") Long requestId,
 								 @NonNull @RequestBody List<PerunAttribute> attributes)
-			throws InternalErrorException, UnauthorizedActionException
+			throws InternalErrorException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException
 	{
 		// auth done at the service level, cannot do it here
 		return requestsService.updateRequest(requestId, user.getId(), attributes);
@@ -107,7 +107,8 @@ public class RequestsController {
 	@PostMapping(path = "/api/cancel/{requestId}")
 	public boolean cancelRequest(@NonNull @SessionAttribute("user") User user,
 								 @NonNull @PathVariable("requestId") Long requestId)
-			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException
+			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException,
+			PerunUnknownException, PerunConnectionException
 	{
 		// auth done at the service level, cannot do it here
 		return requestsService.cancelRequest(requestId, user.getId());

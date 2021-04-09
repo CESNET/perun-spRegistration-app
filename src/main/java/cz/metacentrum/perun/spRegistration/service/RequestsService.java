@@ -41,7 +41,7 @@ public interface RequestsService {
             PerunUnknownException, PerunConnectionException;
 
     boolean updateRequest(@NonNull Long requestId, @NonNull Long userId, @NonNull List<PerunAttribute> attributes)
-            throws UnauthorizedActionException, InternalErrorException;
+            throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException;
 
     Request getRequest(@NonNull Long requestId, @NonNull Long userId)
             throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException;
@@ -49,7 +49,7 @@ public interface RequestsService {
     List<Request> getAllUserRequests(@NonNull Long userId) throws PerunUnknownException, PerunConnectionException;
 
     boolean cancelRequest(@NonNull Long requestId, @NonNull Long userId)
-            throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException;
+            throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException, PerunUnknownException, PerunConnectionException;
 
     List<Request> getAllRequests(@NonNull Long adminId) throws UnauthorizedActionException;
 

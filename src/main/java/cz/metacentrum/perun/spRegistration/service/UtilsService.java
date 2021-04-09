@@ -31,11 +31,9 @@ public interface UtilsService {
     boolean isAdminForFacility(@NonNull Long facilityId, @NonNull User user)
             throws PerunUnknownException, PerunConnectionException;
 
-    boolean isAdminForRequest(@NonNull Long reqUserId, @NonNull Long userId);
+    boolean isAdminForRequest(@NonNull Request request, @NonNull Long userId)  throws PerunUnknownException, PerunConnectionException;;
 
-    boolean isAdminForRequest(@NonNull Long reqUserId, @NonNull User user);
-
-    boolean isAdminForRequest(@NonNull Request request, @NonNull User user);
+    boolean isAdminForRequest(@NonNull Request request, @NonNull User user) throws PerunUnknownException, PerunConnectionException;
 
     boolean isAppAdmin(@NonNull Long userId);
 

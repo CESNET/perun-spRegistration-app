@@ -80,8 +80,7 @@ public class RequestSignaturesServiceImpl implements RequestSignaturesService {
         if (request == null) {
             throw new InternalErrorException(Utils.GENERIC_ERROR_MSG);
         } else if (!applicationProperties.isAppAdmin(userId)
-                && !utilsService.isAdminForRequest(request.getReqUserId(), userId)
-                && !utilsService.isAdminForFacility(request.getFacilityId(), userId)) {
+                && !utilsService.isAdminForRequest(request, userId)) {
             throw new UnauthorizedActionException(Utils.GENERIC_ERROR_MSG);
         }
 
