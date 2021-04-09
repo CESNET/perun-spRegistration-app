@@ -183,6 +183,8 @@ public class RequestsServiceImpl implements RequestsService {
             }
         }
 
+        attributes = attributes.stream().filter(a -> !isOidcCredentialAttr(a)).collect(Collectors.toList());
+
         if (!attrsChanged) {
             return null;
         }
@@ -195,6 +197,17 @@ public class RequestsServiceImpl implements RequestsService {
         return req.getReqId();
     }
 
+    private boolean isOidcCredentialAttr(PerunAttribute a) {
+        return isOidcCredentialAttr(a, true);
+    }
+
+    private boolean isOidcCredentialAttr(PerunAttribute a, boolean filterClientId) {
+        if (attributesProperties.getNames().getOidcClientSecret().equalsIgnoreCase(a.getFullName())) {
+            return true;
+        }
+        return filterClientId && attributesProperties.getNames().getOidcClientId().equalsIgnoreCase(a.getFullName());
+    }
+
     @Override
     public Long createRemovalRequest(@NonNull Long userId, @NonNull Long facilityId)
             throws InternalErrorException, ActiveRequestExistsException, PerunUnknownException, PerunConnectionException
@@ -202,6 +215,9 @@ public class RequestsServiceImpl implements RequestsService {
         List<PerunAttribute> facilityAttributes = ServiceUtils.getFacilityAttributes(applicationBeans, facilityId,
                 attributesProperties, inputsContainer, perunAdapter);
 
+        facilityAttributes = facilityAttributes.stream()
+                .filter(a -> !isOidcCredentialAttr(a, false))
+                .collect(Collectors.toList());
         Request req = createRequest(facilityId, userId, RequestAction.DELETE_FACILITY, facilityAttributes);
 
         mailsService.notifyUser(req, REQUEST_CREATED);
@@ -224,6 +240,8 @@ public class RequestsServiceImpl implements RequestsService {
 
         List<PerunAttribute> attrs = new ArrayList<>();
         fac.getAttributes().values().stream().map(Map::values).forEach(attrs::addAll);
+        attrs = attrs.stream().filter(a -> !isOidcCredentialAttr(a, false)).collect(Collectors.toList());
+
         Request req = createRequest(facilityId, user.getId(), RequestAction.MOVE_TO_PRODUCTION, attrs);
 
         Map<String, String> authoritiesLinksMap = generateLinksForAuthorities(req, authorities, user);
@@ -246,6 +264,8 @@ public class RequestsServiceImpl implements RequestsService {
         } else if (!utilsService.isAdminForRequest(request.getReqUserId(), userId)) {
             throw new UnauthorizedActionException("User is not registered as admin in request, cannot update it");
         }
+
+        attributes = attributes.stream().filter(a -> !isOidcCredentialAttr(a)).collect(Collectors.toList());
 
         request.updateAttributes(attributes, true, applicationBeans);
         request.setStatus(WAITING_FOR_APPROVAL);
