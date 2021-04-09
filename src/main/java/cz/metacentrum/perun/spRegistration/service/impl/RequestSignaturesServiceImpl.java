@@ -9,6 +9,8 @@ import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
 import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.persistence.managers.LinkCodeManager;
 import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
 import cz.metacentrum.perun.spRegistration.persistence.managers.RequestSignatureManager;
@@ -73,13 +75,13 @@ public class RequestSignaturesServiceImpl implements RequestSignaturesService {
 
     @Override
     public List<RequestSignature> getSignaturesForRequest(@NonNull Long requestId, @NonNull Long userId)
-            throws UnauthorizedActionException, InternalErrorException
-    {
+            throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException {
         Request request = requestManager.getRequestById(requestId);
         if (request == null) {
             throw new InternalErrorException(Utils.GENERIC_ERROR_MSG);
         } else if (!applicationProperties.isAppAdmin(userId)
-                && !utilsService.isAdminForRequest(request.getReqUserId(), userId)) {
+                && !utilsService.isAdminForRequest(request.getReqUserId(), userId)
+                && !utilsService.isAdminForFacility(request.getFacilityId(), userId)) {
             throw new UnauthorizedActionException(Utils.GENERIC_ERROR_MSG);
         }
 

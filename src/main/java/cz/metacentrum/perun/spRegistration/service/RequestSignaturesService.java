@@ -5,6 +5,8 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorExcept
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
+import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import lombok.NonNull;
 
 import javax.crypto.BadPaddingException;
@@ -28,6 +30,6 @@ public interface RequestSignaturesService {
      * @throws IllegalArgumentException Thrown when param "requestId" is NULL, when "param" userId is NULL.
      */
     List<RequestSignature> getSignaturesForRequest(@NonNull Long requestId, @NonNull Long userId)
-            throws UnauthorizedActionException, InternalErrorException;
+            throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException;
 
 }

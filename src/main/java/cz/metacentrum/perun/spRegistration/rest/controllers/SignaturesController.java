@@ -106,8 +106,7 @@ public class SignaturesController {
 	@GetMapping(path = "/api/viewApprovals/{requestId}")
 	public List<RequestSignature> getApprovals(@NonNull @SessionAttribute("user") User user,
 											   @NonNull @PathVariable("requestId") Long requestId)
-			throws UnauthorizedActionException, InternalErrorException
-	{
+			throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException {
 		if (!utilsService.isAdminForRequest(requestId, user)) {
 			throw new UnauthorizedActionException("User is not authorized to perform this action");
 		}
