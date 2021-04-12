@@ -194,7 +194,7 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
     this.requestsService.rejectRequest(this.request.reqId).subscribe(_ => {
       this.loading = false;
       this.snackBar.open(this.successRejectMessage, null, {duration: 6000});
-      this.router.navigate(['/auth/requests/allRequests']).then();
+      this.ngOnInit();
     }, error => {
       console.log('Error');
       console.log(error);
@@ -206,7 +206,7 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
     this.requestsService.approveRequest(this.request.reqId).subscribe(_ => {
       this.loading = false;
       this.snackBar.open(this.successApproveMessage, null, {duration: 6000});
-      this.router.navigate(['/auth/requests/allRequests']).then();
+      this.ngOnInit();
     }, error => {
       console.log('Error');
       console.log(error);
@@ -217,7 +217,7 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
     this.requestsService.cancelRequest(this.request.reqId).subscribe(_ => {
       this.loading = false;
       this.snackBar.open(this.successCancelMessage, null, {duration: 6000});
-      this.router.navigate(['/auth/requests/allRequests']).then();
+      this.ngOnInit();
     }, error => {
       console.log('Error');
       console.log(error);
