@@ -23,7 +23,6 @@ import java.util.StringJoiner;
 public class AuditLogsManagerImpl implements AuditLogsManager {
 
     private static final String AUDIT_TABLE = "audit";
-    private static final String SERVICE_TO_REQUEST_TABLE = "service_to_request";
     private static final String PARAM_ID = "id";
     private static final String PARAM_REQUEST_ID = "request_id";
     private static final String PARAM_ACTOR_ID = "actor_id";
@@ -41,7 +40,7 @@ public class AuditLogsManagerImpl implements AuditLogsManager {
 
     @Override
     public AuditLog insert(@NonNull AuditLog audit) throws InternalErrorException {
-        String query = "INSERT INTO" + AUDIT_TABLE + "(" + AuditLogMapper.REQUEST_ID + ", " + AuditLogMapper.ACTOR_ID
+        String query = "INSERT INTO " + AUDIT_TABLE + "(" + AuditLogMapper.REQUEST_ID + ", " + AuditLogMapper.ACTOR_ID
                 + ", " + AuditLogMapper.ACTOR_NAME + ", " + AuditLogMapper.MESSAGE + ") " +
                 "VALUES (:" + PARAM_REQUEST_ID + ", :" + PARAM_ACTOR_ID + ", :" + PARAM_ACTOR_NAME + ", :" + PARAM_MESSAGE + ")";
 
@@ -114,8 +113,7 @@ public class AuditLogsManagerImpl implements AuditLogsManager {
         String query = new StringJoiner(" ")
                 .add("SELECT * FROM").add(AUDIT_TABLE)
                 .add("WHERE").add(AuditLogMapper.REQUEST_ID).add("IN")
-                .add("(SELECT id FROM request WHERE facility_id = :").add(PARAM_ID).add(")")
-                .add("ORDER BY").add(AuditLogMapper.REQUEST_ID).add("ASC")
+                .add("(SELECT id FROM requests WHERE facility_id = :" + PARAM_ID + ')')
                 .toString();
 
         MapSqlParameterSource params = new MapSqlParameterSource();

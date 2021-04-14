@@ -18,6 +18,9 @@ public interface AuditService {
     List<AuditLog> getForRequest(@NonNull Long reqId, @NonNull Long adminId)
             throws UnauthorizedActionException;
 
+    List<AuditLog> getForService(@NonNull Long serviceId, @NonNull Long adminId)
+            throws UnauthorizedActionException, InternalErrorException;
+
     List<AuditLog> getForFacility(@NonNull Long facilityId, @NonNull Long adminId)
             throws UnauthorizedActionException, InternalErrorException;
 

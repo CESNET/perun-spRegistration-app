@@ -48,14 +48,21 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public List<AuditLog> getForFacility(@NonNull Long facilityId, @NonNull Long adminId)
+    public List<AuditLog> getForService(@NonNull Long serviceId, @NonNull Long adminId)
             throws InternalErrorException
     {
-        ProvidedService service = providedServiceManager.getByFacilityId(facilityId);
+        ProvidedService service = providedServiceManager.get(serviceId);
         if (service == null) {
             throw new IllegalArgumentException();
         }
-        return manager.getForFacility(service.getId());
+        return manager.getForFacility(service.getFacilityId());
+    }
+
+    @Override
+    public List<AuditLog> getForFacility(@NonNull Long facilityId, @NonNull Long adminId)
+            throws InternalErrorException
+    {
+        return manager.getForFacility(facilityId);
     }
 
 }

@@ -83,9 +83,6 @@ import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.
 @Slf4j
 public class RequestsServiceImpl implements RequestsService {
 
-    private static final String AUDIT_TABLE = "audit";
-    private static final String SERVICE_TO_REQUEST_TABLE = "service_to_request";
-
     @NonNull private final PerunAdapter perunAdapter;
     @NonNull private final MailsService mailsService;
     @NonNull private final UtilsService utilsService;
@@ -379,7 +376,7 @@ public class RequestsServiceImpl implements RequestsService {
 
     @Override
     public List<Request> getAllRequests(@NonNull User user) throws UnauthorizedActionException {
-        if (applicationProperties.isAppAdmin(user.getId())) {
+        if (!applicationProperties.isAppAdmin(user.getId())) {
             throw new UnauthorizedActionException("User not admin");
         }
         return requestManager.getAllRequests();
