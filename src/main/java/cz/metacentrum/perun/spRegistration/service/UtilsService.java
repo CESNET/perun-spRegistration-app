@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.spRegistration.service;
 
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
+import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.Request;
@@ -31,9 +32,17 @@ public interface UtilsService {
     boolean isAdminForFacility(@NonNull Long facilityId, @NonNull User user)
             throws PerunUnknownException, PerunConnectionException;
 
-    boolean isAdminForRequest(@NonNull Request request, @NonNull Long userId)  throws PerunUnknownException, PerunConnectionException;;
+    boolean isAdminForRequest(@NonNull Request request, @NonNull Long userId)
+            throws PerunUnknownException, PerunConnectionException;;
 
-    boolean isAdminForRequest(@NonNull Request request, @NonNull User user) throws PerunUnknownException, PerunConnectionException;
+    boolean isAdminForRequest(@NonNull Long reqId, @NonNull Long userId)
+            throws PerunUnknownException, PerunConnectionException, InternalErrorException;
+
+    boolean isAdminForRequest(@NonNull Long reqId, @NonNull User user)
+            throws PerunUnknownException, PerunConnectionException, InternalErrorException;
+
+    boolean isAdminForRequest(@NonNull Request request, @NonNull User user)
+            throws PerunUnknownException, PerunConnectionException;
 
     boolean isAppAdmin(@NonNull Long userId);
 

@@ -23,11 +23,12 @@
             <span class="font-thick mr-1">{{'REQUESTS.REQUESTED_BY' | translate}}:</span>
             {{ request.requester.name }} (#{{request.reqUserId}})
           </div>
-          <ng-container *ngIf="request.action == 'MOVE_TO_PRODUCTION'">
+          <ng-container *ngIf="signatures.length > 0">
             <h5>{{'REQUESTS.APPROVALS' | translate}}</h5>
-            <ul>
+            <mat-spinner class="ml-auto mr-auto" *ngIf="signaturesLoading" color=""></mat-spinner>
+            <ul *ngIf="!signaturesLoading">
               <li *ngFor="let signature of signatures">
-                <span class="mr-2">{{signature.name}} -</span>
+                <span class="mr-2">{{signature.name}} - </span>
                 <span class="text-muted mr-2">{{signature.signedAt | date: 'dd/MM/yyyy'}}</span>
                 <span [innerHTML]="signature.approved | requestApprovedPipe"></span>
               </li>
@@ -68,6 +69,17 @@
             </button>
           </ng-container>
         </div>
+      </div>
+      <!-- AUDIT -->
+      <div class="row">
+        <h4>{{ 'REQUESTS.HISTORY' | translate }}</h4>
+        <mat-spinner class="ml-auto mr-auto" *ngIf="auditLoading" color=""></mat-spinner>
+        <ul *ngIf="!auditLoading">
+          <li *ngFor="let audit of audits">
+            <span class="mr-2">{{audit.madeAt | date: 'dd/MM/yyyy'}} -</span>
+            <span>{{ audit.actorName }}({{ audit.actorId }}) - {{ audit.message }}</span>
+          </li>
+        </ul>
       </div>
     </div>
     <div class="w-100"><!-- SPACER --></div>

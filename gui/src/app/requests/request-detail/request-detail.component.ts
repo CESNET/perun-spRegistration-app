@@ -12,6 +12,8 @@ import {AppComponent} from '../../app.component';
 import {RequestSignature} from '../../core/models/RequestSignature';
 import {RequestDetailDialogComponent} from './request-detail-dialog/request-detail-dialog.component';
 import {DetailViewItem} from '../../core/models/items/DetailViewItem';
+import {AuditService} from "../../core/services/audit.service";
+import {AuditLog} from "../../core/models/AuditLog";
 
 export interface DialogData {
   isApprove: false;
@@ -33,7 +35,7 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
     private requestsService: RequestsService,
     private snackBar: MatSnackBar,
     private translate: TranslateService,
-    private router: Router
+    private auditService: AuditService
   ) { }
 
   private sub: Subscription;
@@ -49,10 +51,13 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
 
   request: Request = null;
   signatures: RequestSignature[] = [];
+  audits: AuditLog[] = [];
 
   displayedColumns: string[] = ['name', 'value'];
 
   loading = true;
+  auditLoading = false;
+  signaturesLoading = false;
   expansionPanelDisabled = true;
   icon = true;
 
@@ -79,43 +84,6 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
     return items;
   }
 
-  private mapAttributes() {
-    const actionUpdate = this.request.action === 'UPDATE_FACILITY';
-    this.request.serviceAttrs().forEach((attr, _) => {
-      const item = new DetailViewItem(attr);
-      if (actionUpdate && item.hasValueChanged()) {
-        this.serviceChangedCnt++;
-      }
-      this.requestAttrsService.push(item);
-    });
-    this.request.organizationAttrs().forEach((attr, _) => {
-      const item = new DetailViewItem(attr);
-      if (actionUpdate && item.hasValueChanged()) {
-        this.organizationChangedCnt++;
-      }
-      this.requestAttrsOrganization.push(item);
-    });
-    this.request.protocolAttrs().forEach((attr, _) => {
-      const item = new DetailViewItem(attr);
-      if (actionUpdate && item.hasValueChanged()) {
-        this.protocolChangedCnt++;
-      }
-      this.requestAttrsProtocol.push(item);
-    });
-    this.request.accessControlAttrs().forEach((attr, _) => {
-      const item = new DetailViewItem(attr);
-      if (actionUpdate && item.hasValueChanged()) {
-        this.accessControlChangedCnt++;
-      }
-      this.requestAttrsAccessControl.push(item);
-    });
-
-    this.requestAttrsService = RequestDetailComponent.sortItems(this.requestAttrsService);
-    this.requestAttrsOrganization = RequestDetailComponent.sortItems(this.requestAttrsOrganization);
-    this.requestAttrsProtocol = RequestDetailComponent.sortItems(this.requestAttrsProtocol);
-    this.requestAttrsAccessControl = RequestDetailComponent.sortItems(this.requestAttrsAccessControl);
-  }
-
   ngOnInit() {
     this.resetFields();
     this.sub = this.route.params.subscribe(params => {
@@ -124,13 +92,11 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
         this.mapAttributes();
         this.displayOldVal = request.action === 'UPDATE_FACILITY';
         this.includeComment = request.status !== 'APPROVED' && request.status !== 'REJECTED';
-        this.requestsService.getSignatures(this.request.reqId).subscribe(signatures => {
-          this.signatures = signatures.map(s => new RequestSignature(s));
-          if (this.signatures.length !== 0) {
-            this.expansionPanelDisabled = false;
-          }
-          this.loading = false;
-        });
+        this.loading = false;
+        if (this.request.action === 'MOVE_TO_PRODUCTION') {
+          this.loadSignatures(this.request.reqId);
+        }
+        this.loadAudit(this.request.reqId);
       }, error => {
         this.loading = false;
         console.log(error);
@@ -315,5 +281,67 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
 
     this.request = undefined;
     this.signatures = [];
+  }
+
+  private loadAudit(id: number) {
+    this.auditLoading = true;
+    this.auditService.getAuditsForRequest(id).subscribe(audits => {
+      this.audits = audits.map(a => new AuditLog(a));
+      this.auditLoading = false;
+    }, error => {
+      this.auditLoading = false;
+      console.log(error);
+    });
+  }
+
+  private mapAttributes() {
+    const actionUpdate = this.request.action === 'UPDATE_FACILITY';
+    this.request.serviceAttrs().forEach((attr, _) => {
+      const item = new DetailViewItem(attr);
+      if (actionUpdate && item.hasValueChanged()) {
+        this.serviceChangedCnt++;
+      }
+      this.requestAttrsService.push(item);
+    });
+    this.request.organizationAttrs().forEach((attr, _) => {
+      const item = new DetailViewItem(attr);
+      if (actionUpdate && item.hasValueChanged()) {
+        this.organizationChangedCnt++;
+      }
+      this.requestAttrsOrganization.push(item);
+    });
+    this.request.protocolAttrs().forEach((attr, _) => {
+      const item = new DetailViewItem(attr);
+      if (actionUpdate && item.hasValueChanged()) {
+        this.protocolChangedCnt++;
+      }
+      this.requestAttrsProtocol.push(item);
+    });
+    this.request.accessControlAttrs().forEach((attr, _) => {
+      const item = new DetailViewItem(attr);
+      if (actionUpdate && item.hasValueChanged()) {
+        this.accessControlChangedCnt++;
+      }
+      this.requestAttrsAccessControl.push(item);
+    });
+
+    this.requestAttrsService = RequestDetailComponent.sortItems(this.requestAttrsService);
+    this.requestAttrsOrganization = RequestDetailComponent.sortItems(this.requestAttrsOrganization);
+    this.requestAttrsProtocol = RequestDetailComponent.sortItems(this.requestAttrsProtocol);
+    this.requestAttrsAccessControl = RequestDetailComponent.sortItems(this.requestAttrsAccessControl);
+  }
+
+  private loadSignatures(id: number) {
+    this.signaturesLoading = true;
+    this.requestsService.getSignatures(id).subscribe(signatures => {
+      this.signatures = signatures.map(s => new RequestSignature(s));
+      if (this.signatures.length !== 0) {
+        this.expansionPanelDisabled = false;
+      }
+      this.signaturesLoading = false;
+    }, error => {
+      this.signaturesLoading = false;
+      console.log(error);
+    });
   }
 }

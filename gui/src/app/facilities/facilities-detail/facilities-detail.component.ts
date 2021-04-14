@@ -14,6 +14,8 @@ import {FacilitiesDetailClientSecretDialogComponent} from "./facilities-detail-c
 import {FacilitiesRemoveAdminDialogComponent} from "./facilities-remove-admin-dialog/facilities-remove-admin-dialog.component";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {TranslateService} from "@ngx-translate/core";
+import {AuditLog} from "../../core/models/AuditLog";
+import {AuditService} from "../../core/services/audit.service";
 
 export interface DialogData {
   parent: FacilitiesDetailComponent;
@@ -37,6 +39,7 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private facilitiesService: FacilitiesService,
     private requestsService: RequestsService,
+    private auditService: AuditService,
     private router: Router,
     public dialog: MatDialog,
     private snackBar: MatSnackBar,
@@ -51,48 +54,20 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
   facilityAttrsAccessControl: DetailViewItem[] = [];
   facilityAdmins: FacilityDetailUserItem[] = [];
 
+  audits: AuditLog[] = [];
+
   loading = true;
-  loadingProtocol = false;
+  protocolLoading = false;
+  auditLoading = false;
+
   facility: Facility;
   moveToProductionActive = false;
-
-  running = 0;
 
   isUserAdmin: boolean;
 
   adminRemoveSuccessText: string;
   adminRemoveFailText: string;
   snackBarDurationMs = 5000;
-
-  private mapAttributes() {
-    this.facility.serviceAttrs().forEach((attr, _) => {
-      this.facilityAttrsService.push(new DetailViewItem(attr));
-    });
-
-    this.facility.organizationAttrs().forEach((attr, _) => {
-      this.facilityAttrsOrganization.push(new DetailViewItem(attr));
-    });
-
-    this.facility.protocolAttrs().forEach((attr, _) => {
-      this.facilityAttrsProtocol.push(new DetailViewItem(attr));
-    });
-
-    this.facility.accessControlAttrs().forEach((attr, _) => {
-      this.facilityAttrsAccessControl.push(new DetailViewItem(attr));
-    });
-
-    this.facilityAttrsService = FacilitiesDetailComponent.sortItems(this.facilityAttrsService);
-    this.facilityAttrsOrganization = FacilitiesDetailComponent.sortItems(this.facilityAttrsOrganization);
-    this.facilityAttrsProtocol = FacilitiesDetailComponent.sortItems(this.facilityAttrsProtocol);
-    this.facilityAttrsAccessControl = FacilitiesDetailComponent.sortItems(this.facilityAttrsAccessControl);
-  }
-
-  private mapAdmins() {
-    this.facilityAdmins = [];
-    this.facility.managers.forEach(user => {
-      this.facilityAdmins.push(new FacilityDetailUserItem(user));
-    });
-  }
 
   ngOnInit() {
     this.sub = this.route.params.subscribe(params => {
@@ -106,6 +81,7 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
         if (this.facility.activeRequestId) {
           this.loadMoveToProductionActive(this.facility.activeRequestId);
         }
+        this.loadAudit(this.facility.id);
         this.loading = false;
       }, error => {
         this.loading = false;
@@ -183,7 +159,7 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
   }
 
   regenerateClientSecret(): void {
-    this.loadingProtocol = true;
+    this.protocolLoading = true;
     this.facilitiesService.regenerateClientSecret(this.facility.id).subscribe(data => {
       const attr = new PerunAttribute(data)
       let index = -1;
@@ -195,7 +171,10 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
       if (index != -1) {
         this.facilityAttrsProtocol[index] = new DetailViewItem(attr);
       }
-      this.loadingProtocol = false;
+      this.protocolLoading = false;
+    }, error => {
+      this.protocolLoading = false;
+      console.log(error);
     });
   }
 
@@ -221,4 +200,46 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
 
     return items;
   }
+
+  private mapAttributes() {
+    this.facility.serviceAttrs().forEach((attr, _) => {
+      this.facilityAttrsService.push(new DetailViewItem(attr));
+    });
+
+    this.facility.organizationAttrs().forEach((attr, _) => {
+      this.facilityAttrsOrganization.push(new DetailViewItem(attr));
+    });
+
+    this.facility.protocolAttrs().forEach((attr, _) => {
+      this.facilityAttrsProtocol.push(new DetailViewItem(attr));
+    });
+
+    this.facility.accessControlAttrs().forEach((attr, _) => {
+      this.facilityAttrsAccessControl.push(new DetailViewItem(attr));
+    });
+
+    this.facilityAttrsService = FacilitiesDetailComponent.sortItems(this.facilityAttrsService);
+    this.facilityAttrsOrganization = FacilitiesDetailComponent.sortItems(this.facilityAttrsOrganization);
+    this.facilityAttrsProtocol = FacilitiesDetailComponent.sortItems(this.facilityAttrsProtocol);
+    this.facilityAttrsAccessControl = FacilitiesDetailComponent.sortItems(this.facilityAttrsAccessControl);
+  }
+
+  private mapAdmins() {
+    this.facilityAdmins = [];
+    this.facility.managers.forEach(user => {
+      this.facilityAdmins.push(new FacilityDetailUserItem(user));
+    });
+  }
+
+  private loadAudit(id: number) {
+    this.auditLoading = true;
+    this.auditService.getAuditsForService(id).subscribe(audits => {
+      this.audits = audits.map(a => new AuditLog(a));
+      this.auditLoading = false;
+    }, error => {
+      this.auditLoading = false;
+      console.log(error);
+    });
+  }
+
 }

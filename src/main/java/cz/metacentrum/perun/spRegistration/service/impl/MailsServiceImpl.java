@@ -425,7 +425,7 @@ public class MailsServiceImpl implements MailsService {
 			helper.setText(msg, true);
 
 			mailSender.send(message);
-		} catch (MessagingException e) {
+		} catch (Exception e) {
 			return false;
 		}
 
