@@ -120,7 +120,7 @@ public class UtilsServiceImpl implements UtilsService {
     public boolean isAdminForFacility(@NonNull Long facilityId, @NonNull Long userId)
             throws PerunUnknownException, PerunConnectionException
     {
-        if (applicationProperties.isAppAdmin(userId)) {
+        if (isAppAdmin(userId)) {
             return true;
         }
 
@@ -144,6 +144,9 @@ public class UtilsServiceImpl implements UtilsService {
     public boolean isAdminForRequest(@NonNull Request request, @NonNull Long userId)
             throws PerunUnknownException, PerunConnectionException
     {
+        if (isAppAdmin(userId)) {
+            return true;
+        }
         boolean res = Objects.equals(request.getReqUserId(), userId);
         if (!res && request.getFacilityId() != null) {
             res = this.isAdminForFacility(request.getFacilityId(), userId);
