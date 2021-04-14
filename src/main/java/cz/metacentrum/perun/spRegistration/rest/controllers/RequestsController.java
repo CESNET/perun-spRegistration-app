@@ -12,6 +12,7 @@ import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectio
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.service.RequestsService;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
+import cz.metacentrum.perun.spRegistration.service.impl.AuditServiceImpl;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,9 @@ public class RequestsController {
 	@NonNull private final UtilsService utilsService;
 
 	@Autowired
-	public RequestsController(@NonNull RequestsService requestsService, @NonNull UtilsService utilsService) {
+	public RequestsController(@NonNull RequestsService requestsService,
+							  @NonNull UtilsService utilsService)
+	{
 		this.requestsService = requestsService;
 		this.utilsService = utilsService;
 	}
@@ -49,7 +52,7 @@ public class RequestsController {
 	public List<Request> userRequests(@NonNull @SessionAttribute("user") User user)
 			throws PerunUnknownException, PerunConnectionException
 	{
-		return requestsService.getAllUserRequests(user.getId());
+		return requestsService.getAllUserRequests(user);
 	}
 
 	@PostMapping(path = "/api/register")
@@ -57,7 +60,7 @@ public class RequestsController {
 										  @NonNull @RequestBody List<PerunAttribute> attributes)
 			throws InternalErrorException
 	{
-		return requestsService.createRegistrationRequest(user.getId(), attributes);
+		return requestsService.createRegistrationRequest(user, attributes);
 	}
 
 	@PostMapping(path = "/api/changeFacility/{facilityId}")
@@ -70,7 +73,7 @@ public class RequestsController {
 		if (!utilsService.isAdminForFacility(facilityId, user)) {
 			throw new UnauthorizedActionException();
 		}
-		return requestsService.createFacilityChangesRequest(facilityId, user.getId(), attributes);
+		return requestsService.createFacilityChangesRequest(facilityId, user, attributes);
 	}
 
 	@PostMapping(path = "/api/remove/{facilityId}")
@@ -82,7 +85,7 @@ public class RequestsController {
 		if (!utilsService.isAdminForFacility(facilityId, user)) {
 			throw new UnauthorizedActionException();
 		}
-		return requestsService.createRemovalRequest(user.getId(), facilityId);
+		return requestsService.createRemovalRequest(user, facilityId);
 	}
 
 	@PostMapping(path = "/api/update/{requestId}")
@@ -92,7 +95,7 @@ public class RequestsController {
 			throws InternalErrorException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException
 	{
 		// auth done at the service level, cannot do it here
-		return requestsService.updateRequest(requestId, user.getId(), attributes);
+		return requestsService.updateRequest(requestId, user, attributes);
 	}
 
 	@GetMapping(path = "/api/request/{requestId}")
@@ -101,7 +104,7 @@ public class RequestsController {
 			throws InternalErrorException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException
 	{
 		// auth done at the service level, cannot do it here
-		return requestsService.getRequest(requestId, user.getId());
+		return requestsService.getRequest(requestId, user);
 	}
 
 	@PostMapping(path = "/api/cancel/{requestId}")
@@ -111,7 +114,7 @@ public class RequestsController {
 			PerunUnknownException, PerunConnectionException
 	{
 		// auth done at the service level, cannot do it here
-		return requestsService.cancelRequest(requestId, user.getId());
+		return requestsService.cancelRequest(requestId, user);
 	}
 
 	// admin
@@ -123,7 +126,7 @@ public class RequestsController {
 		if (!utilsService.isAppAdmin(user)) {
 			throw new UnauthorizedActionException();
 		}
-		return requestsService.getAllRequests(user.getId());
+		return requestsService.getAllRequests(user);
 	}
 
 	@PostMapping(path = "/api/approve/{requestId}")
@@ -136,7 +139,7 @@ public class RequestsController {
 		if (!utilsService.isAppAdmin(user)) {
 			throw new UnauthorizedActionException();
 		}
-		return requestsService.approveRequest(requestId, user.getId());
+		return requestsService.approveRequest(requestId, user);
 	}
 
 	@PostMapping(path = "/api/reject/{requestId}")
@@ -147,7 +150,7 @@ public class RequestsController {
 		if (!utilsService.isAppAdmin(user)) {
 			throw new UnauthorizedActionException();
 		}
-		return requestsService.rejectRequest(requestId, user.getId());
+		return requestsService.rejectRequest(requestId, user);
 	}
 
 	@PostMapping(path = "/api/askForChanges/{requestId}")
@@ -159,49 +162,7 @@ public class RequestsController {
 		if (!utilsService.isAppAdmin(user)) {
 			throw new UnauthorizedActionException();
 		}
-		return requestsService.askForChanges(requestId, user.getId(), attributes);
-	}
-
-	@GetMapping(path = "/api/audit/getAllAuditLogs")
-	public List<AuditLog> allAuditLogs(@NonNull @SessionAttribute("user") User user)
-			throws UnauthorizedActionException
-	{
-		if (!utilsService.isAppAdmin(user)) {
-			throw new UnauthorizedActionException();
-		}
-		return requestsService.getAllAuditLogs(user.getId());
-	}
-
-	@GetMapping(path = "/api/audit/getLogsByReqId/{reqId}")
-	public List<AuditLog> auditLogsByReqId(@NonNull @SessionAttribute("user") User user,
-										   @NonNull @PathVariable("reqId") Long reqId)
-			throws UnauthorizedActionException
-	{
-		if (!utilsService.isAppAdmin(user)) {
-			throw new UnauthorizedActionException();
-		}
-		return requestsService.getAuditLogsByReqId(reqId, user.getId());
-	}
-
-	@GetMapping(path = "/api/audit/getAuditLogById/{auditLogId}")
-	public AuditLog auditLogDetail(@NonNull @SessionAttribute("user") User user,
-								   @NonNull @PathVariable("auditLogId") Long auditLogId)
-			throws InternalErrorException, UnauthorizedActionException
-	{
-		if (!utilsService.isAppAdmin(user)) {
-			throw new UnauthorizedActionException();
-		}
-		return requestsService.getAuditLog(auditLogId, user.getId());
-	}
-
-	@GetMapping(path = "/api/audit/getAuditLogsByService/{facilityId}")
-	public List<AuditLog> auditLogsByService(@NonNull @SessionAttribute("user") User user,
-								   @NonNull @PathVariable("facilityId") Long facilityId)
-			throws UnauthorizedActionException, InternalErrorException {
-		if (!utilsService.isAppAdmin(user)) {
-			throw new UnauthorizedActionException();
-		}
-		return requestsService.getAuditLogsByService(facilityId, user.getId());
+		return requestsService.askForChanges(requestId, user, attributes);
 	}
 
 }

@@ -1,16 +1,21 @@
 package cz.metacentrum.perun.spRegistration.persistence.managers;
 
+import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.models.AuditLog;
+import lombok.NonNull;
 
 import java.util.List;
 
 public interface AuditLogsManager {
 
-    List<AuditLog> getAllAuditLogs();
+    AuditLog insert(@NonNull AuditLog log) throws InternalErrorException;
 
-    AuditLog getAuditLogById(Long auditLogId);
+    List<AuditLog> getAll();
 
-    List<AuditLog> getAuditLogsByReqId(Long reqId);
+    AuditLog getById(@NonNull Long id);
 
-    List<AuditLog> getAuditLogsByService(Long serviceId);
+    List<AuditLog> getForRequest(@NonNull Long requestId);
+
+    List<AuditLog> getForFacility(@NonNull Long facilityId);
+
 }

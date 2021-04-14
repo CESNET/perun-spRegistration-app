@@ -45,16 +45,10 @@ CREATE TABLE IF NOT EXISTS provided_services
 
 CREATE TABLE IF NOT EXISTS audit
 (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    request_id BIGINT NOT NULL,
-    change_made_by BIGINT NOT NULL,
-    change_description VARCHAR(256) NOT NULL,
-    modified_at TIMESTAMP DEFAULT now()
-);
-
-CREATE TABLE IF NOT EXISTS service_to_request
-(
-    request_id BIGINT,
-    service_id BIGINT,
-    CONSTRAINT service_to_request_pk PRIMARY KEY (request_id, service_id)
+    id              BIGINT PRIMARY KEY AUTO_INCREMENT,
+    request_id      BIGINT NOT NULL,
+    actor_id        BIGINT NOT NULL,
+    actor_name      VARCHAR(256) NOT NULL
+    message         VARCHAR(256) NOT NULL,
+    made_at         TIMESTAMP DEFAULT now()
 );

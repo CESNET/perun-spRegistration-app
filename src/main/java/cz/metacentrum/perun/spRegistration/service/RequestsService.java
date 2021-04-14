@@ -21,16 +21,16 @@ import java.util.List;
 
 public interface RequestsService {
 
-    Long createRegistrationRequest(@NonNull Long userId, @NonNull List<PerunAttribute> attributes)
+    Long createRegistrationRequest(@NonNull User user, @NonNull List<PerunAttribute> attributes)
             throws InternalErrorException;
 
-     Long createFacilityChangesRequest(@NonNull Long facilityId, @NonNull Long userId,
+     Long createFacilityChangesRequest(@NonNull Long facilityId, @NonNull User user,
                                        @NonNull List<PerunAttribute> attributes)
             throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException,
              PerunUnknownException, PerunConnectionException;
 
 
-    Long createRemovalRequest(@NonNull Long userId, @NonNull Long facilityId)
+    Long createRemovalRequest(@NonNull User user, @NonNull Long facilityId)
             throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException,
             PerunUnknownException, PerunConnectionException;
 
@@ -40,40 +40,33 @@ public interface RequestsService {
             BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnsupportedEncodingException,
             PerunUnknownException, PerunConnectionException;
 
-    boolean updateRequest(@NonNull Long requestId, @NonNull Long userId, @NonNull List<PerunAttribute> attributes)
+    boolean updateRequest(@NonNull Long requestId, @NonNull User user, @NonNull List<PerunAttribute> attributes)
             throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException;
 
-    Request getRequest(@NonNull Long requestId, @NonNull Long userId)
+    Request getRequest(@NonNull Long requestId, @NonNull User user)
             throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException;
 
-    List<Request> getAllUserRequests(@NonNull Long userId) throws PerunUnknownException, PerunConnectionException;
+    List<Request> getAllUserRequests(@NonNull User user) throws PerunUnknownException, PerunConnectionException;
 
-    boolean cancelRequest(@NonNull Long requestId, @NonNull Long userId)
-            throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException, PerunUnknownException, PerunConnectionException;
+    boolean cancelRequest(@NonNull Long requestId, @NonNull User user)
+            throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException,
+            PerunUnknownException, PerunConnectionException;
 
-    List<Request> getAllRequests(@NonNull Long adminId) throws UnauthorizedActionException;
+    List<Request> getAllRequests(@NonNull User user) throws UnauthorizedActionException;
 
     Request getRequestForSignatureByCode(@NonNull String code)
             throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException, ExpiredCodeException,
             InternalErrorException;
 
-    boolean approveRequest(@NonNull Long requestId, @NonNull Long userId)
+    boolean approveRequest(@NonNull Long requestId, @NonNull User user)
             throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException,
             BadPaddingException, InvalidKeyException, IllegalBlockSizeException, PerunUnknownException,
             PerunConnectionException;
 
-    boolean rejectRequest(@NonNull Long requestId, @NonNull Long userId)
+    boolean rejectRequest(@NonNull Long requestId, @NonNull User user)
             throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException;
 
-    boolean askForChanges(@NonNull Long requestId, @NonNull Long userId, @NonNull List<PerunAttribute> attributes)
+    boolean askForChanges(@NonNull Long requestId, @NonNull User user, @NonNull List<PerunAttribute> attributes)
             throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException;
-
-    List<AuditLog> getAllAuditLogs(@NonNull Long adminId) throws UnauthorizedActionException;
-
-    AuditLog getAuditLog(@NonNull Long auditLogId, @NonNull Long userId) throws UnauthorizedActionException, InternalErrorException;
-
-    List<AuditLog> getAuditLogsByReqId(@NonNull Long reqId, @NonNull Long adminId) throws UnauthorizedActionException;
-
-    List<AuditLog> getAuditLogsByService(@NonNull Long facilityId, @NonNull Long adminId) throws UnauthorizedActionException, InternalErrorException;
 
 }

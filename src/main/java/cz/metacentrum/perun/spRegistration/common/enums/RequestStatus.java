@@ -11,7 +11,8 @@ public enum RequestStatus {
 	REJECTED,
 	WAITING_FOR_APPROVAL,
 	WAITING_FOR_CHANGES,
-	CANCELED;
+	CANCELED,
+	UNKNOWN;
 
 	/**
 	 * Convert Enum value to INTEGER representation (used in DB).
@@ -40,7 +41,7 @@ public enum RequestStatus {
 			case 3: return WAITING_FOR_APPROVAL;
 			case 4: return WAITING_FOR_CHANGES;
 			case 5: return CANCELED;
-			default: return null;
+			default: return UNKNOWN;
 		}
 	}
 
