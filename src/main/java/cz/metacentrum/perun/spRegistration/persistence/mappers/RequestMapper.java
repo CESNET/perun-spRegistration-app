@@ -42,19 +42,12 @@ public class RequestMapper implements RowMapper<Request> {
 	private final Map<String, AttrInput> attrInputMap;
 
 	public RequestMapper(@NonNull AppBeansContainer appBeansContainer) {
-		if (appBeansContainer != null) {
-			this.definitionMap = appBeansContainer.getAttributeDefinitionMap();
-			this.attrInputMap = appBeansContainer.getAttrInputMap();
-		} else {
-			this.definitionMap = null;
-			this.attrInputMap = null;
-		}
+		this.definitionMap = appBeansContainer.getAttributeDefinitionMap();
+		this.attrInputMap = appBeansContainer.getAttrInputMap();
 	}
 
 	@Override
 	public Request mapRow(ResultSet resultSet, int i) throws SQLException {
-		log.trace("mapRow(resultSet: {}, i: {})", resultSet, i);
-
 		String attrsJsonStr = resultSet.getString(ATTRIBUTES_KEY);
 		Map<AttributeCategory, Map<String, PerunAttribute>> attrs = null;
 		try {
@@ -76,8 +69,6 @@ public class RequestMapper implements RowMapper<Request> {
 		request.setModifiedAt(resultSet.getTimestamp(MODIFIED_AT_KEY));
 		request.setModifiedBy(resultSet.getLong(MODIFIED_BY_KEY));
 		request.setAttributes(attrs);
-
-		log.trace("mapRow() returns: {}", request);
 		return request;
 	}
 

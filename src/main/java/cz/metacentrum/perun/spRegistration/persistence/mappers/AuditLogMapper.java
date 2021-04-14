@@ -9,22 +9,22 @@ import java.sql.SQLException;
 
 public class AuditLogMapper implements RowMapper<AuditLog> {
 
-    private static final String ID = "id";
-    private static final String REQUEST_ID = "request_id";
-    private static final String CHANGE_MADE_BY = "change_made_by";
-    private static final String CHANGE_DESCRIPTION = "change_description";
-    private static final String MODIFIED_AT = "modified_at";
+    public static final String ID = "id";
+    public static final String REQUEST_ID = "request_id";
+    public static final String ACTOR_ID = "actor_id";
+    public static final String ACTOR_NAME = "actor_name";
+    public static final String MESSAGE = "message";
+    public static final String MADE_AT = "made_at";
 
     @Override
     public AuditLog mapRow(ResultSet resultSet, int i) throws SQLException {
         AuditLog log = new AuditLog();
-
         log.setId(resultSet.getLong(ID));
         log.setRequestId(resultSet.getLong(REQUEST_ID));
-        log.setChangeMadeBy(resultSet.getLong(CHANGE_MADE_BY));
-        log.setChangeDescription(resultSet.getString(CHANGE_DESCRIPTION));
-        log.setModifiedAt(resultSet.getTimestamp(MODIFIED_AT));
-
+        log.setActorId(resultSet.getLong(ACTOR_ID));
+        log.setActorName(resultSet.getString(ACTOR_NAME));
+        log.setMessage(resultSet.getString(MESSAGE));
+        log.setMadeAt(resultSet.getTimestamp(MADE_AT));
         return log;
     }
 }

@@ -10,7 +10,8 @@ public enum RequestAction {
 	REGISTER_NEW_SP,
 	UPDATE_FACILITY,
 	DELETE_FACILITY,
-	MOVE_TO_PRODUCTION;
+	MOVE_TO_PRODUCTION,
+	UNKNOWN;
 
 	/**
 	 * Convert Enum value to INTEGER representation (used in DB).
@@ -38,9 +39,8 @@ public enum RequestAction {
 			case 2: return UPDATE_FACILITY;
 			case 3: return DELETE_FACILITY;
 			case 4: return MOVE_TO_PRODUCTION;
+			default: return UNKNOWN;
 		}
-
-		return null;
 	}
 
 

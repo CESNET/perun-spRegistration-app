@@ -17,13 +17,14 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode(exclude = {"modifiedAt"})
+@EqualsAndHashCode(exclude = {"madeAt"})
 public class AuditLog {
 
     @NonNull private Long id;
     @NonNull private Long requestId;
-    @NonNull private Long changeMadeBy;
-    @NonNull private String changeDescription;
-    private Timestamp modifiedAt;
+    @NonNull private Long actorId;
+    @NonNull private String actorName;
+    @NonNull private String message;
+    private Timestamp madeAt;
 
 }

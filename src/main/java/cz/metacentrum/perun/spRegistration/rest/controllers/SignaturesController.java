@@ -108,7 +108,7 @@ public class SignaturesController {
 											   @NonNull @PathVariable("requestId") Long requestId)
 			throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException
 	{
-		Request req = requestsService.getRequest(requestId, user.getId());
+		Request req = requestsService.getRequest(requestId, user);
 		if (req == null) {
 			throw new InternalErrorException("Request has not been found");
 		} else if (!utilsService.isAdminForRequest(req, user)) {

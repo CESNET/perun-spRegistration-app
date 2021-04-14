@@ -99,7 +99,6 @@ public class RequestsServiceImpl implements RequestsService {
     @NonNull private final ApprovalsProperties approvalsProperties;
     @NonNull private final ProvidedServiceManager providedServiceManager;
     @NonNull private final InputsContainer inputsContainer;
-    @NonNull private final NamedParameterJdbcTemplate jdbcTemplate;
 
     @Autowired
     public RequestsServiceImpl(@NonNull PerunAdapter perunAdapter,
@@ -114,8 +113,7 @@ public class RequestsServiceImpl implements RequestsService {
                                @NonNull AttributesProperties attributesProperties,
                                @NonNull ApprovalsProperties approvalsProperties,
                                @NonNull ProvidedServiceManager providedServiceManager,
-                               @NonNull InputsContainer inputsContainer,
-                               @NonNull NamedParameterJdbcTemplate jdbcTemplate)
+                               @NonNull InputsContainer inputsContainer)
     {
         this.perunAdapter = perunAdapter;
         this.mailsService = mailsService;
@@ -130,11 +128,10 @@ public class RequestsServiceImpl implements RequestsService {
         this.approvalsProperties = approvalsProperties;
         this.providedServiceManager = providedServiceManager;
         this.inputsContainer = inputsContainer;
-        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
-    public Long createRegistrationRequest(@NonNull Long userId, @NonNull List<PerunAttribute> attributes)
+    public Long createRegistrationRequest(@NonNull User user, @NonNull List<PerunAttribute> attributes)
             throws InternalErrorException
     {
         if (attributes.isEmpty()) {
@@ -144,7 +141,7 @@ public class RequestsServiceImpl implements RequestsService {
 
         Request req;
         try {
-            req = createRequest(null, userId, RequestAction.REGISTER_NEW_SP, attributes);
+            req = createRequest(null, user, RequestAction.REGISTER_NEW_SP, attributes);
         } catch (ActiveRequestExistsException e) {
             //this should not happen as the registration is for new service and thus facility id will be always null
             log.error("Caught {} when creating registration of a new service", e.getClass().getSimpleName(), e);
@@ -153,11 +150,13 @@ public class RequestsServiceImpl implements RequestsService {
 
         mailsService.notifyUser(req, REQUEST_CREATED);
         mailsService.notifyAppAdmins(req, REQUEST_CREATED);
+
+        insertRegisterServiceReqCreatedAuditLog(req.getReqId(), user.getId(), user.getName());
         return req.getReqId();
     }
 
     @Override
-    public Long createFacilityChangesRequest(@NonNull Long facilityId, @NonNull Long userId,
+    public Long createFacilityChangesRequest(@NonNull Long facilityId, @NonNull User user,
                                              @NonNull List<PerunAttribute> attributes)
             throws InternalErrorException, ActiveRequestExistsException, PerunUnknownException, PerunConnectionException
     {
@@ -189,27 +188,17 @@ public class RequestsServiceImpl implements RequestsService {
             return null;
         }
 
-        Request req = createRequest(facilityId, userId, RequestAction.UPDATE_FACILITY, attributes);
+        Request req = createRequest(facilityId, user, RequestAction.UPDATE_FACILITY, attributes);
 
         mailsService.notifyUser(req, REQUEST_CREATED);
         mailsService.notifyAppAdmins(req, REQUEST_CREATED);
 
+        insertUpdateServiceReqCreatedAuditLog(req.getReqId(), user.getId(), user.getName());
         return req.getReqId();
     }
 
-    private boolean isOidcCredentialAttr(PerunAttribute a) {
-        return isOidcCredentialAttr(a, true);
-    }
-
-    private boolean isOidcCredentialAttr(PerunAttribute a, boolean filterClientId) {
-        if (attributesProperties.getNames().getOidcClientSecret().equalsIgnoreCase(a.getFullName())) {
-            return true;
-        }
-        return filterClientId && attributesProperties.getNames().getOidcClientId().equalsIgnoreCase(a.getFullName());
-    }
-
     @Override
-    public Long createRemovalRequest(@NonNull Long userId, @NonNull Long facilityId)
+    public Long createRemovalRequest(@NonNull User user, @NonNull Long facilityId)
             throws InternalErrorException, ActiveRequestExistsException, PerunUnknownException, PerunConnectionException
     {
         List<PerunAttribute> facilityAttributes = ServiceUtils.getFacilityAttributes(applicationBeans, facilityId,
@@ -218,11 +207,12 @@ public class RequestsServiceImpl implements RequestsService {
         facilityAttributes = facilityAttributes.stream()
                 .filter(a -> !isOidcCredentialAttr(a, false))
                 .collect(Collectors.toList());
-        Request req = createRequest(facilityId, userId, RequestAction.DELETE_FACILITY, facilityAttributes);
+        Request req = createRequest(facilityId, user, RequestAction.DELETE_FACILITY, facilityAttributes);
 
         mailsService.notifyUser(req, REQUEST_CREATED);
         mailsService.notifyAppAdmins(req, REQUEST_CREATED);
 
+        insertRemoveServiceReqCreatedAuditLog(req.getReqId(), user.getId(), user.getName());
         return req.getReqId();
     }
 
@@ -242,7 +232,7 @@ public class RequestsServiceImpl implements RequestsService {
         fac.getAttributes().values().stream().map(Map::values).forEach(attrs::addAll);
         attrs = attrs.stream().filter(a -> !isOidcCredentialAttr(a, false)).collect(Collectors.toList());
 
-        Request req = createRequest(facilityId, user.getId(), RequestAction.MOVE_TO_PRODUCTION, attrs);
+        Request req = createRequest(facilityId, user, RequestAction.MOVE_TO_PRODUCTION, attrs);
 
         Map<String, String> authoritiesLinksMap = generateLinksForAuthorities(req, authorities, user);
 
@@ -250,18 +240,19 @@ public class RequestsServiceImpl implements RequestsService {
         mailsService.notifyAppAdmins(req, REQUEST_CREATED);
         mailsService.notifyAuthorities(req, authoritiesLinksMap);
 
+        insertTransferServiceReqCreatedAuditLog(req.getReqId(), user.getId(), user.getName());
         return req.getReqId();
     }
 
     @Override
-    public boolean updateRequest(@NonNull Long requestId, @NonNull Long userId,
+    public boolean updateRequest(@NonNull Long requestId, @NonNull User user,
                                  @NonNull List<PerunAttribute> attributes)
             throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException
     {
         Request request = requestManager.getRequestById(requestId);
         if (request == null) {
             throw new InternalErrorException("Could not retrieve request for id: " + requestId);
-        } else if (!utilsService.isAdminForRequest(request, userId)) {
+        } else if (!utilsService.isAdminForRequest(request, user.getId())) {
             throw new UnauthorizedActionException("User is not registered as admin in request, cannot update it");
         }
 
@@ -269,7 +260,7 @@ public class RequestsServiceImpl implements RequestsService {
 
         request.updateAttributes(attributes, true, applicationBeans);
         request.setStatus(WAITING_FOR_APPROVAL);
-        request.setModifiedBy(userId);
+        request.setModifiedBy(user.getId());
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
 
         if (!requestManager.updateRequest(request)) {
@@ -278,6 +269,8 @@ public class RequestsServiceImpl implements RequestsService {
 
         mailsService.notifyUser(request, REQUEST_MODIFIED);
         mailsService.notifyAppAdmins(request, REQUEST_MODIFIED);
+
+        insertUpdatedRequestAuditLog(requestId, user.getId(), user.getName());
         return true;
     }
 
@@ -301,20 +294,20 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     @Override
-    public Request getRequest(@NonNull Long requestId, @NonNull  Long userId)
+    public Request getRequest(@NonNull Long requestId, @NonNull  User user)
             throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException
     {
         Request request = requestManager.getRequestById(requestId);
         if (request == null) {
             throw new InternalErrorException("Could not retrieve request for id: " + requestId);
-        } else if (!utilsService.isAdminForRequest(request, userId)) {
+        } else if (!utilsService.isAdminForRequest(request, user.getId())) {
             throw new UnauthorizedActionException("User cannot view request, user is not a requester");
         }
 
         if (request.getReqUserId() != null) {
             try {
-                User user = perunAdapter.getUserById(request.getReqUserId());
-                request.setRequester(user);
+                User requester = perunAdapter.getUserById(request.getReqUserId());
+                request.setRequester(requester);
                 User modifier = perunAdapter.getUserById(request.getModifiedBy());
                 request.setModifier(modifier);
             } catch (PerunConnectionException | PerunUnknownException e) {
@@ -326,16 +319,16 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     @Override
-    public List<Request> getAllUserRequests(@NonNull Long userId)
+    public List<Request> getAllUserRequests(@NonNull User user)
             throws PerunUnknownException, PerunConnectionException
     {
         Set<Request> requests = new HashSet<>();
-        List<Request> userRequests = requestManager.getAllRequestsByUserId(userId);
+        List<Request> userRequests = requestManager.getAllRequestsByUserId(user.getId());
         if (userRequests != null && !userRequests.isEmpty()) {
             requests.addAll(userRequests);
         }
 
-        Set<Long> facilityIdsWhereUserIsAdmin = perunAdapter.getFacilityIdsWhereUserIsAdmin(userId);
+        Set<Long> facilityIdsWhereUserIsAdmin = perunAdapter.getFacilityIdsWhereUserIsAdmin(user.getId());
         if (facilityIdsWhereUserIsAdmin != null && !facilityIdsWhereUserIsAdmin.isEmpty()) {
             List<Request> facilitiesRequests = requestManager.getAllRequestsByFacilityIds(facilityIdsWhereUserIsAdmin);
             if (facilitiesRequests != null && !facilitiesRequests.isEmpty()) {
@@ -347,19 +340,19 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     @Override
-    public boolean cancelRequest(Long requestId, Long userId)
+    public boolean cancelRequest(Long requestId, User user)
             throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException
     {
-        if (Utils.checkParamsInvalid(requestId, userId)) {
-            log.error("Wrong parameters passed: (userId: {}, action: {})", userId, userId);
+        if (Utils.checkParamsInvalid(requestId, user.getId())) {
+            log.error("Wrong parameters passed: (user.getId(): {}, action: {})", user.getId(), user.getId());
             throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
         }
         Request request = requestManager.getRequestById(requestId);
         if (request == null) {
             log.error("Could not fetch request with ID: {} from database", requestId);
             throw new InternalErrorException("Could not fetch request with ID: " + requestId + " from database");
-        } else if (!applicationProperties.isAppAdmin(userId)
-                && !utilsService.isAdminForRequest(request, userId)) {
+        } else if (!applicationProperties.isAppAdmin(user.getId())
+                && !utilsService.isAdminForRequest(request, user.getId())) {
             throw new UnauthorizedActionException("Cannot cancel request");
         }
 
@@ -368,7 +361,7 @@ public class RequestsServiceImpl implements RequestsService {
             log.info("Removed {} codes", removedCodes);
         }
 
-        request.setModifiedBy(userId);
+        request.setModifiedBy(user.getId());
         request.setStatus(RequestStatus.CANCELED);
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
         boolean requestUpdated = requestManager.updateRequest(request);
@@ -379,16 +372,21 @@ public class RequestsServiceImpl implements RequestsService {
         } else {
             log.info("Request updated, notification sent");
         }
+
+        insertCancelRequestAuditLog(requestId, user.getId(), user.getName());
         return requestUpdated;
     }
 
     @Override
-    public List<Request> getAllRequests(@NonNull Long userId) {
+    public List<Request> getAllRequests(@NonNull User user) throws UnauthorizedActionException {
+        if (applicationProperties.isAppAdmin(user.getId())) {
+            throw new UnauthorizedActionException("User not admin");
+        }
         return requestManager.getAllRequests();
     }
 
     @Override
-    public boolean approveRequest(@NonNull Long requestId, @NonNull Long userId)
+    public boolean approveRequest(@NonNull Long requestId, @NonNull User user)
             throws CannotChangeStatusException, InternalErrorException, PerunUnknownException, PerunConnectionException
     {
         Request request = requestManager.getRequestById(requestId);
@@ -404,7 +402,7 @@ public class RequestsServiceImpl implements RequestsService {
 
         request.setStatus(APPROVED);
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
-        request.setModifiedBy(userId);
+        request.setModifiedBy(user.getId());
         request.updateAttributes(new ArrayList<>(), false, applicationBeans);
 
         if (!processApprovedRequest(request)) {
@@ -415,14 +413,15 @@ public class RequestsServiceImpl implements RequestsService {
             return false;
         }
 
-        createAuditLog(requestId, userId, oldStatus, request.getStatus());
-        createServiceToRequestLog(request.getFacilityId(), requestId);
+        AuditLog audit = new AuditLog();
+        audit.setActorId(user.getId());
+        insertApproveRequestAuditLog(requestId, user.getId(), user.getName());
         mailsService.notifyUser(request, MailsServiceImpl.REQUEST_STATUS_UPDATED);
         return true;
     }
 
     @Override
-    public boolean rejectRequest(@NonNull Long requestId, @NonNull Long userId)
+    public boolean rejectRequest(@NonNull Long requestId, @NonNull User user)
             throws CannotChangeStatusException, InternalErrorException
     {
         Request request = requestManager.getRequestById(requestId);
@@ -436,18 +435,18 @@ public class RequestsServiceImpl implements RequestsService {
 
         request.setStatus(REJECTED);
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
-        request.setModifiedBy(userId);
+        request.setModifiedBy(user.getId());
 
         if (!requestManager.updateRequest(request)) {
             return false;
         }
-        createAuditLog(requestId, userId, oldStatus, request.getStatus());
+        insertRejectRequestAuditLog(requestId, user.getId(), user.getName());
         mailsService.notifyUser(request, MailsServiceImpl.REQUEST_STATUS_UPDATED);
         return true;
     }
 
     @Override
-    public boolean askForChanges(@NonNull Long requestId, @NonNull Long userId,
+    public boolean askForChanges(@NonNull Long requestId, @NonNull User user,
                                  @NonNull List<PerunAttribute> attributes)
             throws CannotChangeStatusException, InternalErrorException
     {
@@ -462,53 +461,21 @@ public class RequestsServiceImpl implements RequestsService {
 
         request.updateAttributes(attributes, false, applicationBeans);
         request.setStatus(WAITING_FOR_CHANGES);
-        request.setModifiedBy(userId);
+        request.setModifiedBy(user.getId());
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
 
         if (!requestManager.updateRequest(request)) {
             return false;
         }
 
-        createAuditLog(requestId, userId, oldStatus, request.getStatus());
+        insertChangesRequestedRequestAuditLog(requestId, user.getId(), user.getName());
         mailsService.notifyUser(request, MailsServiceImpl.REQUEST_STATUS_UPDATED);
         return true;
     }
 
-    @Override
-    public List<AuditLog> getAllAuditLogs(@NonNull Long adminId) {
-        return auditLogsManager.getAllAuditLogs();
-    }
-
-    @Override
-    public AuditLog getAuditLog(@NonNull Long auditLogId, @NonNull Long userId) throws InternalErrorException {
-        AuditLog auditLog = auditLogsManager.getAuditLogById(auditLogId);
-        if (auditLog == null) {
-            log.error("Could not retrieve audit log for id: {}", auditLogId);
-            throw new InternalErrorException("Could not retrieve audit log for id: " + auditLogId);
-        }
-
-        return auditLog;
-    }
-
-    @Override
-    public List<AuditLog> getAuditLogsByReqId(@NonNull Long reqId, @NonNull Long adminId) {
-        return auditLogsManager.getAuditLogsByReqId(reqId);
-    }
-
-    @Override
-    public List<AuditLog> getAuditLogsByService(@NonNull Long facilityId, @NonNull Long adminId)
-            throws InternalErrorException
-    {
-        ProvidedService service = providedServiceManager.getByFacilityId(facilityId);
-        if (service == null) {
-            throw new IllegalArgumentException();
-        }
-        return auditLogsManager.getAuditLogsByService(service.getId());
-    }
-
     // private methods
 
-    private Request createRequest(Long facilityId, Long userId,
+    private Request createRequest(Long facilityId, User user,
                                   RequestAction action, List<PerunAttribute> attributes)
             throws InternalErrorException, ActiveRequestExistsException
     {
@@ -517,8 +484,8 @@ public class RequestsServiceImpl implements RequestsService {
         request.setStatus(WAITING_FOR_APPROVAL);
         request.setAction(action);
         request.updateAttributes(attributes, true, applicationBeans);
-        request.setReqUserId(userId);
-        request.setModifiedBy(userId);
+        request.setReqUserId(user.getId());
+        request.setModifiedBy(user.getId());
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));
 
         Long requestId = requestManager.createRequest(request);
@@ -526,8 +493,23 @@ public class RequestsServiceImpl implements RequestsService {
             throw new InternalErrorException("Could not create request in DB");
         }
         request.setReqId(requestId);
-        createAuditLog(requestId, userId, null, request.getStatus());
         return request;
+    }
+
+    private boolean insertAuditLog(Long requestId, Long actorId, String actorName, String message) {
+        AuditLog audit = new AuditLog();
+        audit.setRequestId(requestId);
+        audit.setActorId(actorId);
+        audit.setActorName(actorName);
+        audit.setMessage(message);
+        try {
+            audit = auditLogsManager.insert(audit);
+            return audit != null;
+        } catch (InternalErrorException e) {
+            log.warn("Failed to insert audit log '{}'", audit);
+            //TODO: implement rescheduling of such tasks
+            return false;
+        }
     }
 
     private boolean processApprovedRequest(Request request)
@@ -922,26 +904,6 @@ public class RequestsServiceImpl implements RequestsService {
         return attribute;
     }
 
-    private List<PerunAttribute> filterNonNullAttributes(Facility facility) {
-        if (facility.getAttributes() == null || facility.getAttributes().isEmpty()) {
-            return new LinkedList<>();
-        }
-        final List<PerunAttribute> filteredAttributes = new LinkedList<>();
-        facility.getAttributes()
-                .values()
-                .forEach(attrsInCategory -> {
-                            if (attrsInCategory != null && !attrsInCategory.isEmpty()) {
-                                attrsInCategory.values()
-                                        .stream()
-                                        .filter(attr -> attr.getValue() != null)
-                                        .forEach(filteredAttributes::add);
-                            }
-                        }
-                );
-
-        return filteredAttributes;
-    }
-
     private Map<String, String> generateCodesForAuthorities(Request request, List<String> authorities, User user)
             throws InternalErrorException
     {
@@ -1030,8 +992,7 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     private Long createAdminsGroup(String perunFacilityName)
-            throws PerunUnknownException, PerunConnectionException, InternalErrorException
-    {
+            throws PerunUnknownException, PerunConnectionException, InternalErrorException {
         Group adminsGroup = new Group(perunFacilityName, perunFacilityName,
                 "Administrators of SP - " + perunFacilityName,
                 applicationProperties.getSpManagersParentGroupId(),
@@ -1043,67 +1004,51 @@ public class RequestsServiceImpl implements RequestsService {
         return adminsGroup.getId();
     }
 
-    private void createAuditLog(Long requestId, Long userId, RequestStatus oldStatus, RequestStatus newStatus) {
-        try {
-            String changeMessage;
-
-            if (oldStatus != null) {
-                changeMessage = "Status of the request has been changed from " + oldStatus.toString() + " to " + newStatus.toString();
-            } else {
-                changeMessage = "New request has been created and got status " + newStatus;
-            }
-
-            String query = new StringJoiner(" ")
-                    .add("INSERT INTO").add(AUDIT_TABLE)
-                    .add("(request_id, change_made_by, change_description)")
-                    .add("VALUES (:request_id, :change_made_by, :change_description)")
-                    .toString();
-
-            KeyHolder key = new GeneratedKeyHolder();
-            MapSqlParameterSource params = new MapSqlParameterSource();
-            params.addValue("request_id", requestId);
-            params.addValue("change_made_by", userId);
-            params.addValue("change_description", changeMessage);
-
-            int updatedCount = jdbcTemplate.update(query, params, key, new String[] { "id" });
-            if (updatedCount == 0) {
-                log.error("Zero rows have been inserted");
-                throw new InternalErrorException("Zero rows have been inserted");
-            } else if (updatedCount > 1) {
-                log.error("Only one row should have been inserted");
-                throw new InternalErrorException("Only one row should have been inserted");
-            }
-        } catch (Exception ex) {
-            log.error("Error creating audit log: " + ex);
-        }
+    private boolean isOidcCredentialAttr(PerunAttribute a) {
+        return isOidcCredentialAttr(a, true);
     }
 
-    private void createServiceToRequestLog(Long facilityId, Long requestId) {
-        try {
-            Long serviceId = providedServiceManager.getByFacilityId(facilityId).getId();
-
-            String query = new StringJoiner(" ")
-                    .add("INSERT INTO").add(SERVICE_TO_REQUEST_TABLE)
-                    .add("(service_id, request_id)")
-                    .add("VALUES (:service_id, :request_id)")
-                    .toString();
-
-            KeyHolder key = new GeneratedKeyHolder();
-            MapSqlParameterSource params = new MapSqlParameterSource();
-            params.addValue("service_id", serviceId);
-            params.addValue("request_id", requestId);
-
-            int updatedCount = jdbcTemplate.update(query, params, key, new String[] { "service_id", "request_id" });
-            if (updatedCount == 0) {
-                log.error("Zero rows have been inserted");
-                throw new InternalErrorException("Zero rows have been inserted");
-            } else if (updatedCount > 1) {
-                log.error("Only one row should have been inserted");
-                throw new InternalErrorException("Only one row should have been inserted");
-            }
-        } catch (Exception ex) {
-            log.error("Error creating service_to_request log: " + ex);
+    private boolean isOidcCredentialAttr(PerunAttribute a, boolean filterClientId) {
+        if (attributesProperties.getNames().getOidcClientSecret().equalsIgnoreCase(a.getFullName())) {
+            return true;
         }
+        return filterClientId && attributesProperties.getNames().getOidcClientId().equalsIgnoreCase(a.getFullName());
+    }
+
+    private void insertRegisterServiceReqCreatedAuditLog(Long requestId, Long actorId, String actorName) {
+        insertAuditLog(requestId, actorId, actorName, "Service registration request created");
+    }
+
+    private void insertUpdateServiceReqCreatedAuditLog(Long requestId, Long actorId, String actorName) {
+        insertAuditLog(requestId, actorId, actorName, "Update settings request created");
+    }
+
+    private void insertRemoveServiceReqCreatedAuditLog(Long requestId, Long actorId, String actorName) {
+        insertAuditLog(requestId, actorId, actorName, "Remove service request created");
+    }
+
+    private void insertTransferServiceReqCreatedAuditLog(Long requestId, Long actorId, String actorName) {
+        insertAuditLog(requestId, actorId, actorName, "Transfer to production request created");
+    }
+
+    private void insertApproveRequestAuditLog(Long requestId, Long actorId, String actorName) {
+        insertAuditLog(requestId, actorId, actorName, "Approved by administrators");
+    }
+
+    private void insertRejectRequestAuditLog(Long requestId, Long actorId, String actorName) {
+        insertAuditLog(requestId, actorId, actorName, "Rejected by administrators");
+    }
+
+    private void insertCancelRequestAuditLog(Long requestId, Long actorId, String actorName) {
+        insertAuditLog(requestId, actorId, actorName, "Canceled by the requester");
+    }
+
+    private void insertChangesRequestedRequestAuditLog(Long requestId, Long actorId, String actorName) {
+        insertAuditLog(requestId, actorId, actorName, "Administrator requested changes in proposed settings");
+    }
+
+    private void insertUpdatedRequestAuditLog(Long requestId, Long actorId, String actorName) {
+        insertAuditLog(requestId, actorId, actorName, "Updated by requester");
     }
 
 }
