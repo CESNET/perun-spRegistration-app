@@ -1,5 +1,6 @@
 import {AttributesEntity} from './AttributesEntity';
 import {User} from './User';
+import {ProvidedService} from "./ProvidedService";
 
 export class Request extends AttributesEntity {
   constructor(item: any) {
@@ -17,6 +18,11 @@ export class Request extends AttributesEntity {
     this.modifiedBy = item.modifiedBy;
     this.requester = new User(item.requester);
     this.modifier = new User(item.modifier);
+    if (item.providedService) {
+      this.providedService = new ProvidedService(item.providedService);
+    } else {
+      this.providedService = null;
+    }
   }
 
   reqId: number;
@@ -28,5 +34,6 @@ export class Request extends AttributesEntity {
   modifiedBy: number;
   requester: User;
   modifier: User;
+  providedService: ProvidedService;
 
 }

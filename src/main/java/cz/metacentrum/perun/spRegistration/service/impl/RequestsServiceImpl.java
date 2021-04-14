@@ -60,6 +60,7 @@ import java.security.InvalidKeyException;
 import java.sql.Timestamp;
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -332,6 +333,7 @@ public class RequestsServiceImpl implements RequestsService {
                 requests.addAll(facilitiesRequests);
             }
         }
+        mapProvidedServicesToRequests(requests);
 
         return new ArrayList<>(requests);
     }
@@ -379,7 +381,20 @@ public class RequestsServiceImpl implements RequestsService {
         if (!applicationProperties.isAppAdmin(user.getId())) {
             throw new UnauthorizedActionException("User not admin");
         }
-        return requestManager.getAllRequests();
+        List<Request> requests = requestManager.getAllRequests();
+        mapProvidedServicesToRequests(requests);
+        return requests;
+    }
+
+    private void mapProvidedServicesToRequests(Collection<Request> requests) {
+        Set<Long> facIds = requests.stream()
+                .map(Request::getFacilityId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        List<ProvidedService> services = providedServiceManager.getAllForFacilities(facIds);
+        Map<Long, ProvidedService> providedServiceMap = new HashMap<>();
+        services.forEach(s -> providedServiceMap.put(s.getFacilityId(), s));
+        requests.forEach(r -> r.setProvidedService(providedServiceMap.get(r.getFacilityId())));
     }
 
     @Override

@@ -116,7 +116,8 @@
     "CHANGED_VAL_WARN": "U této hodnoty došlo byla navrhnuta změna",
     "TAB_BADGE_TOOLTIP": "Pokud je zobrzaeno číslo, tato hodnota indikuje počet změn v dané kategorii",
     "CANCEL_REQUEST": "Zrušit",
-    "HISTORY": "Historie změn"
+    "HISTORY": "Historie změn",
+    "SERVICE_NAME": "Název služby"
   },
   "FACILITIES": {
     "IDENTIFIER": "ClientID/EntityID",

@@ -39,6 +39,7 @@ public class Request {
 	private Long facilityId;
 	private Long reqUserId;
 	private User requester;
+	private ProvidedService providedService;
 	@NonNull private RequestAction action;
 	@NonNull private RequestStatus status;
 	private Map<AttributeCategory, Map<String, PerunAttribute>> attributes = new HashMap<>();

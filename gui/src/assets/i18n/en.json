@@ -119,7 +119,8 @@
     "CHANGED_VAL_WARN": "A proposal has been made to change this value",
     "TAB_BADGE_TOOLTIP": "If there is a number, it indicates amount of changes in the category",
     "CANCEL_REQUEST": "Cancel",
-    "HISTORY": "Changes history"
+    "HISTORY": "Changes history",
+    "SERVICE_NAME": "Service name"
   },
   "FACILITIES": {
     "IDENTIFIER": "ClientID/EntityID",
