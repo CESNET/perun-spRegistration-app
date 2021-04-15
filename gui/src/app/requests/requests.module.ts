@@ -1,26 +1,22 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RequestsRoutingModule } from './requests-routing.module';
-import { RequestsOverviewComponent } from './requests-overview/requests-overview.component';
+import { RequestsUserComponent } from './requests-user/requests-user.component';
 import { SharedModule } from '../shared/shared.module';
-import { NewRequestComponent } from './new-request/new-request.component';
-import { RequestDetailComponent } from './request-detail/request-detail.component';
-import { RequestItemValuePipe } from './request-item-value.pipe';
-import { AllRequestsComponent } from './all-requests/all-requests.component';
-import { RequestCreationStepComponent } from './new-request/request-creation-step/request-creation-step.component';
-import { RequestDetailDialogComponent } from './request-detail/request-detail-dialog/request-detail-dialog.component';
+import { RequestsRegisterServiceComponent } from './requests-register-service/requests-register-service.component';
+import { RequestsDetailComponent } from './requests-detail/requests-detail.component';
+import { RequestsItemValuePipe } from './requests-item-value.pipe';
+import { RequestsAdminComponent } from './requests-admin/requests-admin.component';
+import { RequestsRegisterServiceStepComponent } from './requests-register-service/requests-register-service-step/requests-register-service-step.component';
+import { RequestsDetailDialogComponent } from './requests-detail/requests-detail-dialog/requests-detail-dialog.component';
 import { MatDialogModule } from '@angular/material/dialog';
-import { RequestEditComponent } from './request-edit/request-edit.component';
-import { RequestActionPipe } from './request-action.pipe';
-import { RequestApprovedPipe } from './request-approved.pipe';
+import { RequestsEditComponent } from './requests-edit/requests-edit.component';
+import { RequestsActionPipe } from './requests-action.pipe';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import {MatTabsModule} from "@angular/material/tabs";
-import { RequestDetailItemLocalePipe } from './request-detail-item-locale.pipe';
-import {RequestStatusIconPipe} from "./request-status-icon.pipe";
-import {RequestStatusLangPipe} from "./request-status-lang.pipe";
-import {RequestOverview} from "../core/models/RequestOverview";
-import {MatTableDataSource} from "@angular/material/table";
-import {TranslateService} from "@ngx-translate/core";
+import {RequestsStatusIconPipe} from "./requests-status-icon.pipe";
+import {RequestsStatusLangPipe} from "./requests-status-lang.pipe";
+import {RequestSignatureDecisionIconPipePipe} from "./requests-signature-decision-icon.pipe";
 
 @NgModule({
   imports: [
@@ -32,20 +28,19 @@ import {TranslateService} from "@ngx-translate/core";
     MatTabsModule,
   ],
   declarations: [
-    RequestsOverviewComponent,
-    NewRequestComponent,
-    RequestDetailComponent,
-    RequestItemValuePipe,
-    RequestCreationStepComponent,
-    AllRequestsComponent,
-    RequestEditComponent,
-    RequestStatusIconPipe,
-    RequestStatusLangPipe,
-    RequestActionPipe,
-    AllRequestsComponent,
-    RequestDetailDialogComponent,
-    RequestApprovedPipe,
-    RequestDetailItemLocalePipe
+    RequestsUserComponent,
+    RequestsRegisterServiceComponent,
+    RequestsDetailComponent,
+    RequestsItemValuePipe,
+    RequestsRegisterServiceStepComponent,
+    RequestsAdminComponent,
+    RequestsEditComponent,
+    RequestsStatusIconPipe,
+    RequestsStatusLangPipe,
+    RequestsActionPipe,
+    RequestsAdminComponent,
+    RequestsDetailDialogComponent,
+    RequestSignatureDecisionIconPipePipe
   ],
 })
 export class RequestsModule { }

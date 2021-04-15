@@ -1,14 +1,14 @@
 <form class="col-12 pl-0 pr-0 w-100" #form="ngForm">
   <div class="row">
     <p class="col-12 pl-0 pr-0 pb-1 col-form-label word-break-word" [class.perun-warn]="hasError()">
-      {{applicationItem.displayName | itemLocalePipe}}<span *ngIf="applicationItem.required"> *</span>
+      {{ applicationItem.displayName | itemLocale }}<span *ngIf="applicationItem.required"> *</span>
       <button mat-icon-button color="accent" (click)="addValue()">
         <mat-icon>add_box</mat-icon>
       </button>
     </p>
   </div>
   <div class="row">
-    <p class="col-12 pl-0 pr-0 text-muted small" [innerHTML]="applicationItem.description | itemLocalePipe"></p>
+    <p class="col-12 pl-0 pr-0 text-muted small" [innerHTML]="applicationItem.description | itemLocale"></p>
   </div>
   <div class="row" *ngIf="missingValueError">
     <request-item-input-error [messageKey]="'REQUESTS.ERRORS.NO_VALUE_ERROR'"></request-item-input-error>

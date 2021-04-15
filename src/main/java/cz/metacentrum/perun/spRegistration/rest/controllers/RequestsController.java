@@ -7,11 +7,14 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorExcept
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
+import cz.metacentrum.perun.spRegistration.common.models.RequestSignatureDTO;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.rest.ApiEntityMapper;
 import cz.metacentrum.perun.spRegistration.rest.models.RequestOverview;
+import cz.metacentrum.perun.spRegistration.rest.models.RequestSignature;
+import cz.metacentrum.perun.spRegistration.service.RequestSignaturesService;
 import cz.metacentrum.perun.spRegistration.service.RequestsService;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
 import lombok.NonNull;
@@ -43,14 +46,18 @@ public class RequestsController {
 	@NonNull private final RequestsService requestsService;
 	@NonNull private final UtilsService utilsService;
 	@NonNull private final AttributesProperties attributesProperties;
+	@NonNull private final RequestSignaturesService requestSignaturesService;
 
 	@Autowired
 	public RequestsController(@NonNull RequestsService requestsService,
-							  @NonNull UtilsService utilsService, @NonNull AttributesProperties attributesProperties)
+							  @NonNull UtilsService utilsService,
+							  @NonNull AttributesProperties attributesProperties,
+							  @NonNull RequestSignaturesService requestSignaturesService)
 	{
 		this.requestsService = requestsService;
 		this.utilsService = utilsService;
 		this.attributesProperties = attributesProperties;
+		this.requestSignaturesService = requestSignaturesService;
 	}
 
 	@GetMapping(path = "/user")
@@ -170,6 +177,21 @@ public class RequestsController {
 			throw new UnauthorizedActionException();
 		}
 		return requestsService.askForChanges(requestId, user, attributes);
+	}
+
+	@GetMapping(path = "/{requestId}/signatures")
+	public List<RequestSignature> getApprovals(@NonNull @SessionAttribute("user") User user,
+											   @NonNull @PathVariable("requestId") Long requestId)
+			throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException
+	{
+		RequestDTO req = requestsService.getRequest(requestId, user);
+		if (req == null) {
+			throw new InternalErrorException("Request has not been found");
+		} else if (!utilsService.isAdminForRequest(req, user)) {
+			throw new UnauthorizedActionException("User is not authorized to perform this action");
+		}
+		List<RequestSignatureDTO> signatures = requestSignaturesService.getSignaturesForRequest(requestId, user.getId());
+		return ApiEntityMapper.mapRequestSignatureDTOsToRequestSignature(signatures);
 	}
 
 }

@@ -4,7 +4,7 @@
 <div class="p-0 m-0">
   <p class="mb-1">
     <mat-icon *ngIf="displayOldVal" class="mr-2" matTooltip="{{'REQUESTS.CHANGED_VAL_WARN' | translate}}">warning</mat-icon>
-    <span class="font-thick mr-2">{{item.name | itemLocalePipe}}</span>
+    <span class="font-thick mr-2">{{item.name | itemLocale}}</span>
     <span [innerHTML]="item.value | detailedViewItemValuePipe"></span>
   </p>
   <p class="mb-1 text-muted small" *ngIf="displayOldVal">

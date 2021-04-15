@@ -6,8 +6,6 @@ import { UsersService } from './core/services/users.service';
 import { ConfigService } from './core/services/config.service';
 import { PageConfig } from './core/models/PageConfig';
 import { User } from './core/models/User';
-import { PerunFooterCstComponent } from './perun-footer-cst/perun-footer-cst.component';
-import { PerunHeaderComponent } from './perun-header/perun-header.component';
 
 @Component({
   selector: 'app-root',
@@ -149,12 +147,7 @@ export class AppComponent implements OnInit {
         AppComponent.pageConfig = new PageConfig(pageConfig);
         this.appTitle = pageConfig.headerLabel;
         this.logoUrl = pageConfig.logoUrl;
-        PerunFooterCstComponent.setFooter(pageConfig.footerHtml);
-        PerunHeaderComponent.setHeader(pageConfig.headerHtml);
       }
-
-      PerunFooterCstComponent.setFooter(null);
-      PerunHeaderComponent.setHeader(null);
       this.loading = false;
     });
     this.setAndGetUser();

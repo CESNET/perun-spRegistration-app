@@ -6,11 +6,11 @@
         <!-- PAGE TITLE -->
         <div class="col-md-8">
           <h2 class="card-title">
-            {{'FACILITIES.DETAIL_TITLE' | translate}}{{facility.id}} - {{facility.name | facilityDetailItemLocale}}
+            {{'FACILITIES.DETAIL_TITLE' | translate}}{{facility.id}} - {{facility.name | itemLocale}}
           </h2>
           <p>
             <span class="font-thick mr-1">{{'FACILITIES.DESCRIPTION' | translate}}:</span>
-            <span [innerHTML]="facility.description | itemLocalePipe | detailedViewItemValuePipe"></span>
+            <span [innerHTML]="facility.description | itemLocale | detailedViewItemValuePipe"></span>
           </p>
           <p>
             <span class="font-thick mr-1">{{'FACILITIES.ENVIRONMENT' | translate}}: </span>

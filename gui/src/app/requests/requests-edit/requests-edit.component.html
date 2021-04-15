@@ -1,0 +1,156 @@
+<div class="container-fluid pt-5">
+  <mat-spinner class="ml-auto mr-auto" *ngIf="loading" color=""></mat-spinner>
+  <div *ngIf="!loading" class="row mb-md-4 p-lg-5 p-4 border-dark shadow">
+    <div class="col mb-3">
+      <div class="row">
+        <!-- PAGE TITLE -->
+        <div class="col-md-8">
+          <h2 class="card-title">{{'REQUESTS.EDIT_REQUEST' | translate}}</h2>
+          <div>
+            <strong>{{'REQUESTS.STATUS' | translate}}: </strong>
+            <span [outerHTML]="request.status | requestStatusIcon"></span>{{ request.status | requestStatusLang | translate }}
+          </div>
+          <div>
+            <strong>{{'REQUESTS.ACTION' | translate}}: </strong>{{ request.action | requestAction | translate }}
+          </div>
+          <div>
+            <strong>{{'REQUESTS.DETAIL_EDITED' | translate}}: </strong> {{ request.modifiedAt | date }}
+          </div>
+        </div>
+        <!-- BUTTONS -->
+        <div class="col-md-4 mt-4 controls text-right">
+          <button class="btn-block" mat-raised-button color="accent" (click)="submitRequest()">
+            {{ "COMMON.SUBMIT" | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="w-100"><!-- SPACER --></div>
+    <!-- ATTRIBUTES -->
+    <div class="col mb-3" *ngIf="this.isCardBodyVisible">
+      <!-- SERVICE -->
+      <div class="row mb-4">
+        <div class="col">
+          <div class="row">
+            <div class="col clearfix">
+              <span>{{ 'COMMON.ATTRIBUTES.SERVICE' | translate }}</span>
+              <button class="ml-2 pull-right" type="button" mat-raised-button (click)="changeServiceShowMore()">
+                {{ (showServiceMore ? "COMMON.SHOW_LESS" : "COMMON.SHOW_MORE") | translate}}
+              </button>
+              <hr/>
+            </div>
+          </div>
+          <div class="row pl-3 pr-3">
+            <div class="col">
+              <ng-container *ngFor="let applicationItems of commentedServiceAttrs">
+                <request-input-item #commentedServiceItems [applicationItem]="applicationItems"></request-input-item>
+              </ng-container>
+            </div>
+          </div>
+          <div class="row pl-3 pr-3">
+            <div class="col" [style.display]="(serviceAttrs.length > 0 && showServiceMore) ? 'block' : 'none'">
+              <ng-container *ngFor="let applicationItems of serviceAttrs">
+                <request-input-item #serviceItems [applicationItem]="applicationItems"></request-input-item>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ORGANIZATION -->
+      <div class="row mb-4">
+        <div class="col">
+          <div class="row">
+            <div class="col clearfix">
+              <span>{{ 'COMMON.ATTRIBUTES.ORGANIZATION' | translate }}</span>
+              <button class="ml-2 pull-right" type="button" mat-raised-button (click)="changeOrganizationShowMore()">
+                {{ (showOrganizationMore ? "COMMON.SHOW_LESS" : "COMMON.SHOW_MORE") | translate}}
+              </button>
+              <hr/>
+            </div>
+          </div>
+          <div class="row pl-3 pr-3">
+            <div class="col">
+              <ng-container *ngFor="let applicationItems of commentedOrganizationAttrs">
+                <request-input-item #commentedOrgItems [applicationItem]="applicationItems"></request-input-item>
+              </ng-container>
+            </div>
+          </div>
+          <div class="row pl-3 pr-3">
+            <div class="col" [style.display]="(organizationAttrs.length > 0 && showOrganizationMore) ? 'block' : 'none'">
+              <ng-container *ngFor="let applicationItems of organizationAttrs">
+                <request-input-item #orgItems [applicationItem]="applicationItems"></request-input-item>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- PROTOCOL -->
+      <div class="row mb-4">
+        <div class="col">
+          <div class="row">
+            <div class="col clearfix">
+              <span>{{ 'COMMON.ATTRIBUTES.PROTOCOL' | translate }}</span>
+              <button class="ml-2 pull-right" type="button" mat-raised-button (click)="changeProtocolShowMore()">
+                {{ (showProtocolMore ? "COMMON.SHOW_LESS" : "COMMON.SHOW_MORE") | translate}}
+              </button>
+              <hr/>
+            </div>
+          </div>
+          <div class="row pl-3 pr-3">
+            <div class="col">
+              <ng-container *ngFor="let applicationItems of commentedProtocolAttrs">
+                <request-input-item #commentedProtocolItems [applicationItem]="applicationItems"></request-input-item>
+              </ng-container>
+            </div>
+          </div>
+          <div class="row pl-3 pr-3">
+            <div class="col" [style.display]="(protocolAttrs.length > 0 && showProtocolMore) ? 'block' : 'none'">
+              <ng-container *ngFor="let applicationItems of protocolAttrs">
+                <request-input-item #protocolItems [applicationItem]="applicationItems"></request-input-item>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ACCESS_CONTROL -->
+      <div class="row">
+        <div class="col">
+          <div class="row">
+            <div class="col clearfix">
+              <span>{{ 'COMMON.ATTRIBUTES.ACCESS_CONTROL' | translate }}</span>
+              <button class="ml-2 pull-right" type="button" mat-raised-button (click)="changeAccessShowMore()">
+                {{ (showAccessControlMore ? "COMMON.SHOW_LESS" : "COMMON.SHOW_MORE") | translate}}
+              </button>
+              <hr/>
+            </div>
+          </div>
+          <div class="row pl-3 pr-3">
+            <div class="col">
+              <ng-container *ngFor="let applicationItems of commentedAccessControlAttrs">
+                <request-input-item #commentedAccessItems [applicationItem]="applicationItems"></request-input-item>
+              </ng-container>
+            </div>
+          </div>
+          <div class="row pl-3 pr-3">
+            <div class="col" [style.display]="(accessControlAttrs.length > 0 && showAccessControlMore) ? 'block' : 'none'">
+              <ng-container *ngFor="let applicationItems of accessControlAttrs">
+                <request-input-item #accessItems [applicationItem]="applicationItems"></request-input-item>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="w-100"><!-- SPACER --></div>
+    <!-- SUBMIT -->
+    <div class="col mb-3">
+      <div class="row">
+        <div class="offset-md-8 col-md-4 controls text-right">
+          <button class="btn-block" mat-raised-button color="accent" (click)="submitRequest()">
+            {{ "COMMON.SUBMIT" | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

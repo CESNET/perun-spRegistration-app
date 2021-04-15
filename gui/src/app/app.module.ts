@@ -13,8 +13,6 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LoginComponent } from './login/login.component';
 import { DocumentSignComponent } from './document-sign/document-sign.component';
-import {PerunHeaderComponent} from './perun-header/perun-header.component';
-import {PerunFooterCstComponent} from './perun-footer-cst/perun-footer-cst.component';
 import {ToolsComponent} from './tools/tools.component';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatTabsModule} from '@angular/material/tabs';
@@ -32,8 +30,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     AppComponent,
     LoginComponent,
     DocumentSignComponent,
-    PerunFooterCstComponent,
-    PerunHeaderComponent,
     ToolsComponent,
     AttributeValuePipe,
     DocumentSignItemLocalePipe,

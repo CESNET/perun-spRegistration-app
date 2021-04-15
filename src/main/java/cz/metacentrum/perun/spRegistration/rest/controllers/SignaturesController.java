@@ -5,11 +5,13 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeExceptio
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
-import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
+import cz.metacentrum.perun.spRegistration.common.models.RequestSignatureDTO;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
+import cz.metacentrum.perun.spRegistration.rest.ApiEntityMapper;
 import cz.metacentrum.perun.spRegistration.rest.ApiUtils;
+import cz.metacentrum.perun.spRegistration.rest.models.RequestSignature;
 import cz.metacentrum.perun.spRegistration.service.RequestSignaturesService;
 import cz.metacentrum.perun.spRegistration.service.RequestsService;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
@@ -101,20 +103,6 @@ public class SignaturesController {
 		}
 
 		return signTransferToProduction(code, user, false);
-	}
-
-	@GetMapping(path = "/api/viewApprovals/{requestId}")
-	public List<RequestSignature> getApprovals(@NonNull @SessionAttribute("user") User user,
-											   @NonNull @PathVariable("requestId") Long requestId)
-			throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException
-	{
-		RequestDTO req = requestsService.getRequest(requestId, user);
-		if (req == null) {
-			throw new InternalErrorException("Request has not been found");
-		} else if (!utilsService.isAdminForRequest(req, user)) {
-			throw new UnauthorizedActionException("User is not authorized to perform this action");
-		}
-		return requestSignaturesService.getSignaturesForRequest(requestId, user.getId());
 	}
 
 	/* PRIVATE METHODS */

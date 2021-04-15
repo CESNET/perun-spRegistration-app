@@ -1,6 +1,6 @@
 package cz.metacentrum.perun.spRegistration.persistence.mappers;
 
-import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
+import cz.metacentrum.perun.spRegistration.common.models.RequestSignatureDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -13,7 +13,7 @@ import java.sql.SQLException;
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @Slf4j
-public class RequestSignatureMapper implements RowMapper<RequestSignature> {
+public class RequestSignatureMapper implements RowMapper<RequestSignatureDTO> {
 
 	private static final String REQUEST_ID_KEY = "request_id";
 	private static final String USER_ID_KEY = "user_id";
@@ -22,8 +22,8 @@ public class RequestSignatureMapper implements RowMapper<RequestSignature> {
 	private static final String APPROVED_KEY = "approved";
 
 	@Override
-	public RequestSignature mapRow(ResultSet resultSet, int i) throws SQLException {
-		RequestSignature approval = new RequestSignature();
+	public RequestSignatureDTO mapRow(ResultSet resultSet, int i) throws SQLException {
+		RequestSignatureDTO approval = new RequestSignatureDTO();
 
 		approval.setRequestId(resultSet.getLong(REQUEST_ID_KEY));
 		approval.setUserId(resultSet.getLong(USER_ID_KEY));

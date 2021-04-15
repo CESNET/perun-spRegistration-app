@@ -3,7 +3,6 @@ import {ApplicationItem} from '../../../core/models/ApplicationItem';
 import {RequestItem} from '../../../core/models/RequestItem';
 import {Attribute} from '../../../core/models/Attribute';
 import {NgForm} from '@angular/forms';
-import {RequestItemInputComponent} from '../request-item-input.component';
 import {RequestItemInputUtils} from "../request-item-input-utils/request-item-input.component";
 
 @Component({

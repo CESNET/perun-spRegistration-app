@@ -1,11 +1,11 @@
 <form class="col-12 pl-0 pr-0 w-100" #form="ngForm">
   <div class="row">
     <mat-form-field class="col-12 pl-0 pr-0 w-100">
-      <input matInput #input="ngModel" [required]="applicationItem.required" id="{{applicationItem.name}}"
+      <input matInput #input="ngModel" [required]="applicationItem.required" id="{{ applicationItem.name }}"
              [(ngModel)]="value" [pattern]="applicationItem.hasRegex() ? applicationItem.regex : null"
              [type] = "applicationItem.regex === 'URL' ? 'url' : 'text'" [class.perun-warn]="hasError()"
-             placeholder="{{applicationItem.displayName | itemLocalePipe}}" name="{{applicationItem.name}}">
-      <div class="text-muted small mt-2">{{applicationItem.description | itemLocalePipe }}</div>
+             placeholder="{{ applicationItem.displayName | itemLocale }}" name="{{ applicationItem.name }}">
+      <div class="text-muted small mt-2">{{ applicationItem.description | itemLocale }}</div>
       <request-item-input-error *ngIf="missingValueError"
                                 [messageKey]="'REQUESTS.ERRORS.NO_VALUE_ERROR'"></request-item-input-error>
       <request-item-input-error *ngIf="expectedValueChangedError"

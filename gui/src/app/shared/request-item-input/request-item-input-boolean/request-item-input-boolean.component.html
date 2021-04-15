@@ -1,11 +1,11 @@
 <form class="col-12 w-100 pl-0 pr-0" #form="ngForm">
   <div class="row">
     <div class="col-12 pl-0 pr-0">
-      <mat-checkbox [(ngModel)]="value" name="{{applicationItem.name}}" [class.perun-warn]="hasError()">
-        {{applicationItem.displayName | itemLocalePipe}}
+      <mat-checkbox [(ngModel)]="value" name="{{ applicationItem.name }}" [class.perun-warn]="hasError()">
+        {{ applicationItem.displayName | itemLocale }}
       </mat-checkbox>
       <hr class="hr">
-      <div class="text-muted small" [innerHTML]="applicationItem.description | itemLocalePipe"></div>
+      <div class="text-muted small" [innerHTML]="applicationItem.description | itemLocale"></div>
     </div>
   </div>
   <div class="row" *ngIf="expectedValueChangedError">

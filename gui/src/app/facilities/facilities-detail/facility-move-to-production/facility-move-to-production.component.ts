@@ -24,8 +24,8 @@ export class FacilityMoveToProductionComponent implements OnInit, OnDestroy {
   ) { }
 
   private sub: Subscription;
-  private authorities: string[];
 
+  authorities: string[];
   loading = true;
   facility: Facility;
   emails: string[] = [];

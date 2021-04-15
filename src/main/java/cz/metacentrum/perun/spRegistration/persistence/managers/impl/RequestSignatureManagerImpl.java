@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.spRegistration.persistence.managers.impl;
 
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
-import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
+import cz.metacentrum.perun.spRegistration.common.models.RequestSignatureDTO;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.managers.LinkCodeManager;
 import cz.metacentrum.perun.spRegistration.persistence.managers.RequestSignatureManager;
@@ -71,7 +71,7 @@ public class RequestSignatureManagerImpl implements RequestSignatureManager {
 
     @Override
     @Transactional
-    public List<RequestSignature> getRequestSignatures(@NonNull Long requestId) {
+    public List<RequestSignatureDTO> getRequestSignatures(@NonNull Long requestId) {
        String query = new StringJoiner(" ")
                 .add("SELECT * FROM").add(APPROVALS_TABLE)
                 .add("WHERE request_id = :request_id")

@@ -8,11 +8,11 @@
           <h2 class="card-title">{{'FACILITIES.EDIT_FACILITY' | translate}}</h2>
           <p>
             <span class="font-thick mr-1">{{ "FACILITIES.NAME" | translate }}: </span>
-            {{ facility.name | facilityDetailItemLocale }}
+            {{ facility.name | itemLocale }}
           </p>
           <p>
             <span class="font-thick mr-1">{{ "FACILITIES.DESCRIPTION" | translate }}: </span>
-            <span [innerHTML]="facility.description | itemLocalePipe | detailedViewItemValuePipe"></span>
+            <span [innerHTML]="facility.description | itemLocale "></span>
           </p>
           <p>
             <span class="font-thick mr-1">{{'FACILITIES.ENVIRONMENT' | translate}}: </span>

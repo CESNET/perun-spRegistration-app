@@ -1,13 +1,12 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {FacilitiesService} from '../core/services/facilities.service';
-import {Subscription} from 'rxjs';
-import {Facility} from '../core/models/Facility';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FacilitiesService } from '../core/services/facilities.service';
+import { Subscription } from 'rxjs';
+import { Facility } from '../core/models/Facility';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import {TranslateService} from '@ngx-translate/core';
-import {FacilityDetailUserItem} from "../core/models/items/FacilityDetailUserItem";
-import {User} from "../core/models/User";
-import {DetailViewItem} from "../core/models/items/DetailViewItem";
+import { TranslateService } from '@ngx-translate/core';
+import { FacilityDetailUserItem } from "../core/models/items/FacilityDetailUserItem";
+import { DetailViewItem } from "../core/models/items/DetailViewItem";
 
 @Component({
   selector: 'app-document-sign',
@@ -15,39 +14,41 @@ import {DetailViewItem} from "../core/models/items/DetailViewItem";
   styleUrls: ['./document-sign.component.scss']
 })
 export class DocumentSignComponent implements OnInit, OnDestroy {
+
+  private routeSub: Subscription = null;
+  private requestDetailsSub: Subscription = null;
+  private facilitySignatureSub: Subscription = null;
+  private code: string = null;
+
   constructor(
     private route: ActivatedRoute,
-    private facilitiesService: FacilitiesService,
+    private fService: FacilitiesService,
     private router: Router,
     private snackBar: MatSnackBar,
     private translate: TranslateService,
-  ) {}
-
-  private sub: Subscription;
+  ) { }
 
   loading = true;
-  private hash: string;
-
-  facility: Facility;
+  facility: Facility = null;
   facilityAttrsService: DetailViewItem[] = [];
   facilityAttrsOrganization: DetailViewItem[] = [];
   facilityAdmins: FacilityDetailUserItem[] = [];
 
   ngOnInit() {
-    this.sub = this.route.queryParams.subscribe(params => {
+    this.routeSub = this.route.queryParams.subscribe(params => {
       if (params.code) {
-        this.hash = params.code;
-        this.facilitiesService.getRequestDetailsWithHash(this.hash).subscribe(request => {
-          this.facilitiesService.getFacilitySignature(request.facilityId).subscribe(facility => {
-            this.facility = new Facility(facility);
-            this.mapAttributes();
-            this.mapAdmins();
-            this.loading = false;
-          }, error => {
-            this.loading = false;
-            console.log(error);
+        this.code = params.code;
+        this.requestDetailsSub = this.fService.getRequestDetailsWithHash(this.code).subscribe(request => {
+            this.facilitySignatureSub = this.fService.getFacilitySignature(request.facilityId).subscribe(facility => {
+              this.facility = new Facility(facility);
+              this.mapAttributes();
+              this.mapAdmins();
+              this.loading = false;
+            }, error => {
+              this.loading = false;
+              console.log(error);
+            });
           });
-        });
       } else {
         this.router.navigate(['/notFound']);
       }
@@ -71,11 +72,19 @@ export class DocumentSignComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.sub.unsubscribe();
+    if (this.routeSub) {
+      this.routeSub.unsubscribe();
+    }
+    if (this.facilitySignatureSub) {
+      this.facilitySignatureSub.unsubscribe();
+    }
+    if (this.requestDetailsSub) {
+      this.requestDetailsSub.unsubscribe();
+    }
   }
 
   approveRequest(): void {
-    this.facilitiesService.approveTransferToProduction(this.hash).subscribe(_ => {
+    this.fService.approveTransferToProduction(this.code).subscribe(_ => {
       this.translate.get('FACILITIES.DOCUMENT_SIGN_SUCCESS').subscribe(successMessage => {
           this.snackBar.open(successMessage, null, {duration: 5000});
           this.router.navigate(['/auth']);
@@ -84,7 +93,7 @@ export class DocumentSignComponent implements OnInit, OnDestroy {
   }
 
   rejectRequest(): void {
-    this.facilitiesService.rejectTransferToProduction(this.hash).subscribe(_ => {
+    this.fService.rejectTransferToProduction(this.code).subscribe(_ => {
       this.translate.get('FACILITIES.DOCUMENT_SIGN_SUCCESS').subscribe(successMessage => {
         this.snackBar.open(successMessage, null, {duration: 5000});
         this.router.navigate(['/auth']);
@@ -92,9 +101,9 @@ export class DocumentSignComponent implements OnInit, OnDestroy {
     });
   }
 
-  isUndefined(value) {
+  isUndefined(value: any) {
     // TODO: extract to one common method, also used in request-detail
-    if (value === undefined || value === null) {
+    if (!value) {
       return true;
     } else {
       if (value instanceof Array || value instanceof String) {

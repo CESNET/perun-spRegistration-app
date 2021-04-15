@@ -2,8 +2,6 @@ import { Injectable } from '@angular/core';
 import { ApiService } from "./api.service";
 import { Observable } from 'rxjs';
 import { Request } from '../models/Request';
-import { PerunAttribute } from '../models/PerunAttribute';
-import { RequestSignature } from '../models/RequestSignature';
 import {AuditLog} from "../models/AuditLog";
 
 @Injectable({

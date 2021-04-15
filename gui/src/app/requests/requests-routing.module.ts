@@ -1,32 +1,32 @@
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
-import {RequestsOverviewComponent} from './requests-overview/requests-overview.component';
-import {NewRequestComponent} from './new-request/new-request.component';
-import {RequestDetailComponent} from './request-detail/request-detail.component';
-import {AllRequestsComponent} from './all-requests/all-requests.component';
-import {RequestEditComponent} from './request-edit/request-edit.component';
+import {RequestsUserComponent} from './requests-user/requests-user.component';
+import {RequestsRegisterServiceComponent} from './requests-register-service/requests-register-service.component';
+import {RequestsDetailComponent} from './requests-detail/requests-detail.component';
+import {RequestsAdminComponent} from './requests-admin/requests-admin.component';
+import {RequestsEditComponent} from './requests-edit/requests-edit.component';
 import {NotFoundPageComponent} from '../shared/not-found-page/not-found-page.component';
 
 const routes: Routes = [
   {
     path: 'myRequests',
-    component: RequestsOverviewComponent
+    component: RequestsUserComponent
   },
   {
     path: 'allRequests',
-    component: AllRequestsComponent
+    component: RequestsAdminComponent
   },
   {
     path: 'new',
-    component: NewRequestComponent
+    component: RequestsRegisterServiceComponent
   },
   {
     path: 'detail/:id',
-    component: RequestDetailComponent
+    component: RequestsDetailComponent
   },
   {
     path: 'editRequest/:id',
-    component: RequestEditComponent
+    component: RequestsEditComponent
   },
   {
     path: '**',

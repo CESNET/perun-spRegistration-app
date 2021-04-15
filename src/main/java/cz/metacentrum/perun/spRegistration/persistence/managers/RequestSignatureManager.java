@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.spRegistration.persistence.managers;
 
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
-import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
+import cz.metacentrum.perun.spRegistration.common.models.RequestSignatureDTO;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 
 import java.util.List;
@@ -26,6 +26,6 @@ public interface RequestSignatureManager {
      * @return List of associated approvals
      * @throws IllegalArgumentException Thrown when param "requestId" is NULL.
      */
-    List<RequestSignature> getRequestSignatures(Long requestId);
+    List<RequestSignatureDTO> getRequestSignatures(Long requestId);
 
 }

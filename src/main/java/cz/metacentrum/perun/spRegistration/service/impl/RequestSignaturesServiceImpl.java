@@ -7,7 +7,7 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorExcept
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
 import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
-import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
+import cz.metacentrum.perun.spRegistration.common.models.RequestSignatureDTO;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
@@ -74,7 +74,7 @@ public class RequestSignaturesServiceImpl implements RequestSignaturesService {
     }
 
     @Override
-    public List<RequestSignature> getSignaturesForRequest(@NonNull Long requestId, @NonNull Long userId)
+    public List<RequestSignatureDTO> getSignaturesForRequest(@NonNull Long requestId, @NonNull Long userId)
             throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException {
         RequestDTO request = requestManager.getRequestById(requestId);
         if (request == null) {
