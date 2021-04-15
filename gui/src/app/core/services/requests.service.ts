@@ -4,58 +4,61 @@ import { Observable } from 'rxjs';
 import { Request } from '../models/Request';
 import { PerunAttribute } from '../models/PerunAttribute';
 import { RequestSignature } from '../models/RequestSignature';
+import {RequestOverview} from "../models/RequestOverview";
 
 @Injectable({
   providedIn: 'root'
 })
 export class RequestsService {
 
+  private static prefix = "/request";
+
   constructor(
     private apiService: ApiService
   ) { }
 
-  getAllRequests(): Observable<Request[]> {
-    return this.apiService.get('/allRequests');
+  getAllRequests(): Observable<RequestOverview[]> {
+    return this.apiService.get(RequestsService.prefix);
   }
 
-  getUserRequests(): Observable<Request[]> {
-    return this.apiService.get('/userRequests');
+  getUserRequests(): Observable<RequestOverview[]> {
+    return this.apiService.get(RequestsService.prefix + '/user');
   }
 
   createRegistrationRequest(perunAttributes: PerunAttribute[]): Observable<number> {
-    return this.apiService.post('/register', perunAttributes);
+    return this.apiService.post(RequestsService.prefix +'/register', perunAttributes);
   }
 
   getRequest(id: number): Observable<Request> {
-    return this.apiService.get(`/request/${id}`);
+    return this.apiService.get(RequestsService.prefix + `/request/${id}`);
   }
 
   approveRequest(id: number): Observable<boolean>{
-    return this.apiService.post(`/approve/${id}`);
+    return this.apiService.post(RequestsService.prefix + `/approve/${id}`);
   }
 
   rejectRequest(id: number): Observable<boolean>{
-    return this.apiService.post(`/reject/${id}`);
+    return this.apiService.post(RequestsService.prefix + `/reject/${id}`);
   }
 
   askForChanges(id: number, attributes: Iterable<PerunAttribute>): Observable<boolean>{
-    return this.apiService.post(`/askForChanges/${id}`, attributes);
+    return this.apiService.post(RequestsService.prefix + `/askForChanges/${id}`, attributes);
   }
 
   askForApproval(id: number ): Observable<boolean> {
-    return this.apiService.get(`/askApproval/${id}`);
+    return this.apiService.get(RequestsService.prefix + `/askApproval/${id}`);
   }
 
   updateRequest(id: number, attributes: PerunAttribute[]): Observable<boolean>{
-    return this.apiService.post(`/update/${id}`, attributes)
+    return this.apiService.post(RequestsService.prefix + `/update/${id}`, attributes)
+  }
+
+  cancelRequest(id: number): Observable<boolean>{
+    return this.apiService.post(RequestsService.prefix + `/cancel/${id}`);
   }
 
   getSignatures(id: number): Observable<RequestSignature[]> {
     return this.apiService.get(`/viewApprovals/${id}`);
-  }
-
-  cancelRequest(id: number): Observable<boolean>{
-    return this.apiService.post(`/cancel/${id}`);
   }
 
 }

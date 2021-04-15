@@ -1,4 +1,5 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import {Pipe, PipeTransform} from '@angular/core';
+import {RequestStatus} from "../core/models/enums/RequestStatus";
 
 @Pipe({
   name: 'requestStatusLang',
@@ -8,22 +9,25 @@ export class RequestStatusLangPipe implements PipeTransform {
 
   constructor() { }
 
-  transform(value: any, args?: any): any {
+  transform(value: RequestStatus, args?: any): any {
     switch(value) {
-      case "APPROVED": {
+      case RequestStatus.APPROVED: {
         return'REQUESTS.STATUSPIPE.APPROVED';
       }
-      case "REJECTED": {
+      case RequestStatus.REJECTED: {
         return'REQUESTS.STATUSPIPE.REJECTED';
       }
-      case "WAITING_FOR_APPROVAL": {
+      case RequestStatus.WAITING_FOR_APPROVAL: {
         return'REQUESTS.STATUSPIPE.WFA';
       }
-      case "WAITING_FOR_CHANGES": {
+      case RequestStatus.WAITING_FOR_CHANGES: {
         return'REQUESTS.STATUSPIPE.WFC';
       }
-      case "CANCELED": {
+      case RequestStatus.CANCELED: {
         return'REQUESTS.STATUSPIPE.CANCELED';
+      }
+      case RequestStatus.UNKNOWN: {
+        return'REQUESTS.STATUSPIPE.UNKNOWN';
       }
       default: {
         return '';

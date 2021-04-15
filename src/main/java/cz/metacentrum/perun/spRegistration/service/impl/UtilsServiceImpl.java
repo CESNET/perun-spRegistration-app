@@ -7,7 +7,7 @@ import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
-import cz.metacentrum.perun.spRegistration.common.models.Request;
+import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
@@ -146,7 +146,7 @@ public class UtilsServiceImpl implements UtilsService {
     }
 
     @Override
-    public boolean isAdminForRequest(@NonNull Request request, @NonNull Long userId)
+    public boolean isAdminForRequest(@NonNull RequestDTO request, @NonNull Long userId)
             throws PerunUnknownException, PerunConnectionException
     {
         if (isAppAdmin(userId)) {
@@ -165,7 +165,7 @@ public class UtilsServiceImpl implements UtilsService {
         if (isAppAdmin(userId)) {
             return true;
         }
-        Request request = requestManager.getRequestById(reqId);
+        RequestDTO request = requestManager.getRequestById(reqId);
         if (request == null) {
             throw new InternalErrorException("Unknown request");
         }
@@ -184,7 +184,7 @@ public class UtilsServiceImpl implements UtilsService {
     }
 
     @Override
-    public boolean isAdminForRequest(@NonNull Request request, @NonNull User user)
+    public boolean isAdminForRequest(@NonNull RequestDTO request, @NonNull User user)
             throws PerunUnknownException, PerunConnectionException
     {
         return this.isAdminForRequest(request, user.getId());

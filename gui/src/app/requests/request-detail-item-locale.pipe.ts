@@ -10,15 +10,12 @@ export class RequestDetailItemLocalePipe implements PipeTransform {
 
   transform(value: Map<string, string>, args?: any): any {
     const lang = this.translate.getDefaultLang();
-
-    if (value === undefined || value === null) {
+    if (!value || value.size === 0) {
       return '-';
     }
-
     if (value.has(lang.toLowerCase())) {
       return value.get(lang.toLowerCase());
     }
-
     return value.get('en');
   }
 }

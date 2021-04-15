@@ -6,6 +6,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Subscription } from 'rxjs';
 import { MatPaginator } from '@angular/material/paginator';
 import {TranslateService} from "@ngx-translate/core";
+import {RequestOverview} from "../../core/models/RequestOverview";
+import {RequestsModule} from "../requests.module";
 
 @Component({
   selector: 'app-all-requests',
@@ -14,14 +16,16 @@ import {TranslateService} from "@ngx-translate/core";
 })
 export class AllRequestsComponent implements OnInit, OnDestroy {
 
+  private paginator: MatPaginator = undefined;
+  private sort: MatSort = undefined;
+  private requestsSubscription: Subscription;
+
   constructor(
     private requestsService: RequestsService,
     private translate: TranslateService)
   {
     this.requests = [];
-    this.dataSource = new MatTableDataSource(this.requests);
-    this.setFiltering();
-    this.setSorting();
+    this.setDataSource();
   }
 
   @ViewChild(MatPaginator, {static: false}) set matPaginator(mp: MatPaginator) {
@@ -34,31 +38,15 @@ export class AllRequestsComponent implements OnInit, OnDestroy {
     this.setDataSource();
   }
 
-  private paginator: MatPaginator = undefined;
-  private sort: MatSort = undefined;
-  private requestsSubscription: Subscription;
-
-  requests: Request[];
-
   loading = true;
-  displayedColumns: string[] = ['reqId', 'serviceName', 'reqUser', 'status', 'action'];
-  dataSource: MatTableDataSource<Request> = new MatTableDataSource<Request>([]);
+  displayedColumns: string[] = RequestOverview.columns;
 
-  setDataSource() {
-    this.dataSource = new MatTableDataSource<Request>(this.requests);
-    if (!!this.sort) {
-      this.dataSource.sort = this.sort;
-    }
-    if (!!this.paginator) {
-      this.dataSource.paginator = this.paginator;
-    }
-    this.setFiltering();
-    this.setSorting();
-  }
+  requests: RequestOverview[] = [];
+  dataSource: MatTableDataSource<RequestOverview> = new MatTableDataSource<RequestOverview>(this.requests);
 
   ngOnInit() {
     this.requestsSubscription = this.requestsService.getAllRequests().subscribe(requests => {
-      this.requests = requests.map(r => new Request(r));
+      this.requests = requests.map(r => new RequestOverview(r));
       this.setDataSource();
       this.loading = false;
     }, _ => {
@@ -74,22 +62,31 @@ export class AllRequestsComponent implements OnInit, OnDestroy {
     this.dataSource.filter = value.trim().toLowerCase();
   }
 
-  private setSorting() {
+  setDataSource() {
+    this.dataSource = new MatTableDataSource<RequestOverview>(this.requests);
+    this.dataSource.sort = this.sort;
+    this.dataSource.paginator = this.paginator;
+    this.setRequestOverviewSorting();
+    this.setRequestOverviewFiltering();
+  }
+
+  private setRequestOverviewSorting() {
     this.dataSource.sortingDataAccessor = ((data, sortHeaderId) => {
       switch (sortHeaderId) {
-        case 'reqId':
-          return data.reqId;
-        case 'reqUser': {
-          return data.reqUserId;
+        case 'id':
+          return data.id;
+        case 'serviceIdentifier': {
+          return data.serviceIdentifier;
         }
         case 'serviceName': {
-          const name = data.providedService ? data.providedService.name : null;
-          if (!!name && name.has(this.translate.currentLang)) {
-            return name.get(this.translate.currentLang).toLowerCase();
-          } else {
-            return "";
+          let name = '';
+          if (data.serviceName && data.serviceName.has(this.translate.currentLang)) {
+            name = data.serviceName.get(this.translate.currentLang).toLowerCase();
           }
+          return name
         }
+        case 'requesterId':
+          return data.requesterId;
         case 'status':
           return data.status;
         case 'action':
@@ -98,21 +95,21 @@ export class AllRequestsComponent implements OnInit, OnDestroy {
     });
   }
 
-  private setFiltering() {
-    this.dataSource.filterPredicate = ((data: Request, filter: string) => {
-      const reqId = data.reqId.toString();
-      const facilityId = data.facilityId ? data.facilityId.toString() : '';
-      const origName = data.providedService ? data.providedService.name : null
+  private setRequestOverviewFiltering() {
+    this.dataSource.filterPredicate = ((data: RequestOverview, filter: string) => {
+      const id = data.id ? data.id.toString(): '';
       let name = '';
-      if (origName && origName.has(this.translate.currentLang)) {
-        name = origName.get(this.translate.currentLang).replace(/\s/g, '').toLowerCase();
+      if (data.serviceName && data.serviceName.has(this.translate.currentLang)) {
+        name = data.serviceName.get(this.translate.currentLang).replace(/\s/g, '').toLowerCase();
       }
-      const action = data.action.replace('_', ' ').toLowerCase();
-      const status = data.status.replace('_', ' ').toLowerCase();
-      const requesterId = data.reqUserId.toString();
+      const action = data.action.toString().replace('_', ' ').toLowerCase();
+      const status = data.status.toString().replace('_', ' ').toLowerCase();
+      const serviceIdentifier = data.serviceIdentifier.toLowerCase();
+      const requesterId = data.requesterId.toString();
 
-      return reqId.includes(filter) || name.includes(filter) || action.includes(filter)
-        || status.includes(filter) || requesterId.includes(filter) || facilityId.includes(filter);
+      return id.includes(filter) || name.includes(filter) || serviceIdentifier.includes(filter)
+        || action.includes(filter) || status.includes(filter) || requesterId.includes(filter);
     });
   }
+
 }

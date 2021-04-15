@@ -3,7 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {FacilitiesService} from '../../core/services/facilities.service';
 import {Facility} from '../../core/models/Facility';
 import {AppComponent} from '../../app.component';
-import { MatDialog } from '@angular/material/dialog';
+import {MatDialog} from '@angular/material/dialog';
 import {FacilitiesDetailDeleteDialogComponent} from './facilities-detail-delete-dialog/facilities-detail-delete-dialog.component';
 import {RequestsService} from '../../core/services/requests.service';
 import {Subscription} from 'rxjs';
@@ -16,6 +16,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {TranslateService} from "@ngx-translate/core";
 import {AuditLog} from "../../core/models/AuditLog";
 import {AuditService} from "../../core/services/audit.service";
+import {RequestAction} from "../../core/models/enums/RequestAction";
 
 export interface DialogData {
   parent: FacilitiesDetailComponent;
@@ -98,7 +99,7 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
 
   loadMoveToProductionActive(activeRequestId: number) {
     this.requestsService.getRequest(activeRequestId).subscribe(request => {
-      this.moveToProductionActive = (request.action === 'MOVE_TO_PRODUCTION');
+      this.moveToProductionActive = (request.action === RequestAction.MOVE_TO_PRODUCTION);
     });
   }
 

@@ -4,7 +4,7 @@ import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
-import cz.metacentrum.perun.spRegistration.common.models.Request;
+import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.service.MailsService;
 import cz.metacentrum.perun.spRegistration.service.mails.MailProperties;
@@ -16,7 +16,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.List;
 import java.util.Map;
@@ -101,7 +100,7 @@ public class MailsServiceImpl implements MailsService {
 	}
 
 	@Override
-	public void notifyAuthorities(@NonNull Request req,
+	public void notifyAuthorities(@NonNull RequestDTO req,
 								  @NonNull Map<String, String> authoritiesLinksMap)
 	{
 		if (!mailProperties.isEnabled()) {
@@ -138,7 +137,7 @@ public class MailsServiceImpl implements MailsService {
 
 	@Override
 	public boolean authoritiesApproveProductionTransferNotify(@NonNull String approvalLink,
-															  @NonNull Request req,
+															  @NonNull RequestDTO req,
 															  @NonNull String recipient)
 	{
 		if (!mailProperties.isEnabled()) {
@@ -179,7 +178,7 @@ public class MailsServiceImpl implements MailsService {
 	}
 
 	@Override
-	public void notifyUser(@NonNull Request req, @NonNull String action) {
+	public void notifyUser(@NonNull RequestDTO req, @NonNull String action) {
 		if (!mailProperties.isEnabled()) {
 			return;
 		}
@@ -203,7 +202,7 @@ public class MailsServiceImpl implements MailsService {
 	}
 
 	@Override
-	public void notifyAppAdmins(@NonNull Request req, @NonNull String action) {
+	public void notifyAppAdmins(@NonNull RequestDTO req, @NonNull String action) {
 		if (!mailProperties.isEnabled()) {
 			return;
 		}
@@ -288,7 +287,7 @@ public class MailsServiceImpl implements MailsService {
 		return containerString;
 	}
 
-	private String replacePlaceholders(String containerString, Request req) {
+	private String replacePlaceholders(String containerString, RequestDTO req) {
 		String requestLink = applicationProperties.getHostUrl() + "/auth/requests/detail/" + req.getReqId();
 
 		containerString = replacePlaceholder(containerString, REQUEST_ID_FIELD,

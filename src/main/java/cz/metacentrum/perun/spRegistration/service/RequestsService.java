@@ -5,9 +5,8 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.CannotChangeStatusE
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
-import cz.metacentrum.perun.spRegistration.common.models.AuditLog;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
-import cz.metacentrum.perun.spRegistration.common.models.Request;
+import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
@@ -43,18 +42,18 @@ public interface RequestsService {
     boolean updateRequest(@NonNull Long requestId, @NonNull User user, @NonNull List<PerunAttribute> attributes)
             throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException;
 
-    Request getRequest(@NonNull Long requestId, @NonNull User user)
+    RequestDTO getRequest(@NonNull Long requestId, @NonNull User user)
             throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException;
 
-    List<Request> getAllUserRequests(@NonNull User user) throws PerunUnknownException, PerunConnectionException;
+    List<RequestDTO> getAllUserRequests(@NonNull User user) throws PerunUnknownException, PerunConnectionException;
 
     boolean cancelRequest(@NonNull Long requestId, @NonNull User user)
             throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException,
             PerunUnknownException, PerunConnectionException;
 
-    List<Request> getAllRequests(@NonNull User user) throws UnauthorizedActionException;
+    List<RequestDTO> getAllRequests(@NonNull User user) throws UnauthorizedActionException;
 
-    Request getRequestForSignatureByCode(@NonNull String code)
+    RequestDTO getRequestForSignatureByCode(@NonNull String code)
             throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException, ExpiredCodeException,
             InternalErrorException;
 

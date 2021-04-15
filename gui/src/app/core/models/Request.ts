@@ -1,6 +1,8 @@
 import {AttributesEntity} from './AttributesEntity';
 import {User} from './User';
 import {ProvidedService} from "./ProvidedService";
+import {RequestAction} from "./enums/RequestAction";
+import {RequestStatus} from "./enums/RequestStatus";
 
 export class Request extends AttributesEntity {
   constructor(item: any) {
@@ -11,8 +13,8 @@ export class Request extends AttributesEntity {
     super(item.attributes);
     this.reqId = item.reqId;
     this.facilityId = item.facilityId;
-    this.status = item.status;
-    this.action = item.action;
+    this.status = RequestStatus[item.status as keyof typeof RequestStatus];
+    this.action = RequestAction[item.action as keyof typeof RequestAction];
     this.reqUserId = item.reqUserId;
     this.modifiedAt = item.modifiedAt;
     this.modifiedBy = item.modifiedBy;
@@ -27,8 +29,8 @@ export class Request extends AttributesEntity {
 
   reqId: number;
   facilityId: number;
-  status: string;
-  action: string;
+  status: RequestStatus;
+  action: RequestAction;
   reqUserId: number;
   modifiedAt: string;
   modifiedBy: number;

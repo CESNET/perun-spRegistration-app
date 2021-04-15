@@ -1,4 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import {RequestAction} from "../core/models/enums/RequestAction";
 
 @Pipe({
   name: 'requestActionPipe',
@@ -13,20 +14,24 @@ export class RequestActionPipe implements PipeTransform {
   transform(value: any, args?: any): any {
     let key = '';
     switch(value) {
-      case "REGISTER_NEW_SP": {
+      case RequestAction.REGISTER_NEW_SP: {
         key = 'REQUESTS.ACTIONPIPE.REGISTER_NEW_SP';
         break;
       }
-      case "UPDATE_FACILITY": {
+      case RequestAction.UPDATE_FACILITY: {
         key = 'REQUESTS.ACTIONPIPE.UPDATE_FACILITY';
         break;
       }
-      case "DELETE_FACILITY": {
+      case RequestAction.DELETE_FACILITY: {
         key = 'REQUESTS.ACTIONPIPE.DELETE_FACILITY';
         break;
       }
-      case "MOVE_TO_PRODUCTION": {
+      case RequestAction.MOVE_TO_PRODUCTION: {
         key = 'REQUESTS.ACTIONPIPE.MOVE_TO_PRODUCTION';
+        break;
+      }
+      case RequestAction.UNKNOWN: {
+        key = 'REQUESTS.UNKNOWN';
         break;
       }
       default: {

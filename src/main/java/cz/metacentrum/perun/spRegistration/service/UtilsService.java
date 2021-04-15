@@ -4,7 +4,7 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeExceptio
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
-import cz.metacentrum.perun.spRegistration.common.models.Request;
+import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
@@ -32,7 +32,7 @@ public interface UtilsService {
     boolean isAdminForFacility(@NonNull Long facilityId, @NonNull User user)
             throws PerunUnknownException, PerunConnectionException;
 
-    boolean isAdminForRequest(@NonNull Request request, @NonNull Long userId)
+    boolean isAdminForRequest(@NonNull RequestDTO request, @NonNull Long userId)
             throws PerunUnknownException, PerunConnectionException;;
 
     boolean isAdminForRequest(@NonNull Long reqId, @NonNull Long userId)
@@ -41,7 +41,7 @@ public interface UtilsService {
     boolean isAdminForRequest(@NonNull Long reqId, @NonNull User user)
             throws PerunUnknownException, PerunConnectionException, InternalErrorException;
 
-    boolean isAdminForRequest(@NonNull Request request, @NonNull User user)
+    boolean isAdminForRequest(@NonNull RequestDTO request, @NonNull User user)
             throws PerunUnknownException, PerunConnectionException;
 
     boolean isAppAdmin(@NonNull Long userId);

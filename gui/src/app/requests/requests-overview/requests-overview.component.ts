@@ -1,11 +1,11 @@
 import { Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { Request } from '../../core/models/Request';
 import { RequestsService } from '../../core/services/requests.service';
 import { Subscription } from 'rxjs';
 import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
 import {MatPaginator} from '@angular/material/paginator';
 import { TranslateService } from "@ngx-translate/core";
+import {RequestOverview} from "../../core/models/RequestOverview";
 
 @Component({
   selector: 'app-requests-overview',
@@ -36,17 +36,19 @@ export class RequestsOverviewComponent implements OnInit, OnDestroy {
   }
 
   loading = true;
-  displayedColumns: string[] = ['reqId', 'serviceName', 'reqUser', 'status', 'action'];
-  requests: Request[] = [];
-  dataSource: MatTableDataSource<Request> = new MatTableDataSource<Request>(this.requests);
+  displayedColumns: string[] = RequestOverview.columns
+
+  requests: RequestOverview[] = [];
+  dataSource: MatTableDataSource<RequestOverview> = new MatTableDataSource<RequestOverview>(this.requests);
 
   ngOnInit() {
     this.requestsSubscription = this.requestsService.getUserRequests().subscribe(requests => {
-      this.requests = requests.map(r => new Request(r));
+      this.requests = requests.map(r => new RequestOverview(r));
       this.setDataSource();
       this.loading = false;
     }, error => {
       this.loading = false;
+      //TODO: display error to user
       console.log(error);
     });
   }
@@ -57,33 +59,33 @@ export class RequestsOverviewComponent implements OnInit, OnDestroy {
 
   doFilter(value: string) {
     this.dataSource.filter = value.trim().toLowerCase();
-    console.log(this.dataSource.filteredData);
   }
 
   setDataSource() {
-    this.dataSource = new MatTableDataSource<Request>(this.requests);
+    this.dataSource = new MatTableDataSource<RequestOverview>(this.requests);
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
-    this.setSorting();
-    this.setFiltering();
+    this.setRequestOverviewSorting();
+    this.setRequestOverviewFiltering();
   }
 
-  private setSorting() {
+  private setRequestOverviewSorting() {
     this.dataSource.sortingDataAccessor = ((data, sortHeaderId) => {
       switch (sortHeaderId) {
-        case 'reqId':
-          return data.reqId;
-        case 'reqUser': {
-          return data.reqUserId;
+        case 'id':
+          return data.id;
+        case 'serviceIdentifier': {
+          return data.serviceIdentifier;
         }
         case 'serviceName': {
-          const name = data.providedService ? data.providedService.name : null;
-          if (!!name && name.has(this.translate.currentLang)) {
-            return name.get(this.translate.currentLang).toLowerCase();
-          } else {
-            return "";
+          let name = '';
+          if (data.serviceName && data.serviceName.has(this.translate.currentLang)) {
+            name = data.serviceName.get(this.translate.currentLang).toLowerCase();
           }
+          return name
         }
+        case 'requesterId':
+          return data.requesterId;
         case 'status':
           return data.status;
         case 'action':
@@ -92,21 +94,20 @@ export class RequestsOverviewComponent implements OnInit, OnDestroy {
     });
   }
 
-  private setFiltering() {
-    this.dataSource.filterPredicate = ((data: Request, filter: string) => {
-      const reqId = data.reqId.toString();
-      const facilityId = data.facilityId ? data.facilityId.toString() : '';
-      const origName = data.providedService ? data.providedService.name : null
+  private setRequestOverviewFiltering() {
+    this.dataSource.filterPredicate = ((data: RequestOverview, filter: string) => {
+      const id = data.id ? data.id.toString(): '';
       let name = '';
-      if (origName && origName.has(this.translate.currentLang)) {
-        name = origName.get(this.translate.currentLang).replace(/\s/g, '').toLowerCase();
+      if (data.serviceName && data.serviceName.has(this.translate.currentLang)) {
+        name = data.serviceName.get(this.translate.currentLang).replace(/\s/g, '').toLowerCase();
       }
-      const action = data.action.replace('_', ' ').toLowerCase();
-      const status = data.status.replace('_', ' ').toLowerCase();
-      const requesterId = data.reqUserId.toString();
+      const action = data.action.toString().replace('_', ' ').toLowerCase();
+      const status = data.status.toString().replace('_', ' ').toLowerCase();
+      const serviceIdentifier = data.serviceIdentifier.toLowerCase();
+      const requesterId = data.requesterId.toString();
 
-      return reqId.includes(filter) || name.includes(filter) || action.includes(filter)
-        || status.includes(filter) || requesterId.includes(filter) || facilityId.includes(filter);
+      return id.includes(filter) || name.includes(filter) || serviceIdentifier.includes(filter)
+        || action.includes(filter) || status.includes(filter) || requesterId.includes(filter);
     });
   }
 

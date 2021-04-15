@@ -4,7 +4,7 @@ import cz.metacentrum.perun.spRegistration.common.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestStatus;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ActiveRequestExistsException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
-import cz.metacentrum.perun.spRegistration.common.models.Request;
+import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
 
 import java.util.List;
 import java.util.Set;
@@ -23,7 +23,7 @@ public interface RequestManager {
 	 * @throws InternalErrorException Thrown when zero or more than one requests were created in DB.
 	 * @throws IllegalArgumentException Thrown when param "request" is NULL.
 	 */
-	Long createRequest(Request request) throws InternalErrorException, ActiveRequestExistsException;
+	Long createRequest(RequestDTO request) throws InternalErrorException, ActiveRequestExistsException;
 
 	/**
 	 * Update request in DB.
@@ -32,7 +32,7 @@ public interface RequestManager {
 	 * @throws InternalErrorException Thrown when zero or more than one requests were updated in DB.
 	 * @throws IllegalArgumentException Thrown when param "request" is NULL.
 	 */
-	boolean updateRequest(Request request) throws InternalErrorException;
+	boolean updateRequest(RequestDTO request) throws InternalErrorException;
 
 	/**
 	 * Delete request from DB.
@@ -49,13 +49,13 @@ public interface RequestManager {
 	 * @return Found Request object.
 	 * @throws IllegalArgumentException Thrown when param "reqId" is NULL.
 	 */
-	Request getRequestById(Long reqId);
+	RequestDTO getRequestById(Long reqId);
 
 	/**
 	 * Get all requests from DB.
 	 * @return List of found Request objects.
 	 */
-	List<Request> getAllRequests();
+	List<RequestDTO> getAllRequests();
 
 	/**
 	 * Get all requests from DB where specified user is a requester.
@@ -63,7 +63,7 @@ public interface RequestManager {
 	 * @return List of found Request objects.
 	 * @throws IllegalArgumentException Thrown when param "userId" is NULL.
 	 */
-	List<Request> getAllRequestsByUserId(Long userId);
+	List<RequestDTO> getAllRequestsByUserId(Long userId);
 
 	/**
 	 * Get all requests from DB with specified status.
@@ -71,7 +71,7 @@ public interface RequestManager {
 	 * @return List of found Request objects.
 	 * @throws IllegalArgumentException Thrown when param "status" is NULL.
 	 */
-	List<Request> getAllRequestsByStatus(RequestStatus status);
+	List<RequestDTO> getAllRequestsByStatus(RequestStatus status);
 
 	/**
 	 * Get all requests from DB with specified action.
@@ -79,7 +79,7 @@ public interface RequestManager {
 	 * @return List of found Request objects.
 	 * @throws IllegalArgumentException Thrown when param "action" is NULL.
 	 */
-	List<Request> getAllRequestsByAction(RequestAction action);
+	List<RequestDTO> getAllRequestsByAction(RequestAction action);
 
 	/**
 	 * Get all requests from DB associated with facility specified by ID.
@@ -87,7 +87,7 @@ public interface RequestManager {
 	 * @return List of found Request objects.
 	 * @throws IllegalArgumentException Thrown when param "facilityId" is NULL.
 	 */
-	List<Request> getAllRequestsByFacilityId(Long facilityId);
+	List<RequestDTO> getAllRequestsByFacilityId(Long facilityId);
 
 	/**
 	 * Get all requests from DB associated with facilities specified by IDs.
@@ -95,7 +95,7 @@ public interface RequestManager {
 	 * @return List of found Request objects.
 	 * @throws IllegalArgumentException Thrown when param "facilityIds" is NULL or empty.
 	 */
-	List<Request> getAllRequestsByFacilityIds(Set<Long> facilityIds);
+	List<RequestDTO> getAllRequestsByFacilityIds(Set<Long> facilityIds);
 
 	/**
 	 * Get id of active request for Facility.

@@ -25,7 +25,7 @@ import cz.metacentrum.perun.spRegistration.common.models.InputsContainer;
 import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
-import cz.metacentrum.perun.spRegistration.common.models.Request;
+import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment;
@@ -44,10 +44,6 @@ import cz.metacentrum.perun.spRegistration.service.UtilsService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -68,7 +64,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -137,7 +132,7 @@ public class RequestsServiceImpl implements RequestsService {
             throw new IllegalArgumentException("Attribute list is empty");
         }
 
-        Request req;
+        RequestDTO req;
         try {
             req = createRequest(null, user, RequestAction.REGISTER_NEW_SP, attributes);
         } catch (ActiveRequestExistsException e) {
@@ -186,7 +181,7 @@ public class RequestsServiceImpl implements RequestsService {
             return null;
         }
 
-        Request req = createRequest(facilityId, user, RequestAction.UPDATE_FACILITY, attributes);
+        RequestDTO req = createRequest(facilityId, user, RequestAction.UPDATE_FACILITY, attributes);
 
         mailsService.notifyUser(req, REQUEST_CREATED);
         mailsService.notifyAppAdmins(req, REQUEST_CREATED);
@@ -205,7 +200,7 @@ public class RequestsServiceImpl implements RequestsService {
         facilityAttributes = facilityAttributes.stream()
                 .filter(a -> !isOidcCredentialAttr(a, false))
                 .collect(Collectors.toList());
-        Request req = createRequest(facilityId, user, RequestAction.DELETE_FACILITY, facilityAttributes);
+        RequestDTO req = createRequest(facilityId, user, RequestAction.DELETE_FACILITY, facilityAttributes);
 
         mailsService.notifyUser(req, REQUEST_CREATED);
         mailsService.notifyAppAdmins(req, REQUEST_CREATED);
@@ -230,7 +225,7 @@ public class RequestsServiceImpl implements RequestsService {
         fac.getAttributes().values().stream().map(Map::values).forEach(attrs::addAll);
         attrs = attrs.stream().filter(a -> !isOidcCredentialAttr(a, false)).collect(Collectors.toList());
 
-        Request req = createRequest(facilityId, user, RequestAction.MOVE_TO_PRODUCTION, attrs);
+        RequestDTO req = createRequest(facilityId, user, RequestAction.MOVE_TO_PRODUCTION, attrs);
 
         Map<String, String> authoritiesLinksMap = generateLinksForAuthorities(req, authorities, user);
 
@@ -247,7 +242,7 @@ public class RequestsServiceImpl implements RequestsService {
                                  @NonNull List<PerunAttribute> attributes)
             throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException
     {
-        Request request = requestManager.getRequestById(requestId);
+        RequestDTO request = requestManager.getRequestById(requestId);
         if (request == null) {
             throw new InternalErrorException("Could not retrieve request for id: " + requestId);
         } else if (!utilsService.isAdminForRequest(request, user.getId())) {
@@ -273,7 +268,7 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     @Override
-    public Request getRequestForSignatureByCode(@NonNull String code)
+    public RequestDTO getRequestForSignatureByCode(@NonNull String code)
             throws ExpiredCodeException, InternalErrorException
     {
         LinkCode linkCode = linkCodeManager.get(code);
@@ -284,7 +279,7 @@ public class RequestsServiceImpl implements RequestsService {
         }
 
         Long requestId = linkCode.getRequestId();
-        Request request = requestManager.getRequestById(requestId);
+        RequestDTO request = requestManager.getRequestById(requestId);
         if (request == null) {
             throw new InternalErrorException("Cannot find request from code");
         }
@@ -292,10 +287,10 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     @Override
-    public Request getRequest(@NonNull Long requestId, @NonNull  User user)
+    public RequestDTO getRequest(@NonNull Long requestId, @NonNull  User user)
             throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException
     {
-        Request request = requestManager.getRequestById(requestId);
+        RequestDTO request = requestManager.getRequestById(requestId);
         if (request == null) {
             throw new InternalErrorException("Could not retrieve request for id: " + requestId);
         } else if (!utilsService.isAdminForRequest(request, user.getId())) {
@@ -317,18 +312,18 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     @Override
-    public List<Request> getAllUserRequests(@NonNull User user)
+    public List<RequestDTO> getAllUserRequests(@NonNull User user)
             throws PerunUnknownException, PerunConnectionException
     {
-        Set<Request> requests = new HashSet<>();
-        List<Request> userRequests = requestManager.getAllRequestsByUserId(user.getId());
+        Set<RequestDTO> requests = new HashSet<>();
+        List<RequestDTO> userRequests = requestManager.getAllRequestsByUserId(user.getId());
         if (userRequests != null && !userRequests.isEmpty()) {
             requests.addAll(userRequests);
         }
 
         Set<Long> facilityIdsWhereUserIsAdmin = perunAdapter.getFacilityIdsWhereUserIsAdmin(user.getId());
         if (facilityIdsWhereUserIsAdmin != null && !facilityIdsWhereUserIsAdmin.isEmpty()) {
-            List<Request> facilitiesRequests = requestManager.getAllRequestsByFacilityIds(facilityIdsWhereUserIsAdmin);
+            List<RequestDTO> facilitiesRequests = requestManager.getAllRequestsByFacilityIds(facilityIdsWhereUserIsAdmin);
             if (facilitiesRequests != null && !facilitiesRequests.isEmpty()) {
                 requests.addAll(facilitiesRequests);
             }
@@ -346,7 +341,7 @@ public class RequestsServiceImpl implements RequestsService {
             log.error("Wrong parameters passed: (user.getId(): {}, action: {})", user.getId(), user.getId());
             throw new IllegalArgumentException(Utils.GENERIC_ERROR_MSG);
         }
-        Request request = requestManager.getRequestById(requestId);
+        RequestDTO request = requestManager.getRequestById(requestId);
         if (request == null) {
             log.error("Could not fetch request with ID: {} from database", requestId);
             throw new InternalErrorException("Could not fetch request with ID: " + requestId + " from database");
@@ -377,18 +372,18 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     @Override
-    public List<Request> getAllRequests(@NonNull User user) throws UnauthorizedActionException {
+    public List<RequestDTO> getAllRequests(@NonNull User user) throws UnauthorizedActionException {
         if (!applicationProperties.isAppAdmin(user.getId())) {
             throw new UnauthorizedActionException("User not admin");
         }
-        List<Request> requests = requestManager.getAllRequests();
+        List<RequestDTO> requests = requestManager.getAllRequests();
         mapProvidedServicesToRequests(requests);
         return requests;
     }
 
-    private void mapProvidedServicesToRequests(Collection<Request> requests) {
+    private void mapProvidedServicesToRequests(Collection<RequestDTO> requests) {
         Set<Long> facIds = requests.stream()
-                .map(Request::getFacilityId)
+                .map(RequestDTO::getFacilityId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         List<ProvidedService> services = providedServiceManager.getAllForFacilities(facIds);
@@ -401,7 +396,7 @@ public class RequestsServiceImpl implements RequestsService {
     public boolean approveRequest(@NonNull Long requestId, @NonNull User user)
             throws CannotChangeStatusException, InternalErrorException, PerunUnknownException, PerunConnectionException
     {
-        Request request = requestManager.getRequestById(requestId);
+        RequestDTO request = requestManager.getRequestById(requestId);
         if (request == null) {
             throw new InternalErrorException("Could not fetch request with ID: " + requestId + " from database");
         } else if (!hasCorrectStatus(request.getStatus(),
@@ -436,7 +431,7 @@ public class RequestsServiceImpl implements RequestsService {
     public boolean rejectRequest(@NonNull Long requestId, @NonNull User user)
             throws CannotChangeStatusException, InternalErrorException
     {
-        Request request = requestManager.getRequestById(requestId);
+        RequestDTO request = requestManager.getRequestById(requestId);
         if (request == null) {
             throw new InternalErrorException("Could not fetch request with ID: " + requestId + " from database");
         } else if (!hasCorrectStatus(request.getStatus(), new RequestStatus[] {WAITING_FOR_APPROVAL, WAITING_FOR_CHANGES})) {
@@ -462,7 +457,7 @@ public class RequestsServiceImpl implements RequestsService {
                                  @NonNull List<PerunAttribute> attributes)
             throws CannotChangeStatusException, InternalErrorException
     {
-        Request request = requestManager.getRequestById(requestId);
+        RequestDTO request = requestManager.getRequestById(requestId);
         if (request == null) {
             throw new InternalErrorException("Could not fetch request with ID: " + requestId + " from database");
         } else if (!hasCorrectStatus(request.getStatus(), new RequestStatus[] {WAITING_FOR_APPROVAL, WAITING_FOR_CHANGES})) {
@@ -487,11 +482,11 @@ public class RequestsServiceImpl implements RequestsService {
 
     // private methods
 
-    private Request createRequest(Long facilityId, User user,
-                                  RequestAction action, List<PerunAttribute> attributes)
+    private RequestDTO createRequest(Long facilityId, User user,
+                                     RequestAction action, List<PerunAttribute> attributes)
             throws InternalErrorException, ActiveRequestExistsException
     {
-        Request request = new Request();
+        RequestDTO request = new RequestDTO();
         request.setFacilityId(facilityId);
         request.setStatus(WAITING_FOR_APPROVAL);
         request.setAction(action);
@@ -524,7 +519,7 @@ public class RequestsServiceImpl implements RequestsService {
         }
     }
 
-    private boolean processApprovedRequest(Request request)
+    private boolean processApprovedRequest(RequestDTO request)
             throws InternalErrorException, PerunUnknownException, PerunConnectionException
     {
         switch(request.getAction()) {
@@ -540,7 +535,7 @@ public class RequestsServiceImpl implements RequestsService {
         return false;
     }
 
-    private boolean registerNewService(Request request) throws InternalErrorException {
+    private boolean registerNewService(RequestDTO request) throws InternalErrorException {
         String name = getNameFromRequest(request);
         PerunAttribute clientId = generateClientIdAttribute();
         String desc = getDescFromRequest(request, clientId);
@@ -591,7 +586,7 @@ public class RequestsServiceImpl implements RequestsService {
         return true;
     }
 
-    private boolean updateFacilityInPerun(Request request)
+    private boolean updateFacilityInPerun(RequestDTO request)
             throws InternalErrorException, PerunUnknownException, PerunConnectionException
     {
         Long facilityId = extractFacilityIdFromRequest(request);
@@ -639,7 +634,7 @@ public class RequestsServiceImpl implements RequestsService {
         return true;
     }
 
-    private boolean deleteFacilityFromPerun(Request request) throws InternalErrorException {
+    private boolean deleteFacilityFromPerun(RequestDTO request) throws InternalErrorException {
         Long facilityId = extractFacilityIdFromRequest(request);
         boolean spDeleted = false;
         ProvidedService sp = null;
@@ -700,7 +695,7 @@ public class RequestsServiceImpl implements RequestsService {
         return true;
     }
 
-    private boolean setFacilityAttributes(Request request, Long facilityId, Long adminsGroupId, PerunAttribute clientId) {
+    private boolean setFacilityAttributes(RequestDTO request, Long facilityId, Long adminsGroupId, PerunAttribute clientId) {
         try {
             ArrayNode attributes = request.getAttributesAsJsonArrayForPerun();
             boolean isOidc = ServiceUtils.isOidcRequest(request, attributesProperties.getNames().getEntityId());
@@ -720,7 +715,7 @@ public class RequestsServiceImpl implements RequestsService {
         }
     }
 
-    private ProvidedService createSp(Long facilityId, Request request, PerunAttribute clientId) {
+    private ProvidedService createSp(Long facilityId, RequestDTO request, PerunAttribute clientId) {
         ProvidedService sp = new ProvidedService();
 
         sp.setFacilityId(facilityId);
@@ -825,7 +820,7 @@ public class RequestsServiceImpl implements RequestsService {
         attributes.add(generateAdminsGroupAttr(adminsGroupId).toJson());
     }
 
-    private String getDescFromRequest(Request request, PerunAttribute clientId) {
+    private String getDescFromRequest(RequestDTO request, PerunAttribute clientId) {
         if (ServiceUtils.isOidcRequest(request, attributesProperties.getNames().getEntityId())) {
             return clientId.valueAsString();
         } else {
@@ -834,7 +829,7 @@ public class RequestsServiceImpl implements RequestsService {
         }
     }
 
-    private String getNameFromRequest(Request request) throws InternalErrorException {
+    private String getNameFromRequest(RequestDTO request) throws InternalErrorException {
         Map<String, String> nameAttrValue = request.getFacilityName(attributesProperties.getNames().getServiceName());
         if (nameAttrValue.isEmpty() || !nameAttrValue.containsKey(LANG_EN) || nameAttrValue.get(LANG_EN) == null) {
             throw new InternalErrorException("No name could be found");
@@ -849,7 +844,7 @@ public class RequestsServiceImpl implements RequestsService {
         return pattern2.matcher(newName).replaceAll("_");
     }
 
-    private Long extractFacilityIdFromRequest(Request request) throws InternalErrorException {
+    private Long extractFacilityIdFromRequest(RequestDTO request) throws InternalErrorException {
         Long facilityId = request.getFacilityId();
         if (facilityId == null) {
             log.error("Request: {} does not have facilityId", request);
@@ -916,7 +911,7 @@ public class RequestsServiceImpl implements RequestsService {
         return attribute;
     }
 
-    private Map<String, String> generateCodesForAuthorities(Request request, List<String> authorities, User user)
+    private Map<String, String> generateCodesForAuthorities(RequestDTO request, List<String> authorities, User user)
             throws InternalErrorException
     {
         List<String> emails = new ArrayList<>();
@@ -962,7 +957,7 @@ public class RequestsServiceImpl implements RequestsService {
         return code;
     }
 
-    private Map<String, String> generateLinksForAuthorities(Request req, List<String> authorities, User user)
+    private Map<String, String> generateLinksForAuthorities(RequestDTO req, List<String> authorities, User user)
             throws UnsupportedEncodingException, InternalErrorException
     {
         Map<String, String> codeMap = generateCodesForAuthorities(req, authorities, user);

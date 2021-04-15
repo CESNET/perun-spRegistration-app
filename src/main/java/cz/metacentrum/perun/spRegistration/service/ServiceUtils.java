@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.spRegistration.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
@@ -9,14 +7,13 @@ import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.InputsContainer;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
-import cz.metacentrum.perun.spRegistration.common.models.Request;
+import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.DigestUtils;
-import org.springframework.util.StringUtils;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -74,7 +71,7 @@ public class ServiceUtils {
 		return filteredAttributes;
 	}
 
-	public static boolean isOidcRequest(@NonNull Request request, @NonNull String entityIdAttr) {
+	public static boolean isOidcRequest(@NonNull RequestDTO request, @NonNull String entityIdAttr) {
 		if (request.getAttributes() == null || request.getAttributes().get(AttributeCategory.PROTOCOL) == null) {
 			throw new IllegalArgumentException("Request does not contain required category in attrs");
 		}

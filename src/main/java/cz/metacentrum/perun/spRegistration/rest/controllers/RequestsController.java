@@ -1,18 +1,19 @@
 package cz.metacentrum.perun.spRegistration.rest.controllers;
 
+import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ActiveRequestExistsException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.CannotChangeStatusException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
-import cz.metacentrum.perun.spRegistration.common.models.AuditLog;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
-import cz.metacentrum.perun.spRegistration.common.models.Request;
+import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
+import cz.metacentrum.perun.spRegistration.rest.ApiEntityMapper;
+import cz.metacentrum.perun.spRegistration.rest.models.RequestOverview;
 import cz.metacentrum.perun.spRegistration.service.RequestsService;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
-import cz.metacentrum.perun.spRegistration.service.impl.AuditServiceImpl;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
@@ -35,27 +37,31 @@ import java.util.List;
  */
 @RestController
 @Slf4j
+@RequestMapping("/api/request")
 public class RequestsController {
 
 	@NonNull private final RequestsService requestsService;
 	@NonNull private final UtilsService utilsService;
+	@NonNull private final AttributesProperties attributesProperties;
 
 	@Autowired
 	public RequestsController(@NonNull RequestsService requestsService,
-							  @NonNull UtilsService utilsService)
+							  @NonNull UtilsService utilsService, @NonNull AttributesProperties attributesProperties)
 	{
 		this.requestsService = requestsService;
 		this.utilsService = utilsService;
+		this.attributesProperties = attributesProperties;
 	}
 
-	@GetMapping(path = "/api/userRequests")
-	public List<Request> userRequests(@NonNull @SessionAttribute("user") User user)
+	@GetMapping(path = "/user")
+	public List<RequestOverview> userRequests(@NonNull @SessionAttribute("user") User user)
 			throws PerunUnknownException, PerunConnectionException
 	{
-		return requestsService.getAllUserRequests(user);
+		List<RequestDTO> requests = requestsService.getAllUserRequests(user);
+		return ApiEntityMapper.mapRequestDTOsToRequestOverviews(requests, attributesProperties);
 	}
 
-	@PostMapping(path = "/api/register")
+	@PostMapping(path = "/register")
 	public Long createRegistrationRequest(@NonNull @SessionAttribute("user") User user,
 										  @NonNull @RequestBody List<PerunAttribute> attributes)
 			throws InternalErrorException
@@ -63,7 +69,7 @@ public class RequestsController {
 		return requestsService.createRegistrationRequest(user, attributes);
 	}
 
-	@PostMapping(path = "/api/changeFacility/{facilityId}")
+	@PostMapping(path = "/changeFacility/{facilityId}")
 	public Long createFacilityChangesRequest(@NonNull @SessionAttribute("user") User user,
 											 @NonNull @RequestBody List<PerunAttribute> attributes,
 											 @NonNull @PathVariable("facilityId") Long facilityId)
@@ -76,7 +82,7 @@ public class RequestsController {
 		return requestsService.createFacilityChangesRequest(facilityId, user, attributes);
 	}
 
-	@PostMapping(path = "/api/remove/{facilityId}")
+	@PostMapping(path = "/remove/{facilityId}")
 	public Long createRemovalRequest(@NonNull @SessionAttribute("user") User user,
 									 @NonNull @PathVariable("facilityId") Long facilityId)
 			throws ActiveRequestExistsException, InternalErrorException, UnauthorizedActionException,
@@ -88,7 +94,7 @@ public class RequestsController {
 		return requestsService.createRemovalRequest(user, facilityId);
 	}
 
-	@PostMapping(path = "/api/update/{requestId}")
+	@PostMapping(path = "/update/{requestId}")
 	public boolean updateRequest(@NonNull @SessionAttribute("user") User user,
 								 @NonNull @PathVariable("requestId") Long requestId,
 								 @NonNull @RequestBody List<PerunAttribute> attributes)
@@ -98,16 +104,16 @@ public class RequestsController {
 		return requestsService.updateRequest(requestId, user, attributes);
 	}
 
-	@GetMapping(path = "/api/request/{requestId}")
-	public Request requestDetail(@NonNull @SessionAttribute("user") User user,
-								 @NonNull @PathVariable("requestId") Long requestId)
+	@GetMapping(path = "/request/{requestId}")
+	public RequestDTO requestDetail(@NonNull @SessionAttribute("user") User user,
+									@NonNull @PathVariable("requestId") Long requestId)
 			throws InternalErrorException, UnauthorizedActionException, PerunUnknownException, PerunConnectionException
 	{
 		// auth done at the service level, cannot do it here
 		return requestsService.getRequest(requestId, user);
 	}
 
-	@PostMapping(path = "/api/cancel/{requestId}")
+	@PostMapping(path = "/cancel/{requestId}")
 	public boolean cancelRequest(@NonNull @SessionAttribute("user") User user,
 								 @NonNull @PathVariable("requestId") Long requestId)
 			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException,
@@ -119,17 +125,18 @@ public class RequestsController {
 
 	// admin
 
-	@GetMapping(path = "/api/allRequests")
-	public List<Request> allRequests(@NonNull @SessionAttribute("user") User user)
+	@GetMapping
+	public List<RequestOverview> allRequests(@NonNull @SessionAttribute("user") User user)
 			throws UnauthorizedActionException
 	{
 		if (!utilsService.isAppAdmin(user)) {
 			throw new UnauthorizedActionException();
 		}
-		return requestsService.getAllRequests(user);
+		List<RequestDTO> requests = requestsService.getAllRequests(user);
+		return ApiEntityMapper.mapRequestDTOsToRequestOverviews(requests, attributesProperties);
 	}
 
-	@PostMapping(path = "/api/approve/{requestId}")
+	@PostMapping(path = "/approve/{requestId}")
 	public boolean approveRequest(@NonNull @SessionAttribute("user") User user,
 								  @NonNull @PathVariable("requestId") Long requestId)
 			throws CannotChangeStatusException, InternalErrorException, UnauthorizedActionException,
@@ -142,7 +149,7 @@ public class RequestsController {
 		return requestsService.approveRequest(requestId, user);
 	}
 
-	@PostMapping(path = "/api/reject/{requestId}")
+	@PostMapping(path = "/reject/{requestId}")
 	public boolean rejectRequest(@NonNull @SessionAttribute("user") User user,
 								 @NonNull @PathVariable("requestId") Long requestId)
 			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException
@@ -153,7 +160,7 @@ public class RequestsController {
 		return requestsService.rejectRequest(requestId, user);
 	}
 
-	@PostMapping(path = "/api/askForChanges/{requestId}")
+	@PostMapping(path = "/askForChanges/{requestId}")
 	public boolean askForChanges(@NonNull @SessionAttribute("user") User user,
 								 @NonNull @PathVariable("requestId") Long requestId,
 								 @NonNull @RequestBody List<PerunAttribute> attributes)

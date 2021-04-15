@@ -4,7 +4,7 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.ActiveRequestExists
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
-import cz.metacentrum.perun.spRegistration.common.models.Request;
+import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
 import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
@@ -67,7 +67,7 @@ public class SignaturesController {
 	}
 
 	@GetMapping(path = "/api/moveToProduction/getFacilityDetails", params = "code")
-	public Request signRequestGetData(@NonNull String code)
+	public RequestDTO signRequestGetData(@NonNull String code)
 			throws BadPaddingException, IllegalBlockSizeException,
 			InvalidKeyException, ExpiredCodeException, InternalErrorException
 	{
@@ -108,7 +108,7 @@ public class SignaturesController {
 											   @NonNull @PathVariable("requestId") Long requestId)
 			throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException
 	{
-		Request req = requestsService.getRequest(requestId, user);
+		RequestDTO req = requestsService.getRequest(requestId, user);
 		if (req == null) {
 			throw new InternalErrorException("Request has not been found");
 		} else if (!utilsService.isAdminForRequest(req, user)) {

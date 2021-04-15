@@ -6,7 +6,7 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeExceptio
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
-import cz.metacentrum.perun.spRegistration.common.models.Request;
+import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
 import cz.metacentrum.perun.spRegistration.common.models.RequestSignature;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
@@ -66,7 +66,7 @@ public class RequestSignaturesServiceImpl implements RequestSignaturesService {
 
         Long requestId = linkCode.getRequestId();
         requestSignatureManager.addSignature(requestId, user, approved, code);
-        Request req = requestManager.getRequestById(requestId);
+        RequestDTO req = requestManager.getRequestById(requestId);
 
         mailsService.notifyUser(req, REQUEST_SIGNED);
         mailsService.notifyAppAdmins(req, REQUEST_SIGNED);
@@ -76,7 +76,7 @@ public class RequestSignaturesServiceImpl implements RequestSignaturesService {
     @Override
     public List<RequestSignature> getSignaturesForRequest(@NonNull Long requestId, @NonNull Long userId)
             throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException {
-        Request request = requestManager.getRequestById(requestId);
+        RequestDTO request = requestManager.getRequestById(requestId);
         if (request == null) {
             throw new InternalErrorException(Utils.GENERIC_ERROR_MSG);
         } else if (!applicationProperties.isAppAdmin(userId)

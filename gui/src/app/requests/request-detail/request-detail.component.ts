@@ -14,6 +14,8 @@ import {RequestDetailDialogComponent} from './request-detail-dialog/request-deta
 import {DetailViewItem} from '../../core/models/items/DetailViewItem';
 import {AuditService} from "../../core/services/audit.service";
 import {AuditLog} from "../../core/models/AuditLog";
+import {RequestAction} from "../../core/models/enums/RequestAction";
+import {RequestStatus} from "../../core/models/enums/RequestStatus";
 
 export interface DialogData {
   isApprove: false;
@@ -90,10 +92,10 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
       this.requestsService.getRequest(params['id']).subscribe(request => {
         this.request = new Request(request);
         this.mapAttributes();
-        this.displayOldVal = request.action === 'UPDATE_FACILITY';
-        this.includeComment = request.status !== 'APPROVED' && request.status !== 'REJECTED';
+        this.displayOldVal = request.action === RequestAction.UPDATE_FACILITY;
+        this.includeComment = request.status !== RequestStatus.APPROVED && request.status !== RequestStatus.REJECTED
         this.loading = false;
-        if (this.request.action === 'MOVE_TO_PRODUCTION') {
+        if (this.request.action === RequestAction.MOVE_TO_PRODUCTION) {
           this.loadSignatures(this.request.reqId);
         }
         this.loadAudit(this.request.reqId);
@@ -116,7 +118,7 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
 
   ngDoCheck(): void {
     if (this.request !== undefined && this.request !== null) {
-      if (this.request.status !== 'APPROVED' && this.request.status !== 'REJECTED') {
+      if (this.request.status !== RequestStatus.APPROVED && RequestStatus.REJECTED) {
         this.displayedColumns = ['name', 'value', 'comment'];
       } else {
         this.displayedColumns = ['name', 'value'];
@@ -295,7 +297,7 @@ export class RequestDetailComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   private mapAttributes() {
-    const actionUpdate = this.request.action === 'UPDATE_FACILITY';
+    const actionUpdate = this.request.action === RequestAction.UPDATE_FACILITY;
     this.request.serviceAttrs().forEach((attr, _) => {
       const item = new DetailViewItem(attr);
       if (actionUpdate && item.hasValueChanged()) {

@@ -5,7 +5,7 @@ import cz.metacentrum.perun.spRegistration.common.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestStatus;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ActiveRequestExistsException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
-import cz.metacentrum.perun.spRegistration.common.models.Request;
+import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
 import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
 import cz.metacentrum.perun.spRegistration.persistence.mappers.RequestMapper;
 import lombok.NonNull;
@@ -66,7 +66,7 @@ public class RequestManagerImpl implements RequestManager {
 
 	@Override
 	@Transactional
-	public Long createRequest(@NonNull Request request)
+	public Long createRequest(@NonNull RequestDTO request)
 			throws InternalErrorException, ActiveRequestExistsException
 	{
 		if (request.getFacilityId() != null) {
@@ -112,7 +112,7 @@ public class RequestManagerImpl implements RequestManager {
 
 	@Override
 	@Transactional
-	public boolean updateRequest(@NonNull Request request) throws InternalErrorException {
+	public boolean updateRequest(@NonNull RequestDTO request) throws InternalErrorException {
 		String query = new StringJoiner(" ")
 				.add("UPDATE").add(REQUESTS_TABLE)
 				.add("SET facility_id = :fac_id, status = :status, action = :action, requesting_user_id = :req_user_id,")
@@ -168,7 +168,7 @@ public class RequestManagerImpl implements RequestManager {
 
 	@Override
 	@Transactional
-	public Request getRequestById(@NonNull Long reqId) {
+	public RequestDTO getRequestById(@NonNull Long reqId) {
 		String query = new StringJoiner(" ")
 				.add("SELECT * FROM").add(REQUESTS_TABLE)
 				.add("WHERE id = :req_id")
@@ -186,7 +186,7 @@ public class RequestManagerImpl implements RequestManager {
 
 	@Override
 	@Transactional
-	public List<Request> getAllRequests() {
+	public List<RequestDTO> getAllRequests() {
 		String query = new StringJoiner(" ")
 				.add("SELECT * FROM").add(REQUESTS_TABLE)
 				.toString();
@@ -196,7 +196,7 @@ public class RequestManagerImpl implements RequestManager {
 
 	@Override
 	@Transactional
-	public List<Request> getAllRequestsByUserId(@NonNull Long userId) {
+	public List<RequestDTO> getAllRequestsByUserId(@NonNull Long userId) {
 		String query = new StringJoiner(" ")
 				.add("SELECT * FROM").add(REQUESTS_TABLE)
 				.add("WHERE requesting_user_id = :req_user_id")
@@ -210,7 +210,7 @@ public class RequestManagerImpl implements RequestManager {
 
 	@Override
 	@Transactional
-	public List<Request> getAllRequestsByStatus(@NonNull RequestStatus status) {
+	public List<RequestDTO> getAllRequestsByStatus(@NonNull RequestStatus status) {
 		String query = new StringJoiner(" ")
 				.add("SELECT * FROM").add(REQUESTS_TABLE)
 				.add("WHERE status = :status")
@@ -224,7 +224,7 @@ public class RequestManagerImpl implements RequestManager {
 
 	@Override
 	@Transactional
-	public List<Request> getAllRequestsByAction(@NonNull RequestAction action) {
+	public List<RequestDTO> getAllRequestsByAction(@NonNull RequestAction action) {
 		String query = new StringJoiner(" ")
 				.add("SELECT * FROM").add(REQUESTS_TABLE)
 				.add("WHERE action = :action")
@@ -237,7 +237,7 @@ public class RequestManagerImpl implements RequestManager {
 
 	@Override
 	@Transactional
-	public List<Request> getAllRequestsByFacilityId(@NonNull Long facilityId) {
+	public List<RequestDTO> getAllRequestsByFacilityId(@NonNull Long facilityId) {
 		String query = new StringJoiner(" ")
 				.add("SELECT * FROM").add(REQUESTS_TABLE)
 				.add("WHERE facility_id = :fac_id")
@@ -251,7 +251,7 @@ public class RequestManagerImpl implements RequestManager {
 
 	@Override
 	@Transactional
-	public List<Request> getAllRequestsByFacilityIds(@NonNull Set<Long> facilityIds) {
+	public List<RequestDTO> getAllRequestsByFacilityIds(@NonNull Set<Long> facilityIds) {
 		String query = new StringJoiner(" ")
 				.add("SELECT * FROM").add(REQUESTS_TABLE)
 				.add("WHERE facility_id IN (:ids)")

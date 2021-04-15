@@ -90,13 +90,15 @@
       "REJECTED": "Zamítnuto",
       "WFA": "Čeká na schválení",
       "WFC": "Administrátor vyžádal změny",
-      "CANCELED": "Zrušeno"
+      "CANCELED": "Zrušeno",
+      "UNKNOWN": "Neznámá hodnota"
     },
     "ACTIONPIPE": {
       "REGISTER_NEW_SP": "Registrace nové služby",
       "UPDATE_FACILITY": "Úprava služby",
       "DELETE_FACILITY" : "Smazání služby",
-      "MOVE_TO_PRODUCTION": "Přesun do produkce"
+      "MOVE_TO_PRODUCTION": "Přesun do produkce",
+      "UNKNOWN": "Neznámá hodnota"
     },
     "CHANGED_TO_WFC": "Změny byly vyžádany",
     "COMMENTS_FROM_ADMIN": "Komentáře od administrátora",
@@ -117,7 +119,8 @@
     "TAB_BADGE_TOOLTIP": "Pokud je zobrzaeno číslo, tato hodnota indikuje počet změn v dané kategorii",
     "CANCEL_REQUEST": "Zrušit",
     "HISTORY": "Historie změn",
-    "SERVICE_NAME": "Název služby"
+    "SERVICE_NAME": "Název služby",
+    "SERVICE_IDENTIFIER": "Identifikátor"
   },
   "FACILITIES": {
     "IDENTIFIER": "ClientID/EntityID",

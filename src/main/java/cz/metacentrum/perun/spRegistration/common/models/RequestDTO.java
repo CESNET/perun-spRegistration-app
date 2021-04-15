@@ -33,7 +33,7 @@ import java.util.Set;
 @Setter
 @ToString(exclude = {"attributes", "requester"})
 @EqualsAndHashCode(exclude = {"attributes", "requester"})
-public class Request {
+public class RequestDTO {
 
 	@NonNull private Long reqId;
 	private Long facilityId;

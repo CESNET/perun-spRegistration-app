@@ -18,6 +18,9 @@ import {MatTabsModule} from "@angular/material/tabs";
 import { RequestDetailItemLocalePipe } from './request-detail-item-locale.pipe';
 import {RequestStatusIconPipe} from "./request-status-icon.pipe";
 import {RequestStatusLangPipe} from "./request-status-lang.pipe";
+import {RequestOverview} from "../core/models/RequestOverview";
+import {MatTableDataSource} from "@angular/material/table";
+import {TranslateService} from "@ngx-translate/core";
 
 @NgModule({
   imports: [

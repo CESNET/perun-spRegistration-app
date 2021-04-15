@@ -93,13 +93,15 @@
       "REJECTED": "Rejected",
       "WFA": "Waiting for approval",
       "WFC": "Changes requested by administrator",
-      "CANCELED": "Canceled"
+      "CANCELED": "Canceled",
+      "UNKNOWN": "Unknown"
     },
     "ACTIONPIPE": {
       "REGISTER_NEW_SP": "Register new service",
       "UPDATE_FACILITY": "Update service",
       "DELETE_FACILITY": "Delete service",
-      "MOVE_TO_PRODUCTION": "Move to production"
+      "MOVE_TO_PRODUCTION": "Move to production",
+      "UNKNOWN": "Unknown"
     },
     "CHANGED_TO_WFC": "Successfully requested changes",
     "COMMENTS_FROM_ADMIN": "Comments from administrator",
@@ -120,7 +122,8 @@
     "TAB_BADGE_TOOLTIP": "If there is a number, it indicates amount of changes in the category",
     "CANCEL_REQUEST": "Cancel",
     "HISTORY": "Changes history",
-    "SERVICE_NAME": "Service name"
+    "SERVICE_NAME": "Service name",
+    "SERVICE_IDENTIFIER": "Identifier"
   },
   "FACILITIES": {
     "IDENTIFIER": "ClientID/EntityID",

@@ -10,7 +10,7 @@ import cz.metacentrum.perun.spRegistration.common.enums.RequestStatus;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
-import cz.metacentrum.perun.spRegistration.common.models.Request;
+import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.RowMapper;
@@ -27,7 +27,7 @@ import java.util.Map;
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>;
  */
 @Slf4j
-public class RequestMapper implements RowMapper<Request> {
+public class RequestMapper implements RowMapper<RequestDTO> {
 
 	private static final String ATTRIBUTES_KEY = "attributes";
 	private static final String ID_KEY = "id";
@@ -47,7 +47,7 @@ public class RequestMapper implements RowMapper<Request> {
 	}
 
 	@Override
-	public Request mapRow(ResultSet resultSet, int i) throws SQLException {
+	public RequestDTO mapRow(ResultSet resultSet, int i) throws SQLException {
 		String attrsJsonStr = resultSet.getString(ATTRIBUTES_KEY);
 		Map<AttributeCategory, Map<String, PerunAttribute>> attrs = null;
 		try {
@@ -60,7 +60,7 @@ public class RequestMapper implements RowMapper<Request> {
 			facilityId = null;
 		}
 
-		Request request = new Request();
+		RequestDTO request = new RequestDTO();
 		request.setReqId(resultSet.getLong(ID_KEY));
 		request.setFacilityId(facilityId);
 		request.setStatus(RequestStatus.resolve(resultSet.getInt(STATUS_KEY)));
