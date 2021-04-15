@@ -44,8 +44,10 @@
         </div>
       </div>
       <!-- AUDIT -->
-      <div class="row">
-        <h4>{{ 'REQUESTS.HISTORY' | translate }}</h4>
+      <mat-expansion-panel class="row">
+        <mat-expansion-panel-header *ngIf="auditLoading || audits.length > 0">
+          <mat-panel-title>{{ 'REQUESTS.HISTORY' | translate }}</mat-panel-title>
+        </mat-expansion-panel-header>
         <mat-spinner class="ml-auto mr-auto" *ngIf="auditLoading" color=""></mat-spinner>
         <ul *ngIf="!auditLoading">
           <li *ngFor="let audit of audits">
@@ -53,7 +55,7 @@
             <span>{{ audit.actorName }}({{ audit.actorId }}) - {{ audit.message }}</span>
           </li>
         </ul>
-      </div>
+      </mat-expansion-panel>
     </div>
     <div class="w-100"><!-- SPACER --></div>
     <div class="col">
