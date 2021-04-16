@@ -36,6 +36,19 @@ public class MailsServiceImpl implements MailsService {
 	public static final String LANG_EN = "en";
 	public static final String LANG_CS = "cs";
 
+	public static final String MSG_WRAP_START =
+			"<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' " +
+					"'https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>" +
+					"<html xmlns='https://www.w3.org/1999/xhtml'>" +
+					"<head>" +
+					"<title></title>" +
+					"<meta http–equiv='Content-Type' content='text/html; charset=UTF-8'/>" +
+					"<meta http–equiv='X-UA-Compatible' content='IE=edge'/>" +
+					"<meta name='viewport' content='width=device-width, initial-scale=1.0 '/>" +
+					"</head>" +
+					"<body>";
+	public static final String MSG_WRAP_END = "</body></html>";
+
 	// actions
 	public static final String REQUEST_CREATED = "REQUEST_CREATED";
 	public static final String REQUEST_MODIFIED = "REQUEST_MODIFIED";
@@ -183,7 +196,7 @@ public class MailsServiceImpl implements MailsService {
 			return;
 		}
 		MailTemplate template = getTemplate(action, ROLE_USER);
-		
+
 		String message = constructMessage(template);
 		String subject = constructSubject(template);
 
@@ -398,7 +411,7 @@ public class MailsServiceImpl implements MailsService {
 			}
 		}
 
-		return mailProperties.getSubjectPrefix() + joiner.toString();
+		return mailProperties.getSubjectPrefix() + joiner;
 	}
 
 	private String constructMessage(MailTemplate template) {
@@ -410,19 +423,17 @@ public class MailsServiceImpl implements MailsService {
 			}
 		}
 		joiner.add(mailProperties.getFooter());
-		return joiner.toString();
+		return MSG_WRAP_START + joiner + MSG_WRAP_END;
 	}
 
 	private boolean sendMail(String to, String subject, String msg) {
 		try {
 			MimeMessage message = mailSender.createMimeMessage();
-
 			MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF_8.toString());
 			helper.setFrom(mailProperties.getFrom());
 			helper.setTo(to);
 			helper.setSubject(subject);
 			helper.setText(msg, true);
-
 			mailSender.send(message);
 		} catch (Exception e) {
 			return false;
