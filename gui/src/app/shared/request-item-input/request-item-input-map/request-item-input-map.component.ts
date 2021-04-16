@@ -131,6 +131,12 @@ export class RequestItemInputMapComponent implements RequestItem, OnInit {
 
   hasCorrectValue(): boolean {
     this.resetErrors();
+    if (this.values) {
+      this.keys = this.keys.map(v => v.trim());
+    }
+    if (this.keys) {
+      this.values = this.values.map(v => v.trim());
+    }
 
     if (!RequestItemInputUtils.hasValueMultiValue(this.values)) {
       if (this.applicationItem.required) {

@@ -58,6 +58,10 @@ export class RequestItemInputListComponent implements RequestItem, OnInit {
   hasCorrectValue(): boolean {
     this.resetErrors();
 
+    if (this.values) {
+      this.values = this.values.map(v => v.trim());
+    }
+
     if (!RequestItemInputUtils.hasValueMultiValue(this.values)) {
       if (this.applicationItem.required) {
         this.form.form.setErrors({'incorrect' : true});
@@ -86,7 +90,6 @@ export class RequestItemInputListComponent implements RequestItem, OnInit {
   showErredValues(errIndexes: number[]) {
     for (let i = 0; i < errIndexes.length; i++) {
       const input = this.form.form.controls['value-' + i];
-
       input.markAsTouched();
       input.setErrors({'incorrect': true});
     }
@@ -96,7 +99,6 @@ export class RequestItemInputListComponent implements RequestItem, OnInit {
     if (!this.hasCorrectValue()) {
       for (let i = 0; i < this.values.length; i++) {
         const value = this.values[i];
-
         if (value === undefined || value === null || value.trim().length === 0) {
           this.form.form.controls['value-' + i].markAsTouched();
           this.form.form.controls['value-' + i].setErrors({'incorrect' : true});

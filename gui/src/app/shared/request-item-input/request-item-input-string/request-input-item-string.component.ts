@@ -85,6 +85,9 @@ export class RequestInputItemStringComponent implements RequestItem, OnInit {
   }
 
   onFormSubmitted(): void {
+    if (this.value) {
+      this.value = this.value.trim();
+    }
     if (!this.hasCorrectValue()) {
       this.form.form.controls[this.applicationItem.name].markAsTouched();
       this.form.form.controls[this.applicationItem.name].setErrors({'incorrect' : true});
