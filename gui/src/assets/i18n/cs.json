@@ -50,6 +50,15 @@
       "EXPECTED_CHANGED_VALUE_ERROR": "Některé vyžádané změny nebyly vykonány!",
       "REGEX_MISMATCH_ERROR": "Hodnota nemá požadovanej formát!"
     },
+    "OVERVIEW": {
+      "ID": "#",
+      "FACILITY_ID": "ID služby",
+      "SERVICE_NAME": "Název služby",
+      "SERVICE_IDENTIFIER": "Identifikátor služby",
+      "REQUESTER_ID": "Žadatel",
+      "ACTION": "Akce",
+      "STATUS": "Stav"
+    },
     "FACILITY_ID": "Identifikátor služby",
     "USER_ID": "Identifikátor uživatele",
     "STATUS": "Stav žádosti",

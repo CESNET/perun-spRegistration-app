@@ -53,6 +53,15 @@
       "EXPECTED_CHANGED_VALUE_ERROR": "Some requested changes were not made!",
       "REGEX_MISMATCH_ERROR": "Value does not satisfy required format!"
     },
+    "OVERVIEW": {
+      "ID": "#",
+      "FACILITY_ID": "Service ID",
+      "SERVICE_NAME": "Service name",
+      "SERVICE_IDENTIFIER": "Service identifier",
+      "REQUESTER_ID": "Requester",
+      "ACTION": "Action",
+      "STATUS": "Status"
+    },
     "FACILITY_ID": "Service Identifier",
     "USER_ID": "User identifier",
     "STATUS": "Status of request",

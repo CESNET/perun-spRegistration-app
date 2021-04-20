@@ -1,11 +1,11 @@
-import { Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { RequestsService } from '../../core/services/requests.service';
-import { Subscription } from 'rxjs';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {RequestsService} from '../../core/services/requests.service';
+import {Subscription} from 'rxjs';
 import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
 import {MatPaginator} from '@angular/material/paginator';
-import { TranslateService } from "@ngx-translate/core";
-import {RequestOverview} from "../../core/models/RequestOverview";
+import {TranslateService} from '@ngx-translate/core';
+import {RequestOverview} from '../../core/models/RequestOverview';
 
 @Component({
   selector: 'app-requests-overview',
@@ -65,18 +65,18 @@ export class RequestsUserComponent implements OnInit, OnDestroy {
     this.dataSource = new MatTableDataSource<RequestOverview>(this.requests);
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
-    this.setRequestOverviewSorting();
-    this.setRequestOverviewFiltering();
+    this.setSortingDataAccessor();
+    this.setFilterPredicate();
   }
 
-  private setRequestOverviewSorting() {
+  private setSortingDataAccessor() {
     this.dataSource.sortingDataAccessor = ((data, sortHeaderId) => {
       switch (sortHeaderId) {
         case 'id': {
           return data.id;
         }
         case 'serviceId': {
-          return data.facilityId;
+          return data.serviceId;
         }
         case 'serviceIdentifier': {
           return data.serviceIdentifier;
@@ -98,14 +98,14 @@ export class RequestsUserComponent implements OnInit, OnDestroy {
     });
   }
 
-  private setRequestOverviewFiltering() {
+  private setFilterPredicate() {
     this.dataSource.filterPredicate = ((data: RequestOverview, filter: string) => {
       const id = data.id ? data.id.toString(): '';
       let name = '';
       if (data.serviceName && data.serviceName.has(this.translate.currentLang)) {
         name = data.serviceName.get(this.translate.currentLang).replace(/\s/g, '').toLowerCase();
       }
-      const facilityId = data.facilityId ? data.facilityId.toString() : '';
+      const facilityId = data.serviceId ? data.serviceId.toString() : '';
       const action = data.action.toString().replace('_', ' ').toLowerCase();
       const status = data.status.toString().replace('_', ' ').toLowerCase();
       const serviceIdentifier = data.serviceIdentifier.toLowerCase();

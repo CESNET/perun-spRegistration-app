@@ -21,13 +21,13 @@ export class RequestOverview {
     this.requesterId = item.requesterId;
     this.status = RequestStatus[item.status as keyof typeof RequestStatus];
     this.action = RequestAction[item.action as keyof typeof RequestAction];
-    this.facilityId = item.facilityId;
+    this.serviceId = item.serviceId;
   }
 
   id: number = null;
   serviceName: Map<string, string> = new Map<string, string>();
   serviceIdentifier: string = '';
-  facilityId: number = null;
+  serviceId: number = null; //FACILITY ID
   requesterId: number = null;
   status: RequestStatus = RequestStatus.UNKNOWN;
   action: RequestAction = RequestAction.UNKNOWN;

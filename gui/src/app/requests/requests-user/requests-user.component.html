@@ -13,39 +13,39 @@
       <table mat-table matSort matSortActive="id" matSortDirection="desc" matSortDisableClear [dataSource]="dataSource"
              class="w-100">
         <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'COMMON.ID' | translate}}</th>
-          <td mat-cell *matCellDef="let request">{{request.id}}</td>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'REQUESTS.OVERVIEW.ID' | translate }}</th>
+          <td mat-cell *matCellDef="let request">{{ request.id }}</td>
         </ng-container>
         <ng-container matColumnDef="serviceId">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'REQUESTS.FACILITY_ID' | translate}}</th>
-          <td mat-cell *matCellDef="let request">{{ request.facilityId }}</td>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'REQUESTS.OVERVIEW.FACILITY_ID' | translate }}</th>
+          <td mat-cell *matCellDef="let request">{{ request.serviceId }}</td>
         </ng-container>
         <ng-container matColumnDef="serviceName">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'REQUESTS.SERVICE_NAME' | translate}}</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'REQUESTS.OVERVIEW.SERVICE_NAME' | translate }}</th>
           <td mat-cell *matCellDef="let request">{{ request.serviceName | itemLocale }}</td>
         </ng-container>
         <ng-container matColumnDef="serviceIdentifier">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'REQUESTS.SERVICE_IDENTIFIER' | translate}}</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'REQUESTS.OVERVIEW.SERVICE_IDENTIFIER' | translate }}</th>
           <td mat-cell *matCellDef="let request">{{ request.serviceIdentifier }}</td>
         </ng-container>
         <ng-container matColumnDef="requesterId">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'REQUESTS.USER_ID' | translate}}</th>
-          <td mat-cell *matCellDef="let request">{{request.requesterId}}</td>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'REQUESTS.OVERVIEW.REQUESTER_ID' | translate }}</th>
+          <td mat-cell *matCellDef="let request">{{ request.requesterId }}</td>
         </ng-container>
         <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'REQUESTS.STATUS' | translate}}</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-15">{{ 'REQUESTS.OVERVIEW.STATUS' | translate }}</th>
           <td mat-cell *matCellDef="let request">
             <span [outerHTML]="request.status | requestStatusIcon"></span>
             {{ request.status | requestStatusLang | translate }}
           </td>
         </ng-container>
         <ng-container matColumnDef="action">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'REQUESTS.ACTION' | translate}}</th>
-          <td mat-cell *matCellDef="let request">{{request.action | requestAction | translate}}</td>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'REQUESTS.OVERVIEW.ACTION' | translate }}</th>
+          <td mat-cell *matCellDef="let request">{{ request.action | requestAction | translate }}</td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;" [routerLink]="['/auth/requests/detail', row.id]"
-          class="hover-dark clickable">
+            class="hover-dark clickable">
         </tr>
       </table>
       <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
