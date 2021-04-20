@@ -102,8 +102,8 @@ export class RequestsDetailComponent implements OnInit, DoCheck, OnDestroy {
         }
         this.loadAudit(this.request.reqId);
         this.mapAttributes();
-        this.displayOldVal = request.action === RequestAction.UPDATE_FACILITY;
-        this.includeComment = request.status !== RequestStatus.APPROVED && request.status !== RequestStatus.REJECTED
+        this.displayOldVal = this.request.action === RequestAction.UPDATE_FACILITY;
+        this.includeComment = this.request.status !== RequestStatus.APPROVED && this.request.status !== RequestStatus.REJECTED;
         this.loading = false;
       }, error => {
         this.loading = false;
@@ -307,31 +307,30 @@ export class RequestsDetailComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   private mapAttributes() {
-    const actionUpdate = this.request.action === RequestAction.UPDATE_FACILITY;
     this.request.serviceAttrs().forEach((attr, _) => {
       const item = new DetailViewItem(attr);
-      if (actionUpdate && item.hasValueChanged()) {
+      if (this.displayOldVal && item.hasValueChanged()) {
         this.serviceChangedCnt++;
       }
       this.requestAttrsService.push(item);
     });
     this.request.organizationAttrs().forEach((attr, _) => {
       const item = new DetailViewItem(attr);
-      if (actionUpdate && item.hasValueChanged()) {
+      if (this.displayOldVal && item.hasValueChanged()) {
         this.organizationChangedCnt++;
       }
       this.requestAttrsOrganization.push(item);
     });
     this.request.protocolAttrs().forEach((attr, _) => {
       const item = new DetailViewItem(attr);
-      if (actionUpdate && item.hasValueChanged()) {
+      if (this.displayOldVal && item.hasValueChanged()) {
         this.protocolChangedCnt++;
       }
       this.requestAttrsProtocol.push(item);
     });
     this.request.accessControlAttrs().forEach((attr, _) => {
       const item = new DetailViewItem(attr);
-      if (actionUpdate && item.hasValueChanged()) {
+      if (this.displayOldVal && item.hasValueChanged()) {
         this.accessControlChangedCnt++;
       }
       this.requestAttrsAccessControl.push(item);
