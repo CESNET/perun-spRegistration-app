@@ -44,14 +44,15 @@ public class AuditLogsManagerImpl implements AuditLogsManager {
         String query = "INSERT INTO " + AUDIT_TABLE + "(" + AuditLogMapper.REQUEST_ID + ", " + AuditLogMapper.ACTOR_ID
                 + ", " + AuditLogMapper.ACTOR_NAME + ", " + AuditLogMapper.MESSAGE_TYPE + ", "
                 + AuditLogMapper.MESSAGE + ") " +
-                "VALUES (:" + PARAM_REQUEST_ID + ", :" + PARAM_ACTOR_ID + ", :" + PARAM_ACTOR_NAME + ", :" + PARAM_MESSAGE + ")";
+                "VALUES (:" + PARAM_REQUEST_ID + ", :" + PARAM_ACTOR_ID + ", :" + PARAM_ACTOR_NAME +
+                ", :" + PARAM_MESSAGE_TYPE+ ", :" + PARAM_MESSAGE + ")";
 
         KeyHolder key = new GeneratedKeyHolder();
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue(PARAM_REQUEST_ID, audit.getRequestId());
         params.addValue(PARAM_ACTOR_ID, audit.getActorId());
-        params.addValue(PARAM_MESSAGE_TYPE, audit.getType().getValue());
         params.addValue(PARAM_ACTOR_NAME, audit.getActorName());
+        params.addValue(PARAM_MESSAGE_TYPE, audit.getType().getValue());
         params.addValue(PARAM_MESSAGE, audit.getMessage());
 
         int updatedCount = jdbcTemplate.update(query, params, key, new String[] { AuditLogMapper.ID });
