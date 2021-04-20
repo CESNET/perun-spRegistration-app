@@ -10,6 +10,7 @@ import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.ApprovalsProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
+import cz.metacentrum.perun.spRegistration.common.enums.AuditMessageType;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestStatus;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ActiveRequestExistsException;
@@ -18,7 +19,7 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeExceptio
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ProcessingException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
-import cz.metacentrum.perun.spRegistration.common.models.AuditLog;
+import cz.metacentrum.perun.spRegistration.common.models.AuditLogDTO;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.Group;
 import cz.metacentrum.perun.spRegistration.common.models.InputsContainer;
@@ -420,7 +421,7 @@ public class RequestsServiceImpl implements RequestsService {
             return false;
         }
 
-        AuditLog audit = new AuditLog();
+        AuditLogDTO audit = new AuditLogDTO();
         audit.setActorId(user.getId());
         insertApproveRequestAuditLog(requestId, user.getId(), user.getName());
         mailsService.notifyUser(request, MailsServiceImpl.REQUEST_STATUS_UPDATED);
@@ -503,12 +504,12 @@ public class RequestsServiceImpl implements RequestsService {
         return request;
     }
 
-    private boolean insertAuditLog(Long requestId, Long actorId, String actorName, String message) {
-        AuditLog audit = new AuditLog();
+    private boolean insertAuditLog(Long requestId, Long actorId, String actorName, AuditMessageType messageType) {
+        AuditLogDTO audit = new AuditLogDTO();
         audit.setRequestId(requestId);
         audit.setActorId(actorId);
         audit.setActorName(actorName);
-        audit.setMessage(message);
+        audit.setType(messageType);
         try {
             audit = auditLogsManager.insert(audit);
             return audit != null;
@@ -1023,39 +1024,39 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     private void insertRegisterServiceReqCreatedAuditLog(Long requestId, Long actorId, String actorName) {
-        insertAuditLog(requestId, actorId, actorName, "Service registration request created");
+        insertAuditLog(requestId, actorId, actorName, AuditMessageType.REQUEST_REG_SERVICE_CREATED);
     }
 
     private void insertUpdateServiceReqCreatedAuditLog(Long requestId, Long actorId, String actorName) {
-        insertAuditLog(requestId, actorId, actorName, "Update settings request created");
+        insertAuditLog(requestId, actorId, actorName, AuditMessageType.REQUEST_UPDATE_SERVICE_CREATED);
     }
 
     private void insertRemoveServiceReqCreatedAuditLog(Long requestId, Long actorId, String actorName) {
-        insertAuditLog(requestId, actorId, actorName, "Remove service request created");
+        insertAuditLog(requestId, actorId, actorName, AuditMessageType.REQUEST_REMOVE_SERVICE_CREATED);
     }
 
     private void insertTransferServiceReqCreatedAuditLog(Long requestId, Long actorId, String actorName) {
-        insertAuditLog(requestId, actorId, actorName, "Transfer to production request created");
+        insertAuditLog(requestId, actorId, actorName, AuditMessageType.REQUEST_TRANSFER_SERVICE_CREATED);
     }
 
     private void insertApproveRequestAuditLog(Long requestId, Long actorId, String actorName) {
-        insertAuditLog(requestId, actorId, actorName, "Approved by administrators");
+        insertAuditLog(requestId, actorId, actorName, AuditMessageType.REQUEST_APPROVED);
     }
 
     private void insertRejectRequestAuditLog(Long requestId, Long actorId, String actorName) {
-        insertAuditLog(requestId, actorId, actorName, "Rejected by administrators");
+        insertAuditLog(requestId, actorId, actorName, AuditMessageType.REQUEST_REJECTED);
     }
 
     private void insertCancelRequestAuditLog(Long requestId, Long actorId, String actorName) {
-        insertAuditLog(requestId, actorId, actorName, "Canceled by the requester");
+        insertAuditLog(requestId, actorId, actorName, AuditMessageType.REQUEST_CANCELED);
     }
 
     private void insertChangesRequestedRequestAuditLog(Long requestId, Long actorId, String actorName) {
-        insertAuditLog(requestId, actorId, actorName, "Administrator requested changes in proposed settings");
+        insertAuditLog(requestId, actorId, actorName, AuditMessageType.REQUEST_CHANGES_REQUEST);
     }
 
     private void insertUpdatedRequestAuditLog(Long requestId, Long actorId, String actorName) {
-        insertAuditLog(requestId, actorId, actorName, "Updated by requester");
+        insertAuditLog(requestId, actorId, actorName, AuditMessageType.REQUEST_UPDATED);
     }
 
 }

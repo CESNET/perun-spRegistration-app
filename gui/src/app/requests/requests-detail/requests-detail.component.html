@@ -76,7 +76,7 @@
         <ul *ngIf="!auditLoading">
           <li *ngFor="let audit of audits">
             <span class="mr-2">{{audit.madeAt | date: 'dd/MM/yyyy'}} -</span>
-            <span>{{ audit.actorName }}({{ audit.actorId }}) - {{ audit.message }}</span>
+            <span>{{ audit.actorName }}({{ audit.actorId }}) - {{ audit.type | auditTypeTranslationKey | translate }}</span>
           </li>
         </ul>
       </mat-expansion-panel>

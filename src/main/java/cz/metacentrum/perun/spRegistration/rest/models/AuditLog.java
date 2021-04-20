@@ -1,30 +1,24 @@
-package cz.metacentrum.perun.spRegistration.common.models;
+package cz.metacentrum.perun.spRegistration.rest.models;
 
-
+import cz.metacentrum.perun.spRegistration.common.enums.AuditMessageType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.NonNull;
 
 import java.sql.Timestamp;
 
-/**
- * Class represents audit log.
- *
- * @author Dominik Baranek <baranek@ics.muni.cz>;
- */
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode(exclude = {"madeAt"})
 public class AuditLog {
 
-    @NonNull private Long id;
     @NonNull private Long requestId;
     @NonNull private Long actorId;
     @NonNull private String actorName;
-    @NonNull private String message;
-    private Timestamp madeAt;
+    @NonNull private AuditMessageType type;
+    @NonNull private Timestamp madeAt;
 
 }

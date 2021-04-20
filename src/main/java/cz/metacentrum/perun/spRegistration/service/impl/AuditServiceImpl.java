@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
-import cz.metacentrum.perun.spRegistration.common.models.AuditLog;
+import cz.metacentrum.perun.spRegistration.common.models.AuditLogDTO;
 import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.persistence.managers.AuditLogsManager;
 import cz.metacentrum.perun.spRegistration.persistence.managers.ProvidedServiceManager;
@@ -27,13 +27,13 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public List<AuditLog> getAllLogs(@NonNull Long adminId) {
+    public List<AuditLogDTO> getAllLogs(@NonNull Long adminId) {
         return manager.getAll();
     }
 
     @Override
-    public AuditLog getLogById(@NonNull Long auditLogId, @NonNull Long userId) throws InternalErrorException {
-        AuditLog auditLog = manager.getById(auditLogId);
+    public AuditLogDTO getLogById(@NonNull Long auditLogId, @NonNull Long userId) throws InternalErrorException {
+        AuditLogDTO auditLog = manager.getById(auditLogId);
         if (auditLog == null) {
             log.error("Could not retrieve audit log for id: {}", auditLogId);
             throw new InternalErrorException("Could not retrieve audit log for id: " + auditLogId);
@@ -43,12 +43,12 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public List<AuditLog> getForRequest(@NonNull Long reqId, @NonNull Long adminId) {
+    public List<AuditLogDTO> getForRequest(@NonNull Long reqId, @NonNull Long adminId) {
         return manager.getForRequest(reqId);
     }
 
     @Override
-    public List<AuditLog> getForService(@NonNull Long serviceId, @NonNull Long adminId)
+    public List<AuditLogDTO> getForService(@NonNull Long serviceId, @NonNull Long adminId)
             throws InternalErrorException
     {
         ProvidedService service = providedServiceManager.get(serviceId);
@@ -59,7 +59,7 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public List<AuditLog> getForFacility(@NonNull Long facilityId, @NonNull Long adminId)
+    public List<AuditLogDTO> getForFacility(@NonNull Long facilityId, @NonNull Long adminId)
             throws InternalErrorException
     {
         return manager.getForFacility(facilityId);

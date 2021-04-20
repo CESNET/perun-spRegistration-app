@@ -188,7 +188,8 @@
     "ARE_YOU_SURE_REGENERATE_CLIENT_SECRET": "Are you sure you want to generate a new CLIENT_SECRET? The old value will not be usable anymore.",
     "DETAIL": {
       "ADMIN_REMOVED": "Manager has been removed",
-      "ADMIN_NOT_REMOVED": "An error has occurred when removing manager"
+      "ADMIN_NOT_REMOVED": "An error has occurred when removing manager",
+      "AUDIT_REQUEST": "Request"
     }
   },
   "TOOLS": {
@@ -209,5 +210,19 @@
     "LAST_PAGE_LABEL": "Last",
     "RANGE_PAGE_LABEL_1": "0 of {{length}}",
     "RANGE_PAGE_LABEL_2": "{{startIndex}} - {{endIndex}} of {{length}}"
+  },
+  "PIPES": {
+    "AUDIT_TYPE": {
+      "UNKNOWN": "Unknown",
+      "REQUEST_REG_SERVICE_CREATED": "New service registration request created",
+      "REQUEST_UPDATE_SERVICE_CREATED": "Requested configuration update",
+      "REQUEST_TRANSFER_SERVICE_CREATED": "Transfer to the production environment requested",
+      "REQUEST_REMOVE_SERVICE_CREATED": "Requested service removal",
+      "REQUEST_APPROVED": "Approved by the administrator",
+      "REQUEST_REJECTED": "Rejected by the administrator",
+      "REQUEST_CHANGES_REQUEST": "Administrator requested changes in the request",
+      "REQUEST_UPDATED": "Request updated",
+      "REQUEST_CANCELED": "Request canceled by the requester"
+    }
   }
 }

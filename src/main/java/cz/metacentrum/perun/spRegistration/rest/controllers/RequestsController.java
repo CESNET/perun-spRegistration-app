@@ -65,7 +65,7 @@ public class RequestsController {
 			throws PerunUnknownException, PerunConnectionException
 	{
 		List<RequestDTO> requests = requestsService.getAllUserRequests(user);
-		return ApiEntityMapper.mapRequestDTOsToRequestOverviews(requests, attributesProperties);
+		return ApiEntityMapper.mapRequestDtosToRequestOverviews(requests, attributesProperties);
 	}
 
 	@PostMapping(path = "/register")
@@ -140,7 +140,7 @@ public class RequestsController {
 			throw new UnauthorizedActionException();
 		}
 		List<RequestDTO> requests = requestsService.getAllRequests(user);
-		return ApiEntityMapper.mapRequestDTOsToRequestOverviews(requests, attributesProperties);
+		return ApiEntityMapper.mapRequestDtosToRequestOverviews(requests, attributesProperties);
 	}
 
 	@PostMapping(path = "/approve/{requestId}")
@@ -191,7 +191,7 @@ public class RequestsController {
 			throw new UnauthorizedActionException("User is not authorized to perform this action");
 		}
 		List<RequestSignatureDTO> signatures = requestSignaturesService.getSignaturesForRequest(requestId, user.getId());
-		return ApiEntityMapper.mapRequestSignatureDTOsToRequestSignature(signatures);
+		return ApiEntityMapper.mapRequestSignatureDtoToRequestSignature(signatures);
 	}
 
 }

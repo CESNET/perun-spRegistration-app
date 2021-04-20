@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS audit
     request_id      BIGINT NOT NULL,
     actor_id        BIGINT NOT NULL,
     actor_name      VARCHAR(256) NOT NULL,
+    message_type    INTEGER NOT NULL,
     message         VARCHAR(256) NOT NULL,
     made_at         TIMESTAMP DEFAULT now()
 );

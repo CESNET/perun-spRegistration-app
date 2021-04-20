@@ -2,10 +2,12 @@ package cz.metacentrum.perun.spRegistration.rest.controllers;
 
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
-import cz.metacentrum.perun.spRegistration.common.models.AuditLog;
+import cz.metacentrum.perun.spRegistration.common.models.AuditLogDTO;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
+import cz.metacentrum.perun.spRegistration.rest.ApiEntityMapper;
+import cz.metacentrum.perun.spRegistration.rest.models.AuditLog;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
 import cz.metacentrum.perun.spRegistration.service.impl.AuditServiceImpl;
 import lombok.NonNull;
@@ -40,28 +42,31 @@ public class AuditController {
         if (!utilsService.isAppAdmin(user)) {
             throw new UnauthorizedActionException();
         }
-        return auditService.getAllLogs(user.getId());
+        List<AuditLogDTO> auditList = auditService.getAllLogs(user.getId());
+        return ApiEntityMapper.mapAuditLogDTOstoAuditLog(auditList);
     }
 
     @GetMapping(path = "/request/{reqId}")
     public List<AuditLog> auditLogsByReqId(@NonNull @SessionAttribute("user") User user,
-                                           @NonNull @PathVariable("reqId") Long reqId)
+                                              @NonNull @PathVariable("reqId") Long reqId)
             throws UnauthorizedActionException, PerunUnknownException, PerunConnectionException, InternalErrorException
     {
         if (!utilsService.isAdminForRequest(reqId, user)) {
             throw new UnauthorizedActionException();
         }
-        return auditService.getForRequest(reqId, user.getId());
+        List<AuditLogDTO> auditList = auditService.getForRequest(reqId, user.getId());
+        return ApiEntityMapper.mapAuditLogDTOstoAuditLog(auditList);
     }
 
     @GetMapping(path = "/facility/{facilityId}")
     public List<AuditLog> auditLogsByService(@NonNull @SessionAttribute("user") User user,
-                                             @NonNull @PathVariable("facilityId") Long facilityId)
+                                                @NonNull @PathVariable("facilityId") Long facilityId)
             throws UnauthorizedActionException, InternalErrorException, PerunUnknownException, PerunConnectionException
     {
         if (!utilsService.isAdminForFacility(facilityId, user)) {
             throw new UnauthorizedActionException();
         }
-        return auditService.getForFacility(facilityId, user.getId());
+        List<AuditLogDTO> auditList = auditService.getForFacility(facilityId, user.getId());
+        return ApiEntityMapper.mapAuditLogDTOstoAuditLog(auditList);
     }
 }

@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.spRegistration.persistence.managers.impl;
 
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
-import cz.metacentrum.perun.spRegistration.common.models.AuditLog;
+import cz.metacentrum.perun.spRegistration.common.models.AuditLogDTO;
 import cz.metacentrum.perun.spRegistration.persistence.managers.AuditLogsManager;
 import cz.metacentrum.perun.spRegistration.persistence.mappers.AuditLogMapper;
 import lombok.NonNull;
@@ -28,6 +28,7 @@ public class AuditLogsManagerImpl implements AuditLogsManager {
     private static final String PARAM_ACTOR_ID = "actor_id";
     private static final String PARAM_ACTOR_NAME = "actor_name";
     private static final String PARAM_MESSAGE = "message";
+    private static final String PARAM_MESSAGE_TYPE = "message_type";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final AuditLogMapper MAPPER = new AuditLogMapper();
@@ -39,15 +40,17 @@ public class AuditLogsManagerImpl implements AuditLogsManager {
     }
 
     @Override
-    public AuditLog insert(@NonNull AuditLog audit) throws InternalErrorException {
+    public AuditLogDTO insert(@NonNull AuditLogDTO audit) throws InternalErrorException {
         String query = "INSERT INTO " + AUDIT_TABLE + "(" + AuditLogMapper.REQUEST_ID + ", " + AuditLogMapper.ACTOR_ID
-                + ", " + AuditLogMapper.ACTOR_NAME + ", " + AuditLogMapper.MESSAGE + ") " +
+                + ", " + AuditLogMapper.ACTOR_NAME + ", " + AuditLogMapper.MESSAGE_TYPE + ", "
+                + AuditLogMapper.MESSAGE + ") " +
                 "VALUES (:" + PARAM_REQUEST_ID + ", :" + PARAM_ACTOR_ID + ", :" + PARAM_ACTOR_NAME + ", :" + PARAM_MESSAGE + ")";
 
         KeyHolder key = new GeneratedKeyHolder();
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue(PARAM_REQUEST_ID, audit.getRequestId());
         params.addValue(PARAM_ACTOR_ID, audit.getActorId());
+        params.addValue(PARAM_MESSAGE_TYPE, audit.getType().getValue());
         params.addValue(PARAM_ACTOR_NAME, audit.getActorName());
         params.addValue(PARAM_MESSAGE, audit.getMessage());
 
@@ -72,7 +75,7 @@ public class AuditLogsManagerImpl implements AuditLogsManager {
     }
 
     @Override
-    public List<AuditLog> getAll() {
+    public List<AuditLogDTO> getAll() {
         String query = new StringJoiner(" ")
                 .add("SELECT * FROM").add(AUDIT_TABLE)
                 .toString();
@@ -80,7 +83,7 @@ public class AuditLogsManagerImpl implements AuditLogsManager {
     }
 
     @Override
-    public AuditLog getById(@NonNull Long id) {
+    public AuditLogDTO getById(@NonNull Long id) {
         String query = new StringJoiner(" ")
                 .add("SELECT * FROM").add(AUDIT_TABLE)
                 .add("WHERE").add(PARAM_ID).add("= :" + PARAM_ID)
@@ -96,7 +99,7 @@ public class AuditLogsManagerImpl implements AuditLogsManager {
     }
 
     @Override
-    public List<AuditLog> getForRequest(@NonNull Long requestId) {
+    public List<AuditLogDTO> getForRequest(@NonNull Long requestId) {
         String query = new StringJoiner(" ")
                 .add("SELECT * FROM").add(AUDIT_TABLE)
                 .add("WHERE").add(PARAM_REQUEST_ID).add("= :" + PARAM_REQUEST_ID)
@@ -109,7 +112,7 @@ public class AuditLogsManagerImpl implements AuditLogsManager {
     }
 
     @Override
-    public List<AuditLog> getForFacility(@NonNull Long facilityId) {
+    public List<AuditLogDTO> getForFacility(@NonNull Long facilityId) {
         String query = new StringJoiner(" ")
                 .add("SELECT * FROM").add(AUDIT_TABLE)
                 .add("WHERE").add(AuditLogMapper.REQUEST_ID).add("IN")

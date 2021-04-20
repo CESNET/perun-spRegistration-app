@@ -45,14 +45,21 @@
       </div>
       <!-- AUDIT -->
       <mat-expansion-panel class="row">
-        <mat-expansion-panel-header *ngIf="auditLoading || audits.length > 0">
+        <mat-expansion-panel-header *ngIf="auditLoading || audits.size > 0">
           <mat-panel-title>{{ 'REQUESTS.HISTORY' | translate }}</mat-panel-title>
         </mat-expansion-panel-header>
         <mat-spinner class="ml-auto mr-auto" *ngIf="auditLoading" color=""></mat-spinner>
         <ul *ngIf="!auditLoading">
-          <li *ngFor="let audit of audits">
-            <span class="mr-2">{{audit.madeAt | date: 'dd/MM/yyyy'}} -</span>
-            <span>{{ audit.actorName }}({{ audit.actorId }}) - {{ audit.message }}</span>
+          <li *ngFor="let reqToAudits of audits | keyvalue">
+            <div [routerLink]="['/auth/requests/detail', reqToAudits.key]" class="btn-link mt-1" role="button">
+              {{ 'FACILITIES.DETAIL.AUDIT_REQUEST' | translate }} #{{reqToAudits.key}}
+            </div>
+            <ul>
+              <li *ngFor="let audit of reqToAudits.value">
+                <span class="mr-2">{{audit.madeAt | date: 'dd/MM/yyyy'}} -</span>
+                <span>{{ audit.actorName }}({{ audit.actorId }}) - {{ audit.type | auditTypeTranslationKey | translate}}</span>
+              </li>
+            </ul>
           </li>
         </ul>
       </mat-expansion-panel>

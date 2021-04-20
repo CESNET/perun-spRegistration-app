@@ -55,7 +55,7 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
   facilityAttrsAccessControl: DetailViewItem[] = [];
   facilityAdmins: FacilityDetailUserItem[] = [];
 
-  audits: AuditLog[] = [];
+  audits: Map<number, AuditLog[]> = new Map<number, AuditLog[]>();
 
   loading = true;
   protocolLoading = false;
@@ -235,7 +235,15 @@ export class FacilitiesDetailComponent implements OnInit, OnDestroy {
   private loadAudit(id: number) {
     this.auditLoading = true;
     this.auditService.getAuditsForService(id).subscribe(audits => {
-      this.audits = audits.map(a => new AuditLog(a));
+      const mappedAudits = audits.map(a => new AuditLog(a));
+      const map = new Map<number, AuditLog[]>();
+      mappedAudits.forEach(auditLog => {
+        if (!map.get(auditLog.requestId)) {
+          map.set(auditLog.requestId, []);
+        }
+        map.get(auditLog.requestId).push(auditLog)
+      })
+      this.audits = map;
       this.auditLoading = false;
     }, error => {
       this.auditLoading = false;
