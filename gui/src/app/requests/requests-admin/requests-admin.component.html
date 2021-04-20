@@ -15,6 +15,10 @@
           <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'COMMON.ID' | translate}}</th>
           <td mat-cell *matCellDef="let request">{{request.id}}</td>
         </ng-container>
+        <ng-container matColumnDef="serviceId">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'REQUESTS.FACILITY_ID' | translate}}</th>
+          <td mat-cell *matCellDef="let request">{{ request.facilityId }}</td>
+        </ng-container>
         <ng-container matColumnDef="serviceName">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'REQUESTS.SERVICE_NAME' | translate}}</th>
           <td mat-cell *matCellDef="let request">{{ request.serviceName | itemLocale }}</td>

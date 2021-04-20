@@ -97,13 +97,14 @@ export class RequestsDetailComponent implements OnInit, DoCheck, OnDestroy {
     this.routeSubscription = this.route.params.subscribe(params => {
        this.requestSubscription = this.requestsService.getRequest(params['id']).subscribe(request => {
         this.request = new Request(request);
+        this.displayOldVal = this.request.action === RequestAction.UPDATE_FACILITY;
+         this.includeComment = this.request.status !== RequestStatus.APPROVED
+           && this.request.status !== RequestStatus.REJECTED;
         if (this.request.action === RequestAction.MOVE_TO_PRODUCTION) {
           this.loadSignatures(this.request.reqId);
         }
         this.loadAudit(this.request.reqId);
         this.mapAttributes();
-        this.displayOldVal = this.request.action === RequestAction.UPDATE_FACILITY;
-        this.includeComment = this.request.status !== RequestStatus.APPROVED && this.request.status !== RequestStatus.REJECTED;
         this.loading = false;
       }, error => {
         this.loading = false;

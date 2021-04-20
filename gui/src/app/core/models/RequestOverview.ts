@@ -3,7 +3,7 @@ import {RequestAction} from "./enums/RequestAction";
 
 export class RequestOverview {
 
-  static columns = ['id', 'serviceName', 'serviceIdentifier', 'requesterId', 'status', 'action'];
+  static columns = ['id', 'serviceId', 'serviceName', 'serviceIdentifier', 'requesterId', 'status', 'action'];
 
   constructor(item: any) {
     if (!item) {

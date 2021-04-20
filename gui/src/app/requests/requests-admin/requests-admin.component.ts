@@ -7,7 +7,6 @@ import { Subscription } from 'rxjs';
 import { MatPaginator } from '@angular/material/paginator';
 import {TranslateService} from "@ngx-translate/core";
 import {RequestOverview} from "../../core/models/RequestOverview";
-import {RequestsModule} from "../requests.module";
 
 @Component({
   selector: 'app-all-requests',
@@ -73,8 +72,12 @@ export class RequestsAdminComponent implements OnInit, OnDestroy {
   private setRequestOverviewSorting() {
     this.dataSource.sortingDataAccessor = ((data, sortHeaderId) => {
       switch (sortHeaderId) {
-        case 'id':
+        case 'id': {
           return data.id;
+        }
+        case 'serviceId': {
+          return data.facilityId;
+        }
         case 'serviceIdentifier': {
           return data.serviceIdentifier;
         }
@@ -102,13 +105,14 @@ export class RequestsAdminComponent implements OnInit, OnDestroy {
       if (data.serviceName && data.serviceName.has(this.translate.currentLang)) {
         name = data.serviceName.get(this.translate.currentLang).replace(/\s/g, '').toLowerCase();
       }
+      const facilityId = data.facilityId ? data.facilityId.toString() : '';
       const action = data.action.toString().replace('_', ' ').toLowerCase();
       const status = data.status.toString().replace('_', ' ').toLowerCase();
       const serviceIdentifier = data.serviceIdentifier.toLowerCase();
       const requesterId = data.requesterId.toString();
 
-      return id.includes(filter) || name.includes(filter) || serviceIdentifier.includes(filter)
-        || action.includes(filter) || status.includes(filter) || requesterId.includes(filter);
+      return id.includes(filter) || name.includes(filter) || facilityId.includes(filter) || action.includes(filter)
+        || serviceIdentifier.includes(filter) || status.includes(filter) || requesterId.includes(filter);
     });
   }
 
