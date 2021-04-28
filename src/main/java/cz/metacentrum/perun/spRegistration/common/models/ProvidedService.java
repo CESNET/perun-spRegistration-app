@@ -23,12 +23,13 @@ import java.util.Map;
 public class ProvidedService {
 
     @NonNull private Long id;
-    private Long facilityId;
+    @NonNull private Long facilityId;
     @NonNull private ServiceProtocol protocol;
     @NonNull private ServiceEnvironment environment;
     @NonNull private Map<String, String> name;
     @NonNull private Map<String, String> description;
     @NonNull private String identifier;
+    private boolean facilityDeleted = false;
 
     public ProvidedService(@NonNull Long id,
                            @NonNull Long facilityId,
@@ -36,7 +37,8 @@ public class ProvidedService {
                            @NonNull ServiceEnvironment environment,
                            @NonNull Map<String, String> name,
                            @NonNull Map<String, String> description,
-                           @NonNull String identifier)
+                           @NonNull String identifier,
+                           boolean facilityDeleted)
     {
         this.setId(id);
         this.setFacilityId(facilityId);
@@ -45,6 +47,7 @@ public class ProvidedService {
         this.setName(name);
         this.setDescription(description);
         this.setIdentifier(identifier);
+        this.facilityDeleted = facilityDeleted;
     }
 
     public void setIdentifier(@NonNull String identifier) {

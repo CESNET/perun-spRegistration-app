@@ -35,12 +35,13 @@ CREATE TABLE IF NOT EXISTS linkCodes
 CREATE TABLE IF NOT EXISTS provided_services
 (
     id                 BIGINT PRIMARY KEY AUTO_INCREMENT,
-    facility_id        BIGINT UNIQUE DEFAULT NULL,
+    facility_id        BIGINT UNIQUE NOT NULL,
     name               TINYTEXT NOT NULL,
     description        TEXT DEFAULT '',
     environment        VARCHAR(256) NOT NULL,
     protocol           VARCHAR(256) NOT NULL,
-    identifier         VARCHAR(4096) NOT NULL
+    identifier         VARCHAR(4096) NOT NULL,
+    facility_deleted   BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS audit

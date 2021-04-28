@@ -50,8 +50,8 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
 
         String query = new StringJoiner(" ")
                 .add("INSERT INTO").add(SPS_TABLE)
-                .add("(facility_id, name, description, environment, protocol, identifier)")
-                .add("VALUES (:facility_id, :name, :description, :environment, :protocol, :identifier)")
+                .add("(facility_id, name, description, environment, protocol, identifier, facility_deleted)")
+                .add("VALUES (:facility_id, :name, :description, :environment, :protocol, :identifier, :facility_deleted)")
                 .toString();
 
         KeyHolder key = new GeneratedKeyHolder();
@@ -62,6 +62,7 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
         params.addValue("environment", sp.getEnvironment().toString());
         params.addValue("protocol", sp.getProtocol().toString());
         params.addValue("identifier", sp.getIdentifier());
+        params.addValue("facility_deleted", sp.isFacilityDeleted());
 
         int updatedCount = jdbcTemplate.update(query, params, key, new String[] { "id" });
 
@@ -74,13 +75,9 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
         }
 
         Number generatedKey = key.getKey();
-        Long generatedId = null;
         if (generatedKey != null) {
-            generatedId = generatedKey.longValue();
+            sp.setId(generatedKey.longValue());
         }
-        sp.setId(generatedId);
-
-        log.trace("create() returns: {}", sp);
         return sp;
     }
 
@@ -97,7 +94,8 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
         String query = new StringJoiner(" ")
                 .add("UPDATE").add(SPS_TABLE)
                 .add("SET facility_id = :facility_id, name = :name, description = :description, " +
-                        "environment = :environment, protocol = :protocol, identifier = :identifier")
+                        "environment = :environment, protocol = :protocol, identifier = :identifier, " +
+                        "facility_deleted = :facility_deleted")
                 .add("WHERE id = :id")
                 .toString();
 
@@ -108,6 +106,7 @@ public class ProvidedServiceManagerImpl implements ProvidedServiceManager {
         params.addValue("environment", sp.getEnvironment().toString());
         params.addValue("protocol", sp.getProtocol().toString());
         params.addValue("identifier", sp.getIdentifier());
+        params.addValue("facility_deleted", sp.isFacilityDeleted());
         params.addValue("id", sp.getId());
         return this.executeUpdate(query, params);
     }

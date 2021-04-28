@@ -643,7 +643,7 @@ public class RequestsServiceImpl implements RequestsService {
             try {
                 sp = providedServiceManager.getByFacilityId(facilityId);
                 if (sp != null) {
-                    sp.setFacilityId(null);
+                    sp.setFacilityDeleted(true);
                     spUpdatedToNoFacId = providedServiceManager.update(sp);
                 } else {
                     throw new InternalErrorException("No SP found");
@@ -662,7 +662,7 @@ public class RequestsServiceImpl implements RequestsService {
         } catch (Exception e) {
             if (spUpdatedToNoFacId) {
                 final ProvidedService spOriginal = sp;
-                sp.setFacilityId(facilityId);
+                sp.setFacilityDeleted(false);
                 ((ExecuteAndSwallowException) () -> providedServiceManager.update(spOriginal)).execute(log);
             }
             log.error("Caught Processing exception: {}", e.getMessage(), e);

@@ -18,7 +18,7 @@ export class ProvidedService {
       }
     }
 
-    this.id = item.facilityId;
+    this.id = item.id;
     this.facilityId = item.facilityId;
     this.identifier = item.identifier;
     this.protocol = item.protocol;

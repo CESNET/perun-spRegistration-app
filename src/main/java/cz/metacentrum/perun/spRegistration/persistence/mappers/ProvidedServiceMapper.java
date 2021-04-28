@@ -27,10 +27,10 @@ public class ProvidedServiceMapper implements RowMapper<ProvidedService> {
 	public static final String PROTOCOL_KEY = "protocol";
 	public static final String ENVIRONMENT_KEY = "environment";
 	public static final String IDENTIFIER_KEY = "identifier";
+	public static final String FAC_DELETED_KEY = "facility_deleted";
 
 	@Override
 	public ProvidedService mapRow(ResultSet resultSet, int i) throws SQLException {
-		log.trace("mapRow(resultSet: {}, i: {})", resultSet, i);
 		ProvidedService sp = new ProvidedService();
 
 		sp.setId(resultSet.getLong(ID_KEY));
@@ -45,8 +45,8 @@ public class ProvidedServiceMapper implements RowMapper<ProvidedService> {
 		sp.setProtocol(ServiceProtocol.valueOf(resultSet.getString(PROTOCOL_KEY)));
 		sp.setEnvironment(ServiceEnvironment.valueOf(resultSet.getString(ENVIRONMENT_KEY)));
 		sp.setIdentifier(resultSet.getString(IDENTIFIER_KEY));
-
-		log.trace("mapRow() returns: {}", sp);
+		sp.setFacilityDeleted(resultSet.getBoolean(FAC_DELETED_KEY));
 		return sp;
 	}
+
 }

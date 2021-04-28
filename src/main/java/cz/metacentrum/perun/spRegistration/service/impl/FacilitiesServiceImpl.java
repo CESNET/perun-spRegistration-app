@@ -66,16 +66,15 @@ public class FacilitiesServiceImpl implements FacilitiesService {
     }
 
     @Override
-    public Facility getFacility(@NonNull Long serviceId, @NonNull Long userId, boolean includeClientCredentials)
+    public Facility getFacility(@NonNull Long facilityId, @NonNull Long userId, boolean includeClientCredentials)
             throws InternalErrorException, BadPaddingException, InvalidKeyException,
             IllegalBlockSizeException, PerunUnknownException, PerunConnectionException
     {
-        ProvidedService service = providedServiceManager.getByFacilityId(serviceId);
+        ProvidedService service = providedServiceManager.getByFacilityId(facilityId);
         if (service == null) {
-            throw new InternalErrorException("Could not retrieve service for ID: " + serviceId);
+            throw new InternalErrorException("Could not retrieve service for ID: " + facilityId);
         }
-        Long facilityId = service.getFacilityId();
-        if (service.getFacilityId() != null) {
+        if (!service.isFacilityDeleted()) {
             Facility facility = perunAdapter.getFacilityById(facilityId);
             if (facility == null) {
                 throw new IllegalArgumentException("Could not retrieve facility for id: " + facilityId);
@@ -99,7 +98,7 @@ public class FacilitiesServiceImpl implements FacilitiesService {
             return facility;
         } else {
             // facility has been deleted, return some artifact reconstructed from provided service object
-            Facility f = new Facility(null);
+            Facility f = new Facility(service.getFacilityId());
             f.setPerunName(service.getName().get("en"));
             f.setPerunDescription(service.getDescription().get("en"));
             f.setName(service.getName());
