@@ -66,14 +66,15 @@ public class FacilitiesServiceImpl implements FacilitiesService {
     }
 
     @Override
-    public Facility getFacility(@NonNull Long facilityId, @NonNull Long userId, boolean includeClientCredentials)
+    public Facility getFacility(@NonNull Long serviceId, @NonNull Long userId, boolean includeClientCredentials)
             throws InternalErrorException, BadPaddingException, InvalidKeyException,
             IllegalBlockSizeException, PerunUnknownException, PerunConnectionException
     {
-        ProvidedService service = providedServiceManager.getByFacilityId(facilityId);
+        ProvidedService service = providedServiceManager.getByFacilityId(serviceId);
         if (service == null) {
-            throw new InternalErrorException("Could not retrieve service for ID: " + facilityId);
+            throw new InternalErrorException("Could not retrieve service for ID: " + serviceId);
         }
+        Long facilityId = service.getFacilityId();
         if (service.getFacilityId() != null) {
             Facility facility = perunAdapter.getFacilityById(facilityId);
             if (facility == null) {
