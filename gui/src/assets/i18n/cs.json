@@ -187,7 +187,8 @@
       "ADMIN_REMOVED": "Manažer byl odebrán",
       "ADMIN_NOT_REMOVED": "Chyba při odebírání manažera",
       "AUDIT_REQUEST": "Žádost"
-    }
+    },
+    "DELETED": "Tato služba byla zrušena."
   },
   "TOOLS": {
     "CRYPTO_TITLE": "Šifrování",

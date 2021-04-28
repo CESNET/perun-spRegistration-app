@@ -637,29 +637,33 @@ public class RequestsServiceImpl implements RequestsService {
 
     private boolean deleteFacilityFromPerun(RequestDTO request) throws InternalErrorException {
         Long facilityId = extractFacilityIdFromRequest(request);
-        boolean spDeleted = false;
+        boolean spUpdatedToNoFacId = false;
         ProvidedService sp = null;
         try {
             try {
                 sp = providedServiceManager.getByFacilityId(facilityId);
                 if (sp != null) {
-                    spDeleted = providedServiceManager.delete(sp.getId());
+                    sp.setFacilityId(null);
+                    spUpdatedToNoFacId = providedServiceManager.update(sp);
+                } else {
+                    throw new InternalErrorException("No SP found");
                 }
             } catch (InternalErrorException e) {
                 log.error("Failed to delete provided service");
-                throw new ProcessingException("Failed to delete provided service");
+                throw new ProcessingException("Failed to remove facility from the provided service");
             }
-            if (!spDeleted) {
-                throw new ProcessingException("Failed to delete SP object in local storage");
+            if (!spUpdatedToNoFacId) {
+                throw new ProcessingException("Failed to to update (remove facility id) of SP object in local storage");
             }
             if (!deleteFacility(sp, facilityId)) {
                 throw new ProcessingException("Failed to delete facility from perun");
             }
             deleteAdminsGroup(facilityId);
         } catch (Exception e) {
-            if (spDeleted) {
-                final ProvidedService spToRecreate = sp;
-                ((ExecuteAndSwallowException) () -> providedServiceManager.recreate(spToRecreate)).execute(log);
+            if (spUpdatedToNoFacId) {
+                final ProvidedService spOriginal = sp;
+                sp.setFacilityId(facilityId);
+                ((ExecuteAndSwallowException) () -> providedServiceManager.update(spOriginal)).execute(log);
             }
             log.error("Caught Processing exception: {}", e.getMessage(), e);
             return false;

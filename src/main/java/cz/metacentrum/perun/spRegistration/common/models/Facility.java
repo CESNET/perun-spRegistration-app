@@ -30,7 +30,7 @@ import java.util.Map;
 public class Facility extends PerunEntity {
 
 	@NonNull private String perunName;
-	 private String perunDescription = "";
+	private String perunDescription = "";
 	private final Map<String, String> name = new HashMap<>();
 	private final Map<String, String> description = new HashMap<>();;
 	private ServiceEnvironment environment;
@@ -38,6 +38,7 @@ public class Facility extends PerunEntity {
 	private final List<User> managers = new ArrayList<>();
 	private Long activeRequestId;
 	private final Map<AttributeCategory, Map<String, PerunAttribute>> attributes = new HashMap<>();
+	private boolean deleted = false;
 
 	public Facility(Long id) {
 		super(id);

@@ -18,7 +18,7 @@
           </p>
         </div>
         <!-- BUTTONS -->
-        <div class="col-md-4 mt-4 mb-2 controls text-right">
+        <div *ngIf="!this.facility.deleted" class="col-md-4 mt-4 mb-2 controls text-right">
           <ng-container *ngIf="moveToProductionActive || facility.activeRequestId">
             <p>{{'FACILITIES.ACTIVE_REQUEST_WARNING' | translate}}</p>
             <button class="btn-block mb-1" mat-raised-button color="accent"
@@ -65,7 +65,12 @@
       </mat-expansion-panel>
     </div>
     <div class="w-100"><!-- SPACER --></div>
-    <div class="col">
+    <div class="col" *ngIf="facility.deleted">
+      <div class="col-12 alert alert-warning">
+        {{ 'FACILITIES.DELETED' | translate }}
+      </div>
+    </div>
+    <div *ngIf="!facility.deleted" class="col">
       <mat-tab-group class="p-1">
         <!-- SERVICE -->
         <mat-tab label="{{ 'COMMON.ATTRIBUTES.SERVICE' | translate }}">

@@ -190,7 +190,8 @@
       "ADMIN_REMOVED": "Manager has been removed",
       "ADMIN_NOT_REMOVED": "An error has occurred when removing manager",
       "AUDIT_REQUEST": "Request"
-    }
+    },
+    "DELETED": "This service has been removed."
   },
   "TOOLS": {
     "CRYPTO_TITLE": "Crypto",

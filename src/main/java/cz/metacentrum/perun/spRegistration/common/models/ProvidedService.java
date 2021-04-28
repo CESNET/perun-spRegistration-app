@@ -23,7 +23,7 @@ import java.util.Map;
 public class ProvidedService {
 
     @NonNull private Long id;
-    @NonNull private Long facilityId;
+    private Long facilityId;
     @NonNull private ServiceProtocol protocol;
     @NonNull private ServiceEnvironment environment;
     @NonNull private Map<String, String> name;

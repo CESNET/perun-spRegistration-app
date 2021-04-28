@@ -35,6 +35,7 @@ export class Facility extends AttributesEntity {
         this.managers.push(new User(user));
       });
     }
+    this.deleted = item.deleted;
   }
 
   id: number;
@@ -46,5 +47,6 @@ export class Facility extends AttributesEntity {
   protocolUsed: string;
   activeRequestId: number;
   managers: User[];
+  deleted: boolean;
 
 }

@@ -74,28 +74,40 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         if (service == null) {
             throw new InternalErrorException("Could not retrieve service for ID: " + facilityId);
         }
-        Facility facility = perunAdapter.getFacilityById(facilityId);
-        if (facility == null) {
-            throw new IllegalArgumentException("Could not retrieve facility for id: " + facilityId);
-        }
-
-        facility.setName(service.getName());
-        facility.setDescription(service.getDescription());
-        facility.setEnvironment(service.getEnvironment());
-        facility.setProtocol(service.getProtocol());
-        facility.setActiveRequestId(requestManager.getActiveRequestIdByFacilityId(facilityId));
-        facility.setAttributes(getFacilityAttributes(facilityId));
-        log.warn("{}", facility.getAttributes());
-
-        if (!includeClientCredentials) {
-            clearOidcCredentials(facility);
-        } else {
-            if (OIDC.equals(facility.getProtocol())) {
-                decryptClientSecretValueInAttr(facility);
+        if (service.getFacilityId() != null) {
+            Facility facility = perunAdapter.getFacilityById(facilityId);
+            if (facility == null) {
+                throw new IllegalArgumentException("Could not retrieve facility for id: " + facilityId);
             }
-        }
 
-        return facility;
+            facility.setName(service.getName());
+            facility.setDescription(service.getDescription());
+            facility.setEnvironment(service.getEnvironment());
+            facility.setProtocol(service.getProtocol());
+            facility.setActiveRequestId(requestManager.getActiveRequestIdByFacilityId(facilityId));
+            facility.setAttributes(getFacilityAttributes(facilityId));
+
+            if (!includeClientCredentials) {
+                clearOidcCredentials(facility);
+            } else {
+                if (OIDC.equals(facility.getProtocol())) {
+                    decryptClientSecretValueInAttr(facility);
+                }
+            }
+
+            return facility;
+        } else {
+            // facility has been deleted, return some artifact reconstructed from provided service object
+            Facility f = new Facility(null);
+            f.setPerunName(service.getName().get("en"));
+            f.setPerunDescription(service.getDescription().get("en"));
+            f.setName(service.getName());
+            f.setDescription(service.getDescription());
+            f.setEnvironment(service.getEnvironment());
+            f.setProtocol(service.getProtocol());
+            f.setDeleted(true);
+            return f;
+        }
     }
 
     @Override
