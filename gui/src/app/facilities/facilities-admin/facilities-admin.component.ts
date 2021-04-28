@@ -37,7 +37,7 @@ export class FacilitiesAdminComponent implements OnInit, OnDestroy {
   }
 
   loading: boolean = true;
-  displayedColumns: string[] = ['id', 'name', 'description', 'identifier', 'environment', 'protocol'];
+  displayedColumns: string[] = ['facilityId', 'name', 'description', 'identifier', 'environment', 'protocol'];
   services: ProvidedService[] = [];
   dataSource: MatTableDataSource<ProvidedService> = new MatTableDataSource<ProvidedService>(this.services);
 
