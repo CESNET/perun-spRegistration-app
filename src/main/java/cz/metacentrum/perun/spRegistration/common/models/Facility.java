@@ -30,7 +30,7 @@ import java.util.Map;
 public class Facility extends PerunEntity {
 
 	@NonNull private String perunName;
-	@NonNull private String perunDescription = "";
+	 private String perunDescription = "";
 	private final Map<String, String> name = new HashMap<>();
 	private final Map<String, String> description = new HashMap<>();;
 	private ServiceEnvironment environment;
@@ -43,15 +43,15 @@ public class Facility extends PerunEntity {
 		super(id);
 	}
 
-	public Facility(Long id, @NonNull String perunName, @NonNull String perunDescription) {
+	public Facility(Long id, @NonNull String perunName, String perunDescription) {
 		super(id);
 		this.setPerunName(perunName);
 		this.setPerunDescription(perunDescription);
 	}
 
-	public void setPerunName(@NonNull String perunName) {
+	public void setPerunName(String perunName) {
 		if (!StringUtils.hasText(perunName)) {
-			throw new IllegalArgumentException("PerunName cannot be null nor empty");
+			this.perunName = "";
 		}
 
 		this.perunName = perunName;
