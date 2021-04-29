@@ -23,6 +23,7 @@ export class ProvidedService {
     this.identifier = item.identifier;
     this.protocol = item.protocol;
     this.environment = item.environment;
+    this.facilityDeleted = item.facilityDeleted;
   }
 
   id: number;
@@ -32,5 +33,6 @@ export class ProvidedService {
   identifier: string;
   environment: string;
   protocol: string;
+  facilityDeleted: boolean;
 
 }
