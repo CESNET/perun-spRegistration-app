@@ -37,9 +37,7 @@
         </div>
         <!-- BUTTONS -->
         <div class="col-md-4 mt-4 mb-2 controls text-right">
-          <!-- TODO: solve not displaying when service does not exist anymore -->
-          <ng-container *ngIf="request.facilityId && !(request.action === requestActionEnum.DELETE_FACILITY
-           && request.status === requestStatusEnum.APPROVED)">
+          <ng-container *ngIf="request.facilityId">
             <button class="btn-block mb-3" mat-raised-button color="accent"
                     [routerLink]="['/auth/facilities/detail', request.facilityId]">
               {{'REQUESTS.SEE_FACILITY' | translate}}

@@ -66,8 +66,8 @@
     </div>
     <div class="w-100"><!-- SPACER --></div>
     <div class="col" *ngIf="facility.deleted">
-      <div class="col-12 alert alert-warning">
-        {{ 'FACILITIES.DELETED' | translate }}
+      <div class="mt-4 alert alert-warning">
+        <mat-icon>warning</mat-icon> {{ 'FACILITIES.DELETED' | translate }}
       </div>
     </div>
     <div *ngIf="!facility.deleted" class="col">
