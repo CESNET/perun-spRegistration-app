@@ -5,7 +5,6 @@ import {SortableTableDirective} from './layout/sortable-table.directive';
 import {SortableColumnComponent} from './layout/sortable-column.component';
 import {TranslateModule} from '@ngx-translate/core';
 import {PerunFooterComponent} from './layout/perun-footer/perun-footer.component';
-import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import {RouterModule} from '@angular/router';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatBadgeModule} from '@angular/material/badge';
@@ -57,7 +56,6 @@ import {RequestItemInputErrorComponent} from './request-item-input/request-item-
     RouterModule,
     MatProgressBarModule,
     CommonModule,
-    FontAwesomeModule,
     FormsModule,
     MatSelectModule,
     MatInputModule,
@@ -110,7 +108,6 @@ import {RequestItemInputErrorComponent} from './request-item-input/request-item-
     AuditTypePipe
   ],
   exports: [
-    FontAwesomeModule,
     SortableColumnComponent,
     SortableTableDirective,
     TranslateModule,
