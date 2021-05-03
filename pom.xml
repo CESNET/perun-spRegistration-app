@@ -23,6 +23,7 @@
         <java.version>11</java.version>
         <node.version>v16.0.0</node.version>
         <npm.version>7.11.1</npm.version>
+        <jsoup.version>1.13.1</jsoup.version>
         <!-- OTHER -->
         <server.contextPath>/spreg</server.contextPath>
         <angular.deploy.url>${server.contextPath}/</angular.deploy.url>
@@ -91,6 +92,13 @@
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
