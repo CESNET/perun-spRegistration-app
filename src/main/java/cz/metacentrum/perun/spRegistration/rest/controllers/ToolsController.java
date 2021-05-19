@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import java.security.InvalidKeyException;
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * Tools controller
@@ -40,20 +38,20 @@ public class ToolsController {
 	}
 
 	@PostMapping(path = "/encrypt")
-	public Map<String, String> encrypt(@NonNull  @RequestBody String toEncrypt,
-									  @SessionAttribute("user") User user)
+	public String encrypt(@NonNull  @RequestBody String toEncrypt,
+						  @SessionAttribute("user") User user)
 			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnauthorizedActionException
 	{
 		if (!utilsService.isAppAdmin(user)) {
 			throw new UnauthorizedActionException("Action cannot be performed");
 		}
 		toEncrypt = ApiUtils.normalizeRequestBodyString(toEncrypt);
-		String encrypted = ServiceUtils.encrypt(toEncrypt, appBeansContainer.getSecretKeySpec());
-		return Collections.singletonMap("value", encrypted);
+
+		return ServiceUtils.encrypt(toEncrypt, appBeansContainer.getSecretKeySpec());
 	}
 
 	@PostMapping(path = "/decrypt")
-	public Map<String, gString> decrypt(@NonNull @RequestBody String toDecrypt,
+	public String decrypt(@NonNull @RequestBody String toDecrypt,
 						  @SessionAttribute("user") User user)
 			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnauthorizedActionException
 	{
@@ -61,8 +59,8 @@ public class ToolsController {
 			throw new UnauthorizedActionException("Action cannot be performed");
 		}
 		toDecrypt = ApiUtils.normalizeRequestBodyString(toDecrypt);
-		String decrypted = ServiceUtils.decrypt(toDecrypt, appBeansContainer.getSecretKeySpec());
-		return Collections.singletonMap("value", decrypted);
+
+		return ServiceUtils.decrypt(toDecrypt, appBeansContainer.getSecretKeySpec());
 	}
 
 }
