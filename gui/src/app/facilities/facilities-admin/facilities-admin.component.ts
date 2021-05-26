@@ -101,8 +101,14 @@ export class FacilitiesAdminComponent implements OnInit, OnDestroy, AfterViewIni
       const env = data.environment.replace(/\s/g, '').toLowerCase();
       const identifier = data.identifier.replace(/\s/g, '').toLowerCase();
 
-      return id.includes(filter) || name.includes(filter) || desc.includes(filter) || protocol.includes(filter)
-        || env.includes(filter) || identifier.includes(filter);
+      const parts = filter.split(' ');
+      for (let part of parts) {
+        if (id.includes(part) || name.includes(part) || desc.includes(part) || protocol.includes(part)
+          || env.includes(part) || identifier.includes(part)) {
+          return true;
+        }
+      }
+      return false;
     });
   }
 
