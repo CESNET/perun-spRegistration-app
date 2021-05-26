@@ -14,8 +14,6 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class FacilitiesUserComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  private sort: MatSort;
-  private paginator: MatPaginator;
   private facilitiesSubscription: Subscription;
 
   constructor(
@@ -26,13 +24,8 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy, AfterViewInit
     this.dataSource = new MatTableDataSource<ProvidedService>(this.services);
   }
 
-  @ViewChild(MatSort, {static: false}) set matSort(ms: MatSort) {
-    this.sort = ms;
-  }
-
-  @ViewChild(MatPaginator, {static: false}) set matPaginator(mp: MatPaginator) {
-    this.paginator = mp;
-  }
+  @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
+  @ViewChild(MatSort, {static: false}) sort: MatSort;
 
   loading = true;
   displayedColumns: string[] = ['facilityId', 'name', 'description', 'identifier', 'environment', 'protocol'];

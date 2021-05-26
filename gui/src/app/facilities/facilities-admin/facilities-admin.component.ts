@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, QueryList, ViewChild} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { MatSort } from '@angular/material/sort';
@@ -14,8 +14,6 @@ import { ProvidedService } from "../../core/models/ProvidedService";
 })
 export class FacilitiesAdminComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  private sort: MatSort;
-  private paginator: MatPaginator;
   private facilitiesSubscription: Subscription;
 
   constructor(
@@ -26,13 +24,8 @@ export class FacilitiesAdminComponent implements OnInit, OnDestroy, AfterViewIni
     this.dataSource = new MatTableDataSource<ProvidedService>(this.services);
   }
 
-  @ViewChild(MatSort, {static: false}) set matSort(ms: MatSort) {
-    this.sort = ms;
-  }
-
-  @ViewChild(MatPaginator, {static: false}) set matPaginator(mp: MatPaginator) {
-    this.paginator = mp;
-  }
+  @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
+  @ViewChild(MatSort, {static: false}) sort: MatSort;
 
   loading: boolean = true;
   displayedColumns: string[] = ['facilityId', 'name', 'description', 'identifier', 'environment', 'protocol'];
