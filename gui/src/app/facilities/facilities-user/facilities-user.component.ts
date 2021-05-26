@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { FacilitiesService } from '../../core/services/facilities.service';
 import { Subscription } from 'rxjs';
 import { MatSort } from '@angular/material/sort';
@@ -12,7 +12,7 @@ import { TranslateService } from '@ngx-translate/core';
   templateUrl: './facilities-user.component.html',
   styleUrls: ['./facilities-user.component.scss']
 })
-export class FacilitiesUserComponent implements OnInit, OnDestroy {
+export class FacilitiesUserComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private sort: MatSort;
   private paginator: MatPaginator;
@@ -23,17 +23,15 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
     private translate: TranslateService
   ) {
     this.services = [];
-    this.setDataSource();
+    this.dataSource = new MatTableDataSource<ProvidedService>(this.services);
   }
 
   @ViewChild(MatSort, {static: false}) set matSort(ms: MatSort) {
     this.sort = ms;
-    this.setDataSource();
   }
 
   @ViewChild(MatPaginator, {static: false}) set matPaginator(mp: MatPaginator) {
     this.paginator = mp;
-    this.setDataSource();
   }
 
   loading = true;
@@ -44,7 +42,7 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.facilitiesSubscription = this.facilitiesService.getMyFacilities().subscribe(services => {
       this.services = services.map(s => new ProvidedService(s));
-      this.setDataSource();
+      this.dataSource.data = this.services;
       this.loading = false;
     }, error => {
       this.loading = false;
@@ -52,20 +50,20 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() {
-    this.facilitiesSubscription.unsubscribe();
-  }
-
-  doFilter = ((value: string) => {
-    this.dataSource.filter = value.trim().toLocaleLowerCase();
-  });
-
-  private setDataSource() {
-    this.dataSource = new MatTableDataSource<ProvidedService>(this.services);
+  ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
     this.setSorting();
     this.setFiltering();
+  }
+
+
+  ngOnDestroy() {
+    this.facilitiesSubscription.unsubscribe();
+  }
+
+  public doFilter = (value: string) => {
+    this.dataSource.filter = value.trim().toLocaleLowerCase();
   }
 
   private setSorting() {
