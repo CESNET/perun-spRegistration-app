@@ -37,7 +37,7 @@ export class FacilitiesAdminComponent implements OnInit, OnDestroy {
   }
 
   loading: boolean = true;
-  displayedColumns: string[] = ['facilityId', 'name', 'description', 'identifier', 'environment', 'protocol'];
+  displayedColumns: string[] = ['deleted', 'facilityId', 'name', 'description', 'identifier', 'environment', 'protocol'];
   services: ProvidedService[] = [];
   dataSource: MatTableDataSource<ProvidedService> = new MatTableDataSource<ProvidedService>(this.services);
 
@@ -56,9 +56,9 @@ export class FacilitiesAdminComponent implements OnInit, OnDestroy {
     this.facilitiesSubscription.unsubscribe();
   }
 
-  doFilter(value: string) {
-    this.dataSource.filter = value.trim().toLowerCase();
-  }
+  doFilter = ((value: string) => {
+    this.dataSource.filter = value.trim().toLocaleLowerCase();
+  });
 
   private setDataSource() {
     this.dataSource = new MatTableDataSource<ProvidedService>(this.services);
@@ -71,7 +71,7 @@ export class FacilitiesAdminComponent implements OnInit, OnDestroy {
   private setSorting() {
     this.dataSource.sortingDataAccessor = ((data, sortHeaderId) => {
       switch (sortHeaderId) {
-        case 'id': return data.id;
+        case 'facilityId': return data.id;
         case 'name': {
           if (data.name && data.name.has(this.translate.currentLang)) {
             return data.name.get(this.translate.currentLang).toLowerCase();
@@ -95,6 +95,9 @@ export class FacilitiesAdminComponent implements OnInit, OnDestroy {
 
   private setFiltering() {
     this.dataSource.filterPredicate = ((data: ProvidedService, filter: string) => {
+      if (!filter) {
+        return true;
+      }
       const id = data.id.toString();
       let name = '';
       if (data.name && data.name.has(this.translate.currentLang)) {

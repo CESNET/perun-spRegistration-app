@@ -86,7 +86,6 @@ export class DetailViewItem {
         result = false;
       }
     }
-    console.log("Arrays are equal: " + result + "(" + this.name + ")");
     return result;
   }
 
@@ -110,7 +109,6 @@ export class DetailViewItem {
         result = false;
       }
     });
-    console.log("Maps are equal: " + result + "(" + this.name + ")");
     return result;
   }
 

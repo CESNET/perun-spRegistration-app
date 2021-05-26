@@ -56,9 +56,9 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
     this.facilitiesSubscription.unsubscribe();
   }
 
-  doFilter = (value: string) => {
+  doFilter = ((value: string) => {
     this.dataSource.filter = value.trim().toLocaleLowerCase();
-  }
+  });
 
   private setDataSource() {
     this.dataSource = new MatTableDataSource<ProvidedService>(this.services);
@@ -71,19 +71,19 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
   private setSorting() {
     this.dataSource.sortingDataAccessor = ((data, sortHeaderId) => {
       switch (sortHeaderId) {
-        case 'id': return data.id;
+        case 'facilityId': return data.id;
         case 'name': {
-          if (!!data.name && data.name.has(this.translate.currentLang)) {
+          if (data.name && data.name.has(this.translate.currentLang)) {
             return data.name.get(this.translate.currentLang).toLowerCase();
           } else {
-            return "";
+            return '';
           }
         }
         case 'description': {
-          if (!!data.description && data.description.has(this.translate.currentLang)) {
+          if (data.description && data.description.has(this.translate.currentLang)) {
             return data.description.get(this.translate.currentLang).toLowerCase();
           } else {
-            return "";
+            return '';
           }
         }
         case 'identifier': return data.identifier;
@@ -94,7 +94,10 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
   }
 
   private setFiltering() {
-    this.dataSource.filterPredicate = (data: ProvidedService, filter: string) => {
+    this.dataSource.filterPredicate = ((data: ProvidedService, filter: string) => {
+      if (!filter) {
+        return true;
+      }
       const id = data.id.toString();
       let name = '';
       if (data.name && data.name.has(this.translate.currentLang)) {
@@ -110,7 +113,7 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
 
       return id.includes(filter) || name.includes(filter) || desc.includes(filter) || protocol.includes(filter)
         || env.includes(filter) || identifier.includes(filter);
-    };
+    });
   }
 
 }
