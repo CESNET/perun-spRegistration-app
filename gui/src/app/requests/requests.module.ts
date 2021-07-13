@@ -14,6 +14,7 @@ import { RequestsEditComponent } from './requests-edit/requests-edit.component';
 import { RequestsActionPipe } from './requests-action.pipe';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import {MatTabsModule} from "@angular/material/tabs";
+import {MatSortModule} from '@angular/material/sort';
 import {RequestsStatusIconPipe} from "./requests-status-icon.pipe";
 import {RequestsStatusLangPipe} from "./requests-status-lang.pipe";
 import {RequestSignatureDecisionIconPipePipe} from "./requests-signature-decision-icon.pipe";
@@ -25,6 +26,7 @@ import {RequestSignatureDecisionIconPipePipe} from "./requests-signature-decisio
     SharedModule,
     MatDialogModule,
     MatPaginatorModule,
+    MatSortModule,
     MatTabsModule,
   ],
   declarations: [

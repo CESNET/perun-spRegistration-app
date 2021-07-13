@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { FacilitiesRoutingModule } from './facilities-routing.module';
 import { FacilitiesUserComponent } from './facilities-user/facilities-user.component';
 import { SharedModule } from '../shared/shared.module';
@@ -16,6 +15,7 @@ import {FacilitiesEnvironmentPipe} from './facilities-environment.pipe';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatPaginatorIntl, MatPaginatorModule} from '@angular/material/paginator';
+import {MatSortModule} from '@angular/material/sort';
 import {TranslateService} from "@ngx-translate/core";
 import { PaginatorI18n } from '../core/parts/paginatorI18n';
 import {FacilitiesDetailClientSecretDialogComponent} from "./facilities-detail/facilities-detail-client-secret-dialog/facilities-detail-client-secret-dialog.component";
@@ -28,6 +28,7 @@ import {FacilitiesRemoveAdminDialogComponent} from "./facilities-detail/faciliti
     SharedModule,
     MatTabsModule,
     MatDialogModule,
+    MatSortModule,
     MatPaginatorModule
   ],
   declarations: [
