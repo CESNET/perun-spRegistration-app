@@ -93,6 +93,8 @@ export class RequestsAdminComponent implements OnInit, OnDestroy {
           return data.status;
         case 'action':
           return data.action;
+        default:
+          return data.id;
       }
     });
   }
