@@ -86,6 +86,7 @@ public class WebConfig implements WebMvcConfigurer {
         ajpConnector.setSecure(false);
         ajpConnector.setAllowTrace(false);
         ajpConnector.setScheme("http");
+        ajpConnector.setProperty("packetSize", "65536");
         ((AbstractAjpProtocol) ajpConnector.getProtocolHandler()).setSecretRequired(false);
         ((AbstractAjpProtocol) ajpConnector.getProtocolHandler()).setAllowedRequestAttributesPattern(".*");
         ((AbstractAjpProtocol) ajpConnector.getProtocolHandler()).setTomcatAuthentication(false);
