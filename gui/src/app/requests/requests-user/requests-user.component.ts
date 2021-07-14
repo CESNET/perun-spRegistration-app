@@ -124,8 +124,14 @@ export class RequestsUserComponent implements OnInit, OnDestroy {
       const serviceIdentifier = data.serviceIdentifier.toLowerCase();
       const requesterId = data.requesterId.toString();
 
-      return id.includes(filter) || name.includes(filter) || facilityId.includes(filter) || action.includes(filter)
-        || serviceIdentifier.includes(filter) || status.includes(filter) || requesterId.includes(filter);
+      const parts = filter.split(' ');
+      for (let part of parts) {
+        if (!(id.includes(filter) || name.includes(filter) || facilityId.includes(filter) || action.includes(filter)
+          || serviceIdentifier.includes(filter) || status.includes(filter) || requesterId.includes(filter))) {
+          return false;
+        }
+      }
+      return true;
     });
   }
 

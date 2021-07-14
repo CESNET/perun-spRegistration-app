@@ -75,7 +75,7 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
     }
     this.dataSource.sortingDataAccessor = ((data, sortHeaderId) => {
       switch (sortHeaderId) {
-        case 'facilityId': return data.id;
+        case 'facilityId': return data.facilityId;
         case 'name': {
           if (data.name && data.name.has(this.translate.currentLang)) {
             return data.name.get(this.translate.currentLang).toLowerCase();
@@ -105,7 +105,7 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
       if (!filter) {
         return true;
       }
-      const id = data.id.toString();
+      const id = data.facilityId.toString();
       let name = '';
       if (data.name && data.name.has(this.translate.currentLang)) {
         name = data.name.get(this.translate.currentLang).replace(/\s/g, '').toLowerCase();

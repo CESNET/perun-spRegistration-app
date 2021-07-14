@@ -97,7 +97,7 @@ export class FacilitiesAdminComponent implements OnInit, OnDestroy {
         case 'protocol': return data.protocol;
         case 'facilityId':
         default:
-          return data.id;
+          return data.facilityId;
       }
     });
   }
@@ -110,7 +110,7 @@ export class FacilitiesAdminComponent implements OnInit, OnDestroy {
       if (!filter) {
         return true;
       }
-      const id = data.id.toString();
+      const id = data.facilityId.toString();
       let name = '';
       if (data.name && data.name.has(this.translate.currentLang)) {
         name = data.name.get(this.translate.currentLang).replace(/\s/g, '').toLowerCase();
