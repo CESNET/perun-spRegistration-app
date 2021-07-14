@@ -1,4 +1,6 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {RequestAction} from '../../core/models/enums/RequestAction';
+import {RequestStatus} from '../../core/models/enums/RequestStatus';
 import {RequestsService} from '../../core/services/requests.service';
 import {Subscription} from 'rxjs';
 import {MatSort} from '@angular/material/sort';
@@ -21,9 +23,7 @@ export class RequestsUserComponent implements OnInit, OnDestroy {
   constructor(
     private requestsService: RequestsService,
     private translate: TranslateService
-  ) {
-    this.setDataSource();
-  }
+  ) { }
 
   @ViewChild(MatSort, {static: false}) set matSort(ms: MatSort) {
     this.sort = ms;
@@ -39,7 +39,7 @@ export class RequestsUserComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = RequestOverview.columns
 
   requests: RequestOverview[] = [];
-  dataSource: MatTableDataSource<RequestOverview> = new MatTableDataSource<RequestOverview>(this.requests);
+  dataSource: MatTableDataSource<RequestOverview> = new MatTableDataSource<RequestOverview>();
 
   ngOnInit() {
     this.requestsSubscription = this.requestsService.getUserRequests().subscribe(requests => {
@@ -57,19 +57,27 @@ export class RequestsUserComponent implements OnInit, OnDestroy {
     this.requestsSubscription.unsubscribe();
   }
 
-  doFilter(value: string) {
-    this.dataSource.filter = value.trim().toLowerCase();
+  setDataSource(): void {
+    if (this.dataSource) {
+      this.dataSource.data = this.requests;
+      this.dataSource.sort = this.sort;
+      this.dataSource.paginator = this.paginator;
+      this.setSorting();
+      this.setFiltering();
+    }
   }
 
-  setDataSource() {
-    this.dataSource = new MatTableDataSource<RequestOverview>(this.requests);
-    this.dataSource.sort = this.sort;
-    this.dataSource.paginator = this.paginator;
-    this.setSortingDataAccessor();
-    this.setFilterPredicate();
+  doFilter(value: string): void {
+    if (this.dataSource) {
+      value = value ? value.trim().toLowerCase(): '';
+      this.dataSource.filter = value;
+    }
   }
 
-  private setSortingDataAccessor() {
+  private setSorting(): void {
+    if (!this.dataSource) {
+      return;
+    }
     this.dataSource.sortingDataAccessor = ((data, sortHeaderId) => {
       switch (sortHeaderId) {
         case 'id': {
@@ -91,14 +99,19 @@ export class RequestsUserComponent implements OnInit, OnDestroy {
         case 'requesterId':
           return data.requesterId;
         case 'status':
-          return data.status;
+          return RequestStatus[data.status];
         case 'action':
-          return data.action;
+          return RequestAction[data.action];
+        default:
+          return data.id;
       }
     });
   }
 
-  private setFilterPredicate() {
+  private setFiltering(): void {
+    if (!this.dataSource) {
+      return;
+    }
     this.dataSource.filterPredicate = ((data: RequestOverview, filter: string) => {
       const id = data.id ? data.id.toString(): '';
       let name = '';
@@ -106,8 +119,8 @@ export class RequestsUserComponent implements OnInit, OnDestroy {
         name = data.serviceName.get(this.translate.currentLang).replace(/\s/g, '').toLowerCase();
       }
       const facilityId = data.serviceId ? data.serviceId.toString() : '';
-      const action = data.action.toString().replace('_', ' ').toLowerCase();
-      const status = data.status.toString().replace('_', ' ').toLowerCase();
+      const action = RequestAction[data.action].replace('_', ' ').toLowerCase();
+      const status = RequestStatus[data.status].replace('_', ' ').toLowerCase();
       const serviceIdentifier = data.serviceIdentifier.toLowerCase();
       const requesterId = data.requesterId.toString();
 

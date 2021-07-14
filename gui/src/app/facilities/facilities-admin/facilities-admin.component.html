@@ -13,10 +13,7 @@
              class="w-100">
         <ng-container matColumnDef="facilityId">
           <th mat-header-cell *matHeaderCellDef class="w-10" mat-sort-header>{{'COMMON.ID' | translate}}</th>
-          <td mat-cell *matCellDef="let providedService">
-            <mat-icon *ngIf="providedService.facilityDeleted" color="warn">delete</mat-icon>
-            {{providedService.facilityId}}
-          </td>
+          <td mat-cell *matCellDef="let providedService">{{providedService.facilityId}}</td>
         </ng-container>
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef class="w-20" mat-sort-header>{{'FACILITIES.NAME' | translate}}</th>
@@ -38,10 +35,15 @@
           <th mat-header-cell *matHeaderCellDef class="w-10" mat-sort-header>{{'FACILITIES.PROTOCOL' | translate}}</th>
           <td mat-cell *matCellDef="let providedService">{{providedService.protocol }}</td>
         </ng-container>
-
+        <ng-container matColumnDef="deleted">
+          <th mat-header-cell *matHeaderCellDef class="w-3"></th>
+          <td mat-cell *matCellDef="let providedService">
+            <mat-icon *ngIf="providedService.facilityDeleted" color="warn">delete</mat-icon>
+          </td>
+        </ng-container>
         <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;" [routerLink]="['/auth/facilities/detail', row.facilityId]"
-          class="hover-dark clickable">
+            class="hover-dark clickable">
         </tr>
       </table>
       <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>

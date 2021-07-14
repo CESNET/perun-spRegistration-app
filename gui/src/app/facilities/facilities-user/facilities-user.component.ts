@@ -21,10 +21,7 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
   constructor(
     private facilitiesService: FacilitiesService,
     private translate: TranslateService
-  ) {
-    this.services = [];
-    this.setDataSource();
-  }
+  ) { }
 
   @ViewChild(MatPaginator, {static: false}) set matPaginator(mp: MatPaginator) {
     this.paginator = mp;
@@ -39,37 +36,43 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
   loading = true;
   displayedColumns: string[] = ['facilityId', 'name', 'description', 'identifier', 'environment', 'protocol'];
   services: ProvidedService[] = [];
-  dataSource: MatTableDataSource<ProvidedService> = new MatTableDataSource<ProvidedService>(this.services);
+  dataSource: MatTableDataSource<ProvidedService> = new MatTableDataSource<ProvidedService>();
 
   ngOnInit() {
     this.facilitiesSubscription = this.facilitiesService.getMyFacilities().subscribe(services => {
       this.services = services.map(s => new ProvidedService(s));
       this.setDataSource();
       this.loading = false;
-    }, error => {
+    }, _ => {
       this.loading = false;
-      console.log(error);
     });
   }
-
-  setDataSource(): void {
-    this.dataSource = new MatTableDataSource<ProvidedService>(this.services);
-    this.dataSource.sort = this.sort;
-    this.dataSource.paginator = this.paginator;
-    this.setSorting();
-    this.setFiltering();
-  }
-
 
   ngOnDestroy() {
     this.facilitiesSubscription.unsubscribe();
   }
 
-  public doFilter = (value: string) => {
-    this.dataSource.filter = value.trim().toLocaleLowerCase();
+  setDataSource(): void {
+    if (this.dataSource) {
+      this.dataSource.data = this.services;
+      this.dataSource.sort = this.sort;
+      this.dataSource.paginator = this.paginator;
+      this.setSorting();
+      this.setFiltering();
+    }
+  }
+
+  doFilter(value: string): void {
+    if (this.dataSource) {
+      value = value ? value.trim().toLowerCase(): '';
+      this.dataSource.filter = value;
+    }
   }
 
   private setSorting() {
+    if (!this.dataSource) {
+      return;
+    }
     this.dataSource.sortingDataAccessor = ((data, sortHeaderId) => {
       switch (sortHeaderId) {
         case 'facilityId': return data.id;
@@ -95,6 +98,9 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
   }
 
   private setFiltering() {
+    if (!this.dataSource) {
+      return;
+    }
     this.dataSource.filterPredicate = ((data: ProvidedService, filter: string) => {
       if (!filter) {
         return true;

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { MatSort } from '@angular/material/sort';
@@ -37,41 +37,47 @@ export class FacilitiesAdminComponent implements OnInit, OnDestroy {
   }
 
   loading: boolean = true;
-  displayedColumns: string[] = ['facilityId', 'name', 'description', 'identifier', 'environment', 'protocol'];
+  displayedColumns: string[] = ['facilityId', 'name', 'description', 'identifier', 'environment', 'protocol', 'deleted'];
   services: ProvidedService[] = [];
-  dataSource: MatTableDataSource<ProvidedService> = new MatTableDataSource<ProvidedService>(this.services);
+  dataSource: MatTableDataSource<ProvidedService> = new MatTableDataSource<ProvidedService>();
 
   ngOnInit() {
     this.facilitiesSubscription = this.facilitiesService.getAllFacilities().subscribe(services => {
       this.services = services.map(s => new ProvidedService(s));
       this.setDataSource();
       this.loading = false;
-    }, error => {
+    }, _ => {
       this.loading = false;
-      console.log(error);
     });
-  }
-
-  setDataSource(): void {
-    this.dataSource = new MatTableDataSource<ProvidedService>(this.services);
-    this.dataSource.sort = this.sort;
-    this.dataSource.paginator = this.paginator;
-    this.setSorting();
-    this.setFiltering();
   }
 
   ngOnDestroy() {
     this.facilitiesSubscription.unsubscribe();
   }
 
-  public doFilter = (value: string) => {
-    this.dataSource.filter = value.trim().toLocaleLowerCase();
+  setDataSource(): void {
+    if (this.dataSource) {
+      this.dataSource.data = this.services;
+      this.dataSource.sort = this.sort;
+      this.dataSource.paginator = this.paginator;
+      this.setSorting();
+      this.setFiltering();
+    }
   }
 
-  private setSorting() {
+  doFilter(value: string): void {
+    if (this.dataSource) {
+      value = value ? value.trim().toLowerCase(): '';
+      this.dataSource.filter = value;
+    }
+  }
+
+  private setSorting(): void {
+    if (!this.dataSource) {
+      return;
+    }
     this.dataSource.sortingDataAccessor = ((data, sortHeaderId) => {
       switch (sortHeaderId) {
-        case 'facilityId': return data.id;
         case 'name': {
           if (data.name && data.name.has(this.translate.currentLang)) {
             return data.name.get(this.translate.currentLang).toLowerCase();
@@ -89,11 +95,17 @@ export class FacilitiesAdminComponent implements OnInit, OnDestroy {
         case 'identifier': return data.identifier;
         case 'environment': return data.environment;
         case 'protocol': return data.protocol;
+        case 'facilityId':
+        default:
+          return data.id;
       }
     });
   }
 
-  private setFiltering() {
+  private setFiltering(): void {
+    if (!this.dataSource) {
+      return;
+    }
     this.dataSource.filterPredicate = ((data: ProvidedService, filter: string) => {
       if (!filter) {
         return true;

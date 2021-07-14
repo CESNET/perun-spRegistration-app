@@ -1,4 +1,5 @@
 import {Component, OnInit} from '@angular/core';
+import {MatDrawerMode} from '@angular/material/sidenav';
 import { TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { HostListener } from '@angular/core';
@@ -60,7 +61,7 @@ export class AppComponent implements OnInit {
   sidenavOpen = true;
   loading = true;
   minWidth = 768;
-  sidenavMode = 'side';
+  sidenavMode: MatDrawerMode = 'side';
   currentUrl = '';
   logoUrl = '';
   appTitle = '';
