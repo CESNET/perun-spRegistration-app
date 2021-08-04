@@ -18,6 +18,7 @@ export class RequestItemInputComponent implements RequestItem, AfterViewInit {
 
   constructor() { }
 
+  @Input() newApp: boolean = false;
   @Input() applicationItem: ApplicationItem;
   @ViewChild(RequestInputItemStringComponent, {static: false}) stringItem: RequestItem;
   @ViewChild(RequestInputItemSelectComponent, {static: false}) selectItem: RequestItem;

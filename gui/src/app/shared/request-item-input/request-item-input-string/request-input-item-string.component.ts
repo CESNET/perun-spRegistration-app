@@ -3,6 +3,7 @@ import {ApplicationItem} from '../../../core/models/ApplicationItem';
 import {RequestItem} from '../../../core/models/RequestItem';
 import {Attribute} from '../../../core/models/Attribute';
 import {NgForm, NgModel} from '@angular/forms';
+import {RequestItemInputUtils} from "../request-item-input-utils/request-item-input.component";
 
 @Component({
   selector: 'request-item-input-string',
@@ -13,40 +14,16 @@ export class RequestInputItemStringComponent implements RequestItem, OnInit {
 
   constructor() { }
 
-  @Input()
-  applicationItem: ApplicationItem;
+  @Input() newApp: boolean = false;
+  @Input() applicationItem: ApplicationItem;
+  @ViewChild('form', {static: false}) form: NgForm;
+  @ViewChild('input', {static: false}) inputField: NgModel;
 
   value: string = '';
-
-  @ViewChild('form', {static: false})
-  form: NgForm;
-
-  @ViewChild('input', {static: false})
-  inputField: NgModel;
 
   missingValueError = false;
   expectedValueChangedError = false;
   regexMismatchError = false;
-
-  private static requestedChangeHasBeenMade(appItem: ApplicationItem, value: string): boolean {
-    if (appItem.hasComment()) {
-      return appItem.oldValue !== value;
-    }
-
-    return true;
-  }
-
-  private static hasValue(value: string): boolean {
-    return value !== undefined && value !== null && value.trim().length > 0;
-  }
-
-  private static checkRegex(item: ApplicationItem, value: string): boolean {
-    if (!item.hasRegex()) {
-      return true;
-    }
-
-    return new RegExp(item.regex).test(value);
-  }
 
   ngOnInit(): void {
     this.value = this.applicationItem.oldValue;
@@ -58,30 +35,16 @@ export class RequestInputItemStringComponent implements RequestItem, OnInit {
 
   hasCorrectValue(): boolean {
     this.resetErrors();
-    console.log(this.applicationItem.name);
-    if (!RequestInputItemStringComponent.hasValue(this.value)) {
-      if (this.applicationItem.required) {
-        this.missingValueError = true;
-        this.form.form.setErrors({'incorrect' : true});
-        return false;
-      }
-    } else {
-      if (!RequestInputItemStringComponent.checkRegex(this.applicationItem, this.value)) {
-        this.form.form.setErrors({'incorrect' : true});
-        this.regexMismatchError = true;
-        return false;
-      }
 
-      if (!RequestInputItemStringComponent.requestedChangeHasBeenMade(this.applicationItem, this.value)) {
-        this.form.form.setErrors({'incorrect' : true});
-        this.expectedValueChangedError = true;
-        return false;
-      }
-
-      return this.inputField.valid;
+    if (!this.newApp && !this.checkChangeMade()) {
+      return false;
     }
 
-    return this.inputField.valid;
+    if (!this.value) {
+      return this.checkValueRequired();
+    } else {
+      return this.checkRegex();
+    }
   }
 
   onFormSubmitted(): void {
@@ -99,6 +62,33 @@ export class RequestInputItemStringComponent implements RequestItem, OnInit {
     return this.expectedValueChangedError ||
            this.missingValueError ||
            this.regexMismatchError;
+  }
+
+  private checkValueRequired(): boolean {
+    if (this.applicationItem.required) {
+      this.form.form.setErrors({'incorrect' : true});
+      this.missingValueError = true;
+      return false;
+    }
+    return true;
+  }
+
+  private checkChangeMade(): boolean {
+    if (!RequestItemInputUtils.requestedChangeHasBeenMadeSingleValue(this.applicationItem, this.value)) {
+      this.form.form.setErrors({'incorrect' : true});
+      this.expectedValueChangedError = true;
+      return false;
+    }
+    return true;
+  }
+
+  private checkRegex(): boolean {
+    if (!RequestItemInputUtils.checkRegexSingleValue(this.applicationItem, this.value)) {
+      this.form.form.setErrors({'incorrect' : true});
+      this.regexMismatchError = true;
+      return false;
+    }
+    return true;
   }
 
   private resetErrors(): void {
