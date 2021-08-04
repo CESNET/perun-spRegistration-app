@@ -6,7 +6,8 @@ import {RequestInputItemStringComponent} from './request-item-input-string/reque
 import {RequestItemInputBooleanComponent} from './request-item-input-boolean/request-item-input-boolean.component';
 import {RequestItemInputListComponent} from './request-item-input-list/request-item-input-list.component';
 import {RequestItemInputMapComponent} from './request-item-input-map/request-item-input-map.component';
-import {RequestItemInputSelectComponent} from './request-item-input-select/request-item-input-select.component';
+import {RequestItemInputMultiselectComponent} from './request-item-input-multiselect/request-item-input-multiselect.component';
+import {RequestInputItemSelectComponent} from "./request-item-input-select/request-input-item-select.component";
 
 @Component({
   selector: 'request-input-item',
@@ -19,10 +20,11 @@ export class RequestItemInputComponent implements RequestItem, AfterViewInit {
 
   @Input() applicationItem: ApplicationItem;
   @ViewChild(RequestInputItemStringComponent, {static: false}) stringItem: RequestItem;
+  @ViewChild(RequestInputItemSelectComponent, {static: false}) selectItem: RequestItem;
   @ViewChild(RequestItemInputBooleanComponent, {static: false}) booleanItem: RequestItem;
   @ViewChild(RequestItemInputListComponent, {static: false}) listItem: RequestItem;
   @ViewChild(RequestItemInputMapComponent, {static: false}) mapItem: RequestItem;
-  @ViewChild(RequestItemInputSelectComponent, {static: false}) selectItem: RequestItem;
+  @ViewChild(RequestItemInputMultiselectComponent, {static: false}) multiSelectItem: RequestItem;
 
   item: RequestItem;
 
@@ -35,22 +37,34 @@ export class RequestItemInputComponent implements RequestItem, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (this.applicationItem.type === 'java.lang.String' || this.applicationItem.type === 'java.lang.LargeString') {
-      this.item = this.stringItem;
-    } else if (this.applicationItem.type === 'java.lang.Boolean') {
-      this.item = this.booleanItem;
-    } else if ((this.applicationItem.type === 'java.util.ArrayList' || this.applicationItem.type === 'java.util.LargeArrayList')
-        && (this.applicationItem.allowedValues === null || this.applicationItem.allowedValues.length === 0))
-    {
-      this.item = this.listItem;
-    } else if ((this.applicationItem.type === 'java.util.ArrayList' || this.applicationItem.type === 'java.util.LargeArrayList')
-        && this.applicationItem.allowedValues.length > 0)
-    {
-      this.item = this.selectItem;
-    } else if (this.applicationItem.type === 'java.util.LinkedHashMap') {
-      this.item = this.mapItem;
-    } else {
-      console.log('Did not find item', this.applicationItem);
+    switch (this.applicationItem.type) {
+      case 'java.lang.String': {
+        if (!this.applicationItem.isSelect()) {
+          this.item = this.stringItem;
+        } else {
+          this.item = this.selectItem;
+        }
+      }
+      break;
+      case 'java.lang.Boolean': {
+        this.item = this.booleanItem;
+      }
+      break;
+      case 'java.util.ArrayList': {
+        if (!this.applicationItem.isSelect()) {
+          this.item = this.listItem;
+        } else {
+          this.item = this.multiSelectItem;
+        }
+      }
+      break;
+      case 'java.util.LinkedHashMap': {
+        this.item = this.mapItem;
+      }
+      break;
+      default: {
+        console.log('Did not find item', this.applicationItem);
+      }
     }
   }
 

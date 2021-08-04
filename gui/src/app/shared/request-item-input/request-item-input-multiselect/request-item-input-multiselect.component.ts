@@ -6,11 +6,11 @@ import {NgForm} from '@angular/forms';
 import {RequestItemInputUtils} from "../request-item-input-utils/request-item-input.component";
 
 @Component({
-  selector: 'request-item-input-select',
-  templateUrl: './request-item-input-select.component.html',
-  styleUrls: ['./request-item-input-select.component.scss']
+  selector: 'request-item-input-multiselect',
+  templateUrl: './request-item-input-multiselect.component.html',
+  styleUrls: ['./request-item-input-multiselect.component.scss']
 })
-export class RequestItemInputSelectComponent implements RequestItem, OnInit {
+export class RequestItemInputMultiselectComponent implements RequestItem, OnInit {
 
   constructor() { }
 
@@ -44,7 +44,7 @@ export class RequestItemInputSelectComponent implements RequestItem, OnInit {
 
   hasCorrectValue(): boolean {
     this.resetErrors();
-    if (!RequestItemInputSelectComponent.hasValue(this.values)) {
+    if (!RequestItemInputMultiselectComponent.hasValue(this.values)) {
       if (this.applicationItem.required) {
         this.form.form.setErrors({'incorrect' : true});
         this.missingValueError = true;

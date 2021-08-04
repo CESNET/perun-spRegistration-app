@@ -37,7 +37,7 @@ import {RequestInputItemStringComponent} from './request-item-input/request-item
 import {RequestItemInputBooleanComponent} from './request-item-input/request-item-input-boolean/request-item-input-boolean.component';
 import {RequestItemInputListComponent} from './request-item-input/request-item-input-list/request-item-input-list.component';
 import {RequestItemInputMapComponent} from './request-item-input/request-item-input-map/request-item-input-map.component';
-import {RequestItemInputSelectComponent} from './request-item-input/request-item-input-select/request-item-input-select.component';
+import {RequestItemInputMultiselectComponent} from './request-item-input/request-item-input-multiselect/request-item-input-multiselect.component';
 import {DetailItemSubCommentButtonComponent} from './detailed-view-items/detail-item-sub-comment/detail-item-sub-comment-button/detail-item-sub-comment-button.component';
 import {DetailItemSubCommentUserComponent} from './detailed-view-items/detail-item-sub-comment/detail-item-sub-comment-user/detail-item-sub-comment-user.component';
 import {DetailItemSubCommentAdminComponent} from './detailed-view-items/detail-item-sub-comment/detail-item-sub-comment-admin/detail-item-sub-comment-admin.component';
@@ -51,6 +51,7 @@ import {DetailedViewItemsComponent} from './detailed-view-items/detailed-view-it
 import {DetailedViewItemValuePipe} from './detailed-view-item-value.pipe';
 import {ItemLocalePipe} from './item-locale.pipe';
 import {RequestItemInputErrorComponent} from './request-item-input/request-item-input-error/request-item-input-error.component';
+import {RequestInputItemSelectComponent} from "./request-item-input/request-item-input-select/request-input-item-select.component";
 
 @NgModule({
   imports: [
@@ -90,10 +91,11 @@ import {RequestItemInputErrorComponent} from './request-item-input/request-item-
     NotAuthorizedPageComponent,
     RequestItemInputComponent,
     RequestInputItemStringComponent,
+    RequestInputItemSelectComponent,
     RequestItemInputBooleanComponent,
     RequestItemInputListComponent,
     RequestItemInputMapComponent,
-    RequestItemInputSelectComponent,
+    RequestItemInputMultiselectComponent,
     RequestItemInputErrorComponent,
     DetailedViewItemsComponent,
     DetailItemArrayComponent,
