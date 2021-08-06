@@ -6,28 +6,22 @@ import {NgForm} from '@angular/forms';
 import {RequestItemInputUtils} from "../request-item-input-utils/request-item-input.component";
 
 @Component({
-  selector: 'request-item-input-select',
-  templateUrl: './request-item-input-select.component.html',
-  styleUrls: ['./request-item-input-select.component.scss']
+  selector: 'request-item-input-multiselect',
+  templateUrl: './request-item-input-multiselect.component.html',
+  styleUrls: ['./request-item-input-multiselect.component.scss']
 })
-export class RequestItemInputSelectComponent implements RequestItem, OnInit {
+export class RequestItemInputMultiselectComponent implements RequestItem, OnInit {
 
   constructor() { }
 
+  @Input() newApp: boolean = false;
+  @Input() applicationItem: ApplicationItem;
+  @ViewChild('form', {static: false}) form: NgForm;
+
   values: string[] = [];
-
-  @Input()
-  applicationItem: ApplicationItem;
-
-  @ViewChild('form', {static: false})
-  form: NgForm;
 
   missingValueError = false;
   expectedValueChangedError = false;
-
-  private static hasValue(values: string[]): boolean {
-    return values !== undefined && values !== null && values.length > 0;
-  }
 
   ngOnInit(): void {
     if (this.applicationItem.oldValue != null) {
@@ -44,21 +38,15 @@ export class RequestItemInputSelectComponent implements RequestItem, OnInit {
 
   hasCorrectValue(): boolean {
     this.resetErrors();
-    if (!RequestItemInputSelectComponent.hasValue(this.values)) {
-      if (this.applicationItem.required) {
-        this.form.form.setErrors({'incorrect' : true});
-        this.missingValueError = true;
-        return false;
-      }
-    } else {
-      if (!RequestItemInputUtils.requestedChangeHasBeenMadeMultiValue(this.applicationItem, this.values)) {
-        this.form.form.setErrors({'incorrect' : true});
-        this.expectedValueChangedError = true;
-        return false;
-      }
+    if (!this.newApp && !this.checkChangeMade()) {
+      return false;
     }
 
-    return true;
+    if (!RequestItemInputUtils.hasValue(this.values)) {
+      return this.checkValueRequired();
+    } else {
+      return true;
+    }
   }
 
   onFormSubmitted(): void {
@@ -77,6 +65,24 @@ export class RequestItemInputSelectComponent implements RequestItem, OnInit {
   private resetErrors(): void {
     this.expectedValueChangedError = false;
     this.missingValueError = false;
+  }
+
+  private checkValueRequired(): boolean {
+    if (this.applicationItem.required) {
+      this.form.form.setErrors({'incorrect' : true});
+      this.missingValueError = true;
+      return false;
+    }
+    return true;
+  }
+
+  private checkChangeMade(): boolean {
+    if (!RequestItemInputUtils.requestedChangeHasBeenMade(this.applicationItem, this.values)) {
+      this.form.form.setErrors({'incorrect' : true});
+      this.expectedValueChangedError = true;
+      return false;
+    }
+    return true;
   }
 
 }

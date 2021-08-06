@@ -1,0 +1,18 @@
+<form class="col-12 pl-0 pr-0 w-100" #form="ngForm">
+  <div class="row">
+    <mat-form-field class="col-12 pl-0 pr-0 w-100">
+      <mat-select [(ngModel)]="value" placeholder="{{ applicationItem.displayName | itemLocale }}"
+                  name="{{ applicationItem.name }}" [required]="applicationItem.required"
+                  [class.perun-warn]="hasError()">
+        <mat-option *ngFor="let value of applicationItem.allowedValues" [value]="value">{{ value }}</mat-option>
+      </mat-select>
+      <div class="text-muted small mt-2">{{ applicationItem.description | itemLocale }}</div>
+      <request-item-input-error *ngIf="missingValueError"
+                                [messageKey]="'REQUESTS.ERRORS.NO_VALUE_ERROR'"></request-item-input-error>
+      <request-item-input-error *ngIf="expectedValueChangedError"
+                                [messageKey]="'REQUESTS.ERRORS.EXPECTED_CHANGED_VALUE_ERROR'"></request-item-input-error>
+      <request-item-input-error *ngIf="regexMismatchError"
+                                [messageKey]="'REQUESTS.ERRORS.REGEX_MISMATCH_ERROR'"></request-item-input-error>
+    </mat-form-field>
+  </div>
+</form>

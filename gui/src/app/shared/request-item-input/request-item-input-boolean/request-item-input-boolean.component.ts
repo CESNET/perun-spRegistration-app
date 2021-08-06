@@ -13,11 +13,9 @@ export class RequestItemInputBooleanComponent implements OnInit, RequestItem {
 
   constructor() { }
 
-  @Input()
-  applicationItem: ApplicationItem;
-
-  @ViewChild('form', {static: false})
-  form: NgForm;
+  @Input() newApp: boolean = false;
+  @Input() applicationItem: ApplicationItem;
+  @ViewChild('form', {static: false}) form: NgForm;
 
   value: boolean = false;
   expectedValueChangedError = false;
@@ -31,15 +29,7 @@ export class RequestItemInputBooleanComponent implements OnInit, RequestItem {
   }
 
   hasCorrectValue(): boolean {
-    if (this.applicationItem.hasComment()) {
-      if (this.applicationItem.oldValue === this.value) {
-        this.form.form.setErrors({'incorrect' : true});
-        this.expectedValueChangedError = true;
-        return false;
-      }
-    }
-
-    return true;
+    return this.newApp || this.checkChangeMade();
   }
 
   onFormSubmitted(): void {
@@ -54,4 +44,14 @@ export class RequestItemInputBooleanComponent implements OnInit, RequestItem {
     return this.expectedValueChangedError;
   }
 
+  private checkChangeMade() {
+    if (this.applicationItem.hasComment()) {
+      if (this.applicationItem.oldValue === this.value) {
+        this.form.form.setErrors({'incorrect': true});
+        this.expectedValueChangedError = true;
+        return false;
+      }
+    }
+    return true;
+  }
 }

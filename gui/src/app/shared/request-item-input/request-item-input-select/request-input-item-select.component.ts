@@ -6,18 +6,17 @@ import {NgForm, NgModel} from '@angular/forms';
 import {RequestItemInputUtils} from "../request-item-input-utils/request-item-input.component";
 
 @Component({
-  selector: 'request-item-input-string',
-  templateUrl: './request-input-item-string.component.html',
-  styleUrls: ['./request-input-item-string.component.scss']
+  selector: 'request-item-input-select',
+  templateUrl: './request-input-item-select.component.html',
+  styleUrls: ['./request-input-item-select.component.scss']
 })
-export class RequestInputItemStringComponent implements RequestItem, OnInit {
+export class RequestInputItemSelectComponent implements RequestItem, OnInit {
 
   constructor() { }
 
   @Input() newApp: boolean = false;
   @Input() applicationItem: ApplicationItem;
   @ViewChild('form', {static: false}) form: NgForm;
-  @ViewChild('input', {static: false}) inputField: NgModel;
 
   value: string = '';
 
@@ -43,14 +42,11 @@ export class RequestInputItemStringComponent implements RequestItem, OnInit {
     if (!this.value) {
       return this.checkValueRequired();
     } else {
-      return this.checkRegex();
+      return true;
     }
   }
 
   onFormSubmitted(): void {
-    if (this.value) {
-      this.value = this.value.trim();
-    }
     if (!this.hasCorrectValue()) {
       this.form.form.controls[this.applicationItem.name].markAsTouched();
       this.form.form.controls[this.applicationItem.name].setErrors({'incorrect' : true});
@@ -77,15 +73,6 @@ export class RequestInputItemStringComponent implements RequestItem, OnInit {
     if (!RequestItemInputUtils.requestedChangeHasBeenMadeSingleValue(this.applicationItem, this.value)) {
       this.form.form.setErrors({'incorrect' : true});
       this.expectedValueChangedError = true;
-      return false;
-    }
-    return true;
-  }
-
-  private checkRegex(): boolean {
-    if (!RequestItemInputUtils.checkRegexSingleValue(this.applicationItem, this.value)) {
-      this.form.form.setErrors({'incorrect' : true});
-      this.regexMismatchError = true;
       return false;
     }
     return true;

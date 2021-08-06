@@ -14,12 +14,14 @@ export class RequestItemInputMapComponent implements RequestItem, OnInit {
 
   constructor() { }
 
+  @Input() newApp: boolean = false;
+  @Input() applicationItem: ApplicationItem;
+  @ViewChild('form', {static: false}) form: NgForm;
+
   entries: Map<string, string> = new Map<string, string>();
   keys: string[] = [];
   values: string[] = [];
   indexes: number[] = [];
-
-  private index = 0;
   allowCustomKeys = false;
 
   duplicateKeysError = false;
@@ -27,46 +29,7 @@ export class RequestItemInputMapComponent implements RequestItem, OnInit {
   expectedValueChangedError = false;
   regexMismatchError = false;
 
-  @Input()
-  applicationItem: ApplicationItem;
-
-  @ViewChild('form', {static: false})
-  form: NgForm;
-
-  private static requestedChangeHasBeenMade(appItem: ApplicationItem, indexes: number[], keys: string[],
-                                              values: string[]): boolean {
-    if (appItem.hasComment()) {
-      const map = appItem.oldValue;
-      for (let i = 0; i < indexes.length; i++) {
-        const key = keys[i];
-        if (!map.hasOwnProperty(key)) {
-          return true;
-        } else if (map[key] !== values[i]) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    return true;
-  }
-
-  private static checkDuplicities(keys: string[], values: string[]): number[] {
-    const keysWithIndexes = new Map<string, number>();
-    const duplicities = [];
-    for (let i = 0; i < values.length; i++) {
-      const keySet = Array.from(keysWithIndexes.keys());
-      const key = keys[i].trim();
-
-      if (keySet.includes(key)) {
-        duplicities.push(i);
-      }
-
-      keysWithIndexes.set(key, i);
-    }
-
-    return duplicities;
-  }
+  private index = 0;
 
   ngOnInit(): void {
     if (this.applicationItem.oldValue != null) {
@@ -95,24 +58,6 @@ export class RequestItemInputMapComponent implements RequestItem, OnInit {
     }
   }
 
-  removeValue(index: number) {
-    this.values.splice(index, 1);
-    this.keys.splice(index, 1);
-    this.indexes.splice(index, 1);
-  }
-
-  addValue() {
-    this.values.push('');
-    this.keys.push('');
-    this.indexes.push(this.index++);
-  }
-
-  addValueNonEmpty(key: string, value: string) {
-    this.values.push(value);
-    this.keys.push(key);
-    this.indexes.push(this.index++);
-  }
-
   getAttribute(): Attribute {
     const map = new Map();
 
@@ -125,56 +70,33 @@ export class RequestItemInputMapComponent implements RequestItem, OnInit {
     return new Attribute(this.applicationItem.name, obj);
   }
 
-  customTrackBy(index: number, _: any): any {
-    return index;
-  }
-
   hasCorrectValue(): boolean {
     this.resetErrors();
-    if (this.values) {
-      this.keys = this.keys.map(v => v.trim());
-    }
-    if (this.keys) {
-      this.values = this.values.map(v => v.trim());
+    this.trimKeysAndValues();
+
+    if (!this.newApp && !this.checkChangeMade()) {
+      return false;
     }
 
-    if (!RequestItemInputUtils.hasValueMultiValue(this.values)) {
-      if (this.applicationItem.required) {
-        this.missingValueError = true;
-        return false;
-      }
+    if (!RequestItemInputUtils.hasValue(this.values)) {
+      return this.checkValueRequired();
     } else {
-      const errKeys = RequestItemInputMapComponent.checkDuplicities(this.keys, this.values);
-      if (errKeys.length !== 0) {
-        this.form.form.setErrors({'incorrect' : true});
-        this.showErredKeys(errKeys);
-        this.duplicateKeysError = true;
-        return false;
-      }
-
-      const errValues = RequestItemInputUtils.checkRegexMultiValue(this.applicationItem, this.values);
-      if (errValues.length !== 0) {
-        this.showErredValues(errValues);
-        this.form.form.setErrors({'incorrect' : true});
-        this.regexMismatchError = true;
-        return false;
-      }
-
-      if (!RequestItemInputMapComponent.requestedChangeHasBeenMade(this.applicationItem, this.indexes, this.keys,
-        this.values)) {
-        this.form.form.setErrors({'incorrect' : true});
-        this.expectedValueChangedError = true;
-        return false;
-      }
-
-      if (!this.allValuesAreFilled()) {
-        this.form.form.setErrors({'incorrect' : true});
-        this.missingValueError = true;
-        return false;
-      }
+      return this.checkAllValuesFilled()
+        && this.checkRegex()
+        && this.checkDuplicates();
     }
+  }
 
-    return true;
+  onFormSubmitted(): void {
+    if (!this.hasCorrectValue()) {
+      this.form.form.controls[this.applicationItem.name].markAsTouched();
+      this.form.form.controls[this.applicationItem.name].setErrors({'incorrect' : true});
+      this.form.form.controls[this.applicationItem.name].updateValueAndValidity();
+    }
+  }
+
+  customTrackBy(index: number, _: any): any {
+    return index;
   }
 
   showErredValues(errIndexes: number[]) {
@@ -197,16 +119,26 @@ export class RequestItemInputMapComponent implements RequestItem, OnInit {
     }
   }
 
-  onFormSubmitted(): void {
-    if (!this.hasCorrectValue()) {
-      this.form.form.controls[this.applicationItem.name].markAsTouched();
-      this.form.form.controls[this.applicationItem.name].setErrors({'incorrect' : true});
-      this.form.form.controls[this.applicationItem.name].updateValueAndValidity();
-    }
-  }
-
   hasError(): boolean {
     return this.missingValueError || this.duplicateKeysError || this.missingValueError || this.regexMismatchError;
+  }
+
+  removeValue(index: number) {
+    this.values.splice(index, 1);
+    this.keys.splice(index, 1);
+    this.indexes.splice(index, 1);
+  }
+
+  addValue() {
+    this.values.push('');
+    this.keys.push('');
+    this.indexes.push(this.index++);
+  }
+
+  addValueNonEmpty(key: string, value: string) {
+    this.values.push(value);
+    this.keys.push(key);
+    this.indexes.push(this.index++);
   }
 
   private allValuesAreFilled(): boolean {
@@ -222,11 +154,102 @@ export class RequestItemInputMapComponent implements RequestItem, OnInit {
     return true;
   }
 
+  private trimKeysAndValues(): void {
+    if (this.keys) {
+      this.keys = this.keys.map(v => v.trim());
+    }
+    if (this.values) {
+      this.values = this.values.map(v => v.trim());
+    }
+  }
+
+  private checkValueRequired(): boolean {
+    if (!RequestItemInputUtils.hasValue(this.values)) {
+      if (this.applicationItem.required) {
+        this.missingValueError = true;
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private checkDuplicates(): boolean {
+    const errKeys = this.getDuplicateKeys();
+    if (errKeys.length !== 0) {
+      this.form.form.setErrors({'incorrect' : true});
+      this.showErredKeys(errKeys);
+      this.duplicateKeysError = true;
+      return false;
+    }
+    return true;
+  }
+
+  private checkRegex(): boolean {
+    const errValues = RequestItemInputUtils.checkRegex(this.applicationItem, this.values);
+    if (errValues.length !== 0) {
+      this.showErredValues(errValues);
+      this.form.form.setErrors({'incorrect' : true});
+      this.regexMismatchError = true;
+      return false;
+    }
+    return true;
+  }
+
+  private checkChangeMade(): boolean {
+    if (!this.requestedChangeHasBeenMade()) {
+      this.form.form.setErrors({'incorrect' : true});
+      this.expectedValueChangedError = true;
+      return false;
+    }
+    return true;
+  }
+
+  private checkAllValuesFilled(): boolean {
+    if (!this.allValuesAreFilled()) {
+      this.form.form.setErrors({'incorrect' : true});
+      this.missingValueError = true;
+      return false;
+    }
+    return true;
+  }
+
   private resetErrors(): void {
     this.expectedValueChangedError = false;
     this.regexMismatchError = false;
     this.missingValueError = false;
     this.duplicateKeysError = false;
+  }
+
+  private requestedChangeHasBeenMade() {
+    if (this.applicationItem.hasComment()) {
+      const map = this.applicationItem.oldValue;
+      for (let i = 0; i < this.indexes.length; i++) {
+        const key = this.keys[i];
+        if (!map.hasOwnProperty(key)) {
+          return true;
+        } else if (map[key] !== this.values[i]) {
+          return true;
+        }
+      }
+      return false;
+    }
+    return true;
+  }
+
+  private getDuplicateKeys(): number[] {
+    const keysWithIndexes = new Map<string, number>();
+    const duplicities = [];
+    for (let i = 0; i < this.values.length; i++) {
+      const keySet = Array.from(keysWithIndexes.keys());
+      const key = this.keys[i].trim();
+
+      if (keySet.includes(key)) {
+        duplicities.push(i);
+      }
+
+      keysWithIndexes.set(key, i);
+    }
+    return duplicities;
   }
 
 }

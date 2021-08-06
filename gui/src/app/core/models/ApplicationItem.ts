@@ -50,22 +50,6 @@ export class ApplicationItem {
   comment: string;
   oldValue: any;
 
-  public getLocalizedName(lang: string) {
-    if (this.displayName.has(lang)) {
-      return this.displayName.get(lang);
-    } else {
-      return this.displayName.get('en');
-    }
-  }
-
-  public getLocalizedDescription(lang: string) {
-    if (this.description.has(lang)) {
-      return this.description.get(lang);
-    } else {
-      return this.description.get('en');
-    }
-  }
-
   public hasComment(): boolean {
     return this.comment !== undefined
       && this.comment !== null
@@ -78,4 +62,29 @@ export class ApplicationItem {
            this.regex.trim().length > 0 &&
            this.regex !== 'URL'
   }
+
+  public isSelect(): boolean {
+    return this.allowedValues && this.allowedValues.length > 0;
+  }
+
+  public isTypeString(): boolean {
+    return this.type === 'java.lang.String';
+  }
+
+  public isTypeBoolean(): boolean {
+    return this.type === 'java.lang.Boolean';
+  }
+
+  public isTypeArray(): boolean {
+    return this.type === 'java.util.ArrayList';
+  }
+
+  public isTypeMap(): boolean {
+    return this.type === 'java.util.LinkedHashMap';
+  }
+
+  public isTypeInteger(): boolean {
+    return this.type === 'java.lang.Integer';
+  }
+
 }
