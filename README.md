@@ -1,3 +1,5 @@
+[![Build and tests](https://github.com/CESNET/perun-spRegistration-app/actions/workflows/maven-tests.yml/badge.svg)](https://github.com/CESNET/perun-spRegistration-app/actions/workflows/maven-tests.yml) [![ESLint](https://github.com/CESNET/perun-spRegistration-app/actions/workflows/tslint.yml/badge.svg)](https://github.com/CESNET/perun-spRegistration-app/actions/workflows/tslint.yml) [![Checkstyle](https://github.com/CESNET/perun-spRegistration-app/actions/workflows/checkstyle.yml/badge.svg)](https://github.com/CESNET/perun-spRegistration-app/actions/workflows/checkstyle.yml)
+
 # Perun application for SP registration.
 
 See wiki for information about configuration, building, etc.
