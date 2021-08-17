@@ -1,3 +1,7 @@
+## [v1.0.0](https://github.com/CESNET/perun-spRegistration-app/compare/v0.2.1...v1.0.0) (2021-08-17)
+
+* Initial release for automated semantic release
+
 ## [v0.2.1](https://github.com/CESNET/perun-spRegistration-app/compare/v0.2.0...v0.2.1) (2021-04-02)
 
 * Bunch of GUI fixes and improvements

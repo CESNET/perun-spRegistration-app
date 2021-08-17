@@ -15,6 +15,9 @@ target
 /gui/node_modules
 /gui/node
 
+# semantic
+node_modules
+
 # misc
 /gui/.sass-cache
 /gui/connect.lock
