@@ -19,11 +19,11 @@ const routes: Routes = [
   },
   {
     path: 'auth/requests',
-    loadChildren: './requests/requests.module#RequestsModule'
+    loadChildren: () => import('./requests/requests.module').then(m => m.RequestsModule)
   },
   {
     path: 'auth/facilities',
-    loadChildren: './facilities/facilities.module#FacilitiesModule'
+    loadChildren: () => import('./facilities/facilities.module').then(m => m.FacilitiesModule)
   },
   {
     path: 'auth/sign',
