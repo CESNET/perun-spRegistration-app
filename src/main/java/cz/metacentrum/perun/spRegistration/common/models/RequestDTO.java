@@ -152,6 +152,10 @@ public class RequestDTO {
 			Map<String, PerunAttribute> categoryAttrsMap = this.attributes.get(category);
 			if (categoryAttrsMap.containsKey(attr.getFullName())) {
 				PerunAttribute old = categoryAttrsMap.get(attr.getFullName());
+				if (old.getDefinition() == null) {
+					old.setDefinition(appBeansContainer
+						.getAttributeDefinitionMap().get(attr.getFullName()));
+				}
 				old.setValue(old.getDefinition().getType(), attr.getValue());
 				old.setComment(clearComment ? null : attr.getComment());
 			} else {
