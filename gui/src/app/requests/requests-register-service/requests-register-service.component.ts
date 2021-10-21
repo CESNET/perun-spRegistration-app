@@ -151,6 +151,9 @@ export class RequestsRegisterServiceComponent implements OnInit {
       this.loading = false;
       this.snackBar.open(this.successActionText, null, {duration: 6000});
       this.router.navigate(['/auth/requests/detail/' + requestId]);
+    }, error => {
+      this.loading = false;
+      console.log(error);
     });
   }
 
