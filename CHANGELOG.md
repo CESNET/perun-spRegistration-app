@@ -1,3 +1,12 @@
+## [1.0.2](https://github.com/CESNET/perun-spRegistration-app/compare/v1.0.1...v1.0.2) (2021-10-21)
+
+
+### Bug Fixes
+
+* 🐛 fix routing declaration ([5df165e](https://github.com/CESNET/perun-spRegistration-app/commit/5df165e5e8967e1ec356d7cc5de4932c5f843dc9))
+* 🐛 fix Submitting request possible null pointer exception ([bd61351](https://github.com/CESNET/perun-spRegistration-app/commit/bd61351e7fc6e733c430f96476ecdbaecb38a4a4))
+* 🐛 Reveal form if submit has failed ([363ee60](https://github.com/CESNET/perun-spRegistration-app/commit/363ee60485b517a76695e844982931f60244caee))
+
 ## [1.0.1](https://github.com/CESNET/perun-spRegistration-app/compare/v1.0.0...v1.0.1) (2021-10-21)
 
 
