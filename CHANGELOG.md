@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/CESNET/perun-spRegistration-app/compare/v1.0.0...v1.0.1) (2021-10-21)
+
+
+### Bug Fixes
+
+* 🐛 Fix displaying not-dispalyed items in request-edit ([83fb6e5](https://github.com/CESNET/perun-spRegistration-app/commit/83fb6e57d28a832ea86dcba051cef0488b163ebb))
+
 ## [v1.0.0](https://github.com/CESNET/perun-spRegistration-app/compare/v0.2.1...v1.0.0) (2021-08-17)
 
 * Initial release for automated semantic release

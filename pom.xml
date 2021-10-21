@@ -12,7 +12,7 @@
 
     <groupId>cz.metacentrum.perun</groupId>
     <artifactId>spRegistration</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>perun-spRegistration</name>
