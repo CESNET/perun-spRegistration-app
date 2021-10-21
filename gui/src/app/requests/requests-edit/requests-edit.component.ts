@@ -67,16 +67,11 @@ export class RequestsEditComponent implements OnInit {
   }
 
   private static filterItems(items: ApplicationItem[]): ApplicationItem[] {
-    items.filter((item) => item.displayed);
-    return items;
+    return items.filter((item) => item.displayed);
   }
 
   private static sortItems(items: ApplicationItem[]): ApplicationItem[] {
-    items.sort((a, b) => {
-      return a.displayPosition - b.displayPosition;
-    });
-
-    return items;
+    return items.sort((a, b) => a.displayPosition - b.displayPosition);
   }
 
   private static pushInput(attr: PerunAttribute, commentedDest: ApplicationItem[], regularDest: ApplicationItem[]) {
