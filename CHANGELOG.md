@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/CESNET/perun-spRegistration-app/compare/v1.0.3...v1.1.0) (2021-11-18)
+
+
+### Features
+
+* 🎸 Display also external services ([15841de](https://github.com/CESNET/perun-spRegistration-app/commit/15841de53785e5fd43cd20ca6018814740981edc))
+
 ## [1.0.3](https://github.com/CESNET/perun-spRegistration-app/compare/v1.0.2...v1.0.3) (2021-10-25)
 
 
