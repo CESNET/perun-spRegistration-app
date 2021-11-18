@@ -83,9 +83,16 @@ public class FacilitiesController {
 
 	@GetMapping(path = "/api/userFacilities")
 	public List<ProvidedService> userFacilities(@NonNull @SessionAttribute("user") User user)
-			throws PerunUnknownException, PerunConnectionException
+		throws PerunUnknownException, PerunConnectionException
 	{
 		return facilitiesService.getAllUserFacilities(user.getId());
+	}
+
+	@GetMapping(path = "/api/userFacilitiesExternal")
+	public List<ProvidedService> userFacilitiesExternal(@NonNull @SessionAttribute("user") User user)
+		throws PerunUnknownException, PerunConnectionException
+	{
+		return facilitiesService.getAllUserFacilitiesExternal(user.getId());
 	}
 
 	@PostMapping(path = "/api/addAdmins/{facilityId}")
@@ -150,12 +157,22 @@ public class FacilitiesController {
 
 	@GetMapping(path = "/api/allFacilities")
 	public List<ProvidedService> allFacilities(@NonNull @SessionAttribute("user") User user)
-			throws UnauthorizedActionException, PerunUnknownException, PerunConnectionException
+		throws UnauthorizedActionException, PerunUnknownException, PerunConnectionException
 	{
 		if (!utilsService.isAppAdmin(user)) {
 			throw new UnauthorizedActionException();
 		}
 		return facilitiesService.getAllFacilities(user.getId());
+	}
+
+	@GetMapping(path = "/api/allFacilitiesExternal")
+	public List<ProvidedService> allFacilitiesExternal(@NonNull @SessionAttribute("user") User user)
+		throws UnauthorizedActionException, PerunUnknownException, PerunConnectionException
+	{
+		if (!utilsService.isAppAdmin(user)) {
+			throw new UnauthorizedActionException();
+		}
+		return facilitiesService.getAllFacilitiesExternal(user.getId());
 	}
 
 	@PostMapping(path = "api/facility/regenerateClientSecret/{facilityId}",

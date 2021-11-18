@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.spRegistration.common.configs;
 
+import java.util.ArrayList;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -62,20 +64,47 @@ public class AttributesProperties {
     @AllArgsConstructor
     public static class Names {
         // attr names
-        @NotBlank private String userEmail = "urn:perun:user:attribute-def:def:preferredMail";
-        @NotBlank private String proxyIdentifier = "urn:perun:facility:attribute-def:def:proxyIdentifiers";
-        @NotBlank private String masterProxyIdentifier = "urn:perun:facility:attribute-def:def:masterProxyIdentifier";
-        @NotBlank private String isTestSp = "urn:perun:facility:attribute-def:def:isTestSp";
-        @NotBlank private String showOnServiceList = "urn:perun:facility:attribute-def:def:showOnServiceList";
-        @NotBlank private String administratorContact = "urn:perun:facility:attribute-def:def:administrationContact";
-        @NotBlank private String oidcClientId = "urn:perun:facility:attribute-def:def:OIDCClientID";
-        @NotBlank private String oidcClientSecret = "urn:perun:facility:attribute-def:def:OIDCClientSecret";
-        @NotBlank private String entityId = "urn:perun:facility:attribute-def:def:entityID";
-        @NotBlank private String isOidc = "urn:perun:facility:attribute-def:def:isOidcFacility";
-        @NotBlank private String isSaml = "urn:perun:facility:attribute-def:def:isSamlFacility";
-        @NotBlank private String serviceName = "urn:perun:facility:attribute-def:def:serviceName";
-        @NotBlank private String serviceDesc = "urn:perun:facility:attribute-def:def:serviceDescription";
-        @NotBlank private String managerGroup = "urn:perun:facility:attribute-def:def:adminGroup";
+        @NotBlank
+        private String userEmail = "urn:perun:user:attribute-def:def:preferredMail";
+
+        @NotBlank
+        private String proxyIdentifier = "urn:perun:facility:attribute-def:def:proxyIdentifiers";
+
+        @NotBlank
+        private String masterProxyIdentifier = "urn:perun:facility:attribute-def:def:masterProxyIdentifier";
+
+        @NotBlank
+        private String isTestSp = "urn:perun:facility:attribute-def:def:isTestSp";
+
+        @NotBlank
+        private String showOnServiceList = "urn:perun:facility:attribute-def:def:showOnServiceList";
+
+        @NotBlank
+        private String administratorContact = "urn:perun:facility:attribute-def:def:administrationContact";
+
+        @NotBlank
+        private String oidcClientId = "urn:perun:facility:attribute-def:def:OIDCClientID";
+
+        @NotBlank
+        private String oidcClientSecret = "urn:perun:facility:attribute-def:def:OIDCClientSecret";
+
+        @NotBlank
+        private String entityId = "urn:perun:facility:attribute-def:def:entityID";
+
+        @NotBlank
+        private String isOidc = "urn:perun:facility:attribute-def:def:isOidcFacility";
+
+        @NotBlank
+        private String isSaml = "urn:perun:facility:attribute-def:def:isSamlFacility";
+
+        @NotBlank
+        private String serviceName = "urn:perun:facility:attribute-def:def:serviceName";
+
+        @NotBlank
+        private String serviceDesc = "urn:perun:facility:attribute-def:def:serviceDescription";
+
+        @NotBlank
+        private String managerGroup = "urn:perun:facility:attribute-def:def:adminGroup";
     }
 
     @Getter
@@ -85,8 +114,14 @@ public class AttributesProperties {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Values {
-        @NotBlank private String proxyIdentifier = "https://login.cesnet.cz/idp/";
-        @NotBlank private String masterProxyIdentifier = "https://login.cesnet.cz/idp/";
+        @NotBlank
+        private String proxyIdentifier = "https://login.cesnet.cz/idp/";
+
+        @NotNull
+        private List<String> additionalProxyIdentifiers = new ArrayList<>();
+
+        @NotBlank
+        private String masterProxyIdentifier = "https://login.cesnet.cz/idp/";
     }
 
 }

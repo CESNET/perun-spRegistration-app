@@ -20,8 +20,16 @@ export class FacilitiesService {
     return this.apiService.get('/allFacilities');
   }
 
+  getAllExternalFacilities(): Observable<ProvidedService[]> {
+    return this.apiService.get('/allFacilitiesExternal');
+  }
+
   getMyFacilities(): Observable<ProvidedService[]> {
     return this.apiService.get('/userFacilities');
+  }
+
+  getMyExternalFacilities(): Observable<ProvidedService[]> {
+    return this.apiService.get('/userFacilitiesExternal');
   }
 
   getFacility(id: number): Observable<Facility> {

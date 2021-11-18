@@ -6,6 +6,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from "@angular/material/paginator";
 import { ProvidedService } from "../../core/models/ProvidedService";
 import { TranslateService } from '@ngx-translate/core';
+import {AppComponent} from "../../app.component";
 
 @Component({
   selector: 'app-facilities-overview',
@@ -16,64 +17,108 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
 
   private paginator: MatPaginator = undefined;
   private sort: MatSort = undefined;
-  private facilitiesSubscription: Subscription;
+  private paginator2: MatPaginator = undefined;
+  private sort2: MatSort = undefined;
+  private servicesSubscription: Subscription;
+  private externalServicesSubscription: Subscription;
 
   constructor(
     private facilitiesService: FacilitiesService,
     private translate: TranslateService
-  ) { }
+  ) {
+    this.externalServicesEnabled = AppComponent.pageConfig.externalServices;
+  }
 
-  @ViewChild(MatPaginator, {static: false}) set matPaginator(mp: MatPaginator) {
+  @ViewChild('paginator1', {static: false}) set matPaginator(mp: MatPaginator) {
     this.paginator = mp;
-    this.setDataSource();
+    this.setServicesDataSource();
   }
 
-  @ViewChild(MatSort, {static: false}) set matSort(ms: MatSort) {
+  @ViewChild('sort1', {static: false}) set matSort(ms: MatSort) {
     this.sort = ms;
-    this.setDataSource();
+    this.setServicesDataSource();
   }
 
-  loading = true;
+  @ViewChild('paginator2', {static: false}) set matPaginator2(mp: MatPaginator) {
+    this.paginator2 = mp;
+    this.setExternalServicesDataSource();
+  }
+
+  @ViewChild('sort2', {static: false}) set matSort2(ms: MatSort) {
+    this.sort2 = ms;
+    this.setExternalServicesDataSource();
+  }
+
+  loading = false;
+  isLoadingTable1 = true;
+  isLoadingTable2 = true;
   displayedColumns: string[] = ['facilityId', 'name', 'description', 'identifier', 'environment', 'protocol'];
   services: ProvidedService[] = [];
-  dataSource: MatTableDataSource<ProvidedService> = new MatTableDataSource<ProvidedService>();
+  externalServices: ProvidedService[] = [];
+  servicesDataSource: MatTableDataSource<ProvidedService> = new MatTableDataSource<ProvidedService>();
+  externalServicesDataSource: MatTableDataSource<ProvidedService> = new MatTableDataSource<ProvidedService>();
+  externalServicesEnabled: boolean;
 
   ngOnInit() {
-    this.facilitiesSubscription = this.facilitiesService.getMyFacilities().subscribe(services => {
+    this.servicesSubscription = this.facilitiesService.getMyFacilities().subscribe(services => {
       this.services = services.map(s => new ProvidedService(s));
-      this.setDataSource();
-      this.loading = false;
+      this.setServicesDataSource();
+      this.isLoadingTable1 = false;
     }, _ => {
-      this.loading = false;
+      this.isLoadingTable1 = false;
     });
+    if (this.externalServicesEnabled) {
+      this.externalServicesSubscription = this.facilitiesService.getAllExternalFacilities().subscribe(services => {
+        this.externalServices = services.map(s => new ProvidedService(s));
+        this.setExternalServicesDataSource();
+        this.isLoadingTable2 = false;
+      }, _ => {
+        this.isLoadingTable2 = false;
+      });
+    }
   }
 
   ngOnDestroy() {
-    this.facilitiesSubscription.unsubscribe();
+    this.servicesSubscription.unsubscribe();
+    this.externalServicesSubscription.unsubscribe();
   }
 
-  setDataSource(): void {
-    if (this.dataSource) {
-      this.dataSource.data = this.services;
-      this.dataSource.sort = this.sort;
-      this.dataSource.paginator = this.paginator;
-      this.setSorting();
-      this.setFiltering();
+  setServicesDataSource(): void {
+    if (this.servicesDataSource) {
+      this.servicesDataSource.data = this.services;
+      this.servicesDataSource.sort = this.sort;
+      this.servicesDataSource.paginator = this.paginator;
+      this.setSorting(this.servicesDataSource);
+      this.setFiltering(this.servicesDataSource);
+    }
+  }
+
+  setExternalServicesDataSource(): void {
+    if (this.externalServicesDataSource) {
+      this.externalServicesDataSource.data = this.externalServices;
+      this.externalServicesDataSource.sort = this.sort2;
+      this.externalServicesDataSource.paginator = this.paginator2;
+      this.setSorting(this.externalServicesDataSource);
+      this.setFiltering(this.externalServicesDataSource);
     }
   }
 
   doFilter(value: string): void {
-    if (this.dataSource) {
+    if (this.servicesDataSource) {
       value = value ? value.trim().toLowerCase(): '';
-      this.dataSource.filter = value;
+      this.servicesDataSource.filter = value;
+    }
+    if (this.externalServicesDataSource) {
+      value = value ? value.trim().toLowerCase(): '';
+      this.externalServicesDataSource.filter = value;
     }
   }
 
-  private setSorting() {
-    if (!this.dataSource) {
+  private setSorting(dataSource) {
+    if (!dataSource) {
       return;
     }
-    this.dataSource.sortingDataAccessor = ((data, sortHeaderId) => {
+    dataSource.sortingDataAccessor = ((data, sortHeaderId) => {
       switch (sortHeaderId) {
         case 'facilityId': return data.facilityId;
         case 'name': {
@@ -97,11 +142,11 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
     });
   }
 
-  private setFiltering() {
-    if (!this.dataSource) {
+  private setFiltering(dataSource) {
+    if (!dataSource) {
       return;
     }
-    this.dataSource.filterPredicate = ((data: ProvidedService, filter: string) => {
+    dataSource.filterPredicate = ((data: ProvidedService, filter: string) => {
       if (!filter) {
         return true;
       }

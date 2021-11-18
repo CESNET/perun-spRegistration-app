@@ -6,7 +6,9 @@ import cz.metacentrum.perun.spRegistration.common.configs.FrontendProperties;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.InputsContainer;
 import cz.metacentrum.perun.spRegistration.common.models.User;
+import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +83,8 @@ public class ConfigController {
 
 	@GetMapping(path = "/api/config/protocols")
 	public Set<String> getProtocolsEnabled() {
-		return applicationProperties.getProtocolsEnabled();
+		return applicationProperties.getProtocolsEnabled().stream().map(ServiceProtocol::toString).collect(
+			Collectors.toSet());
 	}
 
 	@GetMapping(path = "/api/config/langs")
@@ -95,13 +98,14 @@ public class ConfigController {
 	}
 
 	@GetMapping(path = "/api/config/pageConfig")
-	public Map<String, String> getPageConfig() {
-		Map<String, String> pageConfig = new HashMap<>();
+	public Map<String, Object> getPageConfig() {
+		Map<String, Object> pageConfig = new HashMap<>();
 		pageConfig.put("logoUrl", frontendProperties.getHeaderLogoUrl());
 		pageConfig.put("headerLabel", frontendProperties.getHeaderTitle());
 		pageConfig.put("footerHtml", frontendProperties.getFooterHtml());
 		pageConfig.put("headerHtml", frontendProperties.getHeaderHtml());
 		pageConfig.put("logoutUrl", applicationProperties.getLogoutUrl());
+		pageConfig.put("externalServices", applicationProperties.isExternalServicesEnabled());
 		return pageConfig;
 	}
 

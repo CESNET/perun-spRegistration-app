@@ -53,6 +53,7 @@ public class Facility extends PerunEntity {
 	public void setPerunName(String perunName) {
 		if (!StringUtils.hasText(perunName)) {
 			this.perunName = "";
+			return;
 		}
 
 		this.perunName = perunName;
