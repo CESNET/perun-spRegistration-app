@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.spRegistration.common.configs;
 
+import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol;
+import java.util.HashSet;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -13,6 +16,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
+import org.springframework.util.StringUtils;
 
 @Setter
 @Getter
@@ -24,7 +28,7 @@ public class ApplicationProperties {
 
     @NotEmpty private Set<Long> adminIds;
     @NotBlank private String proxyIdentifier;
-    @NotEmpty private Set<String> protocolsEnabled;
+    @NotEmpty private Set<ServiceProtocol> protocolsEnabled;
     @NotEmpty private Set<String> languagesEnabled;
     @NotBlank private String secretKey;
     @NotBlank private String hostUrl;
@@ -37,6 +41,7 @@ public class ApplicationProperties {
     @NotBlank private String mailsConfigFilePath;
     @NotNull private boolean startupSyncEnabled = false;
     private String devUserIdentifier;
+    private boolean externalServicesEnabled = false;
 
     @Override
     public String toString() {
@@ -51,13 +56,31 @@ public class ApplicationProperties {
                 ", mailsConfig='" + mailsConfigFilePath + '\'' +
                 ", startupSyncEnabled='" + startupSyncEnabled + '\'' +
                 ", devUserIdentifier=" + devUserIdentifier +
+                ", externalServicesEnabled=" + externalServicesEnabled +
                 '}';
     }
 
     @PostConstruct
     public void postInit() {
         log.info("Initialized application properties");
-        log.debug("{}", this.toString());
+        log.debug("{}", this);
+    }
+
+    public void setProtocolsEnabled(List<String> protocolsEnabled) {
+        this.protocolsEnabled = new HashSet<>();
+        if (protocolsEnabled == null || protocolsEnabled.size() < 1) {
+            throw new IllegalArgumentException("No protocols enabled");
+        }
+        for (String protocol: protocolsEnabled) {
+            if (!StringUtils.hasText(protocol)) {
+                throw new IllegalArgumentException("No protocol parsed");
+            }
+            ServiceProtocol p = ServiceProtocol.fromString(protocol);
+            if (p == null) {
+                throw new IllegalArgumentException("Unsupported protocol given");
+            }
+            this.protocolsEnabled.add(p);
+        }
     }
 
     public boolean isAppAdmin(@NonNull Long id) {

@@ -12,12 +12,14 @@ import { RequestsDetailDialogComponent } from './requests-detail/requests-detail
 import { MatDialogModule } from '@angular/material/dialog';
 import { RequestsEditComponent } from './requests-edit/requests-edit.component';
 import { RequestsActionPipe } from './requests-action.pipe';
-import { MatPaginatorModule } from '@angular/material/paginator';
+import {MatPaginatorIntl, MatPaginatorModule} from '@angular/material/paginator';
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatSortModule} from '@angular/material/sort';
 import {RequestsStatusIconPipe} from "./requests-status-icon.pipe";
 import {RequestsStatusLangPipe} from "./requests-status-lang.pipe";
 import {RequestSignatureDecisionIconPipePipe} from "./requests-signature-decision-icon.pipe";
+import {TranslateParser, TranslateService} from "@ngx-translate/core";
+import {PaginatorI18n} from "../core/parts/paginatorI18n";
 
 @NgModule({
   imports: [
@@ -44,5 +46,11 @@ import {RequestSignatureDecisionIconPipePipe} from "./requests-signature-decisio
     RequestsDetailDialogComponent,
     RequestSignatureDecisionIconPipePipe
   ],
+  providers: [
+    {
+      provide: MatPaginatorIntl, deps: [TranslateService, TranslateParser],
+      useFactory: (translateService: TranslateService, translateParser: TranslateParser) => new PaginatorI18n(translateService, translateParser)
+    }
+  ]
 })
 export class RequestsModule { }

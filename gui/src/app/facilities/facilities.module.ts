@@ -16,7 +16,7 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatPaginatorIntl, MatPaginatorModule} from '@angular/material/paginator';
 import {MatSortModule} from '@angular/material/sort';
-import {TranslateService} from "@ngx-translate/core";
+import {TranslateParser, TranslateService} from "@ngx-translate/core";
 import { PaginatorI18n } from '../core/parts/paginatorI18n';
 import {FacilitiesDetailClientSecretDialogComponent} from "./facilities-detail/facilities-detail-client-secret-dialog/facilities-detail-client-secret-dialog.component";
 import {FacilitiesRemoveAdminDialogComponent} from "./facilities-detail/facilities-remove-admin-dialog/facilities-remove-admin-dialog.component";
@@ -48,8 +48,8 @@ import {FacilitiesRemoveAdminDialogComponent} from "./facilities-detail/faciliti
   ],
   providers: [
     {
-      provide: MatPaginatorIntl, deps: [TranslateService],
-      useFactory: (translateService: TranslateService) => new PaginatorI18n(translateService).getPaginatorIntl()
+      provide: MatPaginatorIntl, deps: [TranslateService, TranslateParser],
+      useFactory: (translateService: TranslateService, translateParser: TranslateParser) => new PaginatorI18n(translateService, translateParser)
     }
   ]
 

@@ -16,17 +16,23 @@ import java.util.List;
 public interface FacilitiesService {
 
     List<ProvidedService> getAllFacilities(@NonNull Long adminId)
-            throws UnauthorizedActionException, PerunUnknownException, PerunConnectionException;
+        throws PerunUnknownException, PerunConnectionException;
+
+    List<ProvidedService> getAllFacilitiesExternal(@NonNull Long userId)
+        throws PerunUnknownException, PerunConnectionException;
 
     List<ProvidedService> getAllUserFacilities(@NonNull Long userId)
             throws PerunUnknownException, PerunConnectionException;
 
+    List<ProvidedService> getAllUserFacilitiesExternal(@NonNull Long adminId)
+        throws PerunUnknownException, PerunConnectionException;
+
     Facility getFacility(@NonNull Long facilityId, @NonNull Long userId, boolean includeClientCredentials)
-            throws UnauthorizedActionException, InternalErrorException, BadPaddingException, InvalidKeyException,
+            throws InternalErrorException, BadPaddingException, InvalidKeyException,
             IllegalBlockSizeException, PerunUnknownException, PerunConnectionException;
 
     Facility getFacilityWithInputs(@NonNull Long facilityId, @NonNull Long userId)
-            throws UnauthorizedActionException, InternalErrorException, BadPaddingException, InvalidKeyException,
+            throws InternalErrorException, BadPaddingException, InvalidKeyException,
             IllegalBlockSizeException, PerunUnknownException, PerunConnectionException;
 
     Facility getFacilityForSignature(@NonNull Long facilityId, @NonNull Long userId)

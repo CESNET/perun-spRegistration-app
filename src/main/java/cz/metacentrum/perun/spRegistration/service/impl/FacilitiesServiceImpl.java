@@ -5,6 +5,7 @@ import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
+import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.InputsContainer;
@@ -12,12 +13,14 @@ import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunEntity;
 import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
+import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.persistence.managers.ProvidedServiceManager;
 import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
 import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
 import cz.metacentrum.perun.spRegistration.service.ServiceUtils;
+import java.util.HashSet;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +36,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment.PRODUCTION;
+import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment.TESTING;
 import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol.OIDC;
+import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol.SAML;
 
 @Service("facilitiesService")
 @Slf4j
@@ -160,8 +166,85 @@ public class FacilitiesServiceImpl implements FacilitiesService {
     }
 
     @Override
+    public List<ProvidedService> getAllUserFacilitiesExternal(@NonNull Long userId)
+        throws PerunUnknownException, PerunConnectionException
+    {
+        List<Facility> additionalFacilities = getFacilitiesByAdditionalProxyIdentifiers();
+        if (additionalFacilities.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Facility> userFacilities = perunAdapter.getFacilitiesWhereUserIsAdmin(userId);
+        if (userFacilities == null || userFacilities.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        Set<Long> proxyFacilitiesIds = additionalFacilities.stream()
+            .map(PerunEntity::getId)
+            .collect(Collectors.toSet());
+
+        Set<Long> userFacilitiesIds = userFacilities.stream()
+            .map(PerunEntity::getId)
+            .collect(Collectors.toSet());
+
+        proxyFacilitiesIds.retainAll(userFacilitiesIds);
+        if (proxyFacilitiesIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return getExternalProvidedServices(proxyFacilitiesIds);
+    }
+
+    private List<ProvidedService> getExternalProvidedServices(Set<Long> proxyFacilitiesIds)
+        throws PerunUnknownException, PerunConnectionException {
+        List<ProvidedService> services = new ArrayList<>();
+        List<String> attrs = new ArrayList<>();
+        attrs.add(attributesProperties.getNames().getServiceName());
+        attrs.add(attributesProperties.getNames().getServiceDesc());
+        attrs.add(attributesProperties.getNames().getIsTestSp());
+        if (applicationBeans.getApplicationProperties().getProtocolsEnabled().contains(SAML)) {
+            attrs.add(attributesProperties.getNames().getEntityId());
+            attrs.add(attributesProperties.getNames().getIsSaml());
+        }
+        if (applicationBeans.getApplicationProperties().getProtocolsEnabled().contains(OIDC)) {
+            attrs.add(attributesProperties.getNames().getIsOidc());
+            attrs.add(attributesProperties.getNames().getOidcClientId());
+        }
+        for (Long fid: proxyFacilitiesIds) {
+            Map<String, PerunAttribute> attributes = perunAdapter.getFacilityAttributes(fid, attrs);
+            boolean isOidc = ServiceUtils.isOidcAttributes(attributes, attributesProperties.getNames().getOidcClientId());
+            services.add(new ProvidedService(
+                -1L,
+                fid,
+                isOidc ? OIDC : SAML,
+                attributes.get(attributesProperties.getNames().getIsTestSp()).valueAsBoolean() ? TESTING : PRODUCTION,
+                attributes.get(attributesProperties.getNames().getServiceName()).valueAsMap(),
+                attributes.get(attributesProperties.getNames().getServiceDesc()).valueAsMap(),
+                isOidc ? attributes.get(attributesProperties.getNames().getOidcClientId()).valueAsString() :
+                    attributes.get(attributesProperties.getNames().getEntityId()).valueAsString(),
+                false
+            ));
+        }
+        return services;
+    }
+
+    @Override
     public List<ProvidedService> getAllFacilities(@NonNull Long userId) {
         return providedServiceManager.getAll();
+    }
+
+    @Override
+    public List<ProvidedService> getAllFacilitiesExternal(@NonNull Long userId)
+        throws PerunUnknownException, PerunConnectionException
+    {
+        List<Facility> additionalFacilities = getFacilitiesByAdditionalProxyIdentifiers();
+        if (additionalFacilities.isEmpty()) {
+            return new ArrayList<>();
+        }
+        Set<Long> proxyFacilitiesIds = additionalFacilities.stream()
+            .map(PerunEntity::getId)
+            .collect(Collectors.toSet());
+        return getExternalProvidedServices(proxyFacilitiesIds);
     }
 
     @Override
@@ -212,11 +295,25 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         return map;
     }
 
-    private List<Facility> getFacilitiesByProxyIdentifier() throws PerunUnknownException, PerunConnectionException {
+    private List<Facility> getFacilitiesByProxyIdentifier()
+        throws PerunUnknownException, PerunConnectionException
+    {
         return perunAdapter.getFacilitiesByProxyIdentifier(
                 attributesProperties.getNames().getProxyIdentifier(),
                 attributesProperties.getValues().getProxyIdentifier()
         );
+    }
+
+    private List<Facility> getFacilitiesByAdditionalProxyIdentifiers()
+        throws PerunUnknownException, PerunConnectionException
+    {
+        Set<Facility> nonEditable = new HashSet<>();
+
+        for (String identifier: attributesProperties.getValues().getAdditionalProxyIdentifiers()) {
+            nonEditable.addAll(perunAdapter.getFacilitiesByProxyIdentifier(
+                attributesProperties.getNames().getProxyIdentifier(), identifier));
+        }
+        return new ArrayList<>(nonEditable);
     }
 
     private Map<AttributeCategory, Map<String, PerunAttribute>> getFacilityAttributes(Long facilityId)
