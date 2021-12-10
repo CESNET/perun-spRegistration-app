@@ -15,6 +15,22 @@ import { User } from './core/models/User';
 })
 export class AppComponent implements OnInit {
 
+  static pageConfig: PageConfig;
+  static user: User;
+
+  favIcon: HTMLLinkElement = document.querySelector('#appIcon');
+
+  sidenavOpen = true;
+  loading = true;
+  minWidth = 768;
+  sidenavMode: MatDrawerMode = 'side';
+  currentUrl = '';
+  logoUrl = '';
+  appTitle = '';
+  langs: string[];
+
+  lastWindowWidth: number;
+
   constructor(
     private configService: ConfigService,
     private userService: UsersService,
@@ -55,20 +71,6 @@ export class AppComponent implements OnInit {
     this.setAndGetUser();
   }
 
-  static pageConfig: PageConfig;
-  static user: User;
-
-  sidenavOpen = true;
-  loading = true;
-  minWidth = 768;
-  sidenavMode: MatDrawerMode = 'side';
-  currentUrl = '';
-  logoUrl = '';
-  appTitle = '';
-  langs: string[];
-
-  lastWindowWidth: number;
-
   public static isApplicationAdmin(): boolean {
     if (this.user) {
       return this.user.isAppAdmin;
@@ -94,7 +96,7 @@ export class AppComponent implements OnInit {
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event?) {
+  onResize(_?) {
     if (this.sidenavOpen && this.lastWindowWidth > window.innerWidth &&
       window.innerWidth < this.minWidth) {
       this.sidenavOpen = false;
@@ -104,8 +106,21 @@ export class AppComponent implements OnInit {
     this.lastWindowWidth = window.innerWidth;
   }
 
+  ngOnInit(): void {
+    this.configService.getPageConfig().subscribe(pageConfig => {
+      if (pageConfig !== null && pageConfig !== undefined) {
+        AppComponent.pageConfig = new PageConfig(pageConfig);
+        this.appTitle = pageConfig.headerLabel;
+        this.logoUrl = pageConfig.logoUrl;
+        this.favIcon.href = pageConfig.faviconUrl;
+      }
+      this.loading = false;
+    });
+    this.setAndGetUser();
+  }
+
   public logout(): void {
-    this.userService.unsetUser().subscribe(resp => {
+    this.userService.unsetUser().subscribe(_ => {
       window.location.href = AppComponent.pageConfig.logoutUrl;
     });
   }
@@ -140,18 +155,6 @@ export class AppComponent implements OnInit {
   private goOnLogin() {
     this.router.navigate(['/']);
     AppComponent.setUser(null);
-  }
-
-  ngOnInit(): void {
-    this.configService.getPageConfig().subscribe(pageConfig => {
-      if (pageConfig !== null && pageConfig !== undefined) {
-        AppComponent.pageConfig = new PageConfig(pageConfig);
-        this.appTitle = pageConfig.headerLabel;
-        this.logoUrl = pageConfig.logoUrl;
-      }
-      this.loading = false;
-    });
-    this.setAndGetUser();
   }
 
 }
