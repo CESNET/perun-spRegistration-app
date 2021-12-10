@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/CESNET/perun-spRegistration-app/compare/v1.1.0...v1.2.0) (2021-12-10)
+
+
+### Features
+
+* 🎸 Favicons from config ([8f5d3cc](https://github.com/CESNET/perun-spRegistration-app/commit/8f5d3cc3a46c32e3e7bb599923e745483a92cb6d))
+
 # [1.1.0](https://github.com/CESNET/perun-spRegistration-app/compare/v1.0.3...v1.1.0) (2021-11-18)
 
 
