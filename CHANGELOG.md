@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/CESNET/perun-spRegistration-app/compare/v1.2.0...v1.2.1) (2021-12-10)
+
+
+### Bug Fixes
+
+* 🐛 Fix cesnet favicon ([5b4f575](https://github.com/CESNET/perun-spRegistration-app/commit/5b4f57549bc08dcd33cacfb865541ac42682835c))
+
 # [1.2.0](https://github.com/CESNET/perun-spRegistration-app/compare/v1.1.0...v1.2.0) (2021-12-10)
 
 
