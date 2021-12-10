@@ -106,6 +106,7 @@ public class ConfigController {
 		pageConfig.put("headerHtml", frontendProperties.getHeaderHtml());
 		pageConfig.put("logoutUrl", applicationProperties.getLogoutUrl());
 		pageConfig.put("externalServices", applicationProperties.isExternalServicesEnabled());
+		pageConfig.put("faviconUrl", frontendProperties.getFaviconUrl());
 		return pageConfig;
 	}
 

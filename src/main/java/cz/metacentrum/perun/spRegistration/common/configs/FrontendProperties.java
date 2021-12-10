@@ -28,12 +28,13 @@ public class FrontendProperties {
     @NonNull private String footerHtml = "";
     @NonNull private String headerHtml = "";
     @NonNull private String headerTitle = "SP Registration";
-    @NonNull private String headerLogoUrl = "https://perun.cesnet.cz/signpost/images/perun_3.png";
+    @NonNull private String headerLogoUrl = "assets/img/perun_3.svg";
+    @NonNull private String faviconUrl = "assets/img/perun-ico.png";
 
     @PostConstruct
     public void postInit() {
         log.info("Initialized Frontend properties");
-        log.debug("{}", this.toString());
+        log.debug("{}", this);
     }
 
     public void setHeaderLogoUrl(@NonNull String headerLogoUrl) {
