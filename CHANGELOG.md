@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/CESNET/perun-spRegistration-app/compare/v1.2.2...v1.2.3) (2022-01-06)
+
+
+### Bug Fixes
+
+* fix session problems ([4b8538c](https://github.com/CESNET/perun-spRegistration-app/commit/4b8538c6787f916bbb42a78114650d77f3b49a93))
+
 ## [1.2.2](https://github.com/CESNET/perun-spRegistration-app/compare/v1.2.1...v1.2.2) (2022-01-06)
 
 
