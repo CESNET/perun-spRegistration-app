@@ -146,6 +146,9 @@ export class AppComponent implements OnInit {
     this.userService.getUser().subscribe(user => {
       if (user !== undefined && user !== null) {
         AppComponent.setUser(new User(user));
+        if (!this.currentUrl.includes('auth')) {
+          this.router.navigate(['/auth']);
+        }
       } else {
         this.goOnLogin();
       }
@@ -153,8 +156,10 @@ export class AppComponent implements OnInit {
   }
 
   private goOnLogin() {
-    this.router.navigate(['/']);
     AppComponent.setUser(null);
+    this.userService.unsetUser().subscribe(_ => {
+      this.router.navigate(['/']);
+    });
   }
 
 }
