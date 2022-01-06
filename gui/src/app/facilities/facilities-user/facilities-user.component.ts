@@ -68,7 +68,7 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
       this.isLoadingTable1 = false;
     });
     if (this.externalServicesEnabled) {
-      this.externalServicesSubscription = this.facilitiesService.getAllExternalFacilities().subscribe(services => {
+      this.externalServicesSubscription = this.facilitiesService.getMyExternalFacilities().subscribe(services => {
         this.externalServices = services.map(s => new ProvidedService(s));
         this.setExternalServicesDataSource();
         this.isLoadingTable2 = false;
