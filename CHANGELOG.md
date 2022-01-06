@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/CESNET/perun-spRegistration-app/compare/v1.2.1...v1.2.2) (2022-01-06)
+
+
+### Bug Fixes
+
+* 🐛 Fix calling wrong method in "My services" ([3350dcb](https://github.com/CESNET/perun-spRegistration-app/commit/3350dcb0462ac729cc3d1504a36786c27242eb2c))
+
 ## [1.2.1](https://github.com/CESNET/perun-spRegistration-app/compare/v1.2.0...v1.2.1) (2021-12-10)
 
 
