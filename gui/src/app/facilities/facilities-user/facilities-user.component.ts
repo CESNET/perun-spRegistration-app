@@ -79,8 +79,13 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.servicesSubscription.unsubscribe();
-    this.externalServicesSubscription.unsubscribe();
+    if (this.servicesSubscription) {
+      this.servicesSubscription.unsubscribe();
+    }
+
+    if (this.externalServicesSubscription) {
+      this.externalServicesSubscription.unsubscribe();
+    }
   }
 
   setServicesDataSource(): void {

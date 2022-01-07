@@ -80,7 +80,13 @@ export class FacilitiesAdminComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.servicesSubscription.unsubscribe();
+    if (this.servicesSubscription) {
+      this.servicesSubscription.unsubscribe();
+    }
+
+    if (this.externalServicesSubscription) {
+      this.externalServicesSubscription.unsubscribe();
+    }
   }
 
   setServicesDataSource(): void {
