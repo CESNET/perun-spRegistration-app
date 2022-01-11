@@ -1,3 +1,10 @@
+## [1.2.4](https://github.com/CESNET/perun-spRegistration-app/compare/v1.2.3...v1.2.4) (2022-01-11)
+
+
+### Bug Fixes
+
+* Added check that services are initialized before unsubscription ([64ea88d](https://github.com/CESNET/perun-spRegistration-app/commit/64ea88d2306b6600fa3aceb33b9ae84dc40dbee4))
+
 ## [1.2.3](https://github.com/CESNET/perun-spRegistration-app/compare/v1.2.2...v1.2.3) (2022-01-06)
 
 
