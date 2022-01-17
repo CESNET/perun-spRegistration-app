@@ -166,6 +166,22 @@
                 </executions>
             </plugin>
             <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>gui</directory>
+                            <includes>
+                                <include>node_modules/**</include>
+                                <include>node/**</include>
+                                <include>dist/**</include>
+                                <include>.angular/**</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
