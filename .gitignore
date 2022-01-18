@@ -2,6 +2,7 @@
 *.idea
 *.iml
 target
+.run
 
 # Compiled class file
 *.class
@@ -14,6 +15,7 @@ target
 # Gui dependencies
 /gui/node_modules
 /gui/node
+/gui/.angular
 
 # semantic
 node_modules
