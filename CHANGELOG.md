@@ -1,3 +1,10 @@
+## [1.2.6](https://github.com/CESNET/perun-spRegistration-app/compare/v1.2.5...v1.2.6) (2022-01-18)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @fortawesome/angular-fontawesome to ^0.10.0 ([6210ef4](https://github.com/CESNET/perun-spRegistration-app/commit/6210ef46f9364a244e6332d008cacd592f451227))
+
 ## [1.2.5](https://github.com/CESNET/perun-spRegistration-app/compare/v1.2.4...v1.2.5) (2022-01-13)
 
 
