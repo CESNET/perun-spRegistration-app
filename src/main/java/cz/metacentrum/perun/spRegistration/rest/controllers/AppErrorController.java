@@ -24,9 +24,4 @@ public class AppErrorController implements ErrorController {
 		return "forward:index.html";
 	}
 
-	@Override
-	public String getErrorPath() {
-		return PATH;
-	}
-
 }
