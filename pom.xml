@@ -24,9 +24,10 @@
         <node.version>v16.0.0</node.version>
         <npm.version>7.12.0</npm.version>
         <jsoup.version>1.14.3</jsoup.version>
-        <bc-prov.version>1.68</bc-prov.version>
-        <bc-mail.version>1.68</bc-mail.version>
-        <bcpkix.version>1.68</bcpkix.version>
+        <bc.version>1.70</bc.version>
+        <bc-prov.version>${bc.version}</bc-prov.version>
+        <bc-mail.version>${bc.version}</bc-mail.version>
+        <bc-pkix.version>${bc.version}</bc-pkix.version>
         <!-- OTHER -->
         <server.contextPath>/spreg</server.contextPath>
         <angular.deploy.url>${server.contextPath}/</angular.deploy.url>
@@ -115,7 +116,7 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15on</artifactId>
-            <version>${bcpkix.version}</version>
+            <version>${bc-pkix.version}</version>
         </dependency>
 
     </dependencies>
