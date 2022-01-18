@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -22,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@Component
+@Configuration
 @Getter
 @Slf4j
 public class AppBeansContainer {

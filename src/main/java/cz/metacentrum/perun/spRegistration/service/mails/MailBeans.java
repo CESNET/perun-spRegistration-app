@@ -4,19 +4,18 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
-
-@Component
+@Configuration
 @Slf4j
 public class MailBeans {
 
@@ -60,7 +59,7 @@ public class MailBeans {
 
     private MailProperties getMailPropertiesFromYaml(String path) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        return mapper.readValue(new File(path), new TypeReference<MailProperties>() {});
+        return mapper.readValue(new File(path), new TypeReference<>() { });
     }
 
 }

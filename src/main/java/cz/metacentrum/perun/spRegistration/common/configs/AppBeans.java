@@ -10,6 +10,7 @@ import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinitio
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -18,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
+@Configuration
 @Slf4j
 public class AppBeans {
 
