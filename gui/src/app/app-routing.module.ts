@@ -6,12 +6,19 @@ import {NotAuthorizedPageComponent} from './shared/not-authorized-page/not-autho
 import {LoginComponent} from './login/login.component';
 import {DocumentSignComponent} from './document-sign/document-sign.component';
 import {ToolsComponent} from './tools/tools.component';
+import {
+  FacilitiesServicesListComponent
+} from "./statistics/facilities-services-list/facilities-services-list.component";
 
 const routes: Routes = [
 
   {
     path: '',
     component: LoginComponent,
+  },
+  {
+    path: 'services',
+    component: FacilitiesServicesListComponent,
   },
   {
     path: 'auth',

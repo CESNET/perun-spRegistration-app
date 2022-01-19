@@ -1,9 +1,11 @@
 package cz.metacentrum.perun.spRegistration.service;
 
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
-import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
+import cz.metacentrum.perun.spRegistration.common.models.ProvidedServiceOverview;
+import cz.metacentrum.perun.spRegistration.common.models.ProvidedServicesOverview;
+import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import lombok.NonNull;
@@ -16,6 +18,9 @@ import java.util.List;
 public interface FacilitiesService {
 
     List<ProvidedService> getAllFacilities(@NonNull Long adminId)
+        throws PerunUnknownException, PerunConnectionException;
+
+    ProvidedServicesOverview getFacilitiesOverview(boolean isAdmin)
         throws PerunUnknownException, PerunConnectionException;
 
     List<ProvidedService> getAllFacilitiesExternal(@NonNull Long userId)

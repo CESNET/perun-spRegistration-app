@@ -20,6 +20,9 @@ import {AttributeValuePipe} from './attribute-value.pipe';
 import {DocumentSignItemLocalePipe} from "./document-sign-item-locale.pipe";
 import {LanguageEntryPipe} from "./language-entry.pipe";
 import { HammerModule} from '@angular/platform-browser';
+import { ChartsModule } from 'angular-bootstrap-md';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
+import {StatisticsModule} from "./statistics/statistics.module";
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -54,6 +57,9 @@ export function HttpLoaderFactory(http: HttpClient) {
       MatDialogModule,
       MatTabsModule,
       HammerModule,
+      ChartsModule,
+      StatisticsModule,
+      NgxChartsModule
   ],
   providers: [ ],
   bootstrap: [AppComponent]

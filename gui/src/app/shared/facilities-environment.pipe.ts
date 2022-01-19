@@ -8,6 +8,7 @@ export class FacilitiesEnvironmentPipe implements PipeTransform {
 
   private testEnvText: string = "TEXT";
   private prodEnvText: string = "TEXT2";
+  private stagingEnvText: string = "TEXT3";
 
   constructor(
     private translate: TranslateService
@@ -18,12 +19,16 @@ export class FacilitiesEnvironmentPipe implements PipeTransform {
     this.translate.get('FACILITIES.ENV_PROD').subscribe(text => {
       this.prodEnvText = text;
     });
+    this.translate.get('FACILITIES.ENV_STAGING').subscribe(text => {
+      this.stagingEnvText = text;
+    });
   }
 
   transform(env: any, args?: any): any {
     switch(env) {
       case "TESTING": return this.testEnvText;
       case "PRODUCTION": return this.prodEnvText;
+      case "STAGING": return this.stagingEnvText;
     }
   }
 

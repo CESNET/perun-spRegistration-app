@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {faClipboardList, faNotesMedical, faServer, faToolbox} from '@fortawesome/free-solid-svg-icons';
+import {faChartPie, faClipboardList, faNotesMedical, faServer, faToolbox} from '@fortawesome/free-solid-svg-icons';
 import {User} from '../core/models/User';
 import {AppComponent} from '../app.component';
 import {UsersService} from "../core/services/users.service";
@@ -21,6 +21,7 @@ export class MainMenuComponent implements OnInit {
   facilitiesIcon = faServer;
   newRequestIcon = faNotesMedical;
   toolboxIcon = faToolbox;
+  statisticsIcon = faChartPie;
 
   ngOnInit() {
     this.usersService.getUser().subscribe(user => {

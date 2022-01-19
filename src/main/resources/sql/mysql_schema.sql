@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS provided_services
     id                 BIGINT PRIMARY KEY AUTO_INCREMENT,
     facility_id        BIGINT UNIQUE NOT NULL,
     name               TINYTEXT NOT NULL,
-    description        TEXT DEFAULT '',
+    description        TEXT,
     environment        VARCHAR(256) NOT NULL,
     protocol           VARCHAR(256) NOT NULL,
     identifier         VARCHAR(4096) NOT NULL,

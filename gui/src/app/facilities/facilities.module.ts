@@ -4,14 +4,12 @@ import { FacilitiesRoutingModule } from './facilities-routing.module';
 import { FacilitiesUserComponent } from './facilities-user/facilities-user.component';
 import { SharedModule } from '../shared/shared.module';
 import { FacilitiesDetailComponent } from './facilities-detail/facilities-detail.component';
-import {FacilitiesAttributeValuePipe} from './facilities-attribute-value.pipe';
 import { FacilityMoveToProductionComponent } from './facilities-detail/facility-move-to-production/facility-move-to-production.component';
 import { FacilitiesDetailDeleteDialogComponent } from './facilities-detail/facilities-detail-delete-dialog/facilities-detail-delete-dialog.component';
 import { FacilityAddAdminComponent } from './facilities-detail/facility-add-admin/facility-add-admin.component';
 import { FacilityAddAdminSignComponent } from './facilities-detail/facility-add-admin/facility-add-admin-sign/facility-add-admin-sign.component';
 import { FacilitiesAdminComponent } from './facilities-admin/facilities-admin.component';
 import { FacilitiesEditComponent } from './facilities-edit/facilities-edit.component';
-import {FacilitiesEnvironmentPipe} from './facilities-environment.pipe';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatPaginatorIntl, MatPaginatorModule} from '@angular/material/paginator';
@@ -34,7 +32,6 @@ import {FacilitiesRemoveAdminDialogComponent} from "./facilities-detail/faciliti
   declarations: [
     FacilitiesUserComponent,
     FacilitiesDetailComponent,
-    FacilitiesAttributeValuePipe,
     FacilityMoveToProductionComponent,
     FacilitiesEditComponent,
     FacilityMoveToProductionComponent,
@@ -43,8 +40,7 @@ import {FacilitiesRemoveAdminDialogComponent} from "./facilities-detail/faciliti
     FacilitiesDetailClientSecretDialogComponent,
     FacilityAddAdminComponent,
     FacilityAddAdminSignComponent,
-    FacilitiesAdminComponent,
-    FacilitiesEnvironmentPipe
+    FacilitiesAdminComponent
   ],
   providers: [
     {

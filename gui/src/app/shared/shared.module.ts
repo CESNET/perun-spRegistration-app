@@ -52,6 +52,8 @@ import {DetailedViewItemValuePipe} from './detailed-view-item-value.pipe';
 import {ItemLocalePipe} from './item-locale.pipe';
 import {RequestItemInputErrorComponent} from './request-item-input/request-item-input-error/request-item-input-error.component';
 import {RequestInputItemSelectComponent} from "./request-item-input/request-item-input-select/request-input-item-select.component";
+import {FacilitiesAttributeValuePipe} from "./facilities-attribute-value.pipe";
+import {FacilitiesEnvironmentPipe} from "./facilities-environment.pipe";
 
 @NgModule({
   imports: [
@@ -109,7 +111,9 @@ import {RequestInputItemSelectComponent} from "./request-item-input/request-item
     DetailItemSubCommentButtonComponent,
     DetailedViewItemValuePipe,
     ItemLocalePipe,
-    AuditTypePipe
+    AuditTypePipe,
+    FacilitiesAttributeValuePipe,
+    FacilitiesEnvironmentPipe
   ],
   exports: [
     FontAwesomeModule,
@@ -154,7 +158,9 @@ import {RequestInputItemSelectComponent} from "./request-item-input/request-item
     DetailItemSubCommentButtonComponent,
     ItemLocalePipe,
     DetailedViewItemValuePipe,
-    AuditTypePipe
+    AuditTypePipe,
+    FacilitiesAttributeValuePipe,
+    FacilitiesEnvironmentPipe
   ],
 })
 export class SharedModule { }

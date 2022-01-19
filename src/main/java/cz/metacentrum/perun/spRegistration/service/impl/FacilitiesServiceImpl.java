@@ -5,14 +5,17 @@ import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
-import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.InputsContainer;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunEntity;
 import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
+import cz.metacentrum.perun.spRegistration.common.models.ProvidedServiceOverview;
+import cz.metacentrum.perun.spRegistration.common.models.ProvidedServicesOverview;
+import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
+import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment;
 import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
@@ -37,6 +40,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment.PRODUCTION;
+import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment.STAGING;
 import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment.TESTING;
 import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol.OIDC;
 import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol.SAML;
@@ -234,6 +238,65 @@ public class FacilitiesServiceImpl implements FacilitiesService {
     }
 
     @Override
+    public ProvidedServicesOverview getFacilitiesOverview(boolean isAdmin) {
+        Map<ServiceEnvironment, Integer> samlCounter = new HashMap<>();
+        samlCounter.put(PRODUCTION, 0);
+        samlCounter.put(STAGING, 0);
+        samlCounter.put(TESTING, 0);
+
+        Map<ServiceEnvironment, Integer> oidcCounter = new HashMap<>();
+        oidcCounter.put(PRODUCTION, 0);
+        oidcCounter.put(STAGING, 0);
+        oidcCounter.put(TESTING, 0);
+
+        Map<ServiceEnvironment, List<ProvidedServiceOverview>> providedServicesOverview = new HashMap<>();
+        providedServicesOverview.put(PRODUCTION, new ArrayList<>());
+
+        if (isAdmin) {
+            providedServicesOverview.put(STAGING, new ArrayList<>());
+            providedServicesOverview.put(TESTING, new ArrayList<>());
+        }
+
+        for (ProvidedService providedService : providedServiceManager.getAll()) {
+            switch (providedService.getProtocol()) {
+                case SAML:
+                    updateOverview(samlCounter, providedServicesOverview, providedService, isAdmin);
+                    break;
+                case OIDC:
+                    updateOverview(oidcCounter, providedServicesOverview, providedService, isAdmin);
+                    break;
+                default:
+                    // should not happen
+            }
+        }
+
+        return new ProvidedServicesOverview(samlCounter, oidcCounter, providedServicesOverview);
+    }
+
+    private void updateOverview(Map<ServiceEnvironment, Integer> counter,
+                                Map<ServiceEnvironment, List<ProvidedServiceOverview>> providedServicesOverview,
+                                ProvidedService providedService,
+                                boolean isAdmin) {
+        ServiceEnvironment environment = providedService.getEnvironment();
+        
+        switch (environment) {
+            case PRODUCTION:
+                counter.replace(environment, counter.get(environment) + 1);
+                providedServicesOverview.get(environment).add(mapProvidedServiceToOverview(providedService));
+                break;
+            case STAGING:
+            case TESTING:
+                counter.replace(environment, counter.get(environment) + 1);
+                if (isAdmin) {
+                    providedServicesOverview.get(environment).add(mapProvidedServiceToOverview(providedService));
+                }
+                break;
+            default:
+                // should not happen
+        }
+    }
+
+    @Override
     public List<ProvidedService> getAllFacilitiesExternal(@NonNull Long userId)
         throws PerunUnknownException, PerunConnectionException
     {
@@ -336,6 +399,15 @@ public class FacilitiesServiceImpl implements FacilitiesService {
                 .get(attributesProperties.getNames().getOidcClientSecret())
                 .setValue(clientSecret.getDefinition().getType(),
                         JsonNodeFactory.instance.textNode(clientSecretValue));
+    }
+
+    private ProvidedServiceOverview mapProvidedServiceToOverview(ProvidedService providedService) {
+        return new ProvidedServiceOverview(
+                providedService.getProtocol(),
+                providedService.getEnvironment(),
+                providedService.getName(),
+                providedService.getDescription()
+        );
     }
 
 }

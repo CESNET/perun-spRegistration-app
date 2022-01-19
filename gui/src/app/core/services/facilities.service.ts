@@ -6,6 +6,7 @@ import { Request } from "../models/Request";
 import {PerunAttribute} from "../models/PerunAttribute";
 import {LinkCode} from "../models/LinkCode";
 import {ProvidedService} from "../models/ProvidedService";
+import {ProvidedServicesOverview} from "../models/ProvidedServicesOverview";
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,10 @@ export class FacilitiesService {
 
   getAllFacilities(): Observable<ProvidedService[]> {
     return this.apiService.get('/allFacilities');
+  }
+
+  getProvidedServicesOverview(): Observable<ProvidedServicesOverview> {
+    return this.apiService.get('/services')
   }
 
   getAllExternalFacilities(): Observable<ProvidedService[]> {

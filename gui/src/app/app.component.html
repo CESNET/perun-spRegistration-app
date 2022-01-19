@@ -48,6 +48,11 @@
             {{'MENU.HOME' | translate}}
           </a>
         </li>
+        <li class="nav-item menu-item-l2" [class.active]="currentUrl !== undefined && currentUrl === '/services'">
+          <a class="no-hover-decoration" routerLink="/services">
+            {{'MENU.STATISTICS' | translate}}
+          </a>
+        </li>
         <ng-container *ngIf="hasUser() && getUser().isAppAdmin">
           <li class="nav-item menu-spacer admin-spacer menu-item-l1">
             {{'MENU.ADMIN' | translate}}
