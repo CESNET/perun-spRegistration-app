@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.1...v1.3.2) (2022-01-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency eslint to v8 ([c9b0e97](https://github.com/CESNET/perun-spRegistration-app/commit/c9b0e97f81097fbae119159572a251ff5ec5c7a5))
+
 ## [1.3.1](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.0...v1.3.1) (2022-01-19)
 
 
