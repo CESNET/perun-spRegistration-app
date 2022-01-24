@@ -1,3 +1,10 @@
+## [1.3.5](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.4...v1.3.5) (2022-01-24)
+
+
+### Bug Fixes
+
+* **deps:** update angularmaterial monorepo to v13.1.3 ([2717ba6](https://github.com/CESNET/perun-spRegistration-app/commit/2717ba637bf7361893930d668883a802418c8a3f))
+
 ## [1.3.4](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.3...v1.3.4) (2022-01-24)
 
 
