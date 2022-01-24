@@ -6,7 +6,6 @@ import {PaginatorI18n} from "../core/parts/paginatorI18n";
 import {CommonModule} from "@angular/common";
 import {SharedModule} from "../shared/shared.module";
 import {MatSortModule} from "@angular/material/sort";
-import {ChartsModule, MDBBootstrapModule} from "angular-bootstrap-md";
 import {StatisticsRoutingModule} from "./statistics-routing.module";
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 
@@ -17,8 +16,6 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
     SharedModule,
     MatSortModule,
     MatPaginatorModule,
-    ChartsModule,
-    MDBBootstrapModule,
     NgxChartsModule
   ],
   declarations: [

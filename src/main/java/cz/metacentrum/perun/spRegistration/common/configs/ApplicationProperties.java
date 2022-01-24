@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.spRegistration.common.configs;
 
+import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol.*;
+
 import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol;
 import java.util.HashSet;
 import java.util.List;
@@ -27,38 +29,42 @@ import org.springframework.util.StringUtils;
 @ConfigurationProperties(prefix = "application")
 public class ApplicationProperties {
 
-    @NotEmpty private Set<Long> adminIds;
+    @NotEmpty private Set<Long> adminIds = new HashSet<>();
     @NotBlank private String proxyIdentifier;
-    @NotEmpty private Set<ServiceProtocol> protocolsEnabled;
-    @NotEmpty private Set<String> languagesEnabled;
+    @NotEmpty private Set<ServiceProtocol> protocolsEnabled = Set.of(SAML, OIDC);
+    @NotEmpty private Set<String> languagesEnabled = Set.of("en");
+    @NotEmpty private Set<String> environmentsEnabled = Set.of("testing", "production");
     @NotBlank private String secretKey;
     @NotBlank private String hostUrl;
     @NotBlank private String logoutUrl;
-    @NotNull private AttributesProperties attributesProperties;
-    @NotNull private ApprovalsProperties approvalsProperties;
-    @NotNull private FrontendProperties frontendProperties;
     @NotNull private Long spManagersVoId;
     @NotNull private Long spManagersParentGroupId;
     @NotBlank private String mailsConfigFilePath;
     @NotNull private boolean startupSyncEnabled = false;
-    private String devUserIdentifier;
     private boolean externalServicesEnabled = false;
+
+    private String devUserIdentifier;
+
+    @NotNull private AttributesProperties attributesProperties;
+    @NotNull private ApprovalsProperties approvalsProperties;
+    @NotNull private FrontendProperties frontendProperties;
 
     @Override
     public String toString() {
         return "ApplicationConfiguration{" +
-                "adminIds=" + adminIds +
-                ", proxyIdentifier='" + proxyIdentifier + '\'' +
-                ", protocolsEnabled=" + protocolsEnabled +
-                ", languagesEnabled=" + languagesEnabled +
-                ", secretKey='*******************'" +
-                ", hostUrl='" + hostUrl + '\'' +
-                ", logoutUrl='" + logoutUrl + '\'' +
-                ", mailsConfig='" + mailsConfigFilePath + '\'' +
-                ", startupSyncEnabled='" + startupSyncEnabled + '\'' +
-                ", devUserIdentifier=" + devUserIdentifier +
-                ", externalServicesEnabled=" + externalServicesEnabled +
-                '}';
+            "adminIds=" + adminIds +
+            ", proxyIdentifier='" + proxyIdentifier + '\'' +
+            ", protocolsEnabled=" + protocolsEnabled +
+            ", languagesEnabled=" + languagesEnabled +
+            ", environmentsEnabled=" + environmentsEnabled +
+            ", secretKey='*******************'" +
+            ", hostUrl='" + hostUrl + '\'' +
+            ", logoutUrl='" + logoutUrl + '\'' +
+            ", mailsConfig='" + mailsConfigFilePath + '\'' +
+            ", startupSyncEnabled='" + startupSyncEnabled + '\'' +
+            ", externalServicesEnabled=" + externalServicesEnabled +
+            ", devUserIdentifier=" + devUserIdentifier +
+            '}';
     }
 
     @PostConstruct
@@ -76,7 +82,7 @@ public class ApplicationProperties {
             if (!StringUtils.hasText(protocol)) {
                 throw new IllegalArgumentException("No protocol parsed");
             }
-            ServiceProtocol p = ServiceProtocol.fromString(protocol);
+            ServiceProtocol p = fromString(protocol);
             if (p == null) {
                 throw new IllegalArgumentException("Unsupported protocol given");
             }

@@ -44,4 +44,8 @@ export class ConfigService {
   getLanguages(): Observable<string[]> {
     return this.apiService.get('/config/langs');
   }
+
+  getEnvironments(): Observable<string[]> {
+    return this.apiService.get('/config/envs');
+  }
 }
