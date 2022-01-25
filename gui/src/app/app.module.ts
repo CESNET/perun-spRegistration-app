@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import {APP_INITIALIZER, NgModule} from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -20,12 +20,27 @@ import {AttributeValuePipe} from './attribute-value.pipe';
 import {DocumentSignItemLocalePipe} from "./document-sign-item-locale.pipe";
 import {LanguageEntryPipe} from "./language-entry.pipe";
 import { HammerModule} from '@angular/platform-browser';
-import { ChartsModule } from 'angular-bootstrap-md';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import {StatisticsModule} from "./statistics/statistics.module";
+import {ConfService} from "./shared/conf-service";
+import {map} from "rxjs";
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
+
+function initialize(http: HttpClient, config: ConfService) {
+  return (): Promise<boolean> => {
+    return new Promise<boolean>((resolve: (a: boolean) => void): void => {
+      http.get('/assets/config/config.json')
+        .pipe(
+          map((x: ConfService) => {
+            config.statisticsDisplayedAttributes = x.statisticsDisplayedAttributes;
+            resolve(true);
+          })
+        ).subscribe();
+    });
+  };
 }
 
 @NgModule({
@@ -57,11 +72,20 @@ export function HttpLoaderFactory(http: HttpClient) {
       MatDialogModule,
       MatTabsModule,
       HammerModule,
-      ChartsModule,
       StatisticsModule,
       NgxChartsModule
   ],
-  providers: [ ],
+  providers: [
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initialize,
+      deps: [
+        HttpClient,
+        ConfService
+      ],
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

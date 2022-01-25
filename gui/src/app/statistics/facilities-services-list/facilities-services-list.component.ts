@@ -8,6 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 import {ProvidedServiceOverview} from "../../core/models/ProvidedServiceOverview";
 import {ProvidedServicesOverview} from "../../core/models/ProvidedServicesOverview";
 import {AppComponent} from "../../app.component";
+import {ConfService} from "../../shared/conf-service";
 
 @Component({
   selector: 'app-facilities-overview',
@@ -25,7 +26,7 @@ export class FacilitiesServicesListComponent implements OnInit, OnDestroy {
   private paginatorTesting: MatPaginator = undefined;
   private sortTesting: MatSort = undefined;
 
-  private servicesOverviewSubscription: Subscription
+  private servicesOverviewSubscription: Subscription;
 
   displayedColumns: string[] = ['name', 'description', 'protocol', 'environment'];
 
@@ -58,8 +59,12 @@ export class FacilitiesServicesListComponent implements OnInit, OnDestroy {
 
   constructor(
     private facilitiesService: FacilitiesService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private configService: ConfService,
   ) {
+    if (configService.statisticsDisplayedAttributes) {
+      this.displayedColumns = configService.statisticsDisplayedAttributes;
+    }
   }
 
   servicesOverview: ProvidedServicesOverview = new ProvidedServicesOverview(null);
