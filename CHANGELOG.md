@@ -1,3 +1,11 @@
+## [1.3.10](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.9...v1.3.10) (2022-02-17)
+
+
+### Bug Fixes
+
+* **deps:** update angularmaterial monorepo to v13.2.3 ([7ce6b7e](https://github.com/CESNET/perun-spRegistration-app/commit/7ce6b7ec0889733b1ae9bbe60b250d82b43a41c4))
+* **deps:** update dependency @fortawesome/fontawesome-svg-core to v1.3.0 ([cecc975](https://github.com/CESNET/perun-spRegistration-app/commit/cecc9759a2b025a22957caaf71c629244609e166))
+
 ## [1.3.9](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.8...v1.3.9) (2022-02-17)
 
 
