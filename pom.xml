@@ -118,7 +118,6 @@
             <artifactId>bcpkix-jdk15on</artifactId>
             <version>${bc-pkix.version}</version>
         </dependency>
-
     </dependencies>
 
     <build>

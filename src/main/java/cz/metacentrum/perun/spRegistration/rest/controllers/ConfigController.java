@@ -8,10 +8,13 @@ import cz.metacentrum.perun.spRegistration.common.models.InputsContainer;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
+import java.util.HashSet;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
@@ -89,7 +92,30 @@ public class ConfigController {
 
 	@GetMapping(path = "/api/config/langs")
 	public Set<String> getLangs() {
-		return applicationProperties.getLanguagesEnabled();
+		Set<String> set = new HashSet<>();
+		if (applicationProperties.getLanguagesEnabled() != null) {
+			for (String lang : applicationProperties.getLanguagesEnabled()) {
+				if (!StringUtils.hasText(lang)) {
+					continue;
+				}
+				set.add(lang.trim().toLowerCase());
+			}
+		}
+		return set;
+	}
+
+	@GetMapping(path = "/api/config/envs")
+	public Set<String> getEnvs() {
+		Set<String> set = new HashSet<>();
+		if (applicationProperties.getEnvironmentsEnabled() != null) {
+			for (String env : applicationProperties.getEnvironmentsEnabled()) {
+				if (!StringUtils.hasText(env)) {
+					continue;
+				}
+				set.add(env.trim().toLowerCase());
+			}
+		}
+		return set;
 	}
 
 	@GetMapping(path = "/api/config/isUserAdmin")

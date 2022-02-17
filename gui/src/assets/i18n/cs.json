@@ -24,7 +24,8 @@
     "MY_SERVICES": "Mé služby",
     "MY_REQUESTS": "Mé žádosti",
     "REGISTER_SERVICE": "Nová služba",
-    "TOOLS": "Nástroje"
+    "TOOLS": "Nástroje",
+    "STATISTICS": "Statistiky"
   },
   "COMMON": {
     "ID": "Identifikátor",
@@ -174,6 +175,7 @@
     "ENVIRONMENT": "Prostředí",
     "ENV_TEST": "Testovací",
     "ENV_PROD": "Produkční",
+    "ENV_STAGING": "Akceptační",
     "MOVE_TO_PRODUCTION_REJECT": "Zamítnout",
     "CLIENT_ID": "Client ID",
     "CLIENT_SECRET": "Client SECRET",
@@ -222,5 +224,16 @@
       "REQUEST_UPDATED": "Žádost byla aktualizovaná",
       "REQUEST_CANCELED": "Žádost zrušena žadatelem"
     }
+  },
+  "SERVICES": {
+    "PRODUCTION_SERVICES_LIST": "Produkční služby",
+    "STAGING_SERVICES_LIST": "Akceptační služby",
+    "TESTING_SERVICES_LIST": "Testovací služby",
+    "PRODUCTION_SERVICES": "Produkční služby",
+    "STAGING_SERVICES": "Akceptační služby",
+    "TESTING_SERVICES": "Testovací služby",
+    "ALL": "Celkem",
+    "SAML": "SAML",
+    "OIDC": "OIDC"
   }
 }

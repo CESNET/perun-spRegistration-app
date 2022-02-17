@@ -9,6 +9,8 @@ import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
+import cz.metacentrum.perun.spRegistration.common.models.ProvidedServiceOverview;
+import cz.metacentrum.perun.spRegistration.common.models.ProvidedServicesOverview;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
@@ -163,6 +165,12 @@ public class FacilitiesController {
 			throw new UnauthorizedActionException();
 		}
 		return facilitiesService.getAllFacilities(user.getId());
+	}
+
+	@GetMapping(path = "/api/services")
+	public ProvidedServicesOverview allFacilitiesOverview(@SessionAttribute("user") User user) throws PerunUnknownException, PerunConnectionException
+	{
+		return facilitiesService.getFacilitiesOverview(utilsService.isAppAdmin(user));
 	}
 
 	@GetMapping(path = "/api/allFacilitiesExternal")

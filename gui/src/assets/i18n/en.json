@@ -27,7 +27,8 @@
     "MY_SERVICES": "My services",
     "MY_REQUESTS": "My requests",
     "REGISTER_SERVICE": "New service",
-    "TOOLS": "Toolbox"
+    "TOOLS": "Toolbox",
+    "STATISTICS": "Statistics"
   },
   "COMMON": {
     "ID": "Identifier",
@@ -177,6 +178,7 @@
     "ENVIRONMENT": "Environment",
     "ENV_TEST": "Test",
     "ENV_PROD": "Production",
+    "ENV_STAGING": "Staging",
     "MOVE_TO_PRODUCTION_REJECT": "Reject request",
     "CLIENT_ID": "Client ID",
     "CLIENT_SECRET": "Client SECRET",
@@ -225,5 +227,16 @@
       "REQUEST_UPDATED": "Request updated",
       "REQUEST_CANCELED": "Request canceled by the requester"
     }
+  },
+  "SERVICES": {
+    "PRODUCTION_SERVICES_LIST": "Production services",
+    "STAGING_SERVICES_LIST": "Staging services",
+    "TESTING_SERVICES_LIST": "Testing services",
+    "PRODUCTION_SERVICES": "Production services",
+    "STAGING_SERVICES": "Staging services",
+    "TESTING_SERVICES": "Testing services",
+    "ALL": "All",
+    "SAML": "SAML",
+    "OIDC": "OIDC"
   }
 }
