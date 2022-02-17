@@ -1,3 +1,11 @@
+## [1.3.11](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.10...v1.3.11) (2022-02-17)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @fortawesome/free-solid-svg-icons to v6 ([da6a88e](https://github.com/CESNET/perun-spRegistration-app/commit/da6a88eeee3d334a498b79949cf506cccf8b2b3c))
+* **deps:** update dependency core-js to v3.21.1 ([7b61555](https://github.com/CESNET/perun-spRegistration-app/commit/7b61555c88050082c4a72ea26ee5ccb5d2b33375))
+
 ## [1.3.10](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.9...v1.3.10) (2022-02-17)
 
 
