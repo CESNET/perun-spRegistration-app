@@ -12,7 +12,7 @@ jobs:
         with:
           node-version: '16'
       - name: Run ESLint
-        uses: reviewdog/action-eslint@v1.15.0
+        uses: reviewdog/action-eslint@v1.16.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: 'github-pr-review'
