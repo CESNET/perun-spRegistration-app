@@ -1,3 +1,10 @@
+## [1.3.14](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.13...v1.3.14) (2022-02-21)
+
+
+### Bug Fixes
+
+* **deps:** update dependency rxjs to v7.5.4 ([cf7c957](https://github.com/CESNET/perun-spRegistration-app/commit/cf7c9573072be0d19cb56db373c1eef90ab5a71f))
+
 ## [1.3.13](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.12...v1.3.13) (2022-02-21)
 
 
