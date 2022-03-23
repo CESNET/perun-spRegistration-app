@@ -171,12 +171,18 @@
                 <configuration>
                     <filesets>
                         <fileset>
-                            <directory>gui/apps</directory>
+                            <directory>gui</directory>
                             <includes>
                                 <include>node_modules/**</include>
                                 <include>node/**</include>
-                                <include>dist/**</include>
+                                <include>apps/spreg-gui/dist/**</include>
                                 <include>.angular/**</include>
+                            </includes>
+                        </fileset>
+                        <fileset>
+                            <directory>src/main/resources/static</directory>
+                            <includes>
+                                <include>**</include>
                             </includes>
                         </fileset>
                     </filesets>
@@ -234,25 +240,6 @@
                                     </arguments>
                                 </configuration>
                                 <phase>initialize</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-clean-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>auto-clean</id>
-                                <phase>initialize</phase>
-                                <goals>
-                                    <goal>clean</goal>
-                                </goals>
-                                <configuration>
-                                    <filesets>
-                                        <fileset>
-                                            <directory>src/main/resources/static</directory>
-                                        </fileset>
-                                    </filesets>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

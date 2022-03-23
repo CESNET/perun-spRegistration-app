@@ -6,11 +6,11 @@ target
 
 # Compiled class file
 *.class
-/gui/dist
+/gui/apps/spreg-gui/dist
 /gui/tmp
 /gui/out-tsc
 /out
-/gui/src/main
+/gui/apps/spreg-gui/src/main
 
 # Gui dependencies
 /gui/node_modules
