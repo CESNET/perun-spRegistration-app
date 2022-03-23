@@ -1,3 +1,10 @@
+## [1.3.21](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.20...v1.3.21) (2022-03-23)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @fortawesome/fontawesome-svg-core to v6 ([12c8754](https://github.com/CESNET/perun-spRegistration-app/commit/12c8754574cc08fced6fe8dba53f088c2075856a))
+
 ## [1.3.20](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.19...v1.3.20) (2022-03-23)
 
 
