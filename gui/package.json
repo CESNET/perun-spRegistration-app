@@ -7,8 +7,9 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e",
-    "prod": "ng build --prod"
+    "e2e": "ng spreg-gui-e2e",
+    "prod": "ng build --prod",
+    "postinstall": "ngcc --properties es2015 browser module main"
   },
   "private": true,
   "dependencies": {
@@ -36,6 +37,7 @@
     "jquery": "3.6.0",
     "popper.js": "1.16.1",
     "rxjs": "7.5.5",
+    "tslib": "^2.0.0",
     "zone.js": "0.11.5"
   },
   "devDependencies": {
@@ -45,10 +47,14 @@
     "@angular/cli": "13.3.0",
     "@angular/compiler-cli": "13.3.0",
     "@angular/language-service": "13.3.0",
-    "@nrwl/eslint-plugin-nx": "13.4.6",
+    "@nrwl/cypress": "13.9.4",
+    "@nrwl/eslint-plugin-nx": "13.9.4",
+    "@nrwl/jest": "13.9.4",
+    "@types/jest": "27.0.2",
     "@types/node": "16.11.26",
-    "@typescript-eslint/eslint-plugin": "5.3.1",
-    "@typescript-eslint/parser": "5.3.1",
+    "@typescript-eslint/eslint-plugin": "5.10.2",
+    "@typescript-eslint/parser": "5.10.2",
+    "cypress": "^9.1.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-eslint-comments": "3.2.0",
     "eslint-plugin-eslint-plugin": "4.1.0",
@@ -56,7 +62,10 @@
     "eslint-plugin-jest": "26.1.2",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-simple-import-sort": "7.0.0",
+    "jest": "27.2.3",
+    "jest-preset-angular": "11.1.1",
     "prettier": "2.6.0",
+    "ts-jest": "27.0.5",
     "typescript": "4.5.5"
   }
 }

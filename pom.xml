@@ -138,7 +138,7 @@
                             <encoding>UTF-8</encoding>
                             <resources>
                                 <resource>
-                                    <directory>${project.basedir}/gui/dist/service-creation/</directory>
+                                    <directory>${project.basedir}/gui/apps/spreg-gui/dist/service-creation/</directory>
                                     <includes>
                                         <include>*.js</include>
                                     </includes>
@@ -158,7 +158,7 @@
                             <encoding>UTF-8</encoding>
                             <resources>
                                 <resource>
-                                    <directory>${project.basedir}/gui/dist/service-creation/</directory>
+                                    <directory>${project.basedir}/gui/apps/spreg-gui/dist/service-creation/</directory>
                                     <filtering>false</filtering>
                                 </resource>
                             </resources>
@@ -171,7 +171,7 @@
                 <configuration>
                     <filesets>
                         <fileset>
-                            <directory>gui</directory>
+                            <directory>gui/apps</directory>
                             <includes>
                                 <include>node_modules/**</include>
                                 <include>node/**</include>
