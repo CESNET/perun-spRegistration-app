@@ -30,7 +30,7 @@
     "@ngx-translate/http-loader": "7.0.0",
     "bootstrap": "4.6.1",
     "core-js": "3.21.1",
-    "eslint": "8.11.0",
+    "eslint": "8.12.0",
     "font-awesome": "4.7.0",
     "hammerjs": "2.0.8",
     "jquery": "3.6.0",
