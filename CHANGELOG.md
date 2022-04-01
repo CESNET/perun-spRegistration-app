@@ -1,3 +1,10 @@
+## [1.3.24](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.23...v1.3.24) (2022-04-01)
+
+
+### Bug Fixes
+
+* 🐛 Update spring to v2.6.6 ([8743f4c](https://github.com/CESNET/perun-spRegistration-app/commit/8743f4c4e54dac38f8a50dcdf0a8441f5d4eda56))
+
 ## [1.3.23](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.22...v1.3.23) (2022-03-31)
 
 
