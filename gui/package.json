@@ -45,7 +45,7 @@
     "@angular/cli": "13.3.1",
     "@angular/compiler-cli": "13.3.1",
     "@angular/language-service": "13.3.1",
-    "@nrwl/eslint-plugin-nx": "13.4.6",
+    "@nrwl/eslint-plugin-nx": "13.10.2",
     "@types/node": "16.11.26",
     "@typescript-eslint/eslint-plugin": "5.3.1",
     "@typescript-eslint/parser": "5.3.1",
