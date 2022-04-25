@@ -1,43 +1,81 @@
 <div class="container-fluid pt-5">
   <mat-spinner class="ml-auto mr-auto" *ngIf="loading" color=""></mat-spinner>
-    <!-- CRYPTO PANEL -->
+  <!-- CRYPTO PANEL -->
   <mat-accordion *ngIf="!loading" class="card mb-4 shadow-sm">
     <h4 class="card-title mb-3 p-3 p-lg-5">
-      {{'MENU.TOOLS' | translate}}
+      {{ "MENU.TOOLS" | translate }}
     </h4>
     <mat-expansion-panel class="p-3">
       <mat-expansion-panel-header>
-        <mat-panel-title>{{'TOOLS.CRYPTO_TITLE' | translate}}</mat-panel-title>
-        <mat-panel-description>{{'TOOLS.CRYPTO_DESCRIPTION' | translate}}</mat-panel-description>
+        <mat-panel-title>{{
+          "TOOLS.CRYPTO_TITLE" | translate
+        }}</mat-panel-title>
+        <mat-panel-description>{{
+          "TOOLS.CRYPTO_DESCRIPTION" | translate
+        }}</mat-panel-description>
       </mat-expansion-panel-header>
       <div class="row mt-3">
         <mat-form-field class="w-100">
-          <input matInput placeholder="{{'TOOLS.ENCRYPT_INPUT' | translate}}" value=""
-                 name="encrypt_input" type="text" #encryptInput>
+          <input
+            matInput
+            placeholder="{{ 'TOOLS.ENCRYPT_INPUT' | translate }}"
+            value=""
+            name="encrypt_input"
+            type="text"
+            #encryptInput
+          />
         </mat-form-field>
         <div class="text-right mt-3 w-100">
-          <button color="accent" mat-raised-button (click)="encrypt(encryptInput.value)">
-            {{'TOOLS.ENCRYPT' | translate}}
+          <button
+            color="accent"
+            mat-raised-button
+            (click)="encrypt(encryptInput.value)"
+          >
+            {{ "TOOLS.ENCRYPT" | translate }}
           </button>
         </div>
         <mat-form-field class="w-100 mt-3">
-          <input matInput placeholder="{{'TOOLS.ENCRYPT_OUTPUT' | translate}}" value=""
-                 name="encrypt_output" type="text" [ngModel]="encryptOutput" readonly>
+          <input
+            matInput
+            placeholder="{{ 'TOOLS.ENCRYPT_OUTPUT' | translate }}"
+            value=""
+            name="encrypt_output"
+            type="text"
+            [ngModel]="encryptOutput"
+            readonly
+          />
         </mat-form-field>
       </div>
       <div class="row mt-5">
         <mat-form-field class="w-100">
-          <input matInput #decryptInput placeholder="{{'TOOLS.DECRYPT_INPUT' | translate}}" value=""
-                 name="decrypt_input" type="text">
+          <input
+            matInput
+            #decryptInput
+            placeholder="{{ 'TOOLS.DECRYPT_INPUT' | translate }}"
+            value=""
+            name="decrypt_input"
+            type="text"
+          />
         </mat-form-field>
         <div class="text-right mt-2 w-100">
-          <button color="accent" mat-raised-button (click)="decrypt(decryptInput.value)">
-            {{'TOOLS.DECRYPT' | translate}}
+          <button
+            color="accent"
+            mat-raised-button
+            (click)="decrypt(decryptInput.value)"
+          >
+            {{ "TOOLS.DECRYPT" | translate }}
           </button>
         </div>
         <mat-form-field class="w-100 mt-3">
-          <input matInput placeholder="{{'TOOLS.DECRYPT_OUTPUT' | translate}}" value=""
-                 name="decrypt_output" type="text" [ngModel]="decryptOutput" readonly>
+          <input
+            matInput
+            placeholder="{{ 'TOOLS.DECRYPT_OUTPUT' | translate }}"
+            value=""
+            name="decrypt_output"
+            type="text"
+            [ngModel]="decryptOutput"
+            readonly
+          />
         </mat-form-field>
       </div>
     </mat-expansion-panel>

@@ -1,13 +1,19 @@
-import {Component, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
-import {ConfigService} from '../../core/services/config.service';
-import {ApplicationItem} from '../../core/models/ApplicationItem';
-import {RequestsService} from '../../core/services/requests.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatHorizontalStepper } from '@angular/material/stepper';
-import {TranslateService} from '@ngx-translate/core';
-import {PerunAttribute} from '../../core/models/PerunAttribute';
-import {RequestsRegisterServiceStepComponent} from './requests-register-service-step/requests-register-service-step.component';
-import {Router} from '@angular/router';
+import {
+  Component,
+  OnInit,
+  QueryList,
+  ViewChild,
+  ViewChildren
+} from '@angular/core'
+import { ConfigService } from '../../core/services/config.service'
+import { ApplicationItem } from '../../core/models/ApplicationItem'
+import { RequestsService } from '../../core/services/requests.service'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatHorizontalStepper } from '@angular/material/stepper'
+import { TranslateService } from '@ngx-translate/core'
+import { PerunAttribute } from '../../core/models/PerunAttribute'
+import { RequestsRegisterServiceStepComponent } from './requests-register-service-step/requests-register-service-step.component'
+import { Router } from '@angular/router'
 
 @Component({
   selector: 'app-new-request',
@@ -15,56 +21,55 @@ import {Router} from '@angular/router';
   styleUrls: ['./requests-register-service.component.scss']
 })
 export class RequestsRegisterServiceComponent implements OnInit {
-
-  constructor(
+  constructor (
     private configService: ConfigService,
     private requestsService: RequestsService,
     private snackBar: MatSnackBar,
     private translate: TranslateService,
     private router: Router
-  ) { }
+  ) {}
 
   @ViewChildren(RequestsRegisterServiceStepComponent)
-  steps: QueryList<RequestsRegisterServiceStepComponent>;
+    steps: QueryList<RequestsRegisterServiceStepComponent>
 
-  @ViewChild(MatHorizontalStepper, {static: false})
-  stepper: MatHorizontalStepper;
+  @ViewChild(MatHorizontalStepper, { static: false })
+    stepper: MatHorizontalStepper
 
-  serviceSelected: string;
+  serviceSelected: string
 
-  isFormVisible = false;
-  isCardBodyVisible = false;
-  enabledProtocols: string[];
-  loading = true;
-  selected = '';
+  isFormVisible = false
+  isCardBodyVisible = false
+  enabledProtocols: string[]
+  loading = true
+  selected = ''
 
   // translations
-  errorText: string;
-  successActionText: string;
+  errorText: string
+  successActionText: string
 
-  applicationItemGroups: ApplicationItem[][];
+  applicationItemGroups: ApplicationItem[][]
 
   /**
    * Filters items that should not be displayed
    *
    * @param items
    */
-  private static filterItems(items: ApplicationItem[][]): ApplicationItem[][] {
-    const filteredItems: ApplicationItem[][] = [];
+  private static filterItems (items: ApplicationItem[][]): ApplicationItem[][] {
+    const filteredItems: ApplicationItem[][] = []
 
-    items.forEach(itemsGroup => {
-      const filteredGroup: ApplicationItem[] = [];
+    items.forEach((itemsGroup) => {
+      const filteredGroup: ApplicationItem[] = []
 
-      itemsGroup.forEach(item => {
+      itemsGroup.forEach((item) => {
         if (item.displayed) {
-          filteredGroup.push(item);
+          filteredGroup.push(item)
         }
-      });
+      })
 
-      filteredItems.push(filteredGroup);
-    });
+      filteredItems.push(filteredGroup)
+    })
 
-    return filteredItems;
+    return filteredItems
   }
 
   /**
@@ -72,92 +77,111 @@ export class RequestsRegisterServiceComponent implements OnInit {
    *
    * @param items
    */
-  private static sortItems(items: ApplicationItem[][]): ApplicationItem[][] {
-    const sortedItems: ApplicationItem[][] = [];
+  private static sortItems (items: ApplicationItem[][]): ApplicationItem[][] {
+    const sortedItems: ApplicationItem[][] = []
 
-    items.forEach(itemsGroup => {
-      sortedItems.push(itemsGroup.sort(((a, b) => {
-        return a.displayPosition - b.displayPosition;
-      })));
-    });
+    items.forEach((itemsGroup) => {
+      sortedItems.push(
+        itemsGroup.sort((a, b) => a.displayPosition - b.displayPosition)
+      )
+    })
 
-    return sortedItems;
+    return sortedItems
   }
 
-  ngOnInit() {
-    this.configService.getProtocolsEnabled().subscribe(protocols => {
-      this.enabledProtocols = protocols;
-      this.loading = false;
-      this.enabledProtocols.forEach(v => v.toLowerCase());
-      if (this.enabledProtocols.indexOf('oidc') === -1) {
-        this.samlSelected();
-      } else if (this.enabledProtocols.indexOf('saml') === -1) {
-        this.oidcSelected();
+  ngOnInit () {
+    this.configService.getProtocolsEnabled().subscribe(
+      (protocols) => {
+        this.enabledProtocols = protocols
+        this.loading = false
+        this.enabledProtocols.forEach((v) => v.toLowerCase())
+        if (this.enabledProtocols.indexOf('oidc') === -1) {
+          this.samlSelected()
+        } else if (this.enabledProtocols.indexOf('saml') === -1) {
+          this.oidcSelected()
+        }
+      },
+      (error) => {
+        this.loading = false
+        console.log(error)
       }
-    }, error => {
-      this.loading = false;
-      console.log(error);
-    });
+    )
 
-    this.translate.get('REQUESTS.ERRORS.VALUES_ERROR_MESSAGE')
-      .subscribe(value => this.errorText = value);
-    this.translate.get('REQUESTS.SUCCESSFULLY_SUBMITTED')
-      .subscribe(value => this.successActionText = value);
+    this.translate
+      .get('REQUESTS.ERRORS.VALUES_ERROR_MESSAGE')
+      .subscribe((value) => (this.errorText = value))
+    this.translate
+      .get('REQUESTS.SUCCESSFULLY_SUBMITTED')
+      .subscribe((value) => (this.successActionText = value))
   }
 
-  revealForm() {
-    this.loading = false;
-    this.isCardBodyVisible = true;
-    this.isFormVisible = true;
+  revealForm () {
+    this.loading = false
+    this.isCardBodyVisible = true
+    this.isFormVisible = true
   }
 
-  onLoading() {
-    this.loading = true;
-    this.isCardBodyVisible = false;
+  onLoading () {
+    this.loading = true
+    this.isCardBodyVisible = false
   }
 
-  oidcSelected() {
-    this.onLoading();
-    this.selected = 'oidc';
+  oidcSelected () {
+    this.onLoading()
+    this.selected = 'oidc'
 
-    this.configService.getOidcApplicationItems().subscribe(items => {
-      items = items.map(category => category.map(item => new ApplicationItem(item)));
-      this.applicationItemGroups = RequestsRegisterServiceComponent.sortItems(RequestsRegisterServiceComponent.filterItems(items));
-      this.revealForm();
-    });
+    this.configService.getOidcApplicationItems().subscribe((items) => {
+      items = items.map((category) =>
+        category.map((item) => new ApplicationItem(item))
+      )
+      this.applicationItemGroups = RequestsRegisterServiceComponent.sortItems(
+        RequestsRegisterServiceComponent.filterItems(items)
+      )
+      this.revealForm()
+    })
   }
 
-  samlSelected() {
-    this.onLoading();
-    this.selected = 'saml';
+  samlSelected () {
+    this.onLoading()
+    this.selected = 'saml'
 
-    this.configService.getSamlApplicationItems().subscribe(items => {
-      items = items.map(category => category.map(item => new ApplicationItem(item)));
-      this.applicationItemGroups = RequestsRegisterServiceComponent.sortItems(RequestsRegisterServiceComponent.filterItems(items));
-      this.revealForm();
-    });
+    this.configService.getSamlApplicationItems().subscribe((items) => {
+      items = items.map((category) =>
+        category.map((item) => new ApplicationItem(item))
+      )
+      this.applicationItemGroups = RequestsRegisterServiceComponent.sortItems(
+        RequestsRegisterServiceComponent.filterItems(items)
+      )
+      this.revealForm()
+    })
   }
 
   /**
    * Collects data from form and submits new request
    */
-  submitRequest() {
-    this.loading = true;
-    let perunAttributes: PerunAttribute[] = [];
+  submitRequest () {
+    this.loading = true
+    let perunAttributes: PerunAttribute[] = []
 
-    this.steps.forEach(step => perunAttributes = perunAttributes.concat(step.getPerunAttributes()));
+    this.steps.forEach(
+      (step) =>
+        (perunAttributes = perunAttributes.concat(step.getPerunAttributes()))
+    )
 
-    this.requestsService.createRegistrationRequest(perunAttributes).subscribe(requestId => {
-      this.loading = false;
-      this.snackBar.open(this.successActionText, null, {duration: 6000});
-      this.router.navigate(['/auth/requests/detail/' + requestId]);
-    }, error => {
-      this.loading = false;
-      console.log(error);
-    });
+    this.requestsService.createRegistrationRequest(perunAttributes).subscribe(
+      (requestId) => {
+        this.loading = false
+        this.snackBar.open(this.successActionText, null, { duration: 6000 })
+        this.router.navigate(['/auth/requests/detail/' + requestId])
+      },
+      (error) => {
+        this.loading = false
+        console.log(error)
+      }
+    )
   }
 
-  previousStep() {
-    this.stepper.previous();
+  previousStep () {
+    this.stepper.previous()
   }
 }

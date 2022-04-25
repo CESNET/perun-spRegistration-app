@@ -1,28 +1,29 @@
 <div class="container-fluid pt-5">
-
   <div class="card shadow-sm">
     <div class="card-body p-3 p-lg-5">
       <h4 class="card-title">
-        {{'NOT_FOUND_PAGE_TITLE' | translate}}
+        {{ "NOT_FOUND_PAGE_TITLE" | translate }}
       </h4>
       <ng-template [ngIf]="hasUser()" [ngIfElse]="noUserBlock">
-        <button mat-raised-button
-                class="mt-2"
-                color="primary"
-                [routerLink]="[('/auth')]">
-          {{'HOME_PAGE' | translate}}
+        <button
+          mat-raised-button
+          class="mt-2"
+          color="primary"
+          [routerLink]="['/auth']"
+        >
+          {{ "HOME_PAGE" | translate }}
         </button>
       </ng-template>
-      <ng-template  #noUserBlock>
+      <ng-template #noUserBlock>
         <button
-                mat-raised-button
-                class="mt-2"
-                color="primary"
-                [routerLink]="[('/')]">
-          {{'HOME_PAGE' | translate}}
+          mat-raised-button
+          class="mt-2"
+          color="primary"
+          [routerLink]="['/']"
+        >
+          {{ "HOME_PAGE" | translate }}
         </button>
       </ng-template>
     </div>
   </div>
-
 </div>

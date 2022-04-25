@@ -1,25 +1,38 @@
 {
-  "npmScope": "perun-spRegistration-app",
-  "implicitDependencies": {
-    "angular.json": "*",
-    "package.json": "*",
-    "nx.json": "*",
-    "tsconfig.base.json": "*"
+  "npmScope": "service-creation",
+  "affected": {
+    "defaultBase": "main"
   },
-  "projects": {
-    "spreg-gui": {
-      "tags": []
-    }
+  "implicitDependencies": {
+    "package.json": {
+      "dependencies": "*",
+      "devDependencies": "*"
+    },
+    ".eslintrc.json": "*"
   },
   "tasksRunnerOptions": {
     "default": {
-      "runner": "@nrwl/workspace/tasks-runners/default",
+      "runner": "nx/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "lint", "test", "e2e"]
+        "cacheableOperations": [
+          "build",
+          "lint",
+          "test",
+          "e2e"
+        ]
       }
     }
   },
-  "affected": {
-    "defaultBase": "master"
+  "targetDependencies": {
+    "build": [
+      {
+        "target": "build",
+        "projects": "dependencies"
+      }
+    ]
+  },
+  "workspaceLayout": {
+    "appsDir": "projects",
+    "libsDir": "projects"
   }
 }

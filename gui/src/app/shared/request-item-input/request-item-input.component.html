@@ -1,33 +1,50 @@
 <div class="row">
-  <div class="pt-2 pb-2"
-       [class.col-8]="applicationItem.editable && applicationItem.hasComment()"
-       [class.col-12]="!applicationItem.editable || !applicationItem.hasComment()" >
+  <div
+    class="pt-2 pb-2"
+    [class.col-8]="applicationItem.editable && applicationItem.hasComment()"
+    [class.col-12]="!applicationItem.editable || !applicationItem.hasComment()"
+  >
     <!-- String -->
-    <request-item-input-string *ngIf="applicationItem.isTypeString() && !applicationItem.isSelect()"
-                               [applicationItem]="applicationItem"></request-item-input-string>
+    <request-item-input-string
+      *ngIf="applicationItem.isTypeString() && !applicationItem.isSelect()"
+      [applicationItem]="applicationItem"
+    ></request-item-input-string>
 
     <!-- String with allowed values -->
-    <request-item-input-select *ngIf="applicationItem.isTypeString() && applicationItem.isSelect()"
-                               [applicationItem]="applicationItem"></request-item-input-select>
+    <request-item-input-select
+      *ngIf="applicationItem.isTypeString() && applicationItem.isSelect()"
+      [applicationItem]="applicationItem"
+    ></request-item-input-select>
 
     <!-- Boolean -->
-    <request-input-item-boolean *ngIf="applicationItem.isTypeBoolean()"
-                                [applicationItem]="applicationItem"></request-input-item-boolean>
+    <request-input-item-boolean
+      *ngIf="applicationItem.isTypeBoolean()"
+      [applicationItem]="applicationItem"
+    ></request-input-item-boolean>
 
     <!-- ArrayList -->
-    <request-item-input-list *ngIf="applicationItem.isTypeArray() && !applicationItem.isSelect()"
-                             [applicationItem]="applicationItem"></request-item-input-list>
+    <request-item-input-list
+      *ngIf="applicationItem.isTypeArray() && !applicationItem.isSelect()"
+      [applicationItem]="applicationItem"
+    ></request-item-input-list>
 
     <!-- ArrayList with allowed values-->
-    <request-item-input-multiselect *ngIf="applicationItem.isTypeArray() && applicationItem.isSelect()"
-                                    [applicationItem]="applicationItem"></request-item-input-multiselect>
+    <request-item-input-multiselect
+      *ngIf="applicationItem.isTypeArray() && applicationItem.isSelect()"
+      [applicationItem]="applicationItem"
+    ></request-item-input-multiselect>
 
     <!-- HashMap -->
-    <request-application-item-map *ngIf="applicationItem.isTypeMap()"
-                                  [applicationItem]="applicationItem"></request-application-item-map>
+    <request-application-item-map
+      *ngIf="applicationItem.isTypeMap()"
+      [applicationItem]="applicationItem"
+    ></request-application-item-map>
   </div>
 
-  <div *ngIf="applicationItem.editable && applicationItem.hasComment()" class="col-4">
+  <div
+    *ngIf="applicationItem.editable && applicationItem.hasComment()"
+    class="col-4"
+  >
     <div class="alert alert-warning" role="alert">
       {{ applicationItem.comment }}
     </div>

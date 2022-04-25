@@ -1,67 +1,78 @@
-import {ApplicationItem} from "../../../core/models/ApplicationItem";
+import { ApplicationItem } from '../../../core/models/ApplicationItem'
 
 export class RequestItemInputUtils {
+  constructor () {}
 
-  constructor() { }
-
-  public static hasValue(values: string[]): boolean {
+  public static hasValue (values: string[]): boolean {
     if (values === undefined || values === null || values.length === 0) {
-      return false;
+      return false
     }
 
     for (let i = 0; i < values.length; i++) {
-      const subValue = values[i];
-      if (subValue === undefined || subValue === null || subValue.length === 0) {
-        return false;
+      const subValue = values[i]
+      if (
+        subValue === undefined ||
+        subValue === null ||
+        subValue.length === 0
+      ) {
+        return false
       }
     }
 
-    return true;
+    return true
   }
 
-  public static requestedChangeHasBeenMade(appItem: ApplicationItem, values: string[]): boolean {
+  public static requestedChangeHasBeenMade (
+    appItem: ApplicationItem,
+    values: string[]
+  ): boolean {
     if (appItem.hasComment()) {
       if (appItem.oldValue.length !== values.length) {
-        return true;
+        return true
       }
       for (let i = 0; i < values.length; i++) {
         if (appItem.oldValue.indexOf(values[i]) === -1) {
-          return true;
+          return true
         }
       }
-      return false;
+      return false
     }
-    return true;
+    return true
   }
 
-  public static requestedChangeHasBeenMadeSingleValue(appItem: ApplicationItem, value: string): boolean {
+  public static requestedChangeHasBeenMadeSingleValue (
+    appItem: ApplicationItem,
+    value: string
+  ): boolean {
     if (appItem.hasComment()) {
       if (appItem.oldValue === value) {
-        return false;
+        return false
       }
     }
-    return true;
+    return true
   }
 
-  public static checkRegex(item: ApplicationItem, values: string[]): number[] {
-    const indexes = [];
+  public static checkRegex (item: ApplicationItem, values: string[]): number[] {
+    const indexes = []
     if (item.hasRegex()) {
-      const reg = new RegExp(item.regex);
+      const reg = new RegExp(item.regex)
       for (let i = 0; i < values.length; i++) {
         if (!reg.test(values[i])) {
-          indexes.push(i);
+          indexes.push(i)
         }
       }
     }
 
-    return indexes;
+    return indexes
   }
 
-  public static checkRegexSingleValue(item: ApplicationItem, value: string): boolean {
+  public static checkRegexSingleValue (
+    item: ApplicationItem,
+    value: string
+  ): boolean {
     if (!item.hasRegex()) {
-      return true;
+      return true
     }
-    return new RegExp(item.regex).test(value);
+    return new RegExp(item.regex).test(value)
   }
-
 }

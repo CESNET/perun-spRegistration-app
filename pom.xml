@@ -21,8 +21,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>11</java.version>
-        <node.version>v16.14.2</node.version>
-        <npm.version>8.7.0</npm.version>
+        <node.version>v16.15.0</node.version>
+        <npm.version>8.9.0</npm.version>
         <jsoup.version>1.14.3</jsoup.version>
         <bc.version>1.70</bc.version>
         <bc-prov.version>${bc.version}</bc-prov.version>
@@ -222,6 +222,24 @@
                                 <phase>initialize</phase>
                             </execution>
                             <execution>
+                                <id>prettier</id>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>run format:check</arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>lint</id>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>run lint</arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
                                 <id>prod</id>
                                 <goals>
                                     <goal>npm</goal>
@@ -229,7 +247,6 @@
                                 <configuration>
                                     <arguments>run ng build --
                                         --configuration production
-                                        --deploy-url=${angular.deploy.url}
                                         --base-href=${angular.base.href}
                                     </arguments>
                                 </configuration>

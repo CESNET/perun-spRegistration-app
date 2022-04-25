@@ -1,22 +1,41 @@
-<detail-item-sub-comment-button #buttonComponent [isAppAdmin]="isAppAdmin" [includeComment]="includeComment"
-                              [showComment]="!!item.comment"></detail-item-sub-comment-button>
+<detail-item-sub-comment-button
+  #buttonComponent
+  [isAppAdmin]="isAppAdmin"
+  [includeComment]="includeComment"
+  [showComment]="!!item.comment"
+></detail-item-sub-comment-button>
 
 <div class="p-0 m-0">
   <p class="mb-1">
-    <mat-icon *ngIf="displayOldVal" class="mr-2" matTooltip="{{'REQUESTS.CHANGED_VAL_WARN' | translate}}">warning</mat-icon>
-    <span class="font-thick">{{item.name | itemLocale}}</span>
+    <mat-icon
+      *ngIf="displayOldVal"
+      class="mr-2"
+      matTooltip="{{ 'REQUESTS.CHANGED_VAL_WARN' | translate }}"
+      >warning</mat-icon
+    >
+    <span class="font-thick">{{ item.name | itemLocale }}</span>
   </p>
   <p class="text-muted mb-1">
     <span class="small" [innerHTML]="item.description | itemLocale"></span>
   </p>
-  <div class="mb-0 text-break" [innerHTML]="item.value | detailedViewItemValuePipe"></div>
+  <div
+    class="mb-0 text-break"
+    [innerHTML]="item.value | detailedViewItemValuePipe"
+  ></div>
   <ng-container *ngIf="displayOldVal">
     <p class="mt-1 mb-0 text-muted small">
-      <span class="mr-1">{{'REQUESTS.OLD_VALUE' | translate}}:</span>
+      <span class="mr-1">{{ "REQUESTS.OLD_VALUE" | translate }}:</span>
     </p>
-    <div class="mb-0 text-muted small text-break" [innerHTML]="item.oldValue | detailedViewItemValuePipe"></div>
+    <div
+      class="mb-0 text-muted small text-break"
+      [innerHTML]="item.oldValue | detailedViewItemValuePipe"
+    ></div>
   </ng-container>
 </div>
 
-<detail-item-sub-comment [includeComment]="includeComment" [item]="item" [isAppAdmin]="isAppAdmin"
-                         [buttonComponent]="buttonComponent"></detail-item-sub-comment>
+<detail-item-sub-comment
+  [includeComment]="includeComment"
+  [item]="item"
+  [isAppAdmin]="isAppAdmin"
+  [buttonComponent]="buttonComponent"
+></detail-item-sub-comment>

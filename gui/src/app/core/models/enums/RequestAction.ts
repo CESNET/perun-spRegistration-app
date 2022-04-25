@@ -3,5 +3,5 @@ export enum RequestAction {
   UPDATE_FACILITY,
   DELETE_FACILITY,
   MOVE_TO_PRODUCTION,
-  UNKNOWN
+  UNKNOWN,
 }

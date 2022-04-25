@@ -1,18 +1,27 @@
-<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+<mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
 <div *ngIf="!loading">
   <mat-toolbar color="primary" class="fixed-top" role="heading">
-    <button *ngIf="hasUser()" mat-icon-button class="mr-2 no-focus-outline d-block" (click)="toggleSideBar()">
+    <button
+      *ngIf="hasUser()"
+      mat-icon-button
+      class="mr-2 no-focus-outline d-block"
+      (click)="toggleSideBar()"
+    >
       <mat-icon>menu</mat-icon>
     </button>
     <a [routerLink]="hasUser() ? '/auth' : '/'" class="site-title ml-2">
-      <img [src]="logoUrl" class="logo mr-3" alt="logo"/>
+      <img [src]="logoUrl" class="logo mr-3" alt="logo" />
       <span class="d-none d-sm-inline-block">{{ appTitle }}</span>
     </a>
     <div class="titlebar-right">
       <div class="user-info" *ngIf="hasUser()">
         <div class="d-none d-md-inline-block mr-1">{{ getUser().name }}</div>
         <div class="d-md-none d-inline-block">
-          <button mat-icon-button class="no-focus-outline d-block" [matMenuTriggerFor]="userDetail">
+          <button
+            mat-icon-button
+            class="no-focus-outline d-block"
+            [matMenuTriggerFor]="userDetail"
+          >
             <mat-icon>person</mat-icon>
           </button>
           <mat-menu #userDetail yPosition="below" xPosition="before">
@@ -21,15 +30,29 @@
         </div>
       </div>
       <div class="langs" *ngIf="langs && langs.length > 1">
-        <button mat-icon-button class="no-focus-outline d-block" [matMenuTriggerFor]="langMenu">
+        <button
+          mat-icon-button
+          class="no-focus-outline d-block"
+          [matMenuTriggerFor]="langMenu"
+        >
           <mat-icon>translate</mat-icon>
         </button>
         <mat-menu #langMenu yPosition="below" xPosition="before">
-          <button mat-menu-item *ngFor="let lang of langs" (click)="changeLanguage(lang)">{{ lang | languageEntry }}</button>
+          <button
+            mat-menu-item
+            *ngFor="let lang of langs"
+            (click)="changeLanguage(lang)"
+          >
+            {{ lang | languageEntry }}
+          </button>
         </mat-menu>
       </div>
       <div class="logout" *ngIf="hasUser()">
-        <button mat-icon-button class="mr-2 no-focus-outline d-inline-block" (click)="logout()">
+        <button
+          mat-icon-button
+          class="mr-2 no-focus-outline d-inline-block"
+          (click)="logout()"
+        >
           <mat-icon>exit_to_app</mat-icon>
         </button>
       </div>
@@ -37,59 +60,108 @@
   </mat-toolbar>
 
   <mat-sidenav-container>
-    <mat-sidenav *ngIf="hasUser()" class="perun-sidenav" [mode]="sidenavMode" [(opened)]="sidenavOpen"
-                 [fixedTopGap]="64" [fixedInViewport]="true">
+    <mat-sidenav
+      *ngIf="hasUser()"
+      class="perun-sidenav"
+      [mode]="sidenavMode"
+      [(opened)]="sidenavOpen"
+      [fixedTopGap]="64"
+      [fixedInViewport]="true"
+    >
       <ul class="navbar-nav" *ngIf="hasUser()">
         <li class="nav-item menu-spacer home-spacer menu-item-l1">
-          {{ 'MENU.MAIN' | translate }}
+          {{ "MENU.MAIN" | translate }}
         </li>
-        <li class="nav-item menu-item-l2" [class.active]="currentUrl !== undefined && currentUrl === '/auth'">
+        <li
+          class="nav-item menu-item-l2"
+          [class.active]="currentUrl !== undefined && currentUrl === '/auth'"
+        >
           <a class="no-hover-decoration" routerLink="/auth">
-            {{'MENU.HOME' | translate}}
+            {{ "MENU.HOME" | translate }}
           </a>
         </li>
         <ng-container *ngIf="hasUser() && getUser().isAppAdmin">
           <li class="nav-item menu-spacer admin-spacer menu-item-l1">
-            {{'MENU.ADMIN' | translate}}
+            {{ "MENU.ADMIN" | translate }}
           </li>
-          <li class="nav-item menu-item-l2"
-              [class.active]="currentUrl !== undefined && currentUrl === '/auth/requests/allRequests'">
-            <a class="no-hover-decoration" routerLink="/auth/requests/allRequests">
-              {{'MENU.ALL_REQUESTS' | translate}}
+          <li
+            class="nav-item menu-item-l2"
+            [class.active]="
+              currentUrl !== undefined &&
+              currentUrl === '/auth/requests/allRequests'
+            "
+          >
+            <a
+              class="no-hover-decoration"
+              routerLink="/auth/requests/allRequests"
+            >
+              {{ "MENU.ALL_REQUESTS" | translate }}
             </a>
           </li>
-          <li class="nav-item menu-item-l2"
-              [class.active]="currentUrl !== undefined && currentUrl === '/auth/facilities/allFacilities'">
-            <a class="no-hover-decoration" routerLink="/auth/facilities/allFacilities">
-              {{ 'MENU.ALL_FACILITIES' | translate }}
+          <li
+            class="nav-item menu-item-l2"
+            [class.active]="
+              currentUrl !== undefined &&
+              currentUrl === '/auth/facilities/allFacilities'
+            "
+          >
+            <a
+              class="no-hover-decoration"
+              routerLink="/auth/facilities/allFacilities"
+            >
+              {{ "MENU.ALL_FACILITIES" | translate }}
             </a>
           </li>
-          <li class="nav-item menu-item-l2"
-              [class.active]="currentUrl !== undefined && currentUrl === '/auth/tools'">
+          <li
+            class="nav-item menu-item-l2"
+            [class.active]="
+              currentUrl !== undefined && currentUrl === '/auth/tools'
+            "
+          >
             <a class="no-hover-decoration" routerLink="/auth/tools">
-              {{ 'MENU.TOOLS' | translate }}
+              {{ "MENU.TOOLS" | translate }}
             </a>
           </li>
         </ng-container>
         <li class="nav-item menu-spacer requests-spacer menu-item-l1">
-          {{ 'MENU.REQUESTS' | translate }}
+          {{ "MENU.REQUESTS" | translate }}
         </li>
-        <li class="nav-item menu-item-l2" [class.active]="currentUrl !== undefined && currentUrl === '/auth/requests/myRequests'">
+        <li
+          class="nav-item menu-item-l2"
+          [class.active]="
+            currentUrl !== undefined &&
+            currentUrl === '/auth/requests/myRequests'
+          "
+        >
           <a class="no-hover-decoration" routerLink="/auth/requests/myRequests">
-            {{'MENU.MY_REQUESTS' | translate}}
+            {{ "MENU.MY_REQUESTS" | translate }}
           </a>
         </li>
         <li class="nav-item menu-spacer requests-spacer menu-item-l1">
-          {{'MENU.SERVICES' | translate}}
+          {{ "MENU.SERVICES" | translate }}
         </li>
-        <li class="nav-item menu-item-l2" [class.active]="currentUrl !== undefined && currentUrl === '/auth/facilities/myServices'">
-          <a class="no-hover-decoration" routerLink="/auth/facilities/myServices">
-            {{'MENU.MY_SERVICES' | translate}}
+        <li
+          class="nav-item menu-item-l2"
+          [class.active]="
+            currentUrl !== undefined &&
+            currentUrl === '/auth/facilities/myServices'
+          "
+        >
+          <a
+            class="no-hover-decoration"
+            routerLink="/auth/facilities/myServices"
+          >
+            {{ "MENU.MY_SERVICES" | translate }}
           </a>
         </li>
-        <li class="nav-item menu-item-l2" [class.active]="currentUrl !== undefined && currentUrl === '/auth/requests/new'">
+        <li
+          class="nav-item menu-item-l2"
+          [class.active]="
+            currentUrl !== undefined && currentUrl === '/auth/requests/new'
+          "
+        >
           <a class="no-hover-decoration" routerLink="/auth/requests/new">
-            {{'MENU.REGISTER_SERVICE' | translate}}
+            {{ "MENU.REGISTER_SERVICE" | translate }}
           </a>
         </li>
       </ul>

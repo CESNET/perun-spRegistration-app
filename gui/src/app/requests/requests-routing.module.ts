@@ -1,11 +1,11 @@
-import {NgModule} from '@angular/core';
-import {Routes, RouterModule} from '@angular/router';
-import {RequestsUserComponent} from './requests-user/requests-user.component';
-import {RequestsRegisterServiceComponent} from './requests-register-service/requests-register-service.component';
-import {RequestsDetailComponent} from './requests-detail/requests-detail.component';
-import {RequestsAdminComponent} from './requests-admin/requests-admin.component';
-import {RequestsEditComponent} from './requests-edit/requests-edit.component';
-import {NotFoundPageComponent} from '../shared/not-found-page/not-found-page.component';
+import { NgModule } from '@angular/core'
+import { RouterModule, Routes } from '@angular/router'
+import { RequestsUserComponent } from './requests-user/requests-user.component'
+import { RequestsRegisterServiceComponent } from './requests-register-service/requests-register-service.component'
+import { RequestsDetailComponent } from './requests-detail/requests-detail.component'
+import { RequestsAdminComponent } from './requests-admin/requests-admin.component'
+import { RequestsEditComponent } from './requests-edit/requests-edit.component'
+import { NotFoundPageComponent } from '../shared/not-found-page/not-found-page.component'
 
 const routes: Routes = [
   {
@@ -32,10 +32,10 @@ const routes: Routes = [
     path: '**',
     component: NotFoundPageComponent
   }
-];
+]
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class RequestsRoutingModule { }
+export class RequestsRoutingModule {}

@@ -1,7 +1,6 @@
-
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
-@import '~@angular/material/theming';
+@import "~@angular/material/theming";
 // Plus imports for other components in your app.
 
 // Include the common styles for Angular Material. We include this here so that you only
@@ -19,7 +18,11 @@ $service-creation-accent: mat-palette($mat-blue, A400);
 $service-creation-warn: mat-palette($mat-red);
 
 // Create the theme object (a Sass map containing all of the palettes).
-$service-creation-theme: mat-light-theme($service-creation-primary, $service-creation-accent, $service-creation-warn);
+$service-creation-theme: mat-light-theme(
+  $service-creation-primary,
+  $service-creation-accent,
+  $service-creation-warn
+);
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
@@ -33,11 +36,11 @@ $service-creation-theme: mat-light-theme($service-creation-primary, $service-cre
 }
 
 a {
-  color: rgba(0, 0, 0, .65) !important;
+  color: rgba(0, 0, 0, 0.65) !important;
 }
 
 a:hover {
-  color: rgba(0, 0, 0, .85) !important;
+  color: rgba(0, 0, 0, 0.85) !important;
 }
 
 .perun-warn {
@@ -53,7 +56,7 @@ a:hover {
 }
 
 .hover-dark {
-  transition:all 0.25s ease;
+  transition: all 0.25s ease;
 }
 
 .hover-dark:hover {
@@ -82,7 +85,12 @@ a:hover {
   min-height: 1% !important;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 400 !important;
 }
 
@@ -98,14 +106,17 @@ th {
   font-weight: 400 !important;
 }
 
-html, body { height: 100%; }
+html,
+body {
+  height: 100%;
+}
 body {
   margin: 0;
   background-color: #fafafa !important;
 }
 
 // HACK to disable stepper navigation by clicking header items
-.mat-horizontal-stepper-header{
+.mat-horizontal-stepper-header {
   pointer-events: none !important;
 }
 
@@ -124,7 +135,7 @@ body {
 }
 
 .material-icons.orange {
-  color: #FB8C00;
+  color: #fb8c00;
   vertical-align: bottom;
 }
 .material-icons.red {
@@ -141,6 +152,6 @@ body {
 }
 
 .ul-attr {
-  margin: .7em !important;
+  margin: 0.7em !important;
   padding-left: 0 !important;
 }

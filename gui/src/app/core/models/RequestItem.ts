@@ -1,7 +1,6 @@
-import {Attribute} from "./Attribute";
+import { Attribute } from './Attribute'
 
 export interface RequestItem {
-
   getAttribute(): Attribute;
 
   hasCorrectValue(): boolean;
