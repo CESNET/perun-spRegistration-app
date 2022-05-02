@@ -29,7 +29,7 @@
     "@ngx-translate/core": "14.0.0",
     "@ngx-translate/http-loader": "7.0.0",
     "bootstrap": "4.6.1",
-    "core-js": "3.21.1",
+    "core-js": "3.22.4",
     "eslint": "8.13.0",
     "font-awesome": "4.7.0",
     "hammerjs": "2.0.8",
