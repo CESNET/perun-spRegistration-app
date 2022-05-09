@@ -1,3 +1,10 @@
+## [1.3.30](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.29...v1.3.30) (2022-05-09)
+
+
+### Bug Fixes
+
+* **deps:** update gui deps ([bdda10b](https://github.com/CESNET/perun-spRegistration-app/commit/bdda10b83d303e93fe4d65aa45a39a12ac22633c))
+
 ## [1.3.29](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.28...v1.3.29) (2022-04-25)
 
 
