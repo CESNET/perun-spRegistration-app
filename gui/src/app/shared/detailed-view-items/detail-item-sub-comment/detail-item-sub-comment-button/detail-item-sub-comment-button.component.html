@@ -1,6 +1,11 @@
 <ng-container *ngIf="isAppAdmin && includeComment">
-  <button mat-mini-fab color="primary" class="pull-right p-0 small" (click)="toggleComment()"
-          matTooltip="{{'REQUESTS.ADD_COMMENT' | translate}}">
+  <button
+    mat-mini-fab
+    color="primary"
+    class="pull-right p-0 small"
+    (click)="toggleComment()"
+    matTooltip="{{ 'REQUESTS.ADD_COMMENT' | translate }}"
+  >
     <i class="material-icons">add_comment</i>
   </button>
 </ng-container>

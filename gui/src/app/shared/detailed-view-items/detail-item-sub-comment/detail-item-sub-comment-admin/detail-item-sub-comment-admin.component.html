@@ -1,4 +1,10 @@
 <mat-form-field class="w-100 mt-2 no-padd-form-field">
-  <input matInput [(ngModel)]="item.comment" name="{{item.urn}}" id="{{item.urn}}"
-         type="text" [placeholder]="('REQUESTS.INPUT_COMMENT' | translate)">
+  <input
+    matInput
+    [(ngModel)]="item.comment"
+    name="{{ item.urn }}"
+    id="{{ item.urn }}"
+    type="text"
+    [placeholder]="'REQUESTS.INPUT_COMMENT' | translate"
+  />
 </mat-form-field>

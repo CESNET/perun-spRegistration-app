@@ -6,18 +6,33 @@
         <!-- PAGE TITLE -->
         <div class="col-md-8">
           <h2 class="card-title">
-            {{'FACILITIES.DETAIL_TITLE' | translate}}{{facility.id}} - {{facility.name | itemLocale}}
+            {{ "FACILITIES.DETAIL_TITLE" | translate }}{{ facility.id }} -
+            {{ facility.name | itemLocale }}
           </h2>
-          <p><span class="font-thick mr-1">{{'FACILITIES.DESCRIPTION' | translate}}:</span>
-            <span [innerHTML]="facility.description | itemLocale"></span></p>
+          <p>
+            <span class="font-thick mr-1"
+              >{{ "FACILITIES.DESCRIPTION" | translate }}:</span
+            >
+            <span [innerHTML]="facility.description | itemLocale"></span>
+          </p>
         </div>
         <!-- BUTTONS -->
         <div class="col-md-4 mt-4 mb-2 controls text-right">
-          <button class="mb-1 btn-block" mat-raised-button color="accent" (click)="approveRequest()">
-            {{'FACILITIES.MOVE_TO_PRODUCTION_APPROVE' | translate}}
+          <button
+            class="mb-1 btn-block"
+            mat-raised-button
+            color="accent"
+            (click)="approveRequest()"
+          >
+            {{ "FACILITIES.MOVE_TO_PRODUCTION_APPROVE" | translate }}
           </button>
-          <button class="mb-1 btn-block" mat-raised-button color="warn" (click)="rejectRequest()">
-            {{'FACILITIES.MOVE_TO_PRODUCTION_REJECT' | translate}}
+          <button
+            class="mb-1 btn-block"
+            mat-raised-button
+            color="warn"
+            (click)="rejectRequest()"
+          >
+            {{ "FACILITIES.MOVE_TO_PRODUCTION_REJECT" | translate }}
           </button>
         </div>
       </div>
@@ -27,16 +42,25 @@
       <mat-tab-group class="p-1">
         <!-- SERVICE -->
         <mat-tab label="{{ 'COMMON.ATTRIBUTES.SERVICE' | translate }}">
-          <detailed-view-items [attrs]="facilityAttrsService" [isAppAdmin]="false"></detailed-view-items>
+          <detailed-view-items
+            [attrs]="facilityAttrsService"
+            [isAppAdmin]="false"
+          ></detailed-view-items>
         </mat-tab>
         <!-- ORGANIZATION -->
         <mat-tab label="{{ 'COMMON.ATTRIBUTES.ORGANIZATION' | translate }}">
-          <detailed-view-items [attrs]="facilityAttrsOrganization" [isAppAdmin]="false"></detailed-view-items>
+          <detailed-view-items
+            [attrs]="facilityAttrsOrganization"
+            [isAppAdmin]="false"
+          ></detailed-view-items>
         </mat-tab>
         <!-- MANAGERS-->
         <mat-tab label="{{ 'FACILITIES.MANAGERS' | translate }}">
           <div class="col mt-3" *ngFor="let manager of facilityAdmins">
-            <p class="border-bottom">{{manager.name}}: <a href="mailto:{{manager.email}}">{{manager.email}}</a></p>
+            <p class="border-bottom">
+              {{ manager.name }}:
+              <a href="mailto:{{ manager.email }}">{{ manager.email }}</a>
+            </p>
           </div>
         </mat-tab>
       </mat-tab-group>

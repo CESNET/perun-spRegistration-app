@@ -1,23 +1,22 @@
 export class User {
-  constructor(item: any) {
+  constructor (item: any) {
     if (!item) {
-      return;
+      return
     }
     this.id = item.id
-    this.name = item.name;
-    if (item.hasOwnProperty('email')) {
-      this.email = item.email;
+    this.name = item.name
+    if ('email' in item) {
+      this.email = item.email
     } else {
-      this.email = null;
+      this.email = null
     }
-    this.facilitiesWhereUserIsAdmin = item.facilitiesWhereUserIsAdmin;
-    this.isAppAdmin = item.isAppAdmin;
+    this.facilitiesWhereUserIsAdmin = item.facilitiesWhereUserIsAdmin
+    this.isAppAdmin = item.isAppAdmin
   }
 
-  id: number;
-  name: string;
-  email: string;
-  facilitiesWhereUserIsAdmin: number[];
-  isAppAdmin: boolean;
-
+  id: number
+  name: string
+  email: string
+  facilitiesWhereUserIsAdmin: number[]
+  isAppAdmin: boolean
 }

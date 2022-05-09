@@ -4,5 +4,5 @@ export enum RequestStatus {
   WAITING_FOR_APPROVAL,
   WAITING_FOR_CHANGES,
   CANCELED,
-  UNKNOWN
+  UNKNOWN,
 }

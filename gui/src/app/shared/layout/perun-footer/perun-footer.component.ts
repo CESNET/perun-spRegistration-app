@@ -1,26 +1,15 @@
-import {Component, OnInit} from '@angular/core';
-import {Subscription} from "rxjs";
-import {ConfigService} from "../../../core/services/config.service";
-
+import { Component, OnInit } from '@angular/core'
+import { Subscription } from 'rxjs'
+import { ConfigService } from '../../../core/services/config.service'
 
 @Component({
   selector: 'app-perun-footer',
-  template: "<div [innerHTML]=\"footerHTML\"></div>",
-  //templateUrl: './perun-footer.component.html',
+  template: '<div [innerHTML]="footerHTML"></div>',
   styleUrls: ['./perun-footer.component.scss']
 })
-export class PerunFooterComponent implements OnInit {
+export class PerunFooterComponent {
+  constructor (private configService: ConfigService) {}
 
-  constructor(private configService: ConfigService) {}
+  footerHTML: string
 
-  footerHTML : string;
-  footerSubscription : Subscription;
-
-  ngOnInit() {
-    //TODO uncomment when implemented on backend
-
-    // this.footerSubscription = this.configService.getFooter().subscribe(footer => {
-    //   this.footerHTML = footer;
-    // })
-  }
 }

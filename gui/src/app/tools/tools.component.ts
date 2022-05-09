@@ -1,6 +1,6 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ToolsService} from '../core/services/tools.service';
-import {Subscription} from "rxjs";
+import { Component, OnDestroy, OnInit } from '@angular/core'
+import { ToolsService } from '../core/services/tools.service'
+import { Subscription } from 'rxjs'
 
 @Component({
   selector: 'app-tools',
@@ -8,41 +8,41 @@ import {Subscription} from "rxjs";
   styleUrls: ['./tools.component.scss']
 })
 export class ToolsComponent implements OnInit, OnDestroy {
+  private toolsServiceEncryptSubscription: Subscription = null
+  private toolsServiceDecryptSubscription: Subscription = null
 
-  private toolsServiceEncryptSubscription: Subscription = null;
-  private toolsServiceDecryptSubscription: Subscription = null;
+  constructor (private toolsService: ToolsService) {}
 
-  constructor(
-    private toolsService: ToolsService
-  ) { }
+  loading = true
+  encryptOutput = ''
+  decryptOutput = ''
 
-  loading = true;
-  encryptOutput = '';
-  decryptOutput = '';
-
-  ngOnInit() {
-    this.loading = false;
+  ngOnInit () {
+    this.loading = false
   }
 
-  ngOnDestroy() {
+  ngOnDestroy () {
     if (this.toolsServiceDecryptSubscription) {
-      this.toolsServiceDecryptSubscription.unsubscribe();
+      this.toolsServiceDecryptSubscription.unsubscribe()
     }
     if (this.toolsServiceEncryptSubscription) {
-      this.toolsServiceEncryptSubscription.unsubscribe();
+      this.toolsServiceEncryptSubscription.unsubscribe()
     }
   }
 
-  encrypt(toEncrypt: string): void {
-    this.toolsServiceEncryptSubscription = this.toolsService.encrypt(toEncrypt).subscribe(encryptedMap => {
-      this.encryptOutput = encryptedMap['value'];
-    });
+  encrypt (toEncrypt: string): void {
+    this.toolsServiceEncryptSubscription = this.toolsService
+      .encrypt(toEncrypt)
+      .subscribe((encrypted) => {
+        this.encryptOutput = encrypted
+      })
   }
 
-  decrypt(toDecrypt: string): void {
-    this.toolsServiceDecryptSubscription = this.toolsService.decrypt(toDecrypt).subscribe(decryptedMap => {
-      this.decryptOutput = decryptedMap['value'];
-    });
+  decrypt (toDecrypt: string): void {
+    this.toolsServiceDecryptSubscription = this.toolsService
+      .decrypt(toDecrypt)
+      .subscribe((decrypted) => {
+        this.decryptOutput = decrypted
+      })
   }
-
 }

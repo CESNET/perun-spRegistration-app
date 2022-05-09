@@ -1,5 +1,5 @@
-import {Component, Input, ViewEncapsulation} from '@angular/core';
-import {DetailViewItem} from '../../../../core/models/items/DetailViewItem';
+import { Component, Input, ViewEncapsulation } from '@angular/core'
+import { DetailViewItem } from '../../../../core/models/items/DetailViewItem'
 
 @Component({
   selector: 'detail-item-sub-comment-user',
@@ -8,8 +8,6 @@ import {DetailViewItem} from '../../../../core/models/items/DetailViewItem';
   encapsulation: ViewEncapsulation.None
 })
 export class DetailItemSubCommentUserComponent {
-
-  @Input() item: DetailViewItem;
-  @Input() isAppAdmin: boolean;
-
+  @Input() item: DetailViewItem
+  @Input() isAppAdmin: boolean
 }

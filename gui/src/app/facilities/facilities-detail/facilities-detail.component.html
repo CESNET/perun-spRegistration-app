@@ -6,39 +6,71 @@
         <!-- PAGE TITLE -->
         <div class="col-md-8">
           <h2 class="card-title">
-            {{'FACILITIES.DETAIL_TITLE' | translate}}{{facility.id}} - {{facility.name | itemLocale}}
+            {{ "FACILITIES.DETAIL_TITLE" | translate }}{{ facility.id }} -
+            {{ facility.name | itemLocale }}
           </h2>
           <p>
-            <span class="font-thick mr-1">{{'FACILITIES.DESCRIPTION' | translate}}:</span>
-            <span [innerHTML]="facility.description | itemLocale | detailedViewItemValuePipe"></span>
+            <span class="font-thick mr-1"
+              >{{ "FACILITIES.DESCRIPTION" | translate }}:</span
+            >
+            <span
+              [innerHTML]="
+                facility.description | itemLocale | detailedViewItemValuePipe
+              "
+            ></span>
           </p>
           <p>
-            <span class="font-thick mr-1">{{'FACILITIES.ENVIRONMENT' | translate}}: </span>
-            {{facility.environment | facilityEnvironment}}
+            <span class="font-thick mr-1"
+              >{{ "FACILITIES.ENVIRONMENT" | translate }}:
+            </span>
+            {{ facility.environment | facilityEnvironment }}
           </p>
         </div>
         <!-- BUTTONS -->
-        <div *ngIf="!this.facility.deleted" class="col-md-4 mt-4 mb-2 controls text-right">
-          <ng-container *ngIf="moveToProductionActive || facility.activeRequestId">
-            <p>{{'FACILITIES.ACTIVE_REQUEST_WARNING' | translate}}</p>
-            <button class="btn-block mb-1" mat-raised-button color="accent"
-                    [routerLink]="['/auth/requests/detail', facility.activeRequestId]">
-              {{'FACILITIES.SEE_ACTIVE_REQUEST' | translate}}
+        <div
+          *ngIf="!this.facility.deleted"
+          class="col-md-4 mt-4 mb-2 controls text-right"
+        >
+          <ng-container
+            *ngIf="moveToProductionActive || facility.activeRequestId"
+          >
+            <p>{{ "FACILITIES.ACTIVE_REQUEST_WARNING" | translate }}</p>
+            <button
+              class="btn-block mb-1"
+              mat-raised-button
+              color="accent"
+              [routerLink]="['/auth/requests/detail', facility.activeRequestId]"
+            >
+              {{ "FACILITIES.SEE_ACTIVE_REQUEST" | translate }}
             </button>
           </ng-container>
           <ng-container *ngIf="!facility.activeRequestId">
-            <button class="btn-block mb-1" mat-raised-button color="accent"
-                    [routerLink]="['/auth/facilities/edit', facility.id]">
-              {{'FACILITIES.EDIT_FACILITY' | translate}}
+            <button
+              class="btn-block mb-1"
+              mat-raised-button
+              color="accent"
+              [routerLink]="['/auth/facilities/edit', facility.id]"
+            >
+              {{ "FACILITIES.EDIT_FACILITY" | translate }}
             </button>
           </ng-container>
           <ng-container *ngIf="!facility.activeRequestId">
-            <button class="btn-block mb-1" mat-raised-button color="accent" *ngIf="facility.environment.toUpperCase() !== 'PRODUCTION'"
-                    (click)="moveToProduction()">
-              {{'FACILITIES.MOVE_TO_PRODUCTION' | translate}}
+            <button
+              class="btn-block mb-1"
+              mat-raised-button
+              color="accent"
+              *ngIf="facility.environment.toUpperCase() !== 'PRODUCTION'"
+              (click)="moveToProduction()"
+            >
+              {{ "FACILITIES.MOVE_TO_PRODUCTION" | translate }}
             </button>
-            <button class="btn-block mb-1" mat-raised-button color="warn" (click)="openDeleteDialog()">
-              {{'FACILITIES.DELETE_FACILITY' | translate}}
+            <button
+              class="btn-block mb-1"
+              mat-raised-button
+              color="warn"
+              (click)="openDeleteDialog()"
+            >
+              {{ "FACILITIES.DELETE_FACILITY" | translate }}
             </button>
           </ng-container>
         </div>
@@ -46,18 +78,35 @@
       <!-- AUDIT -->
       <mat-expansion-panel class="row">
         <mat-expansion-panel-header *ngIf="auditLoading || audits.size > 0">
-          <mat-panel-title>{{ 'REQUESTS.HISTORY' | translate }}</mat-panel-title>
+          <mat-panel-title>{{
+            "REQUESTS.HISTORY" | translate
+          }}</mat-panel-title>
         </mat-expansion-panel-header>
-        <mat-spinner class="ml-auto mr-auto" *ngIf="auditLoading" color=""></mat-spinner>
+        <mat-spinner
+          class="ml-auto mr-auto"
+          *ngIf="auditLoading"
+          color=""
+        ></mat-spinner>
         <ul *ngIf="!auditLoading">
           <li *ngFor="let reqToAudits of audits | keyvalue">
-            <div [routerLink]="['/auth/requests/detail', reqToAudits.key]" class="btn-link mt-1" role="button">
-              {{ 'FACILITIES.DETAIL.AUDIT_REQUEST' | translate }} #{{reqToAudits.key}}
+            <div
+              [routerLink]="['/auth/requests/detail', reqToAudits.key]"
+              class="btn-link mt-1"
+              role="button"
+            >
+              {{ "FACILITIES.DETAIL.AUDIT_REQUEST" | translate }} #{{
+                reqToAudits.key
+              }}
             </div>
             <ul>
               <li *ngFor="let audit of reqToAudits.value">
-                <span class="mr-2">{{audit.madeAt | date: 'dd/MM/yyyy'}} -</span>
-                <span>{{ audit.actorName }}({{ audit.actorId }}) - {{ audit.type | auditTypeTranslationKey | translate}}</span>
+                <span class="mr-2"
+                  >{{ audit.madeAt | date: "dd/MM/yyyy" }} -</span
+                >
+                <span
+                  >{{ audit.actorName }}({{ audit.actorId }}) -
+                  {{ audit.type | auditTypeTranslationKey | translate }}</span
+                >
               </li>
             </ul>
           </li>
@@ -67,48 +116,80 @@
     <div class="w-100"><!-- SPACER --></div>
     <div class="col" *ngIf="facility.deleted">
       <div class="mt-4 alert alert-warning">
-        <mat-icon>warning</mat-icon> {{ 'FACILITIES.DELETED' | translate }}
+        <mat-icon>warning</mat-icon> {{ "FACILITIES.DELETED" | translate }}
       </div>
     </div>
     <div *ngIf="!facility.deleted" class="col">
       <mat-tab-group class="p-1">
         <!-- SERVICE -->
         <mat-tab label="{{ 'COMMON.ATTRIBUTES.SERVICE' | translate }}">
-          <detailed-view-items [attrs]="facilityAttrsService" [isAppAdmin]="isUserAdmin"></detailed-view-items>
+          <detailed-view-items
+            [attrs]="facilityAttrsService"
+            [isAppAdmin]="isUserAdmin"
+          ></detailed-view-items>
         </mat-tab>
         <!-- ORGANIZATION -->
         <mat-tab label="{{ 'COMMON.ATTRIBUTES.ORGANIZATION' | translate }}">
-          <detailed-view-items [attrs]="facilityAttrsOrganization" [isAppAdmin]="isUserAdmin"></detailed-view-items>
+          <detailed-view-items
+            [attrs]="facilityAttrsOrganization"
+            [isAppAdmin]="isUserAdmin"
+          ></detailed-view-items>
         </mat-tab>
         <!-- PROTOCOL -->
         <mat-tab label="{{ 'COMMON.ATTRIBUTES.PROTOCOL' | translate }}">
-          <div class="col-sm-12 text-right mb-2" *ngIf="facility.protocolUsed.toUpperCase() === 'OIDC'" >
-            <button class="col-md-3 col-sm-6 mt-3 mr-0" mat-raised-button color="accent" (click)="openClientSecretDialog()">
-              {{'FACILITIES.REGENERATE_CLIENT_SECRET' | translate}}
+          <div
+            class="col-sm-12 text-right mb-2"
+            *ngIf="facility.protocolUsed.toUpperCase() === 'OIDC'"
+          >
+            <button
+              class="col-md-3 col-sm-6 mt-3 mr-0"
+              mat-raised-button
+              color="accent"
+              (click)="openClientSecretDialog()"
+            >
+              {{ "FACILITIES.REGENERATE_CLIENT_SECRET" | translate }}
             </button>
           </div>
-          <detailed-view-items [attrs]="facilityAttrsProtocol" [isAppAdmin]="isUserAdmin"></detailed-view-items>
+          <detailed-view-items
+            [attrs]="facilityAttrsProtocol"
+            [isAppAdmin]="isUserAdmin"
+          ></detailed-view-items>
         </mat-tab>
         <!-- ACCESS_CONTROL -->
         <mat-tab label="{{ 'COMMON.ATTRIBUTES.ACCESS_CONTROL' | translate }}">
-          <detailed-view-items [attrs]="facilityAttrsAccessControl" [isAppAdmin]="isUserAdmin"></detailed-view-items>
+          <detailed-view-items
+            [attrs]="facilityAttrsAccessControl"
+            [isAppAdmin]="isUserAdmin"
+          ></detailed-view-items>
         </mat-tab>
         <!-- MANAGERS-->
         <mat-tab label="{{ 'FACILITIES.MANAGERS' | translate }}">
           <div class="col text-right mb-2">
-            <button class="col-md-3 col-sm-6 mt-3 mr-0" mat-raised-button color="accent" (click)="addFacilityAdmin()">
-              {{'FACILITIES.ADD_ADMIN' | translate}}
+            <button
+              class="col-md-3 col-sm-6 mt-3 mr-0"
+              mat-raised-button
+              color="accent"
+              (click)="addFacilityAdmin()"
+            >
+              {{ "FACILITIES.ADD_ADMIN" | translate }}
             </button>
           </div>
           <div class="w-100"></div>
           <div class="col" *ngFor="let manager of facilityAdmins">
             <div class="row">
               <div class="col-md-4">
-                <p class="border-bottom">{{manager.name}}: <a href="mailto:{{manager.email}}">{{manager.email}}</a></p>
+                <p class="border-bottom">
+                  {{ manager.name }}:
+                  <a href="mailto:{{ manager.email }}">{{ manager.email }}</a>
+                </p>
               </div>
               <div class="col-md-8">
-                <button mat-raised-button color="warn" (click)="openRemoveAdminDialog(manager.name, manager.id)">
-                  {{'FACILITIES.REMOVE_ADMIN' | translate}}
+                <button
+                  mat-raised-button
+                  color="warn"
+                  (click)="openRemoveAdminDialog(manager.name, manager.id)"
+                >
+                  {{ "FACILITIES.REMOVE_ADMIN" | translate }}
                 </button>
               </div>
             </div>

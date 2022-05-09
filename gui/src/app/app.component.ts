@@ -1,12 +1,11 @@
-import {Component, OnInit} from '@angular/core';
-import {MatDrawerMode} from '@angular/material/sidenav';
-import { TranslateService } from '@ngx-translate/core';
-import { Router } from '@angular/router';
-import { HostListener } from '@angular/core';
-import { UsersService } from './core/services/users.service';
-import { ConfigService } from './core/services/config.service';
-import { PageConfig } from './core/models/PageConfig';
-import { User } from './core/models/User';
+import { Component, HostListener, OnInit } from '@angular/core'
+import { MatDrawerMode } from '@angular/material/sidenav'
+import { TranslateService } from '@ngx-translate/core'
+import { Router } from '@angular/router'
+import { UsersService } from './core/services/users.service'
+import { ConfigService } from './core/services/config.service'
+import { PageConfig } from './core/models/PageConfig'
+import { User } from './core/models/User'
 
 @Component({
   selector: 'app-root',
@@ -14,152 +13,155 @@ import { User } from './core/models/User';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+  static pageConfig: PageConfig
+  static user: User
 
-  static pageConfig: PageConfig;
-  static user: User;
+  favIcon: HTMLLinkElement = document.querySelector('#appIcon')
 
-  favIcon: HTMLLinkElement = document.querySelector('#appIcon');
+  sidenavOpen = true
+  loading = true
+  minWidth = 768
+  sidenavMode: MatDrawerMode = 'side'
+  currentUrl = ''
+  logoUrl = ''
+  appTitle = ''
+  langs: string[]
 
-  sidenavOpen = true;
-  loading = true;
-  minWidth = 768;
-  sidenavMode: MatDrawerMode = 'side';
-  currentUrl = '';
-  logoUrl = '';
-  appTitle = '';
-  langs: string[];
+  lastWindowWidth: number
 
-  lastWindowWidth: number;
-
-  constructor(
+  constructor (
     private configService: ConfigService,
     private userService: UsersService,
     private translate: TranslateService,
     private router: Router
   ) {
-    this.onResize();
-    this.currentUrl = this.router.url;
-    this.loading = true;
+    this.onResize()
+    this.currentUrl = this.router.url
+    this.loading = true
 
-    this.configService.getLanguages().subscribe(langs => {
-      this.langs = langs;
-      this.translate.addLangs(langs);
-      this.translate.setDefaultLang('en');
+    this.configService.getLanguages().subscribe((langs) => {
+      this.langs = langs
+      this.translate.addLangs(langs)
+      this.translate.setDefaultLang('en')
 
-      const browserLang = this.translate.getBrowserLang();
+      const browserLang = this.translate.getBrowserLang()
       if (this.langs.includes(browserLang)) {
-        this.translate.use(browserLang);
+        this.translate.use(browserLang)
       } else {
-        this.translate.use(this.translate.getDefaultLang());
+        this.translate.use(this.translate.getDefaultLang())
       }
 
-      const storedLang = localStorage.getItem('lang');
+      const storedLang = localStorage.getItem('lang')
       if (storedLang && this.translate.langs.indexOf(storedLang) >= 0) {
-        this.translate.use(storedLang);
+        this.translate.use(storedLang)
       } else {
-        localStorage.setItem('lang', this.translate.currentLang);
+        localStorage.setItem('lang', this.translate.currentLang)
       }
-    });
+    })
 
-    router.events.subscribe(_ => {
-      this.currentUrl = this.router.url;
+    router.events.subscribe((_) => {
+      this.currentUrl = this.router.url
       if (this.currentUrl.includes('auth') && !this.hasUser()) {
-        this.setAndGetUser();
+        this.setAndGetUser()
       }
-    });
+    })
 
-    this.setAndGetUser();
+    this.setAndGetUser()
   }
 
-  public static isApplicationAdmin(): boolean {
+  public static isApplicationAdmin (): boolean {
     if (this.user) {
-      return this.user.isAppAdmin;
+      return this.user.isAppAdmin
     }
 
-    return false;
+    return false
   }
 
-  public static getUser(): User {
+  public static getUser (): User {
     if (this.user === undefined || this.user === null) {
-      return null;
+      return null
     }
 
-    return this.user;
+    return this.user
   }
 
-  public static setUser(user: User): void {
-    this.user = user;
+  public static setUser (user: User): void {
+    this.user = user
   }
 
-  public static hasUser() {
-    return (AppComponent.getUser() !== null && AppComponent.getUser() !== undefined);
+  public static hasUser () {
+    return (
+      AppComponent.getUser() !== null && AppComponent.getUser() !== undefined
+    )
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(_?) {
-    if (this.sidenavOpen && this.lastWindowWidth > window.innerWidth &&
-      window.innerWidth < this.minWidth) {
-      this.sidenavOpen = false;
+  onResize (_?) {
+    if (
+      this.sidenavOpen &&
+      this.lastWindowWidth > window.innerWidth &&
+      window.innerWidth < this.minWidth
+    ) {
+      this.sidenavOpen = false
     }
 
-    this.sidenavMode = window.innerWidth > this.minWidth ? 'side' : 'over';
-    this.lastWindowWidth = window.innerWidth;
+    this.sidenavMode = window.innerWidth > this.minWidth ? 'side' : 'over'
+    this.lastWindowWidth = window.innerWidth
   }
 
-  ngOnInit(): void {
-    this.configService.getPageConfig().subscribe(pageConfig => {
+  ngOnInit (): void {
+    this.configService.getPageConfig().subscribe((pageConfig) => {
       if (pageConfig !== null && pageConfig !== undefined) {
-        AppComponent.pageConfig = new PageConfig(pageConfig);
-        this.appTitle = pageConfig.headerLabel;
-        this.logoUrl = pageConfig.logoUrl;
-        this.favIcon.href = pageConfig.faviconUrl;
+        AppComponent.pageConfig = new PageConfig(pageConfig)
+        this.appTitle = pageConfig.headerLabel
+        this.logoUrl = pageConfig.logoUrl
+        this.favIcon.href = pageConfig.faviconUrl
       }
-      this.loading = false;
-    });
-    this.setAndGetUser();
+      this.loading = false
+    })
+    this.setAndGetUser()
   }
 
-  public logout(): void {
-    this.userService.unsetUser().subscribe(_ => {
-      window.location.href = AppComponent.pageConfig.logoutUrl;
-    });
+  public logout (): void {
+    this.userService.unsetUser().subscribe((_) => {
+      window.location.href = AppComponent.pageConfig.logoutUrl
+    })
   }
 
-  public changeLanguage(lang: string) {
-    this.translate.use(lang);
-    localStorage.setItem('lang', lang);
+  public changeLanguage (lang: string) {
+    this.translate.use(lang)
+    localStorage.setItem('lang', lang)
   }
 
-  public toggleSideBar() {
-    this.sidenavOpen = !this.sidenavOpen;
+  public toggleSideBar () {
+    this.sidenavOpen = !this.sidenavOpen
   }
 
-  public hasUser(): boolean {
-    return !!AppComponent.getUser();
+  public hasUser (): boolean {
+    return !!AppComponent.getUser()
   }
 
-  public getUser(): User {
-    return AppComponent.user;
+  public getUser (): User {
+    return AppComponent.user
   }
 
-  private setAndGetUser() {
-    this.userService.getUser().subscribe(user => {
+  private setAndGetUser () {
+    this.userService.getUser().subscribe((user) => {
       if (user !== undefined && user !== null) {
-        AppComponent.setUser(new User(user));
+        AppComponent.setUser(new User(user))
         if (!this.currentUrl.includes('auth')) {
-          this.router.navigate(['/auth']);
+          this.router.navigate(['/auth'])
         }
       } else {
-        this.goOnLogin();
+        this.goOnLogin()
       }
-    });
+    })
   }
 
-  private goOnLogin() {
-    AppComponent.setUser(null);
-    this.userService.unsetUser().subscribe(_ => {
-      this.router.navigate(['/']);
-    });
+  private goOnLogin () {
+    AppComponent.setUser(null)
+    this.userService.unsetUser().subscribe((_) => {
+      this.router.navigate(['/'])
+    })
   }
-
 }

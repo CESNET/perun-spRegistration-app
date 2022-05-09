@@ -1,5 +1,5 @@
-import { Component, Input } from '@angular/core';
-import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
+import { Component, Input } from '@angular/core'
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
 
 @Component({
   selector: 'app-menu-button',
@@ -7,15 +7,14 @@ import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
   styleUrls: ['./menu-button.component.scss']
 })
 export class MenuButtonComponent {
-
-  constructor() { }
-
-  @Input()
-  icon: IconDefinition;
+  constructor () {}
 
   @Input()
-  route: string;
+    icon: IconDefinition
 
   @Input()
-  text: string;
+    route: string
+
+  @Input()
+    text: string
 }

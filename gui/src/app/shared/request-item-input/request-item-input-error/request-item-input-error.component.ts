@@ -1,4 +1,4 @@
-import {Component,  Input} from '@angular/core';
+import { Component, Input } from '@angular/core'
 
 @Component({
   selector: 'request-item-input-error',
@@ -6,7 +6,5 @@ import {Component,  Input} from '@angular/core';
   styleUrls: ['./request-item-input-error.component.scss']
 })
 export class RequestItemInputErrorComponent {
-
-  @Input() messageKey = '';
-
+  @Input() messageKey = ''
 }
