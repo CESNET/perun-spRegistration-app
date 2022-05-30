@@ -1,3 +1,12 @@
+## [1.3.33](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.32...v1.3.33) (2022-05-30)
+
+
+### Bug Fixes
+
+* **deps:** update angularmaterial monorepo to v13.3.8 ([308ecfc](https://github.com/CESNET/perun-spRegistration-app/commit/308ecfc86cb2b09519e8e81f0d0742da7abb5dd1))
+* **deps:** update dependency core-js to v3.22.7 ([5817775](https://github.com/CESNET/perun-spRegistration-app/commit/5817775f6fb80bc554566302cd7c8f4bd1d6ce45))
+* **deps:** update nrwl monorepo to v14.1.9 ([bd2aab5](https://github.com/CESNET/perun-spRegistration-app/commit/bd2aab5695a69fef6461f9d9d49df3ddd33874aa))
+
 ## [1.3.32](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.31...v1.3.32) (2022-05-23)
 
 
