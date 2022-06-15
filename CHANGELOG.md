@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.36...v2.0.0) (2022-06-15)
+
+
+### Features
+
+* 🎸 Update to angular 14 ([c95d6ea](https://github.com/CESNET/perun-spRegistration-app/commit/c95d6ea05eded5ce8fec11a06324e1131482ecfe))
+
+
+### BREAKING CHANGES
+
+* 🧨 Angular 14
+
 ## [1.3.36](https://github.com/CESNET/perun-spRegistration-app/compare/v1.3.35...v1.3.36) (2022-06-15)
 
 
