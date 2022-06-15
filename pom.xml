@@ -21,8 +21,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>11</java.version>
-        <node.version>v16.15.0</node.version>
-        <npm.version>8.9.0</npm.version>
+        <node.version>v16.15.1</node.version>
+        <npm.version>8.12.1</npm.version>
         <jsoup.version>1.15.1</jsoup.version>
         <bc.version>1.70</bc.version>
         <bc-prov.version>${bc.version}</bc-prov.version>

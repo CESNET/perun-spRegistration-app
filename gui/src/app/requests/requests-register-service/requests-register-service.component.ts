@@ -9,7 +9,7 @@ import { ConfigService } from '../../core/services/config.service'
 import { ApplicationItem } from '../../core/models/ApplicationItem'
 import { RequestsService } from '../../core/services/requests.service'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { MatHorizontalStepper } from '@angular/material/stepper'
+import { MatStepper } from '@angular/material/stepper'
 import { TranslateService } from '@ngx-translate/core'
 import { PerunAttribute } from '../../core/models/PerunAttribute'
 import { RequestsRegisterServiceStepComponent } from './requests-register-service-step/requests-register-service-step.component'
@@ -32,8 +32,8 @@ export class RequestsRegisterServiceComponent implements OnInit {
   @ViewChildren(RequestsRegisterServiceStepComponent)
     steps: QueryList<RequestsRegisterServiceStepComponent>
 
-  @ViewChild(MatHorizontalStepper, { static: false })
-    stepper: MatHorizontalStepper
+  @ViewChild(MatStepper, { static: false })
+    stepper: MatStepper
 
   serviceSelected: string
 
