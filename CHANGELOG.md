@@ -1,3 +1,11 @@
+## [2.0.2](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.1...v2.0.2) (2022-06-20)
+
+
+### Bug Fixes
+
+* **deps:** update angularmaterial monorepo to v14.0.2 ([8866650](https://github.com/CESNET/perun-spRegistration-app/commit/88666504be6f79491cbb0c60b14acb500538cbdb))
+* **deps:** update dependency @fortawesome/angular-fontawesome to v0.11.1 ([ef754d0](https://github.com/CESNET/perun-spRegistration-app/commit/ef754d089ef2b32b3d34faf3a55509486b3d0986))
+
 ## [2.0.1](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.0...v2.0.1) (2022-06-15)
 
 
