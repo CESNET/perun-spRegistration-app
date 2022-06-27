@@ -1,3 +1,11 @@
+## [2.0.5](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.4...v2.0.5) (2022-06-27)
+
+
+### Bug Fixes
+
+* **deps:** update angularmaterial monorepo to v14.0.3 ([e6d28dd](https://github.com/CESNET/perun-spRegistration-app/commit/e6d28dd66fe4be8b520a23e038c8fbb972dca317))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v2.7.1 ([a2d651f](https://github.com/CESNET/perun-spRegistration-app/commit/a2d651fc235bfcabcd2a925b352dc95ac1127c35))
+
 ## [2.0.4](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.3...v2.0.4) (2022-06-27)
 
 
