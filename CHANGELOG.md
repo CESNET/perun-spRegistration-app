@@ -1,3 +1,11 @@
+## [2.0.6](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.5...v2.0.6) (2022-07-04)
+
+
+### Bug Fixes
+
+* 🐛 Fix building (dependency @nrwl/eslint-plugin-nx) ([5d59d1b](https://github.com/CESNET/perun-spRegistration-app/commit/5d59d1b1207f5362d57d4d18acdfc671dfb6e2e9))
+* **deps:** update angularmaterial monorepo to v14.0.4 ([f2f37b9](https://github.com/CESNET/perun-spRegistration-app/commit/f2f37b9faf08f6fa93a40a3b09fdf350ca5f7bb9))
+
 ## [2.0.5](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.4...v2.0.5) (2022-06-27)
 
 
