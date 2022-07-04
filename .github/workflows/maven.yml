@@ -22,7 +22,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-jdk${{ matrix.java }}-
       - name: Build with Maven
-        run: mvn -B clean install -DskipTests -Pui
+        run: mvn -B clean install -DskipTests
   release:
     name: Release
     needs: [build]

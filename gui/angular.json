@@ -8,7 +8,7 @@
   "newProjectRoot": "projects",
   "projects": {
     "service-creation": {
-      "root": "",
+      "root": ".",
       "sourceRoot": "src",
       "projectType": "application",
       "prefix": "app",
