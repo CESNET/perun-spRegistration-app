@@ -54,7 +54,7 @@
     "@angular/language-service": "14.0.3",
     "@nrwl/eslint-plugin-nx": "14.4.0",
     "@nrwl/workspace": "14.4.0",
-    "@types/node": "16.11.41",
+    "@types/node": "16.11.43",
     "@typescript-eslint/eslint-plugin": "5.30.0",
     "@typescript-eslint/parser": "5.30.0",
     "eslint": "8.18.0",
