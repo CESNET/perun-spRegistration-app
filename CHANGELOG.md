@@ -1,3 +1,11 @@
+## [2.0.9](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.8...v2.0.9) (2022-07-04)
+
+
+### Bug Fixes
+
+* 🐛 displaying new service form (preselection of protocol) ([0e3e46e](https://github.com/CESNET/perun-spRegistration-app/commit/0e3e46e4d346d4a630ff5631113e76e25d490818))
+* 🐛 Fix formatting in lint ([2be3404](https://github.com/CESNET/perun-spRegistration-app/commit/2be3404a33cf2934fe6386d1788114d6fffcd5c8))
+
 ## [2.0.8](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.7...v2.0.8) (2022-07-04)
 
 
