@@ -13,7 +13,7 @@ dev.enabled: false
 connector.rpc:
   perun_user: "user"
   perun_password: "pass"
-  perun_url: "https://perun-dev.cesnet.cz/ba/rpc"
+  perun_url: "https://api-dev.perun-aai.org/ba/rpc"
   request_timeout: 30000
   connection_timeout: 60000
   socket_timeout: 60000
@@ -27,18 +27,18 @@ jdbc:
   password: "pass"
 
 application:
-  admin_ids: [1, 2, 3]
+  admin_subs: ['sub1', 'sub2']
+  admin_entitlements: ['test_ent']
   proxy_identifier: "https://login.cesnet.cz/idp/"
   protocols_enabled: ["oidc", "saml"]
   languages_enabled: ["en", "cs"]
-  host_url: "http://spreg.com/spreg"
+  host_url: "http://spreg-dev/spreg"
   secret_key: "secretSaltGoesHere123!X$"
-  logout_url: "https://spreg.aai.cesnet.cz/Shibboleth.sso/Logout?target=https%3A%2F%2Fspreg.aai.cesnet.cz%2Fspreg%2F"
+  logout_url: "https://spreg-dev.aai.cesnet.cz/spreg/logout"
   mails_config_file_path: "/etc/perun-spreg/mails.yml"
   sp_managers_vo_id: 1
   sp_managers_parent_group_id: 1
   startup_sync_enabled: false
-  dev_user_identifier: "someone@einfra.cesnet.cz"
 
 attributes:
   names:
@@ -71,8 +71,8 @@ approvals:
   confirmation_period:
     days: 30
     hours: 0
-  admins_endpoint: "https://dev.spreg.aai.cesnet.cz/spreg/auth/facilities/addAdmin/sign"
-  authorities_endpoint: "https://dev.spreg.aai.cesnet.cz/spreg/auth/sign"
+  admins_endpoint: "https://spreg-dev.aai.cesnet.cz/spreg/auth/facilities/addAdmin/sign"
+  authorities_endpoint: "https://spreg-dev.aai.cesnet.cz/spreg/auth/sign"
   transfer_authorities:
     allow_input: true
     default_entries:
@@ -80,6 +80,15 @@ approvals:
     selection_entries:
       - display_value: "CESNET AAI administrators"
         emails: ["login@cesnet.cz"]
+
+oidc:
+  issuer: 'https://login.cesnet.cz/oidc/'
+  registrationId: 'cesnet'
+  client-id: 'client_id'
+  client-secret: ''
+  scopes: ['openid', 'profile', 'offline_access' 'eduperson_entitlement'] # NOTE: profile has to be requested to get userinfo
+  redirect_uri: '{baseUrl}/login/oauth2/code/{registrationId}'
+  username_attribute: 'sub'
 
 frontend:
   footer_html: "<h2>Dev footer</h2>"

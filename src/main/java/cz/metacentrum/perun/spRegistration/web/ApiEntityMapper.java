@@ -1,17 +1,16 @@
-package cz.metacentrum.perun.spRegistration.rest;
+package cz.metacentrum.perun.spRegistration.web;
 
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.models.AuditLogDTO;
 import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
 import cz.metacentrum.perun.spRegistration.common.models.RequestSignatureDTO;
-import cz.metacentrum.perun.spRegistration.rest.models.AuditLog;
-import cz.metacentrum.perun.spRegistration.rest.models.RequestOverview;
-import cz.metacentrum.perun.spRegistration.rest.models.RequestSignature;
-import lombok.NonNull;
-
+import cz.metacentrum.perun.spRegistration.web.models.AuditLog;
+import cz.metacentrum.perun.spRegistration.web.models.RequestOverview;
+import cz.metacentrum.perun.spRegistration.web.models.RequestSignature;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.NonNull;
 
 public class ApiEntityMapper {
 

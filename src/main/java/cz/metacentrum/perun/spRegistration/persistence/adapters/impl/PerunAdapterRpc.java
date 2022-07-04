@@ -16,12 +16,6 @@ import cz.metacentrum.perun.spRegistration.persistence.connectors.PerunConnector
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.persistence.mappers.MapperUtils;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -29,6 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 /**
  * Connects to Perun via RPC.
@@ -326,7 +325,7 @@ public class PerunAdapterRpc implements PerunAdapter {
 		JsonNode response = perunRpc.call(FACILITIES_MANAGER, "getRichAdmins", params);
 		List<User> admins = MapperUtils.mapUsers(response, userEmailAttr);
 		for (User u: admins) {
-			u.setAppAdmin(applicationProperties.getAdminIds().contains(u.getId()));
+			u.setAppAdmin(applicationProperties.getAdminSubs().contains(u.getId()));
 		}
 
 		return admins;

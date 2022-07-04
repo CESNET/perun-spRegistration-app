@@ -1,15 +1,14 @@
 package cz.metacentrum.perun.spRegistration.persistence.mappers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment;
 import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol;
-import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * Mapper for RequestSignature object. Maps result retrieved from DB to RequestSignature object.

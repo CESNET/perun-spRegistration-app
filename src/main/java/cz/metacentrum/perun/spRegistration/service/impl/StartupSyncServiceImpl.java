@@ -1,5 +1,10 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
+import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment.PRODUCTION;
+import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment.TESTING;
+import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol.OIDC;
+import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol.SAML;
+
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
@@ -8,22 +13,16 @@ import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.managers.ProvidedServiceManager;
 import cz.metacentrum.perun.spRegistration.service.StartupSyncService;
-import lombok.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment.PRODUCTION;
-import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment.TESTING;
-import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol.OIDC;
-import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol.SAML;
+import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service("startupSyncService")
 public class StartupSyncServiceImpl implements StartupSyncService {

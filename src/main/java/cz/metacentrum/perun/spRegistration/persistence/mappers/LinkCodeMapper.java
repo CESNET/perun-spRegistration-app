@@ -1,12 +1,11 @@
 package cz.metacentrum.perun.spRegistration.persistence.mappers;
 
 import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.RowMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.RowMapper;
 
 /**
  * Mapper for LinkCode.ts object. Maps result retrieved from DB to LinkCode.ts object.

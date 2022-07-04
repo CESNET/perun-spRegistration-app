@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.spRegistration.rest.controllers;
+package cz.metacentrum.perun.spRegistration.web.controllers;
 
 
 import cz.metacentrum.perun.spRegistration.common.exceptions.CodeNotStoredException;
@@ -12,11 +12,16 @@ import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
-import cz.metacentrum.perun.spRegistration.rest.ApiUtils;
 import cz.metacentrum.perun.spRegistration.service.AddAdminsService;
 import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
 import cz.metacentrum.perun.spRegistration.service.RemoveAdminsService;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
+import cz.metacentrum.perun.spRegistration.web.ApiUtils;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.util.List;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +32,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.util.List;
 
 /**
  * Controller handling actions related to Facilities.
@@ -131,8 +130,7 @@ public class FacilitiesController {
 	}
 
 	@GetMapping(path = "/api/addAdmin/getDetails/{code}")
-	public LinkCode addAdminGetInfo(@NonNull @SessionAttribute("user") User user,
-									@NonNull @PathVariable("code") String code)
+	public LinkCode addAdminGetInfo(@NonNull @PathVariable("code") String code)
 	{
 		return addAdminsService.getCodeByString(code);
 	}
@@ -149,7 +147,7 @@ public class FacilitiesController {
 	@GetMapping(path = "/api/facilityWithInputs/{facilityId}")
 	public Facility getDetailedFacilityWithInputs(@NonNull @SessionAttribute("user") User user,
 												  @NonNull @PathVariable("facilityId") Long facilityId)
-			throws UnauthorizedActionException, InternalErrorException, BadPaddingException, InvalidKeyException,
+			throws InternalErrorException, BadPaddingException, InvalidKeyException,
 			IllegalBlockSizeException, PerunUnknownException, PerunConnectionException
 	{
 		return facilitiesService.getFacilityWithInputs(facilityId, user.getId());
@@ -159,7 +157,7 @@ public class FacilitiesController {
 	public List<ProvidedService> allFacilities(@NonNull @SessionAttribute("user") User user)
 		throws UnauthorizedActionException, PerunUnknownException, PerunConnectionException
 	{
-		if (!utilsService.isAppAdmin(user)) {
+		if (!ApiUtils.isAppAdmin()) {
 			throw new UnauthorizedActionException();
 		}
 		return facilitiesService.getAllFacilities(user.getId());
@@ -169,7 +167,7 @@ public class FacilitiesController {
 	public List<ProvidedService> allFacilitiesExternal(@NonNull @SessionAttribute("user") User user)
 		throws UnauthorizedActionException, PerunUnknownException, PerunConnectionException
 	{
-		if (!utilsService.isAppAdmin(user)) {
+		if (!ApiUtils.isAppAdmin()) {
 			throw new UnauthorizedActionException();
 		}
 		return facilitiesService.getAllFacilitiesExternal(user.getId());

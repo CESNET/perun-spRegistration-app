@@ -9,11 +9,10 @@ import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinitio
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
-import lombok.NonNull;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.NonNull;
 
 /**
  * Connects to Perun and obtains information.

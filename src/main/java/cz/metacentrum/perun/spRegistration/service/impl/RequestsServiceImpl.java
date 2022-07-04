@@ -1,5 +1,13 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
+import static cz.metacentrum.perun.spRegistration.common.enums.RequestStatus.APPROVED;
+import static cz.metacentrum.perun.spRegistration.common.enums.RequestStatus.REJECTED;
+import static cz.metacentrum.perun.spRegistration.common.enums.RequestStatus.WAITING_FOR_APPROVAL;
+import static cz.metacentrum.perun.spRegistration.common.enums.RequestStatus.WAITING_FOR_CHANGES;
+import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.LANG_EN;
+import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.REQUEST_CREATED;
+import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.REQUEST_MODIFIED;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -42,14 +50,7 @@ import cz.metacentrum.perun.spRegistration.service.MailsService;
 import cz.metacentrum.perun.spRegistration.service.RequestsService;
 import cz.metacentrum.perun.spRegistration.service.ServiceUtils;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
+import cz.metacentrum.perun.spRegistration.web.ApiUtils;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -67,14 +68,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static cz.metacentrum.perun.spRegistration.common.enums.RequestStatus.APPROVED;
-import static cz.metacentrum.perun.spRegistration.common.enums.RequestStatus.REJECTED;
-import static cz.metacentrum.perun.spRegistration.common.enums.RequestStatus.WAITING_FOR_APPROVAL;
-import static cz.metacentrum.perun.spRegistration.common.enums.RequestStatus.WAITING_FOR_CHANGES;
-import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.LANG_EN;
-import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.REQUEST_CREATED;
-import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.REQUEST_MODIFIED;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service("requestsService")
 @Slf4j
@@ -346,7 +346,7 @@ public class RequestsServiceImpl implements RequestsService {
         if (request == null) {
             log.error("Could not fetch request with ID: {} from database", requestId);
             throw new InternalErrorException("Could not fetch request with ID: " + requestId + " from database");
-        } else if (!applicationProperties.isAppAdmin(user.getId())
+        } else if (ApiUtils.isAppAdmin()
                 && !utilsService.isAdminForRequest(request, user.getId())) {
             throw new UnauthorizedActionException("Cannot cancel request");
         }
@@ -374,7 +374,7 @@ public class RequestsServiceImpl implements RequestsService {
 
     @Override
     public List<RequestDTO> getAllRequests(@NonNull User user) throws UnauthorizedActionException {
-        if (!applicationProperties.isAppAdmin(user.getId())) {
+        if (!ApiUtils.isAppAdmin()) {
             throw new UnauthorizedActionException("User not admin");
         }
         List<RequestDTO> requests = requestManager.getAllRequests();

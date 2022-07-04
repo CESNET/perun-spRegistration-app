@@ -2,7 +2,6 @@ package cz.metacentrum.perun.spRegistration.persistence.managers;
 
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.models.LinkCode;
-
 import java.util.List;
 
 public interface LinkCodeManager {

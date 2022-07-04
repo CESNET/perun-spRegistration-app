@@ -1,6 +1,10 @@
 package cz.metacentrum.perun.spRegistration.common.configs;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -12,11 +16,6 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-
-import javax.annotation.PostConstruct;
-import javax.validation.constraints.NotBlank;
-import java.util.Arrays;
-import java.util.List;
 
 @Getter
 @Setter
@@ -34,7 +33,7 @@ public class AttributesProperties {
     @PostConstruct
     public void postInit() {
         log.info("Initialized attributes properties");
-        log.debug("{}", this.toString());
+        log.debug("{}", this);
     }
 
     public List<String> getAttrNames() {

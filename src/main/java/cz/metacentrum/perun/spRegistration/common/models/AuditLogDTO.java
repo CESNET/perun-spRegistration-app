@@ -2,14 +2,13 @@ package cz.metacentrum.perun.spRegistration.common.models;
 
 
 import cz.metacentrum.perun.spRegistration.common.enums.AuditMessageType;
+import java.sql.Timestamp;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.NonNull;
-
-import java.sql.Timestamp;
 
 /**
  * Class represents audit log.

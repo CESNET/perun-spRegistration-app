@@ -3,9 +3,8 @@ package cz.metacentrum.perun.spRegistration.service;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.AuditLogDTO;
-import lombok.NonNull;
-
 import java.util.List;
+import lombok.NonNull;
 
 public interface AuditService {
 

@@ -123,9 +123,8 @@ export class AppComponent implements OnInit {
   }
 
   public logout(): void {
-    this.userService.unsetUser().subscribe(_ => {
-      window.location.href = AppComponent.pageConfig.logoutUrl;
-    });
+    AppComponent.setUser(null);
+    window.location.href = AppComponent.pageConfig.logoutUrl;
   }
 
   public changeLanguage(lang: string) {
@@ -160,8 +159,6 @@ export class AppComponent implements OnInit {
 
   private goOnLogin() {
     AppComponent.setUser(null);
-    this.userService.unsetUser().subscribe(_ => {
-      this.router.navigate(['/']);
-    });
+    this.router.navigate(['/']);
   }
 }

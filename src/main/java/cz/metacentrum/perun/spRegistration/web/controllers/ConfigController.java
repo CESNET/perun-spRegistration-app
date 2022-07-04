@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.spRegistration.rest.controllers;
+package cz.metacentrum.perun.spRegistration.web.controllers;
 
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.configs.ApprovalsProperties;
@@ -7,7 +7,12 @@ import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.InputsContainer;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol;
-import cz.metacentrum.perun.spRegistration.service.UtilsService;
+import cz.metacentrum.perun.spRegistration.web.ApiUtils;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -15,12 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -41,14 +40,11 @@ public class ConfigController {
 	@NonNull private final List<AttrInput> oidcInputs;
 	@NonNull private final List<AttrInput> samlInputs;
 
-	@NonNull private final UtilsService utilsService;
-
 	@Autowired
 	public ConfigController(@NonNull ApplicationProperties applicationProperties,
 							@NonNull FrontendProperties frontendProperties,
 							@NonNull ApprovalsProperties approvalsProperties,
-							@NonNull InputsContainer inputsContainer,
-							@NonNull UtilsService utilsService)
+							@NonNull InputsContainer inputsContainer)
 	{
 		this.applicationProperties = applicationProperties;
 		this.frontendProperties = frontendProperties;
@@ -58,7 +54,6 @@ public class ConfigController {
 		this.membershipInputs = inputsContainer.getMembershipInputs();
 		this.oidcInputs = inputsContainer.getOidcInputs();
 		this.samlInputs = inputsContainer.getSamlInputs();
-		this.utilsService = utilsService;
 	}
 
 	@GetMapping(path = "/api/config/oidcInputs")
@@ -94,7 +89,7 @@ public class ConfigController {
 
 	@GetMapping(path = "/api/config/isUserAdmin")
 	public boolean isUserAdmin(@NonNull @SessionAttribute("user") User user) {
-		return utilsService.isAppAdmin(user);
+		return ApiUtils.isAppAdmin();
 	}
 
 	@GetMapping(path = "/api/config/pageConfig")

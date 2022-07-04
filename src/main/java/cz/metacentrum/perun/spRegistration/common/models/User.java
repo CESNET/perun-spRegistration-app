@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.spRegistration.common.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -8,9 +7,6 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Representation of Perun User.
@@ -29,18 +25,14 @@ public class User extends PerunEntity {
 	@JsonProperty("isAppAdmin")
 	private boolean isAppAdmin = false;
 
-	@JsonIgnore
-	private List<Long> facilitiesWhereAdmin = new ArrayList<>();
-
 	public User(Long id) {
 		super(id);
 	}
 
-	public User(Long id, String name, String email, List<Long> facilitiesWhereAdmin, boolean isAppAdmin) {
+	public User(Long id, String name, String email, boolean isAppAdmin) {
 		super(id);
 		this.setName(name);
 		this.setEmail(email);
-		this.setFacilitiesWhereAdmin(facilitiesWhereAdmin);
 		this.setAppAdmin(isAppAdmin);
 	}
 

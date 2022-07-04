@@ -4,9 +4,8 @@ import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
 import cz.metacentrum.perun.spRegistration.common.models.User;
-import lombok.NonNull;
-
 import java.util.Map;
+import lombok.NonNull;
 
 public interface MailsService {
 
