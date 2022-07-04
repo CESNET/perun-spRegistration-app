@@ -6,7 +6,7 @@
       <div *ngIf="!loading" class="card mb-4 shadow-sm">
         <div class="card-body p-3 p-lg-5">
           <h1 class="mb-3">{{ "REQUESTS.NEW_TITLE" | translate }}</h1>
-          <mat-form-field *ngIf="enabledProtocols.length > 1" class="col-5">
+          <mat-form-field *ngIf="enabledProtocols && enabledProtocols.length > 1" class="col-5">
             <mat-hint>{{ "REQUESTS.NEW_SELECT_TYPE" | translate }}</mat-hint>
             <mat-select [(ngModel)]="serviceSelected">
               <mat-option (click)="oidcSelected()" [value]="'oidc'">
@@ -17,21 +17,10 @@
               </mat-option>
             </mat-select>
           </mat-form-field>
-          <div class="mt-4" *ngIf="this.isCardBodyVisible">
-            <mat-horizontal-stepper
-              class="p-0"
-              labelPosition="bottom"
-              [linear]="false"
-              #stepper
-            >
-              <mat-step
-                *ngFor="let applicationItems of applicationItemGroups"
-                completed="false"
-              >
-                <app-request-creation-step
-                  [applicationItems]="applicationItems"
-                  [stepper]="stepper"
-                >
+          <div class="mt-4" *ngIf="this.formVisible">
+            <mat-horizontal-stepper class="p-0" labelPosition="bottom" [linear]="false" #stepper>
+              <mat-step *ngFor="let applicationItems of applicationItemGroups" completed="false">
+                <app-request-creation-step [applicationItems]="applicationItems" [stepper]="stepper">
                 </app-request-creation-step>
               </mat-step>
               <mat-step>
