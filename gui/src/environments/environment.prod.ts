@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  api_url: '@angular.api.url@'
-}
+  api_url: '@angular.api.url@',
+};

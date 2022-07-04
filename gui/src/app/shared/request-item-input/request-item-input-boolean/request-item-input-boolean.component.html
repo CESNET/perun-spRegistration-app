@@ -4,20 +4,19 @@
       <mat-checkbox
         [(ngModel)]="value"
         name="{{ applicationItem.name }}"
-        [class.perun-warn]="hasError()"
-      >
+        [class.perun-warn]="hasError()">
         {{ applicationItem.displayName | itemLocale }}
       </mat-checkbox>
       <hr class="hr" />
       <div
         class="text-muted small"
-        [innerHTML]="applicationItem.description | itemLocale"
-      ></div>
+        [innerHTML]="applicationItem.description | itemLocale"></div>
     </div>
   </div>
   <div class="row" *ngIf="expectedValueChangedError">
     <request-item-input-error
-      [messageKey]="'REQUESTS.ERRORS.EXPECTED_CHANGED_VALUE_ERROR'"
-    ></request-item-input-error>
+      [messageKey]="
+        'REQUESTS.ERRORS.EXPECTED_CHANGED_VALUE_ERROR'
+      "></request-item-input-error>
   </div>
 </form>

@@ -3,10 +3,10 @@
   <div *ngIf="!loading" class="card mb-4 shadow-sm">
     <div class="card-body p-5">
       <h2 class="card-title">
-        {{ "FACILITIES.ADD_ADMINS_TITLE_1" | translate }}{{ facility.id }} -
+        {{ 'FACILITIES.ADD_ADMINS_TITLE_1' | translate }}{{ facility.id }} -
         {{ facility.name | itemLocale }}
       </h2>
-      {{ "FACILITIES.ADD_ADMINS_DESCRIPTION" | translate }}
+      {{ 'FACILITIES.ADD_ADMINS_DESCRIPTION' | translate }}
       <div>
         <mat-form-field class="chip-list">
           <mat-chip-list #chipList>
@@ -14,8 +14,7 @@
               *ngFor="let email of emails"
               [selectable]="false"
               [removable]="true"
-              (removed)="remove(email)"
-            >
+              (removed)="remove(email)">
               {{ email }}
               <mat-icon matChipRemove>cancel</mat-icon>
             </mat-chip>
@@ -24,8 +23,7 @@
               [matChipInputFor]="chipList"
               [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
               [matChipInputAddOnBlur]="true"
-              (matChipInputTokenEnd)="add($event)"
-            />
+              (matChipInputTokenEnd)="add($event)" />
           </mat-chip-list>
         </mat-form-field>
       </div>
@@ -35,9 +33,8 @@
           class="ml-2"
           mat-raised-button
           color="accent"
-          (click)="addAdmin()"
-        >
-          {{ "COMMON.SUBMIT" | translate }}
+          (click)="addAdmin()">
+          {{ 'COMMON.SUBMIT' | translate }}
         </button>
       </div>
     </div>

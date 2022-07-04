@@ -1,13 +1,11 @@
 <ng-container *ngIf="includeComment">
   <ng-container
-    *ngIf="isAppAdmin; then adminComment; else userComment"
-  ></ng-container>
+    *ngIf="isAppAdmin; then adminComment; else userComment"></ng-container>
   <!-- IF -->
   <ng-template #adminComment>
     <detail-item-sub-comment-admin
       *ngIf="buttonComponent.showComment"
-      [item]="item"
-    ></detail-item-sub-comment-admin>
+      [item]="item"></detail-item-sub-comment-admin>
   </ng-template>
   <!-- ELSE -->
   <ng-template #userComment>

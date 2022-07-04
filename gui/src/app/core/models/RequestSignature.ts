@@ -1,13 +1,13 @@
 export class RequestSignature {
-  constructor (item: any) {
-    this.signerId = item.signerId
-    this.signerName = item.signerName
-    this.signedAt = item.signedAt
-    this.approved = item.approved
+  constructor(item: any) {
+    this.signerId = item.signerId;
+    this.signerName = item.signerName;
+    this.signedAt = item.signedAt;
+    this.approved = item.approved;
   }
 
-  signerId: number = null
-  signerName = ''
-  signedAt = ''
-  approved = false
+  signerId: number = null;
+  signerName = '';
+  signedAt = '';
+  approved = false;
 }
