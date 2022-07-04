@@ -6,12 +6,12 @@
         <!-- PAGE TITLE -->
         <div class="col-md-8">
           <h2 class="card-title">
-            {{ "FACILITIES.DETAIL_TITLE" | translate }}{{ facility.id }} -
+            {{ 'FACILITIES.DETAIL_TITLE' | translate }}{{ facility.id }} -
             {{ facility.name | itemLocale }}
           </h2>
           <p>
             <span class="font-thick mr-1"
-              >{{ "FACILITIES.DESCRIPTION" | translate }}:</span
+              >{{ 'FACILITIES.DESCRIPTION' | translate }}:</span
             >
             <span [innerHTML]="facility.description | itemLocale"></span>
           </p>
@@ -22,17 +22,15 @@
             class="mb-1 btn-block"
             mat-raised-button
             color="accent"
-            (click)="approveRequest()"
-          >
-            {{ "FACILITIES.MOVE_TO_PRODUCTION_APPROVE" | translate }}
+            (click)="approveRequest()">
+            {{ 'FACILITIES.MOVE_TO_PRODUCTION_APPROVE' | translate }}
           </button>
           <button
             class="mb-1 btn-block"
             mat-raised-button
             color="warn"
-            (click)="rejectRequest()"
-          >
-            {{ "FACILITIES.MOVE_TO_PRODUCTION_REJECT" | translate }}
+            (click)="rejectRequest()">
+            {{ 'FACILITIES.MOVE_TO_PRODUCTION_REJECT' | translate }}
           </button>
         </div>
       </div>
@@ -44,15 +42,13 @@
         <mat-tab label="{{ 'COMMON.ATTRIBUTES.SERVICE' | translate }}">
           <detailed-view-items
             [attrs]="facilityAttrsService"
-            [isAppAdmin]="false"
-          ></detailed-view-items>
+            [isAppAdmin]="false"></detailed-view-items>
         </mat-tab>
         <!-- ORGANIZATION -->
         <mat-tab label="{{ 'COMMON.ATTRIBUTES.ORGANIZATION' | translate }}">
           <detailed-view-items
             [attrs]="facilityAttrsOrganization"
-            [isAppAdmin]="false"
-          ></detailed-view-items>
+            [isAppAdmin]="false"></detailed-view-items>
         </mat-tab>
         <!-- MANAGERS-->
         <mat-tab label="{{ 'FACILITIES.MANAGERS' | translate }}">

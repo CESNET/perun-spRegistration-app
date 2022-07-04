@@ -2,8 +2,7 @@
   #buttonComponent
   [isAppAdmin]="isAppAdmin"
   [includeComment]="includeComment"
-  [showComment]="!!item.comment"
-></detail-item-sub-comment-button>
+  [showComment]="!!item.comment"></detail-item-sub-comment-button>
 
 <div class="p-0 m-0">
   <p class="mb-1">
@@ -20,16 +19,14 @@
   </p>
   <div
     class="mb-0 text-break"
-    [innerHTML]="item.value | detailedViewItemValuePipe"
-  ></div>
+    [innerHTML]="item.value | detailedViewItemValuePipe"></div>
   <ng-container *ngIf="displayOldVal">
     <p class="mt-1 mb-0 text-muted small">
-      <span class="mr-1">{{ "REQUESTS.OLD_VALUE" | translate }}:</span>
+      <span class="mr-1">{{ 'REQUESTS.OLD_VALUE' | translate }}:</span>
     </p>
     <div
       class="mb-0 text-muted small text-break"
-      [innerHTML]="item.oldValue | detailedViewItemValuePipe"
-    ></div>
+      [innerHTML]="item.oldValue | detailedViewItemValuePipe"></div>
   </ng-container>
 </div>
 
@@ -37,5 +34,4 @@
   [includeComment]="includeComment"
   [item]="item"
   [isAppAdmin]="isAppAdmin"
-  [buttonComponent]="buttonComponent"
-></detail-item-sub-comment>
+  [buttonComponent]="buttonComponent"></detail-item-sub-comment>

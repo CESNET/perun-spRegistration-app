@@ -1,20 +1,20 @@
-import { Component, Input } from '@angular/core'
-import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
+import { Component, Input } from '@angular/core';
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-menu-button',
   templateUrl: './menu-button.component.html',
-  styleUrls: ['./menu-button.component.scss']
+  styleUrls: ['./menu-button.component.scss'],
 })
 export class MenuButtonComponent {
-  constructor () {}
+  constructor() {}
 
   @Input()
-    icon: IconDefinition
+  icon: IconDefinition;
 
   @Input()
-    route: string
+  route: string;
 
   @Input()
-    text: string
+  text: string;
 }

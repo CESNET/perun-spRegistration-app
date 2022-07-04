@@ -3,15 +3,15 @@
   <div *ngIf="!loading" class="card mb-4 shadow-sm">
     <div class="card-body p-5">
       <h2 class="card-title">
-        {{ "FACILITIES.MOVE_TO_PRODUCTION_TITLE_1" | translate
+        {{ 'FACILITIES.MOVE_TO_PRODUCTION_TITLE_1' | translate
         }}{{ facility.id }} - {{ facility.name | itemLocale }}
-        {{ "FACILITIES.MOVE_TO_PRODUCTION_TITLE_2" | translate }}
+        {{ 'FACILITIES.MOVE_TO_PRODUCTION_TITLE_2' | translate }}
       </h2>
-      {{ "FACILITIES.MOVE_TO_PRODUCTION_DESCRIPTION" | translate }}
+      {{ 'FACILITIES.MOVE_TO_PRODUCTION_DESCRIPTION' | translate }}
       {{
         selectEmailsEnabled
-          ? ("FACILITIES.MOVE_TO_PRODUCTION_DESCRIPTION_SPEC" | translate)
-          : ""
+          ? ('FACILITIES.MOVE_TO_PRODUCTION_DESCRIPTION_SPEC' | translate)
+          : ''
       }}
 
       <div *ngIf="selectEmailsEnabled">
@@ -19,9 +19,8 @@
           <mat-checkbox
             class="example-margin"
             (change)="specifyFromList = !specifyFromList"
-            checked="selectEmailsEnabled"
-          >
-            {{ "FACILITIES.MOVE_TO_PRODUCTION_EMAIL" | translate }}
+            checked="selectEmailsEnabled">
+            {{ 'FACILITIES.MOVE_TO_PRODUCTION_EMAIL' | translate }}
           </mat-checkbox>
         </div>
         <div class="mt-2" *ngIf="specifyFromList">
@@ -29,8 +28,7 @@
             <mat-checkbox
               labelPosition="after"
               [value]="authority"
-              (change)="checkboxChanged(authority)"
-            >
+              (change)="checkboxChanged(authority)">
               {{ authority }}
             </mat-checkbox>
           </div>
@@ -42,9 +40,8 @@
           class="mt-3 ml-2"
           mat-raised-button
           color="accent"
-          (click)="moveToProduction()"
-        >
-          {{ "COMMON.SUBMIT" | translate }}
+          (click)="moveToProduction()">
+          {{ 'COMMON.SUBMIT' | translate }}
         </button>
       </div>
     </div>

@@ -2,8 +2,7 @@
   #buttonComponent
   [isAppAdmin]="isAppAdmin"
   [includeComment]="includeComment"
-  [showComment]="!!item.comment"
-></detail-item-sub-comment-button>
+  [showComment]="!!item.comment"></detail-item-sub-comment-button>
 
 <div class="p-0 m-0">
   <p class="mb-1">
@@ -17,7 +16,7 @@
     <span [innerHTML]="item.value | detailedViewItemValuePipe"></span>
   </p>
   <p class="mb-1 text-muted small" *ngIf="displayOldVal">
-    <span class="mr-1">{{ "REQUESTS.OLD_VALUE" | translate }}:</span>
+    <span class="mr-1">{{ 'REQUESTS.OLD_VALUE' | translate }}:</span>
     <span [innerHTML]="item.oldValue | detailedViewItemValuePipe"></span>
   </p>
   <p class="text-muted mb-1">
@@ -29,5 +28,4 @@
   [includeComment]="includeComment"
   [item]="item"
   [isAppAdmin]="isAppAdmin"
-  [buttonComponent]="buttonComponent"
-></detail-item-sub-comment>
+  [buttonComponent]="buttonComponent"></detail-item-sub-comment>

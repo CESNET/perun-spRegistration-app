@@ -1,162 +1,162 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core'
-import { FacilitiesService } from '../../core/services/facilities.service'
-import { Subscription } from 'rxjs'
-import { MatSort } from '@angular/material/sort'
-import { MatTableDataSource } from '@angular/material/table'
-import { MatPaginator } from '@angular/material/paginator'
-import { ProvidedService } from '../../core/models/ProvidedService'
-import { TranslateService } from '@ngx-translate/core'
-import { AppComponent } from '../../app.component'
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FacilitiesService } from '../../core/services/facilities.service';
+import { Subscription } from 'rxjs';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { ProvidedService } from '../../core/models/ProvidedService';
+import { TranslateService } from '@ngx-translate/core';
+import { AppComponent } from '../../app.component';
 
 @Component({
   selector: 'app-facilities-overview',
   templateUrl: './facilities-user.component.html',
-  styleUrls: ['./facilities-user.component.scss']
+  styleUrls: ['./facilities-user.component.scss'],
 })
 export class FacilitiesUserComponent implements OnInit, OnDestroy {
-  private paginator: MatPaginator = undefined
-  private sort: MatSort = undefined
-  private paginator2: MatPaginator = undefined
-  private sort2: MatSort = undefined
-  private servicesSubscription: Subscription
-  private externalServicesSubscription: Subscription
+  private paginator: MatPaginator = undefined;
+  private sort: MatSort = undefined;
+  private paginator2: MatPaginator = undefined;
+  private sort2: MatSort = undefined;
+  private servicesSubscription: Subscription;
+  private externalServicesSubscription: Subscription;
 
-  constructor (
+  constructor(
     private facilitiesService: FacilitiesService,
     private translate: TranslateService
   ) {
-    this.externalServicesEnabled = AppComponent.pageConfig.externalServices
+    this.externalServicesEnabled = AppComponent.pageConfig.externalServices;
   }
 
-  @ViewChild('paginator1', { static: false }) set matPaginator (
+  @ViewChild('paginator1', { static: false }) set matPaginator(
     mp: MatPaginator
   ) {
-    this.paginator = mp
-    this.setServicesDataSource()
+    this.paginator = mp;
+    this.setServicesDataSource();
   }
 
-  @ViewChild('sort1', { static: false }) set matSort (ms: MatSort) {
-    this.sort = ms
-    this.setServicesDataSource()
+  @ViewChild('sort1', { static: false }) set matSort(ms: MatSort) {
+    this.sort = ms;
+    this.setServicesDataSource();
   }
 
-  @ViewChild('paginator2', { static: false }) set matPaginator2 (
+  @ViewChild('paginator2', { static: false }) set matPaginator2(
     mp: MatPaginator
   ) {
-    this.paginator2 = mp
-    this.setExternalServicesDataSource()
+    this.paginator2 = mp;
+    this.setExternalServicesDataSource();
   }
 
-  @ViewChild('sort2', { static: false }) set matSort2 (ms: MatSort) {
-    this.sort2 = ms
-    this.setExternalServicesDataSource()
+  @ViewChild('sort2', { static: false }) set matSort2(ms: MatSort) {
+    this.sort2 = ms;
+    this.setExternalServicesDataSource();
   }
 
-  loading = false
-  isLoadingTable1 = true
-  isLoadingTable2 = true
+  loading = false;
+  isLoadingTable1 = true;
+  isLoadingTable2 = true;
   displayedColumns: string[] = [
     'facilityId',
     'name',
     'description',
     'identifier',
     'environment',
-    'protocol'
-  ]
+    'protocol',
+  ];
 
-  services: ProvidedService[] = []
-  externalServices: ProvidedService[] = []
+  services: ProvidedService[] = [];
+  externalServices: ProvidedService[] = [];
   servicesDataSource: MatTableDataSource<ProvidedService> =
-    new MatTableDataSource<ProvidedService>()
+    new MatTableDataSource<ProvidedService>();
 
   externalServicesDataSource: MatTableDataSource<ProvidedService> =
-    new MatTableDataSource<ProvidedService>()
+    new MatTableDataSource<ProvidedService>();
 
-  externalServicesEnabled: boolean
+  externalServicesEnabled: boolean;
 
-  ngOnInit () {
+  ngOnInit() {
     this.servicesSubscription = this.facilitiesService
       .getMyFacilities()
       .subscribe(
-        (services) => {
-          this.services = services.map((s) => new ProvidedService(s))
-          this.setServicesDataSource()
-          this.isLoadingTable1 = false
+        services => {
+          this.services = services.map(s => new ProvidedService(s));
+          this.setServicesDataSource();
+          this.isLoadingTable1 = false;
         },
-        (_) => {
-          this.isLoadingTable1 = false
+        _ => {
+          this.isLoadingTable1 = false;
         }
-      )
+      );
     if (this.externalServicesEnabled) {
       this.externalServicesSubscription = this.facilitiesService
         .getMyExternalFacilities()
         .subscribe(
-          (services) => {
-            this.externalServices = services.map((s) => new ProvidedService(s))
-            this.setExternalServicesDataSource()
-            this.isLoadingTable2 = false
+          services => {
+            this.externalServices = services.map(s => new ProvidedService(s));
+            this.setExternalServicesDataSource();
+            this.isLoadingTable2 = false;
           },
-          (_) => {
-            this.isLoadingTable2 = false
+          _ => {
+            this.isLoadingTable2 = false;
           }
-        )
+        );
     }
   }
 
-  ngOnDestroy () {
+  ngOnDestroy() {
     if (this.servicesSubscription) {
-      this.servicesSubscription.unsubscribe()
+      this.servicesSubscription.unsubscribe();
     }
 
     if (this.externalServicesSubscription) {
-      this.externalServicesSubscription.unsubscribe()
+      this.externalServicesSubscription.unsubscribe();
     }
   }
 
-  setServicesDataSource (): void {
+  setServicesDataSource(): void {
     if (this.servicesDataSource) {
-      this.servicesDataSource.data = this.services
-      this.servicesDataSource.sort = this.sort
-      this.servicesDataSource.paginator = this.paginator
-      this.setSorting(this.servicesDataSource)
-      this.setFiltering(this.servicesDataSource)
+      this.servicesDataSource.data = this.services;
+      this.servicesDataSource.sort = this.sort;
+      this.servicesDataSource.paginator = this.paginator;
+      this.setSorting(this.servicesDataSource);
+      this.setFiltering(this.servicesDataSource);
     }
   }
 
-  setExternalServicesDataSource (): void {
+  setExternalServicesDataSource(): void {
     if (this.externalServicesDataSource) {
-      this.externalServicesDataSource.data = this.externalServices
-      this.externalServicesDataSource.sort = this.sort2
-      this.externalServicesDataSource.paginator = this.paginator2
-      this.setSorting(this.externalServicesDataSource)
-      this.setFiltering(this.externalServicesDataSource)
+      this.externalServicesDataSource.data = this.externalServices;
+      this.externalServicesDataSource.sort = this.sort2;
+      this.externalServicesDataSource.paginator = this.paginator2;
+      this.setSorting(this.externalServicesDataSource);
+      this.setFiltering(this.externalServicesDataSource);
     }
   }
 
-  doFilter (value: string): void {
+  doFilter(value: string): void {
     if (this.servicesDataSource) {
-      value = value ? value.trim().toLowerCase() : ''
-      this.servicesDataSource.filter = value
+      value = value ? value.trim().toLowerCase() : '';
+      this.servicesDataSource.filter = value;
     }
     if (this.externalServicesDataSource) {
-      value = value ? value.trim().toLowerCase() : ''
-      this.externalServicesDataSource.filter = value
+      value = value ? value.trim().toLowerCase() : '';
+      this.externalServicesDataSource.filter = value;
     }
   }
 
-  private setSorting (dataSource) {
+  private setSorting(dataSource) {
     if (!dataSource) {
-      return
+      return;
     }
     dataSource.sortingDataAccessor = (data, sortHeaderId) => {
       switch (sortHeaderId) {
         case 'facilityId':
-          return data.facilityId
+          return data.facilityId;
         case 'name': {
           if (data.name && data.name.has(this.translate.currentLang)) {
-            return data.name.get(this.translate.currentLang).toLowerCase()
+            return data.name.get(this.translate.currentLang).toLowerCase();
           } else {
-            return ''
+            return '';
           }
         }
         case 'description': {
@@ -166,38 +166,38 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
           ) {
             return data.description
               .get(this.translate.currentLang)
-              .toLowerCase()
+              .toLowerCase();
           } else {
-            return ''
+            return '';
           }
         }
         case 'identifier':
-          return data.identifier
+          return data.identifier;
         case 'environment':
-          return data.environment
+          return data.environment;
         case 'protocol':
-          return data.protocol
+          return data.protocol;
       }
-    }
+    };
   }
 
-  private setFiltering (dataSource) {
+  private setFiltering(dataSource) {
     if (!dataSource) {
-      return
+      return;
     }
     dataSource.filterPredicate = (data: ProvidedService, filter: string) => {
       if (!filter) {
-        return true
+        return true;
       }
-      const id = data.facilityId.toString()
-      let name = ''
+      const id = data.facilityId.toString();
+      let name = '';
       if (data.name && data.name.has(this.translate.currentLang)) {
         name = data.name
           .get(this.translate.currentLang)
           .replace(/\s/g, '')
-          .toLowerCase()
+          .toLowerCase();
       }
-      let desc = ''
+      let desc = '';
       if (
         data.description &&
         data.description.has(this.translate.currentLang)
@@ -205,13 +205,13 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
         desc = data.description
           .get(this.translate.currentLang)
           .replace(/\s/g, '')
-          .toLowerCase()
+          .toLowerCase();
       }
-      const protocol = data.protocol.replace(/\s/g, '').toLowerCase()
-      const env = data.environment.replace(/\s/g, '').toLowerCase()
-      const identifier = data.identifier.replace(/\s/g, '').toLowerCase()
+      const protocol = data.protocol.replace(/\s/g, '').toLowerCase();
+      const env = data.environment.replace(/\s/g, '').toLowerCase();
+      const identifier = data.identifier.replace(/\s/g, '').toLowerCase();
 
-      const parts = filter.split(' ')
+      const parts = filter.split(' ');
       for (const part of parts) {
         if (
           !(
@@ -223,10 +223,10 @@ export class FacilitiesUserComponent implements OnInit, OnDestroy {
             identifier.includes(part)
           )
         ) {
-          return false
+          return false;
         }
       }
-      return true
-    }
+      return true;
+    };
   }
 }

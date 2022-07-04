@@ -6,12 +6,12 @@
         <!-- PAGE TITLE -->
         <div class="col-md-8">
           <h2 class="card-title">
-            {{ "FACILITIES.ADD_ADMIN_SIGN_TITLE" | translate }}
+            {{ 'FACILITIES.ADD_ADMIN_SIGN_TITLE' | translate }}
             {{ facility.name | itemLocale }}?
           </h2>
           <p>
             {{ details.inviterName }} &lt;{{ details.inviterEmail }}&gt;
-            {{ "FACILITIES.ADD_ADMIN_TEXT" | translate }}
+            {{ 'FACILITIES.ADD_ADMIN_TEXT' | translate }}
           </p>
         </div>
         <!-- BUTTONS -->
@@ -20,17 +20,15 @@
             class="btn-block"
             mat-raised-button
             color="accent"
-            (click)="addAdminConfirm()"
-          >
-            {{ "FACILITIES.ADD_ADMIN_SIGN_SUBMIT" | translate }}
+            (click)="addAdminConfirm()">
+            {{ 'FACILITIES.ADD_ADMIN_SIGN_SUBMIT' | translate }}
           </button>
           <button
             class="btn-block mb-3"
             mat-raised-button
             color="warn"
-            (click)="addAdminReject()"
-          >
-            {{ "FACILITIES.ADD_ADMIN_SIGN_REJECT" | translate }}
+            (click)="addAdminReject()">
+            {{ 'FACILITIES.ADD_ADMIN_SIGN_REJECT' | translate }}
           </button>
         </div>
       </div>
@@ -45,16 +43,14 @@
               <detailed-view-items
                 [attrs]="serviceAttrs"
                 [isAppAdmin]="false"
-                [includeComment]="false"
-              ></detailed-view-items>
+                [includeComment]="false"></detailed-view-items>
             </mat-tab>
             <!-- ORGANIZATION -->
             <mat-tab label="{{ 'COMMON.ATTRIBUTES.ORGANIZATION' | translate }}">
               <detailed-view-items
                 [attrs]="orgAttrs"
                 [isAppAdmin]="false"
-                [includeComment]="false"
-              ></detailed-view-items>
+                [includeComment]="false"></detailed-view-items>
             </mat-tab>
           </mat-tab-group>
         </div>

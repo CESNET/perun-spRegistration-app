@@ -3,53 +3,53 @@ import {
   HostListener,
   Input,
   OnDestroy,
-  OnInit
-} from '@angular/core'
-import { Subscription } from 'rxjs'
-import { SortService } from '../../core/services/sort.service'
+  OnInit,
+} from '@angular/core';
+import { Subscription } from 'rxjs';
+import { SortService } from '../../core/services/sort.service';
 
 @Component({
   selector: '[sortable-column]',
-  templateUrl: './sortable-column.component.html'
+  templateUrl: './sortable-column.component.html',
 })
 export class SortableColumnComponent implements OnInit, OnDestroy {
-  constructor (private sortService: SortService) {}
+  constructor(private sortService: SortService) {}
 
   @Input('sortable-column')
-    columnName: string
+  columnName: string;
 
   @Input()
-    tableName :string
+  tableName: string;
 
   @Input()
-    sortDirection :string
+  sortDirection: string;
 
-  private columnSortedSubscription: Subscription
+  private columnSortedSubscription: Subscription;
 
   @HostListener('click')
-  sort () {
-    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc'
+  sort() {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     this.sortService.columnSorted({
       tableName: this.tableName,
       sortColumn: this.columnName,
-      sortDirection: this.sortDirection
-    })
+      sortDirection: this.sortDirection,
+    });
   }
 
-  ngOnInit () {
+  ngOnInit() {
     this.columnSortedSubscription = this.sortService.columnSorted$.subscribe(
-      (event) => {
+      event => {
         if (this.tableName != event.tableName) {
-          return
+          return;
         }
         if (this.columnName != event.sortColumn) {
-          this.sortDirection = ''
+          this.sortDirection = '';
         }
       }
-    )
+    );
   }
 
-  ngOnDestroy () {
-    this.columnSortedSubscription.unsubscribe()
+  ngOnDestroy() {
+    this.columnSortedSubscription.unsubscribe();
   }
 }

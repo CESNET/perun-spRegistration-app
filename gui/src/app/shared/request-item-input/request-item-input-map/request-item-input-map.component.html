@@ -2,16 +2,14 @@
   <div class="row">
     <p
       class="col-12 pl-0 pr-0 pb-1 col-form-label word-break-word"
-      [class.perun-warn]="hasError()"
-    >
+      [class.perun-warn]="hasError()">
       {{ applicationItem.displayName | itemLocale
       }}<span *ngIf="applicationItem.required"> *</span>
       <button
         *ngIf="!allowCustomKeys"
         mat-icon-button
         color="accent"
-        (click)="addValue()"
-      >
+        (click)="addValue()">
         <mat-icon>add_box</mat-icon>
       </button>
     </p>
@@ -19,33 +17,35 @@
   <div class="row">
     <p
       class="col-12 pl-0 pr-0 text-muted small"
-      [innerHTML]="applicationItem.description | itemLocale"
-    ></p>
+      [innerHTML]="applicationItem.description | itemLocale"></p>
   </div>
   <div class="row" *ngIf="missingValueError">
     <request-item-input-error
-      [messageKey]="'REQUESTS.ERRORS.NO_VALUE_ERROR'"
-    ></request-item-input-error>
+      [messageKey]="
+        'REQUESTS.ERRORS.NO_VALUE_ERROR'
+      "></request-item-input-error>
   </div>
   <div class="row" *ngIf="expectedValueChangedError">
     <request-item-input-error
-      [messageKey]="'REQUESTS.ERRORS.EXPECTED_CHANGED_VALUE_ERROR'"
-    ></request-item-input-error>
+      [messageKey]="
+        'REQUESTS.ERRORS.EXPECTED_CHANGED_VALUE_ERROR'
+      "></request-item-input-error>
   </div>
   <div class="row" *ngIf="regexMismatchError">
     <request-item-input-error
-      [messageKey]="'REQUESTS.ERRORS.REGEX_MISMATCH_ERROR'"
-    ></request-item-input-error>
+      [messageKey]="
+        'REQUESTS.ERRORS.REGEX_MISMATCH_ERROR'
+      "></request-item-input-error>
   </div>
   <div class="row" *ngIf="duplicateKeysError">
     <request-item-input-error
-      [messageKey]="'REQUESTS.ERRORS.DUPLICATE_KEYS_ERROR'"
-    ></request-item-input-error>
+      [messageKey]="
+        'REQUESTS.ERRORS.DUPLICATE_KEYS_ERROR'
+      "></request-item-input-error>
   </div>
   <div
     *ngFor="let value of values; let i = index; trackBy: customTrackBy"
-    class="row"
-  >
+    class="row">
     <div class="col-sm-3 pr-0">
       <mat-form-field class="w-100">
         <input
@@ -56,8 +56,7 @@
           name="key-{{ i }}"
           [disabled]="allowCustomKeys"
           id="{{ applicationItem.name }}-key-{{ i }}"
-          [(ngModel)]="keys[i]"
-        />
+          [(ngModel)]="keys[i]" />
       </mat-form-field>
     </div>
     <div [class]="!allowCustomKeys ? 'col-sm-8' : 'col-sm-9'" class="pr-0">
@@ -70,8 +69,7 @@
           [pattern]="applicationItem.hasRegex() ? applicationItem.regex : null"
           name="value-{{ i }}"
           id="{{ applicationItem.name }}-value-{{ i }}"
-          [(ngModel)]="values[i]"
-        />
+          [(ngModel)]="values[i]" />
       </mat-form-field>
     </div>
     <div class="col-sm-1 pl-0 pr-0" *ngIf="!allowCustomKeys">

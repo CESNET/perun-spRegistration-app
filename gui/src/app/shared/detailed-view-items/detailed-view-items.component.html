@@ -8,55 +8,62 @@
         [item]="item"
         [isAppAdmin]="isAppAdmin"
         [includeComment]="includeComment"
-        [displayOldVal]="displayOldVal && item.hasValueChanged()"
-      ></detail-item-string>
+        [displayOldVal]="
+          displayOldVal && item.hasValueChanged()
+        "></detail-item-string>
       <detail-item-string
         *ngSwitchCase="'java.lang.LargeString'"
         class="toggleable"
         [item]="item"
         [isAppAdmin]="isAppAdmin"
         [includeComment]="includeComment"
-        [displayOldVal]="displayOldVal && item.hasValueChanged()"
-      ></detail-item-string>
+        [displayOldVal]="
+          displayOldVal && item.hasValueChanged()
+        "></detail-item-string>
       <!-- LONG -->
       <detail-item-integer
         *ngSwitchCase="'java.lang.Long'"
         [item]="item"
         [isAppAdmin]="isAppAdmin"
         [includeComment]="includeComment"
-        [displayOldVal]="displayOldVal && item.hasValueChanged()"
-      ></detail-item-integer>
+        [displayOldVal]="
+          displayOldVal && item.hasValueChanged()
+        "></detail-item-integer>
       <!-- BOOLEAN -->
       <detail-item-boolean
         *ngSwitchCase="'java.lang.Boolean'"
         [item]="item"
         [isAppAdmin]="isAppAdmin"
         [includeComment]="includeComment"
-        [displayOldVal]="displayOldVal && item.hasValueChanged()"
-      ></detail-item-boolean>
+        [displayOldVal]="
+          displayOldVal && item.hasValueChanged()
+        "></detail-item-boolean>
       <!-- MAP -->
       <detail-item-map
         *ngSwitchCase="'java.util.LinkedHashMap'"
         [item]="item"
         [isAppAdmin]="isAppAdmin"
         [includeComment]="includeComment"
-        [displayOldVal]="displayOldVal && item.hasValueChanged()"
-      ></detail-item-map>
+        [displayOldVal]="
+          displayOldVal && item.hasValueChanged()
+        "></detail-item-map>
       <!-- ARRAY -->
       <detail-item-array
         *ngSwitchCase="'java.util.ArrayList'"
         [item]="item"
         [isAppAdmin]="isAppAdmin"
         [includeComment]="includeComment"
-        [displayOldVal]="displayOldVal && item.hasValueChanged()"
-      ></detail-item-array>
+        [displayOldVal]="
+          displayOldVal && item.hasValueChanged()
+        "></detail-item-array>
       <detail-item-array
         *ngSwitchCase="'java.util.LargeArrayList'"
         [item]="item"
         [isAppAdmin]="isAppAdmin"
         [includeComment]="includeComment"
-        [displayOldVal]="displayOldVal && item.hasValueChanged()"
-      ></detail-item-array>
+        [displayOldVal]="
+          displayOldVal && item.hasValueChanged()
+        "></detail-item-array>
     </ng-container>
   </div>
 </div>

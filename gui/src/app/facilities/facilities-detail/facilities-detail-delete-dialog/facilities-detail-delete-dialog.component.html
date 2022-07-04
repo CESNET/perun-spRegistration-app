@@ -1,6 +1,6 @@
 <div class="pb-2">
   <div mat-dialog-content class="row">
-    <p class="col">{{ "FACILITIES.ARE_YOU_SURE_DELETE" | translate }}</p>
+    <p class="col">{{ 'FACILITIES.ARE_YOU_SURE_DELETE' | translate }}</p>
     <div class="w-100"><!-- SPACER --></div>
     <p class="col">{{ data.facilityName | itemLocale }}</p>
   </div>
@@ -10,9 +10,8 @@
         mat-raised-button
         class="btn-block"
         color="accent"
-        (click)="onYesClick()"
-      >
-        {{ "YES" | translate }}
+        (click)="onYesClick()">
+        {{ 'YES' | translate }}
       </button>
     </div>
     <div class="col-md-6">
@@ -20,9 +19,8 @@
         mat-raised-button
         class="btn-block"
         color="warn"
-        (click)="onNoClick()"
-      >
-        {{ "NO" | translate }}
+        (click)="onNoClick()">
+        {{ 'NO' | translate }}
       </button>
     </div>
   </div>

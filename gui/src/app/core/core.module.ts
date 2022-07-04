@@ -1,8 +1,8 @@
-import { NgModule } from '@angular/core'
-import { CommonModule } from '@angular/common'
-import { HTTP_INTERCEPTORS } from '@angular/common/http'
-import { WithCredentialsInterceptor } from './interceptors/with-credentials.interceptor'
-import { ErrorInterceptor } from './interceptors/error.interceptor'
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { WithCredentialsInterceptor } from './interceptors/with-credentials.interceptor';
+import { ErrorInterceptor } from './interceptors/error.interceptor';
 
 @NgModule({
   imports: [CommonModule],
@@ -10,10 +10,10 @@ import { ErrorInterceptor } from './interceptors/error.interceptor'
     {
       provide: HTTP_INTERCEPTORS,
       useClass: WithCredentialsInterceptor,
-      multi: true
+      multi: true,
     },
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
   ],
-  declarations: []
+  declarations: [],
 })
 export class CoreModule {}

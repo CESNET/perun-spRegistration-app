@@ -1,31 +1,31 @@
-import { Pipe, PipeTransform } from '@angular/core'
+import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'languageEntry'
+  name: 'languageEntry',
 })
 export class LanguageEntryPipe implements PipeTransform {
-  transform (value: string, args?: any): any {
+  transform(value: string, args?: any): any {
     if (value === undefined || value === null) {
-      return ''
+      return '';
     }
 
     switch (value.toLowerCase()) {
       case 'en':
-        return 'English'
+        return 'English';
       case 'de':
-        return 'Deutsch'
+        return 'Deutsch';
       case 'cs':
-        return 'Čeština'
+        return 'Čeština';
       case 'sk':
-        return 'Slovenčina'
+        return 'Slovenčina';
       case 'es':
-        return 'Español'
+        return 'Español';
       case 'it':
-        return 'Italiano'
+        return 'Italiano';
       case 'fr':
-        return 'Français'
+        return 'Français';
       default:
-        return ''
+        return '';
     }
   }
 }

@@ -5,8 +5,7 @@
       *ngIf="hasUser()"
       mat-icon-button
       class="mr-2 no-focus-outline d-block"
-      (click)="toggleSideBar()"
-    >
+      (click)="toggleSideBar()">
       <mat-icon>menu</mat-icon>
     </button>
     <a [routerLink]="hasUser() ? '/auth' : '/'" class="site-title ml-2">
@@ -20,8 +19,7 @@
           <button
             mat-icon-button
             class="no-focus-outline d-block"
-            [matMenuTriggerFor]="userDetail"
-          >
+            [matMenuTriggerFor]="userDetail">
             <mat-icon>person</mat-icon>
           </button>
           <mat-menu #userDetail yPosition="below" xPosition="before">
@@ -33,16 +31,14 @@
         <button
           mat-icon-button
           class="no-focus-outline d-block"
-          [matMenuTriggerFor]="langMenu"
-        >
+          [matMenuTriggerFor]="langMenu">
           <mat-icon>translate</mat-icon>
         </button>
         <mat-menu #langMenu yPosition="below" xPosition="before">
           <button
             mat-menu-item
             *ngFor="let lang of langs"
-            (click)="changeLanguage(lang)"
-          >
+            (click)="changeLanguage(lang)">
             {{ lang | languageEntry }}
           </button>
         </mat-menu>
@@ -51,8 +47,7 @@
         <button
           mat-icon-button
           class="mr-2 no-focus-outline d-inline-block"
-          (click)="logout()"
-        >
+          (click)="logout()">
           <mat-icon>exit_to_app</mat-icon>
         </button>
       </div>
@@ -66,36 +61,32 @@
       [mode]="sidenavMode"
       [(opened)]="sidenavOpen"
       [fixedTopGap]="64"
-      [fixedInViewport]="true"
-    >
+      [fixedInViewport]="true">
       <ul class="navbar-nav" *ngIf="hasUser()">
         <li class="nav-item menu-spacer home-spacer menu-item-l1">
-          {{ "MENU.MAIN" | translate }}
+          {{ 'MENU.MAIN' | translate }}
         </li>
         <li
           class="nav-item menu-item-l2"
-          [class.active]="currentUrl !== undefined && currentUrl === '/auth'"
-        >
+          [class.active]="currentUrl !== undefined && currentUrl === '/auth'">
           <a class="no-hover-decoration" routerLink="/auth">
-            {{ "MENU.HOME" | translate }}
+            {{ 'MENU.HOME' | translate }}
           </a>
         </li>
         <ng-container *ngIf="hasUser() && getUser().isAppAdmin">
           <li class="nav-item menu-spacer admin-spacer menu-item-l1">
-            {{ "MENU.ADMIN" | translate }}
+            {{ 'MENU.ADMIN' | translate }}
           </li>
           <li
             class="nav-item menu-item-l2"
             [class.active]="
               currentUrl !== undefined &&
               currentUrl === '/auth/requests/allRequests'
-            "
-          >
+            ">
             <a
               class="no-hover-decoration"
-              routerLink="/auth/requests/allRequests"
-            >
-              {{ "MENU.ALL_REQUESTS" | translate }}
+              routerLink="/auth/requests/allRequests">
+              {{ 'MENU.ALL_REQUESTS' | translate }}
             </a>
           </li>
           <li
@@ -103,65 +94,58 @@
             [class.active]="
               currentUrl !== undefined &&
               currentUrl === '/auth/facilities/allFacilities'
-            "
-          >
+            ">
             <a
               class="no-hover-decoration"
-              routerLink="/auth/facilities/allFacilities"
-            >
-              {{ "MENU.ALL_FACILITIES" | translate }}
+              routerLink="/auth/facilities/allFacilities">
+              {{ 'MENU.ALL_FACILITIES' | translate }}
             </a>
           </li>
           <li
             class="nav-item menu-item-l2"
             [class.active]="
               currentUrl !== undefined && currentUrl === '/auth/tools'
-            "
-          >
+            ">
             <a class="no-hover-decoration" routerLink="/auth/tools">
-              {{ "MENU.TOOLS" | translate }}
+              {{ 'MENU.TOOLS' | translate }}
             </a>
           </li>
         </ng-container>
         <li class="nav-item menu-spacer requests-spacer menu-item-l1">
-          {{ "MENU.REQUESTS" | translate }}
+          {{ 'MENU.REQUESTS' | translate }}
         </li>
         <li
           class="nav-item menu-item-l2"
           [class.active]="
             currentUrl !== undefined &&
             currentUrl === '/auth/requests/myRequests'
-          "
-        >
+          ">
           <a class="no-hover-decoration" routerLink="/auth/requests/myRequests">
-            {{ "MENU.MY_REQUESTS" | translate }}
+            {{ 'MENU.MY_REQUESTS' | translate }}
           </a>
         </li>
         <li class="nav-item menu-spacer requests-spacer menu-item-l1">
-          {{ "MENU.SERVICES" | translate }}
+          {{ 'MENU.SERVICES' | translate }}
         </li>
         <li
           class="nav-item menu-item-l2"
           [class.active]="
             currentUrl !== undefined &&
             currentUrl === '/auth/facilities/myServices'
-          "
-        >
+          ">
           <a
             class="no-hover-decoration"
-            routerLink="/auth/facilities/myServices"
-          >
-            {{ "MENU.MY_SERVICES" | translate }}
+            routerLink="/auth/facilities/myServices">
+            {{ 'MENU.MY_SERVICES' | translate }}
           </a>
         </li>
         <li
           class="nav-item menu-item-l2"
           [class.active]="
             currentUrl !== undefined && currentUrl === '/auth/requests/new'
-          "
-        >
+          ">
           <a class="no-hover-decoration" routerLink="/auth/requests/new">
-            {{ "MENU.REGISTER_SERVICE" | translate }}
+            {{ 'MENU.REGISTER_SERVICE' | translate }}
           </a>
         </li>
       </ul>

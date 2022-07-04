@@ -1,11 +1,11 @@
 <div class="pb-2">
   <div mat-dialog-content class="row">
-    <p class="col">{{ "FACILITIES.ARE_YOU_SURE_REMOVE_ADMIN" | translate }}</p>
+    <p class="col">{{ 'FACILITIES.ARE_YOU_SURE_REMOVE_ADMIN' | translate }}</p>
     <div class="w-100"><!-- SPACER --></div>
     <p class="col">{{ data.userName }}</p>
     <div class="w-100"><!-- SPACER --></div>
     <p class="col">
-      {{ "FACILITIES.ARE_YOU_SURE_REMOVE_ADMIN_CONTINUE" | translate }}
+      {{ 'FACILITIES.ARE_YOU_SURE_REMOVE_ADMIN_CONTINUE' | translate }}
     </p>
   </div>
   <div mat-dialog-actions class="row">
@@ -14,9 +14,8 @@
         mat-raised-button
         class="btn-block"
         color="accent"
-        (click)="onYesClick()"
-      >
-        {{ "YES" | translate }}
+        (click)="onYesClick()">
+        {{ 'YES' | translate }}
       </button>
     </div>
     <div class="col-md-6">
@@ -24,9 +23,8 @@
         mat-raised-button
         class="btn-block"
         color="warn"
-        (click)="onNoClick()"
-      >
-        {{ "NO" | translate }}
+        (click)="onNoClick()">
+        {{ 'NO' | translate }}
       </button>
     </div>
   </div>

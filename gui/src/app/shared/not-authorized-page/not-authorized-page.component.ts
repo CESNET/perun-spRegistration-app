@@ -1,15 +1,15 @@
-import { Component, OnInit } from '@angular/core'
-import { AppComponent } from '../../app.component'
+import { Component, OnInit } from '@angular/core';
+import { AppComponent } from '../../app.component';
 
 @Component({
   selector: 'app-not-authorized-page',
   templateUrl: './not-authorized-page.component.html',
-  styleUrls: ['./not-authorized-page.component.scss']
+  styleUrls: ['./not-authorized-page.component.scss'],
 })
 export class NotAuthorizedPageComponent {
-  constructor () {}
+  constructor() {}
 
-  public hasUser (): boolean {
-    return AppComponent.hasUser()
+  public hasUser(): boolean {
+    return AppComponent.hasUser();
   }
 }

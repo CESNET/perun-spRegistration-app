@@ -1,18 +1,16 @@
 <request-input-item
   *ngFor="let appItem of applicationItems"
   [applicationItem]="appItem"
-  [newApp]="true"
->
+  [newApp]="true">
 </request-input-item>
 <div class="mt-5">
   <button
     mat-raised-button
     [disabled]="stepper !== undefined && stepper.selectedIndex === 0"
-    (click)="previousStep()"
-  >
-    {{ "REQUESTS.PREVIOUS_STEP" | translate }}
+    (click)="previousStep()">
+    {{ 'REQUESTS.PREVIOUS_STEP' | translate }}
   </button>
   <button mat-raised-button color="accent" class="ml-2" (click)="nextStep()">
-    {{ "REQUESTS.NEXT_STEP" | translate }}
+    {{ 'REQUESTS.NEXT_STEP' | translate }}
   </button>
 </div>
