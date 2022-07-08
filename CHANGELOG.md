@@ -1,3 +1,10 @@
+## [2.0.11](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.10...v2.0.11) (2022-07-08)
+
+
+### Bug Fixes
+
+* **deps:** update nrwl monorepo to v14.4.2 ([aad655f](https://github.com/CESNET/perun-spRegistration-app/commit/aad655fd989760a30ea2b9e7058dcd5fdac8430e))
+
 ## [2.0.10](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.9...v2.0.10) (2022-07-08)
 
 
