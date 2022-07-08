@@ -1,3 +1,10 @@
+## [2.0.10](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.9...v2.0.10) (2022-07-08)
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.jsoup:jsoup to v1.15.2 ([c006f8f](https://github.com/CESNET/perun-spRegistration-app/commit/c006f8fc7080aed2283da4ec5eda104d1cd93b14))
+
 ## [2.0.9](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.8...v2.0.9) (2022-07-04)
 
 
