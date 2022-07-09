@@ -1,3 +1,10 @@
+## [2.0.12](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.11...v2.0.12) (2022-07-09)
+
+
+### Bug Fixes
+
+* typo/Slovaczech in Remove service translation ([5c3c6cd](https://github.com/CESNET/perun-spRegistration-app/commit/5c3c6cdc38d1015fc38b81ccd9fc0f8298a3e41f))
+
 ## [2.0.11](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.10...v2.0.11) (2022-07-08)
 
 
