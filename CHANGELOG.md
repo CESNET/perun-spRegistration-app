@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.0...v2.1.1) (2022-07-12)
+
+
+### Bug Fixes
+
+* 🐛 Fix admins setup in facility admins ([95a2190](https://github.com/CESNET/perun-spRegistration-app/commit/95a2190786a88db3a856eae0d089ee0837dfb0b7))
+
 # [2.1.0](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.12...v2.1.0) (2022-07-12)
 
 
