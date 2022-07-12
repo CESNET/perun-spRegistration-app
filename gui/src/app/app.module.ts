@@ -6,7 +6,12 @@ import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { FacilitiesModule } from './facilities/facilities.module';
 import { MainMenuModule } from './main-menu/main-menu.module';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  HttpClient,
+  HttpClientModule,
+  HttpClientXsrfModule,
+} from '@angular/common/http';
 import { SharedModule } from './shared/shared.module';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -19,6 +24,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { AttributeValuePipe } from './attribute-value.pipe';
 import { DocumentSignItemLocalePipe } from './document-sign-item-locale.pipe';
 import { LanguageEntryPipe } from './language-entry.pipe';
+import { HttpXSRFInterceptor } from './core/interceptors/httpxsrf.interceptor';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -36,11 +42,16 @@ export function HttpLoaderFactory(http: HttpClient) {
   ],
   imports: [
     AppRoutingModule,
+    BrowserAnimationsModule,
     BrowserModule,
     CoreModule,
     FacilitiesModule,
+    HammerModule,
     HttpClientModule,
+    HttpClientXsrfModule,
     MainMenuModule,
+    MatDialogModule,
+    MatTabsModule,
     SharedModule,
     TranslateModule.forRoot({
       loader: {
@@ -49,12 +60,14 @@ export function HttpLoaderFactory(http: HttpClient) {
         deps: [HttpClient],
       },
     }),
-    BrowserAnimationsModule,
-    MatDialogModule,
-    MatTabsModule,
-    HammerModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpXSRFInterceptor,
+      multi: true,
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

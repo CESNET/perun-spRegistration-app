@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS requests
     attributes         TEXT,
     modified_by        BIGINT  NOT NULL,
     modified_at        TIMESTAMP DEFAULT now()
-);
+) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci';
 
 CREATE UNIQUE INDEX IF NOT EXISTS requests_id_uindex ON requests (id);
 
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS approvals
     name       TEXT   NOT NULL,
     signed_at  TIMESTAMP DEFAULT now(),
     approved   BOOLEAN
-);
+) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci';
 
 CREATE TABLE IF NOT EXISTS linkCodes
 (
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS linkCodes
     expires_at BIGINT NOT NULL,
     facility_id BIGINT,
     request_id BIGINT
-);
+) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci';
 
 CREATE TABLE IF NOT EXISTS provided_services
 (
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS provided_services
     protocol           VARCHAR(256) NOT NULL,
     identifier         VARCHAR(4096) NOT NULL,
     facility_deleted   BOOLEAN DEFAULT FALSE
-);
+) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci';
 
 CREATE TABLE IF NOT EXISTS audit
 (
@@ -53,4 +53,4 @@ CREATE TABLE IF NOT EXISTS audit
     message_type    INTEGER NOT NULL,
     message         VARCHAR(256) NOT NULL,
     made_at         TIMESTAMP DEFAULT now()
-);
+) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci';
