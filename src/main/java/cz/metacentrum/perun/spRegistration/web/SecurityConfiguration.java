@@ -26,16 +26,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     public static final String[] ANGULAR_FILES = new String[] {
         "/fontawesome-webfont.*.*",
-        "*.*.js",
-        "*.js",
-        "*.css",
+        "/*.*.js",
         "/main.*.js",
         "/polyfills.*.js",
         "/runtime.*.js",
         "/scripts.*.js",
         "/styles.*.css",
         "/assets/**",
-        "/index.html"
+        "/index.html",
+        "/**.js",
+        "/**.css",
     };
 
     private final PerunAdapter perunAdapter;
