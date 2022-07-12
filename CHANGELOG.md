@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.1...v2.1.2) (2022-07-12)
+
+
+### Bug Fixes
+
+* 🐛 Fix security for assets ([f182f9d](https://github.com/CESNET/perun-spRegistration-app/commit/f182f9d1bb39314a19397d4d70b1da3bd3f24800))
+
 ## [2.1.1](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.0...v2.1.1) (2022-07-12)
 
 
