@@ -32,9 +32,7 @@ export class ApiService {
       'application/json; charset=utf-8'
     );
     return this.http
-      .post(`${environment.api_url}${path}`, JSON.stringify(body), {
-        headers,
-      })
+      .post(`${environment.api_url}${path}`, JSON.stringify(body), { headers })
       .pipe(catchError(this.formatErrors));
   }
 
