@@ -323,12 +323,11 @@ public class PerunAdapterRpc implements PerunAdapter {
 		params.put(PARAM_ONLY_DIRECT_ADMINS, false);
 
 		JsonNode response = perunRpc.call(FACILITIES_MANAGER, "getRichAdmins", params);
-		List<User> admins = MapperUtils.mapUsers(response, userEmailAttr);
-		for (User u: admins) {
-			u.setAppAdmin(applicationProperties.getAdminSubs().contains(u.getId()));
-		}
+		//		for (User u: admins) {
+//			u.setAppAdmin(applicationProperties.getAdminSubs().contains(u.getId()));
+//		}
 
-		return admins;
+		return MapperUtils.mapUsers(response, userEmailAttr);
 	}
 
 	@Override

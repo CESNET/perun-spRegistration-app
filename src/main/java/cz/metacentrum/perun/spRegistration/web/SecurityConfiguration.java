@@ -27,6 +27,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public static final String[] ANGULAR_FILES = new String[] {
         "/fontawesome-webfont.*.*",
         "*.*.js",
+        "*.js",
+        "*.css",
         "/main.*.js",
         "/polyfills.*.js",
         "/runtime.*.js",
