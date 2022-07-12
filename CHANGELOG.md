@@ -1,3 +1,10 @@
+## [2.1.3](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.2...v2.1.3) (2022-07-12)
+
+
+### Bug Fixes
+
+* 🐛 Fix CSRF for API requests ([2eb81fd](https://github.com/CESNET/perun-spRegistration-app/commit/2eb81fde1799717b2266bb1a31bb4c7b243c33b4))
+
 ## [2.1.2](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.1...v2.1.2) (2022-07-12)
 
 
