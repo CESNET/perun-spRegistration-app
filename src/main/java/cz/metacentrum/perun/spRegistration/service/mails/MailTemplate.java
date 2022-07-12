@@ -1,14 +1,12 @@
 package cz.metacentrum.perun.spRegistration.service.mails;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Getter
 @Setter

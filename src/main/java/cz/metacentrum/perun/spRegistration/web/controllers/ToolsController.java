@@ -1,24 +1,20 @@
-package cz.metacentrum.perun.spRegistration.rest.controllers;
+package cz.metacentrum.perun.spRegistration.web.controllers;
 
 import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
-import cz.metacentrum.perun.spRegistration.common.models.User;
-import cz.metacentrum.perun.spRegistration.rest.ApiUtils;
 import cz.metacentrum.perun.spRegistration.service.ServiceUtils;
-import cz.metacentrum.perun.spRegistration.service.UtilsService;
+import cz.metacentrum.perun.spRegistration.web.ApiUtils;
+import java.security.InvalidKeyException;
+import java.util.Collections;
+import java.util.Map;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import java.security.InvalidKeyException;
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * Tools controller
@@ -30,21 +26,17 @@ import java.util.Map;
 public class ToolsController {
 
 	@NonNull private final AppBeansContainer appBeansContainer;
-	@NonNull private final UtilsService utilsService;
 
 	@Autowired
-	public ToolsController(@NonNull AppBeansContainer appBeansContainer,
-						   @NonNull UtilsService utilsService) {
+	public ToolsController(@NonNull AppBeansContainer appBeansContainer) {
 		this.appBeansContainer = appBeansContainer;
-		this.utilsService = utilsService;
 	}
 
 	@PostMapping(path = "/encrypt")
-	public Map<String, String> encrypt(@NonNull  @RequestBody String toEncrypt,
-									  @SessionAttribute("user") User user)
+	public Map<String, String> encrypt(@NonNull  @RequestBody String toEncrypt)
 			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnauthorizedActionException
 	{
-		if (!utilsService.isAppAdmin(user)) {
+		if (!ApiUtils.isAppAdmin()) {
 			throw new UnauthorizedActionException("Action cannot be performed");
 		}
 		toEncrypt = ApiUtils.normalizeRequestBodyString(toEncrypt);
@@ -53,11 +45,10 @@ public class ToolsController {
 	}
 
 	@PostMapping(path = "/decrypt")
-	public Map<String, String> decrypt(@NonNull @RequestBody String toDecrypt,
-						  @SessionAttribute("user") User user)
+	public Map<String, String> decrypt(@NonNull @RequestBody String toDecrypt)
 			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnauthorizedActionException
 	{
-		if (!utilsService.isAppAdmin(user)) {
+		if (!ApiUtils.isAppAdmin()) {
 			throw new UnauthorizedActionException("Action cannot be performed");
 		}
 		toDecrypt = ApiUtils.normalizeRequestBodyString(toDecrypt);

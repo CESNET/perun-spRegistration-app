@@ -1,12 +1,11 @@
 package cz.metacentrum.perun.spRegistration.common.models;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
-
-import java.util.List;
 
 @Getter
 @ToString

@@ -8,11 +8,10 @@ import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
-import lombok.NonNull;
-
+import java.security.InvalidKeyException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
-import java.security.InvalidKeyException;
+import lombok.NonNull;
 
 public interface UtilsService {
 
@@ -43,9 +42,5 @@ public interface UtilsService {
 
     boolean isAdminForRequest(@NonNull RequestDTO request, @NonNull User user)
             throws PerunUnknownException, PerunConnectionException;
-
-    boolean isAppAdmin(@NonNull Long userId);
-
-    boolean isAppAdmin(@NonNull User user);
 
 }

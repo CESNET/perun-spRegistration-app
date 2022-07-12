@@ -3,10 +3,9 @@ package cz.metacentrum.perun.spRegistration.persistence.mappers;
 
 import cz.metacentrum.perun.spRegistration.common.enums.AuditMessageType;
 import cz.metacentrum.perun.spRegistration.common.models.AuditLogDTO;
-import org.springframework.jdbc.core.RowMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.springframework.jdbc.core.RowMapper;
 
 public class AuditLogMapper implements RowMapper<AuditLogDTO> {
 

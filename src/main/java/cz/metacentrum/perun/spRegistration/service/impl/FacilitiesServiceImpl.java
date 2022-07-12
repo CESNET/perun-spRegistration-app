@@ -1,11 +1,15 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
+import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment.PRODUCTION;
+import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment.TESTING;
+import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol.OIDC;
+import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol.SAML;
+
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
-import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
 import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.Facility;
 import cz.metacentrum.perun.spRegistration.common.models.InputsContainer;
@@ -13,33 +17,26 @@ import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunEntity;
 import cz.metacentrum.perun.spRegistration.common.models.ProvidedService;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
-import cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
 import cz.metacentrum.perun.spRegistration.persistence.managers.ProvidedServiceManager;
 import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
 import cz.metacentrum.perun.spRegistration.service.FacilitiesService;
 import cz.metacentrum.perun.spRegistration.service.ServiceUtils;
-import java.util.HashSet;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment.PRODUCTION;
-import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceEnvironment.TESTING;
-import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol.OIDC;
-import static cz.metacentrum.perun.spRegistration.persistence.enums.ServiceProtocol.SAML;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service("facilitiesService")
 @Slf4j

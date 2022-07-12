@@ -3,10 +3,9 @@ package cz.metacentrum.perun.spRegistration.common;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
-import lombok.NonNull;
-
 import java.util.HashMap;
 import java.util.Map;
+import lombok.NonNull;
 
 public class SpregUtils {
 
@@ -14,9 +13,7 @@ public class SpregUtils {
             @NonNull Map<AttributeCategory, Map<String, PerunAttribute>> attributes,
             @NonNull Map<String, PerunAttributeDefinition> definitionMap)
     {
-        if (attributes == null) {
-            return null;
-        } else if (attributes.isEmpty()) {
+        if (attributes.isEmpty()) {
             return attributes;
         }
 

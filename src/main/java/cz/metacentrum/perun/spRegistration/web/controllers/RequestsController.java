@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.spRegistration.rest.controllers;
+package cz.metacentrum.perun.spRegistration.web.controllers;
 
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ActiveRequestExistsException;
@@ -11,12 +11,17 @@ import cz.metacentrum.perun.spRegistration.common.models.RequestSignatureDTO;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
-import cz.metacentrum.perun.spRegistration.rest.ApiEntityMapper;
-import cz.metacentrum.perun.spRegistration.rest.models.RequestOverview;
-import cz.metacentrum.perun.spRegistration.rest.models.RequestSignature;
 import cz.metacentrum.perun.spRegistration.service.RequestSignaturesService;
 import cz.metacentrum.perun.spRegistration.service.RequestsService;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
+import cz.metacentrum.perun.spRegistration.web.ApiEntityMapper;
+import cz.metacentrum.perun.spRegistration.web.ApiUtils;
+import cz.metacentrum.perun.spRegistration.web.models.RequestOverview;
+import cz.metacentrum.perun.spRegistration.web.models.RequestSignature;
+import java.security.InvalidKeyException;
+import java.util.List;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +32,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import java.security.InvalidKeyException;
-import java.util.List;
 
 /**
  * Controller handling actions related to Requests.
@@ -136,7 +136,7 @@ public class RequestsController {
 	public List<RequestOverview> allRequests(@NonNull @SessionAttribute("user") User user)
 			throws UnauthorizedActionException
 	{
-		if (!utilsService.isAppAdmin(user)) {
+		if (!ApiUtils.isAppAdmin()) {
 			throw new UnauthorizedActionException();
 		}
 		List<RequestDTO> requests = requestsService.getAllRequests(user);
@@ -150,7 +150,7 @@ public class RequestsController {
 			BadPaddingException, InvalidKeyException, IllegalBlockSizeException, PerunUnknownException,
 			PerunConnectionException
 	{
-		if (!utilsService.isAppAdmin(user)) {
+		if (!ApiUtils.isAppAdmin()) {
 			throw new UnauthorizedActionException();
 		}
 		return requestsService.approveRequest(requestId, user);
@@ -161,7 +161,7 @@ public class RequestsController {
 								 @NonNull @PathVariable("requestId") Long requestId)
 			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException
 	{
-		if (!utilsService.isAppAdmin(user)) {
+		if (!ApiUtils.isAppAdmin()) {
 			throw new UnauthorizedActionException();
 		}
 		return requestsService.rejectRequest(requestId, user);
@@ -173,7 +173,7 @@ public class RequestsController {
 								 @NonNull @RequestBody List<PerunAttribute> attributes)
 			throws UnauthorizedActionException, CannotChangeStatusException, InternalErrorException
 	{
-		if (!utilsService.isAppAdmin(user)) {
+		if (!ApiUtils.isAppAdmin()) {
 			throw new UnauthorizedActionException();
 		}
 		return requestsService.askForChanges(requestId, user, attributes);

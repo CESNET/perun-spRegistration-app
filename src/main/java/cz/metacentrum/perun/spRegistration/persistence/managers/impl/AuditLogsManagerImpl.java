@@ -4,6 +4,8 @@ import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorExcept
 import cz.metacentrum.perun.spRegistration.common.models.AuditLogDTO;
 import cz.metacentrum.perun.spRegistration.persistence.managers.AuditLogsManager;
 import cz.metacentrum.perun.spRegistration.persistence.mappers.AuditLogMapper;
+import java.util.List;
+import java.util.StringJoiner;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +15,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.StringJoiner;
 
 
 @Component("auditLogsManager")

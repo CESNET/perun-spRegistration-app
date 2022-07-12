@@ -9,15 +9,14 @@ import cz.metacentrum.perun.spRegistration.common.models.Member;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.common.models.User;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 /**
  * MapperUtils class for mapping objects from RPC responses.

@@ -9,12 +9,6 @@ import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestAction;
 import cz.metacentrum.perun.spRegistration.common.enums.RequestStatus;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
-import lombok.ToString;
-
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +16,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Class represents request made by user. It contains all the data that needs to be stored.
@@ -49,21 +48,15 @@ public class RequestDTO {
 
 	@JsonIgnore
 	public Map<String, String> getFacilityName(String attrName) {
-		if (attributes.containsKey(AttributeCategory.SERVICE)) {
-			Map<String, PerunAttribute> serviceAttrs = attributes.get(AttributeCategory.SERVICE);
-			if (serviceAttrs.containsKey(attrName)) {
-				PerunAttribute attr = serviceAttrs.get(attrName);
-				if (attr != null) {
-					return attr.valueAsMap();
-				}
-			}
-		}
-
-		return new HashMap<>();
+		return getMultiLanguageAttribute(attrName);
 	}
 
 	@JsonIgnore
 	public Map<String, String> getFacilityDescription(String attrName) {
+		return getMultiLanguageAttribute(attrName);
+	}
+
+	private Map<String, String> getMultiLanguageAttribute(String attrName) {
 		if (attributes.containsKey(AttributeCategory.SERVICE)) {
 			Map<String, PerunAttribute> serviceAttrs = attributes.get(AttributeCategory.SERVICE);
 			if (serviceAttrs.containsKey(attrName)) {

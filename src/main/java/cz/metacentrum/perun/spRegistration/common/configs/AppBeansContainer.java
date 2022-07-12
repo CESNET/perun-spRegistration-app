@@ -7,14 +7,6 @@ import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinitio
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -22,6 +14,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.crypto.spec.SecretKeySpec;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Getter
@@ -113,11 +111,7 @@ public class AppBeansContainer {
     private String fixSecret(String s) {
         if (s.length() < 32) {
             int missingLength = 32 - s.length();
-            StringBuilder sBuilder = new StringBuilder(s);
-            for (int i = 0; i < missingLength; i++) {
-                sBuilder.append('A');
-            }
-            s = sBuilder.toString();
+            s = s + "A".repeat(missingLength);
         }
         return s.substring(0, 32);
     }

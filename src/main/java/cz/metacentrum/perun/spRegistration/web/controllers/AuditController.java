@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.spRegistration.rest.controllers;
+package cz.metacentrum.perun.spRegistration.web.controllers;
 
 import cz.metacentrum.perun.spRegistration.common.exceptions.InternalErrorException;
 import cz.metacentrum.perun.spRegistration.common.exceptions.UnauthorizedActionException;
@@ -6,10 +6,12 @@ import cz.metacentrum.perun.spRegistration.common.models.AuditLogDTO;
 import cz.metacentrum.perun.spRegistration.common.models.User;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
-import cz.metacentrum.perun.spRegistration.rest.ApiEntityMapper;
-import cz.metacentrum.perun.spRegistration.rest.models.AuditLog;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
 import cz.metacentrum.perun.spRegistration.service.impl.AuditServiceImpl;
+import cz.metacentrum.perun.spRegistration.web.ApiEntityMapper;
+import cz.metacentrum.perun.spRegistration.web.ApiUtils;
+import cz.metacentrum.perun.spRegistration.web.models.AuditLog;
+import java.util.List;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +20,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/audit")
@@ -39,7 +39,7 @@ public class AuditController {
     public List<AuditLog> allAuditLogs(@NonNull @SessionAttribute("user") User user)
             throws UnauthorizedActionException
     {
-        if (!utilsService.isAppAdmin(user)) {
+        if (!ApiUtils.isAppAdmin()) {
             throw new UnauthorizedActionException();
         }
         List<AuditLogDTO> auditList = auditService.getAllLogs(user.getId());

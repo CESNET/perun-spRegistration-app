@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.spRegistration.service;
 
+import static cz.metacentrum.perun.spRegistration.web.SecurityConfiguration.ROLE_ADMIN;
+
 import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.common.configs.AttributesProperties;
 import cz.metacentrum.perun.spRegistration.common.enums.AttributeCategory;
@@ -11,15 +13,6 @@ import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
 import cz.metacentrum.perun.spRegistration.persistence.adapters.PerunAdapter;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunConnectionException;
 import cz.metacentrum.perun.spRegistration.persistence.exceptions.PerunUnknownException;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.DigestUtils;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -32,6 +25,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.DigestUtils;
 
 /**
  * Utility class containing methods for services.
@@ -206,7 +209,11 @@ public class ServiceUtils {
 		Map<String, PerunAttribute> attrs = perunAdapter.getFacilityAttributes(facilityId, attrsToFetch);
 		boolean isOidc = ServiceUtils.isOidcAttributes(attrs, attributesProperties.getNames().getOidcClientId());
 		Set<String> keptAttrs = ServiceUtils.getAttrNames(inputsContainer, isOidc, attributesProperties);
-		log.info("{}", keptAttrs);
 		return ServiceUtils.filterFacilityAttrs(attrs, keptAttrs);
+	}
+
+	public static boolean isAppAdmin() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		return auth != null && auth.getAuthorities() != null && auth.getAuthorities().contains(ROLE_ADMIN);
 	}
 }

@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
+import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.REQUEST_SIGNED;
+
 import cz.metacentrum.perun.spRegistration.Utils;
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
 import cz.metacentrum.perun.spRegistration.common.exceptions.ExpiredCodeException;
@@ -17,14 +19,12 @@ import cz.metacentrum.perun.spRegistration.persistence.managers.RequestSignature
 import cz.metacentrum.perun.spRegistration.service.MailsService;
 import cz.metacentrum.perun.spRegistration.service.RequestSignaturesService;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
+import cz.metacentrum.perun.spRegistration.web.ApiUtils;
+import java.util.List;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-
-import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.REQUEST_SIGNED;
 
 @Service("requestSignaturesService")
 @Slf4j
@@ -79,7 +79,7 @@ public class RequestSignaturesServiceImpl implements RequestSignaturesService {
         RequestDTO request = requestManager.getRequestById(requestId);
         if (request == null) {
             throw new InternalErrorException(Utils.GENERIC_ERROR_MSG);
-        } else if (!applicationProperties.isAppAdmin(userId)
+        } else if (!ApiUtils.isAppAdmin()
                 && !utilsService.isAdminForRequest(request, userId)) {
             throw new UnauthorizedActionException(Utils.GENERIC_ERROR_MSG);
         }

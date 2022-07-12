@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.spRegistration.common.models;
 
+import java.time.LocalDateTime;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,8 +8,6 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.util.StringUtils;
-
-import java.time.LocalDateTime;
 
 /**
  * Approval for request of transferring service into production environment.

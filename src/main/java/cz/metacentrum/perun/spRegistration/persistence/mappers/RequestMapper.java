@@ -11,15 +11,14 @@ import cz.metacentrum.perun.spRegistration.common.models.AttrInput;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttribute;
 import cz.metacentrum.perun.spRegistration.common.models.PerunAttributeDefinition;
 import cz.metacentrum.perun.spRegistration.common.models.RequestDTO;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.RowMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.RowMapper;
 
 /**
  * Mapper for Request object. Maps result retrieved from DB to Request object.

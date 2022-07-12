@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
+import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.LANG_CS;
+import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.LANG_EN;
+
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import cz.metacentrum.perun.spRegistration.common.configs.AppBeansContainer;
 import cz.metacentrum.perun.spRegistration.common.configs.ApplicationProperties;
@@ -17,22 +20,19 @@ import cz.metacentrum.perun.spRegistration.persistence.managers.RequestManager;
 import cz.metacentrum.perun.spRegistration.service.MailsService;
 import cz.metacentrum.perun.spRegistration.service.ServiceUtils;
 import cz.metacentrum.perun.spRegistration.service.UtilsService;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
+import cz.metacentrum.perun.spRegistration.web.ApiUtils;
 import java.security.InvalidKeyException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
-import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.LANG_CS;
-import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.LANG_EN;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service("utilsService")
 @Slf4j
@@ -125,7 +125,7 @@ public class UtilsServiceImpl implements UtilsService {
     public boolean isAdminForFacility(@NonNull Long facilityId, @NonNull Long userId)
             throws PerunUnknownException, PerunConnectionException
     {
-        if (isAppAdmin(userId)) {
+        if (ApiUtils.isAppAdmin()) {
             return true;
         }
 
@@ -149,7 +149,7 @@ public class UtilsServiceImpl implements UtilsService {
     public boolean isAdminForRequest(@NonNull RequestDTO request, @NonNull Long userId)
             throws PerunUnknownException, PerunConnectionException
     {
-        if (isAppAdmin(userId)) {
+        if (ApiUtils.isAppAdmin()) {
             return true;
         }
         boolean res = Objects.equals(request.getReqUserId(), userId);
@@ -162,7 +162,7 @@ public class UtilsServiceImpl implements UtilsService {
     @Override
     public boolean isAdminForRequest(@NonNull Long reqId, @NonNull Long userId)
             throws PerunUnknownException, PerunConnectionException, InternalErrorException {
-        if (isAppAdmin(userId)) {
+        if (ApiUtils.isAppAdmin()) {
             return true;
         }
         RequestDTO request = requestManager.getRequestById(reqId);
@@ -188,16 +188,6 @@ public class UtilsServiceImpl implements UtilsService {
             throws PerunUnknownException, PerunConnectionException
     {
         return this.isAdminForRequest(request, user.getId());
-    }
-
-    @Override
-    public boolean isAppAdmin(@NonNull Long userId) {
-        return applicationProperties.isAppAdmin(userId);
-    }
-
-    @Override
-    public boolean isAppAdmin(@NonNull User user) {
-        return this.isAppAdmin(user.getId());
     }
 
 }

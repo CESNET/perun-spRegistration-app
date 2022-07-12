@@ -1,13 +1,12 @@
-package cz.metacentrum.perun.spRegistration.rest.models;
+package cz.metacentrum.perun.spRegistration.web.models;
 
 import cz.metacentrum.perun.spRegistration.common.enums.AuditMessageType;
+import java.sql.Timestamp;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
-
-import java.sql.Timestamp;
 
 @Getter
 @Setter
