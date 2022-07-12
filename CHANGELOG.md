@@ -1,3 +1,15 @@
+# [2.1.0](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.12...v2.1.0) (2022-07-12)
+
+
+### Bug Fixes
+
+* **deps:** update angular monorepo to v14.0.5 ([b68e291](https://github.com/CESNET/perun-spRegistration-app/commit/b68e291d2a673fcb5ef25f360c90bc585592fbc5))
+
+
+### Features
+
+* 🎸 OIDC Authentication ([abb6a8c](https://github.com/CESNET/perun-spRegistration-app/commit/abb6a8cf58636611a3231aeedbb1608212198596))
+
 ## [2.0.12](https://github.com/CESNET/perun-spRegistration-app/compare/v2.0.11...v2.0.12) (2022-07-09)
 
 
