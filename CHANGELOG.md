@@ -1,3 +1,10 @@
+## [2.1.4](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.3...v2.1.4) (2022-07-13)
+
+
+### Bug Fixes
+
+* **deps:** update dependency core-js to v3.23.4 ([f3a13b9](https://github.com/CESNET/perun-spRegistration-app/commit/f3a13b9642406657bf0ee675fc7128b66ce71525))
+
 ## [2.1.3](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.2...v2.1.3) (2022-07-12)
 
 
