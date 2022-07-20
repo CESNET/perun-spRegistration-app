@@ -1,3 +1,11 @@
+## [2.1.6](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.5...v2.1.6) (2022-07-20)
+
+
+### Bug Fixes
+
+* **deps:** update angularmaterial monorepo to v14.1.0 ([367444f](https://github.com/CESNET/perun-spRegistration-app/commit/367444f83adbc7c203ae8735b556b0014cb23ec4))
+* **deps:** update nrwl monorepo to v14.4.3 ([864a8c3](https://github.com/CESNET/perun-spRegistration-app/commit/864a8c30668ccf593c5768aa0fc70fdfced01491))
+
 ## [2.1.5](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.4...v2.1.5) (2022-07-20)
 
 
