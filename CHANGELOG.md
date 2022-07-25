@@ -1,3 +1,11 @@
+## [2.1.8](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.7...v2.1.8) (2022-07-25)
+
+
+### Bug Fixes
+
+* **deps:** update dependency bootstrap to v4.6.2 ([4ade814](https://github.com/CESNET/perun-spRegistration-app/commit/4ade8141bea3eebe8f02309a1994998c46ee13de))
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v2.7.2 ([e54d72e](https://github.com/CESNET/perun-spRegistration-app/commit/e54d72e7b3201aa6cad1dba3ed255a9f9994fae3))
+
 ## [2.1.7](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.6...v2.1.7) (2022-07-22)
 
 
