@@ -1,3 +1,11 @@
+## [2.1.10](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.9...v2.1.10) (2022-08-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency core-js to v3.24.1 ([9edc993](https://github.com/CESNET/perun-spRegistration-app/commit/9edc993b25cb2f228c4528020134d577944284cd))
+* **deps:** update font awesome to v6.1.2 ([c3a9d38](https://github.com/CESNET/perun-spRegistration-app/commit/c3a9d38852a44764e70df12803eac78349d04255))
+
 ## [2.1.9](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.8...v2.1.9) (2022-07-25)
 
 
