@@ -85,6 +85,7 @@
     "DETAIL_REJECT": "Zamítnout",
     "DETAIL_REQUEST_CHANGES": "Vyžádat změny",
     "DETAIL_APPROVE": "Schválit",
+    "DETAIL_APPROVE_MOVE": "Pokračovat ke schválení",
     "REQUESTED_BY": "Vyžádal",
     "REQUEST_CHANGES_COMMENT": "Komentář",
     "SET_REQUEST_WFA": "Požádat o schválení",
@@ -100,6 +101,7 @@
       "WFA": "Čeká na schválení",
       "WFC": "Administrátor vyžádal změny",
       "CANCELED": "Zrušeno",
+      "IN_APPROVAL_PROCESS": "Čeká na autoritativní rozhodnutí",
       "UNKNOWN": "Neznámá hodnota"
     },
     "ACTIONPIPE": {

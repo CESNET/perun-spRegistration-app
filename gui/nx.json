@@ -34,5 +34,10 @@
   "workspaceLayout": {
     "appsDir": "projects",
     "libsDir": "projects"
-  }
+  },
+  "cli": {
+    "analytics": "d323862d-e2c8-4a1f-9d51-9175a858e02c",
+    "defaultCollection": "@angular-eslint/schematics"
+  },
+  "defaultProject": "service-creation"
 }

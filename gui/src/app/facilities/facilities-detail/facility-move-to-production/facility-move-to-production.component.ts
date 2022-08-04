@@ -67,7 +67,7 @@ export class FacilityMoveToProductionComponent implements OnInit, OnDestroy {
     }
 
     this.facilitiesService
-      .createRequest(this.facility.id, this.emails)
+      .createTransferApprovalRequest(this.facility.id, this.emails)
       .subscribe(reqid => {
         this.loading = false;
         this.snackBar.open(this.successActionText, null, { duration: 5000 });

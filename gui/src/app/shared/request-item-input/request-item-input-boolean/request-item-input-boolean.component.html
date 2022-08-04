@@ -4,7 +4,8 @@
       <mat-checkbox
         [(ngModel)]="value"
         name="{{ applicationItem.name }}"
-        [class.perun-warn]="hasError()">
+        [class.perun-warn]="hasError()"
+        [required]="required">
         {{ applicationItem.displayName | itemLocale }}
       </mat-checkbox>
       <hr class="hr" />

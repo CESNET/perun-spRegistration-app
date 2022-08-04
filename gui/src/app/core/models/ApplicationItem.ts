@@ -19,7 +19,8 @@ export class ApplicationItem {
       }
     }
 
-    this.required = item.required;
+    this.requiredTest = item.requiredTest;
+    this.requiredProd = item.requiredProd;
     this.displayed = item.displayed;
     this.editable = item.editable;
     this.type = item.type;
@@ -38,7 +39,8 @@ export class ApplicationItem {
   name: string;
   displayName: Map<string, string>;
   description: Map<string, string>;
-  required: boolean;
+  requiredProd: boolean;
+  requiredTest: boolean;
   displayed: boolean;
   editable = false;
   type: string;
@@ -88,5 +90,9 @@ export class ApplicationItem {
 
   public isTypeInteger(): boolean {
     return this.type === 'java.lang.Integer';
+  }
+
+  isRequired(environment: string) {
+    return environment === 'PRODUCTION' ? this.requiredProd : this.requiredTest;
   }
 }

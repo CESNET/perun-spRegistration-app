@@ -32,7 +32,10 @@ public class AttrInput {
 	@JsonAlias({"displayName", "display_name"})
 	@NotEmpty private Map<String, String> displayName;
 	@NotEmpty private Map<String, String> description;
-	private boolean required = true;
+	@JsonAlias({"requiredProd", "required_prod"})
+	private boolean requiredProd = false;
+	@JsonAlias({"requiredTest", "required_test"})
+	private boolean requiredTest = false;
 	private boolean displayed = true;
 	private boolean editable = true;
 	@NotBlank private String type;

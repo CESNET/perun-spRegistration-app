@@ -12,6 +12,7 @@ public enum RequestStatus {
 	WAITING_FOR_APPROVAL,
 	WAITING_FOR_CHANGES,
 	CANCELED,
+	IN_APPROVAL_PROCESS,
 	UNKNOWN;
 
 	/**
@@ -25,6 +26,7 @@ public enum RequestStatus {
 			case WAITING_FOR_APPROVAL: return 3;
 			case WAITING_FOR_CHANGES: return 4;
 			case CANCELED: return 5;
+			case IN_APPROVAL_PROCESS: return 6;
 			default: return -1;
 		}
 	}
@@ -41,6 +43,7 @@ public enum RequestStatus {
 			case 3: return WAITING_FOR_APPROVAL;
 			case 4: return WAITING_FOR_CHANGES;
 			case 5: return CANCELED;
+			case 6: return IN_APPROVAL_PROCESS;
 			default: return UNKNOWN;
 		}
 	}
@@ -52,6 +55,7 @@ public enum RequestStatus {
 			case WAITING_FOR_APPROVAL: return "cs".equalsIgnoreCase(lang) ? "Čeká na schválení" : "Waiting for approval";
 			case WAITING_FOR_CHANGES: return "cs".equalsIgnoreCase(lang) ? "Čeká na změny" : "Waiting for changes";
 			case CANCELED: return "cs".equalsIgnoreCase(lang) ? "Zrušeno" : "Canceled";
+			case IN_APPROVAL_PROCESS: return "cs".equalsIgnoreCase(lang) ? "Čeká na autoritativní rozhodnutí" : "Waiting for authoritative decisions";
 			default: return this.toString();
 		}
 	}

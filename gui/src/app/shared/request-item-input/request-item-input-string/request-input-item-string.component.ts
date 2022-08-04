@@ -15,6 +15,7 @@ export class RequestInputItemStringComponent implements RequestItem, OnInit {
 
   @Input() newApp = false;
   @Input() applicationItem: ApplicationItem;
+  @Input() required = false;
   @ViewChild('form', { static: false }) form: NgForm;
   @ViewChild('input', { static: false }) inputField: NgModel;
 
@@ -70,7 +71,7 @@ export class RequestInputItemStringComponent implements RequestItem, OnInit {
   }
 
   private checkValueRequired(): boolean {
-    if (this.applicationItem.required) {
+    if (this.required) {
       this.form.form.setErrors({ incorrect: true });
       this.missingValueError = true;
       return false;

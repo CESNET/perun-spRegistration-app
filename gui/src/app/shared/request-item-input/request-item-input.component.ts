@@ -19,6 +19,8 @@ export class RequestItemInputComponent implements RequestItem, AfterViewInit {
 
   @Input() newApp = false;
   @Input() applicationItem: ApplicationItem;
+  @Input() required = false;
+
   @ViewChild(RequestInputItemStringComponent, { static: false })
   stringItem: RequestItem;
 
@@ -48,6 +50,7 @@ export class RequestItemInputComponent implements RequestItem, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    console.log(this.applicationItem.name + ' ' + this.required);
     switch (this.applicationItem.type) {
       case 'java.lang.String':
         {
@@ -84,7 +87,6 @@ export class RequestItemInputComponent implements RequestItem, AfterViewInit {
   }
 
   onFormSubmitted(): void {
-    console.log(this.applicationItem);
     this.item.onFormSubmitted();
   }
 }

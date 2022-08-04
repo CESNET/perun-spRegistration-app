@@ -76,15 +76,31 @@
           <ng-container
             *ngIf="
               request.status === requestStatusEnum.WAITING_FOR_APPROVAL ||
-              request.status === requestStatusEnum.WAITING_FOR_CHANGES
+              request.status === requestStatusEnum.WAITING_FOR_CHANGES ||
+              request.status === requestStatusEnum.IN_APPROVAL_PROCESS
             ">
             <ng-container *ngIf="isApplicationAdmin">
               <button
+                *ngIf="
+                  request.action !== requestActionEnum.MOVE_TO_PRODUCTION ||
+                  request.status === requestStatusEnum.IN_APPROVAL_PROCESS
+                "
                 mat-raised-button
                 color="accent"
                 class="btn-block"
                 (click)="openApproveDialog()">
                 {{ 'REQUESTS.DETAIL_APPROVE' | translate }}
+              </button>
+              <button
+                *ngIf="
+                  request.action === requestActionEnum.MOVE_TO_PRODUCTION &&
+                  request.status !== requestStatusEnum.IN_APPROVAL_PROCESS
+                "
+                mat-raised-button
+                color="accent"
+                class="btn-block"
+                (click)="approveMoveToProduction()">
+                {{ 'REQUESTS.DETAIL_APPROVE_MOVE' | translate }}
               </button>
               <button
                 mat-raised-button

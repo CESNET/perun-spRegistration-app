@@ -1,12 +1,14 @@
 package cz.metacentrum.perun.spRegistration.service.impl;
 
 import static cz.metacentrum.perun.spRegistration.common.enums.RequestStatus.APPROVED;
+import static cz.metacentrum.perun.spRegistration.common.enums.RequestStatus.IN_APPROVAL_PROCESS;
 import static cz.metacentrum.perun.spRegistration.common.enums.RequestStatus.REJECTED;
 import static cz.metacentrum.perun.spRegistration.common.enums.RequestStatus.WAITING_FOR_APPROVAL;
 import static cz.metacentrum.perun.spRegistration.common.enums.RequestStatus.WAITING_FOR_CHANGES;
 import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.LANG_EN;
 import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.REQUEST_CREATED;
 import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.REQUEST_MODIFIED;
+import static cz.metacentrum.perun.spRegistration.service.impl.MailsServiceImpl.TRANSFER_APPROVAL;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -150,6 +152,41 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     @Override
+    public Long createTransferRequest(@NonNull Long facilityId, @NonNull User user,
+                                      @NonNull List<PerunAttribute> attributes)
+        throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException,
+        PerunUnknownException, PerunConnectionException
+    {
+        if (attributes.isEmpty()) {
+            throw new IllegalArgumentException("Attributes cannot be empty");
+        }
+
+        Facility facility = perunAdapter.getFacilityById(facilityId);
+        if (facility == null) {
+            throw new InternalErrorException("Could not fetch facility for facilityId: " + facilityId);
+        }
+
+        List<String> attrNames = attributes.stream().map(PerunAttribute::getFullName).collect(Collectors.toList());
+        Map<String, PerunAttribute> actualAttrs = perunAdapter.getFacilityAttributes(facilityId, attrNames);
+        for (PerunAttribute a: attributes) {
+            if (actualAttrs.containsKey(a.getFullName())) {
+                PerunAttribute actualA = actualAttrs.get(a.getFullName());
+                a.setOldValue(actualA.getDefinition().getType(), actualA.getValue());
+            }
+        }
+
+        attributes = attributes.stream().filter(a -> !isOidcCredentialAttr(a)).collect(Collectors.toList());
+
+        RequestDTO req = createRequest(facilityId, user, RequestAction.MOVE_TO_PRODUCTION, attributes);
+
+        mailsService.notifyUser(req, REQUEST_CREATED);
+        mailsService.notifyAppAdmins(req, REQUEST_CREATED);
+
+        insertUpdateServiceReqCreatedAuditLog(req.getReqId(), user.getId(), user.getName());
+        return req.getReqId();
+    }
+
+    @Override
     public Long createFacilityChangesRequest(@NonNull Long facilityId, @NonNull User user,
                                              @NonNull List<PerunAttribute> attributes)
             throws InternalErrorException, ActiveRequestExistsException, PerunUnknownException, PerunConnectionException
@@ -211,31 +248,31 @@ public class RequestsServiceImpl implements RequestsService {
     }
 
     @Override
-    public Long createMoveToProductionRequest(@NonNull Long facilityId, @NonNull User user,
-                                              @NonNull List<String> authorities)
-            throws InternalErrorException, ActiveRequestExistsException, BadPaddingException, InvalidKeyException,
-            IllegalBlockSizeException, UnsupportedEncodingException, PerunUnknownException, PerunConnectionException,
-            UnauthorizedActionException
-    {
-        Facility fac = facilitiesService.getFacility(facilityId, user.getId(), false);
-        if (fac == null) {
-            throw new InternalErrorException("Could not retrieve facility for id: " + facilityId);
+    public Long createTransferApprovalsRequest(@NonNull Long requestId, @NonNull User user,
+                                               @NonNull List<String> authorities)
+        throws InternalErrorException, UnsupportedEncodingException, PerunUnknownException,
+        PerunConnectionException, UnauthorizedActionException {
+        RequestDTO request = requestManager.getRequestById(requestId);
+        if (request == null) {
+            throw new InternalErrorException("Could not retrieve request for id: " + requestId);
+        } else if (!utilsService.isAdminForRequest(request, user.getId())) {
+            throw new UnauthorizedActionException("User is not registered as admin in request, cannot update it");
         }
 
-        List<PerunAttribute> attrs = new ArrayList<>();
-        fac.getAttributes().values().stream().map(Map::values).forEach(attrs::addAll);
-        attrs = attrs.stream().filter(a -> !isOidcCredentialAttr(a, false)).collect(Collectors.toList());
+        request.setStatus(RequestStatus.IN_APPROVAL_PROCESS);
+        boolean updated = requestManager.updateRequest(request);
 
-        RequestDTO req = createRequest(facilityId, user, RequestAction.MOVE_TO_PRODUCTION, attrs);
+        if (!updated) {
+            throw new InternalErrorException("Could not update request");
+        }
+        Map<String, String> authoritiesLinksMap = generateLinksForAuthorities(request, authorities, user);
 
-        Map<String, String> authoritiesLinksMap = generateLinksForAuthorities(req, authorities, user);
+        mailsService.notifyUser(request, TRANSFER_APPROVAL);
+        mailsService.notifyAppAdmins(request, TRANSFER_APPROVAL);
+        mailsService.notifyAuthorities(request, authoritiesLinksMap);
 
-        mailsService.notifyUser(req, REQUEST_CREATED);
-        mailsService.notifyAppAdmins(req, REQUEST_CREATED);
-        mailsService.notifyAuthorities(req, authoritiesLinksMap);
-
-        insertTransferServiceReqCreatedAuditLog(req.getReqId(), user.getId(), user.getName());
-        return req.getReqId();
+        insertTransferServiceReqCreatedAuditLog(request.getReqId(), user.getId(), user.getName());
+        return request.getReqId();
     }
 
     @Override
@@ -401,12 +438,10 @@ public class RequestsServiceImpl implements RequestsService {
         if (request == null) {
             throw new InternalErrorException("Could not fetch request with ID: " + requestId + " from database");
         } else if (!hasCorrectStatus(request.getStatus(),
-                new RequestStatus[] {WAITING_FOR_CHANGES, WAITING_FOR_APPROVAL}))
+                new RequestStatus[] {WAITING_FOR_CHANGES, WAITING_FOR_APPROVAL, IN_APPROVAL_PROCESS}))
         {
             throw new CannotChangeStatusException("Cannot approve request, request is not in valid status");
         }
-
-        RequestStatus oldStatus = request.getStatus();
 
         request.setStatus(APPROVED);
         request.setModifiedAt(new Timestamp(System.currentTimeMillis()));

@@ -4,7 +4,7 @@
       class="col-12 pl-0 pr-0 pb-1 col-form-label word-break-word"
       [class.perun-warn]="hasError()">
       {{ applicationItem.displayName | itemLocale
-      }}<span *ngIf="applicationItem.required"> *</span>
+      }}<span *ngIf="required"> *</span>
       <button
         *ngIf="!allowCustomKeys"
         mat-icon-button
@@ -64,7 +64,7 @@
         <input
           matInput
           [type]="applicationItem.regex === 'URL' ? 'url' : 'text'"
-          [required]="applicationItem.required"
+          [required]="required"
           placeholder="{{ 'REQUESTS.VALUE' | translate }}"
           [pattern]="applicationItem.hasRegex() ? applicationItem.regex : null"
           name="value-{{ i }}"

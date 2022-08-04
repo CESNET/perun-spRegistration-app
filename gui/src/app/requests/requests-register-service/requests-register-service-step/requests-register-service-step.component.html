@@ -1,7 +1,8 @@
 <request-input-item
   *ngFor="let appItem of applicationItems"
   [applicationItem]="appItem"
-  [newApp]="true">
+  [newApp]="true"
+  [required]="appItem.requiredTest">
 </request-input-item>
 <div class="mt-5">
   <button

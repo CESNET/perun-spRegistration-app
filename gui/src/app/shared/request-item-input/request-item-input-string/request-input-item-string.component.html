@@ -4,7 +4,7 @@
       <input
         matInput
         #input="ngModel"
-        [required]="applicationItem.required"
+        [required]="required"
         id="{{ applicationItem.name }}"
         [(ngModel)]="value"
         [pattern]="applicationItem.hasRegex() ? applicationItem.regex : null"

@@ -88,6 +88,7 @@
     "DETAIL_REJECT": "Reject",
     "DETAIL_REQUEST_CHANGES": "Request changes",
     "DETAIL_APPROVE": "Approve",
+    "DETAIL_APPROVE_MOVE": "Proceed to approvals",
     "REQUESTED_BY": "Requested by",
     "REQUEST_CHANGES_COMMENT": "Comment",
     "SET_REQUEST_WFA": "Ask for approval",
@@ -103,6 +104,7 @@
       "WFA": "Waiting for approval",
       "WFC": "Changes requested by administrator",
       "CANCELED": "Canceled",
+      "IN_APPROVAL_PROCESS": "Waiting for an authoritative decision",
       "UNKNOWN": "Unknown"
     },
     "ACTIONPIPE": {

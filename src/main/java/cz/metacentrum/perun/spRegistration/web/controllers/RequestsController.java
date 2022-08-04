@@ -71,9 +71,22 @@ public class RequestsController {
 	@PostMapping(path = "/register")
 	public Long createRegistrationRequest(@NonNull @SessionAttribute("user") User user,
 										  @NonNull @RequestBody List<PerunAttribute> attributes)
-			throws InternalErrorException
+		throws InternalErrorException
 	{
 		return requestsService.createRegistrationRequest(user, attributes);
+	}
+
+	@PostMapping(path = "/transfer/{facilityId}")
+	public Long createTransferRequest(@NonNull @SessionAttribute("user") User user,
+									  @NonNull @RequestBody List<PerunAttribute> attributes,
+									  @NonNull @PathVariable("facilityId") Long facilityId)
+		throws ActiveRequestExistsException, InternalErrorException, UnauthorizedActionException,
+		PerunUnknownException, PerunConnectionException
+	{
+		if (!utilsService.isAdminForFacility(facilityId, user)) {
+			throw new UnauthorizedActionException();
+		}
+		return requestsService.createTransferRequest(facilityId, user, attributes);
 	}
 
 	@PostMapping(path = "/changeFacility/{facilityId}")

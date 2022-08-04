@@ -14,6 +14,7 @@ export class RequestItemInputBooleanComponent implements OnInit, RequestItem {
 
   @Input() newApp = false;
   @Input() applicationItem: ApplicationItem;
+  @Input() required = false;
   @ViewChild('form', { static: false }) form: NgForm;
 
   value = false;
@@ -28,6 +29,9 @@ export class RequestItemInputBooleanComponent implements OnInit, RequestItem {
   }
 
   hasCorrectValue(): boolean {
+    if (!this.value && this.required) {
+      return false;
+    }
     return this.newApp || this.checkChangeMade();
   }
 
