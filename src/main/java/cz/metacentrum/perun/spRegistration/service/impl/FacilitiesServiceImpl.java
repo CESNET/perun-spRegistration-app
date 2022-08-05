@@ -124,10 +124,12 @@ public class FacilitiesServiceImpl implements FacilitiesService {
         } else if (facility.getAttributes() == null) {
             throw new InternalErrorException("Could not fetch attributes");
         }
+        Map<AttributeCategory, Map<String, PerunAttribute>> attrs = facility.getAttributes();
 
-        facility.getAttributes().values().forEach(attrsInCategory -> attrsInCategory.values().forEach(
+        attrs.values().forEach(attrsInCategory -> attrsInCategory.values().forEach(
                 attr -> attr.setInput(attrInputMap.get(attr.getFullName())))
         );
+        attrs.forEach((key, value) -> value.entrySet().removeIf(e -> !e.getValue().getInput().isDisplayed()));
 
         return facility;
     }
