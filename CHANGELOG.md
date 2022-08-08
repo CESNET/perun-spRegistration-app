@@ -1,3 +1,22 @@
+# [3.0.0](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.12...v3.0.0) (2022-08-08)
+
+
+### Bug Fixes
+
+* 🐛 Remove nondisplayed fields from facility edit ([70e5154](https://github.com/CESNET/perun-spRegistration-app/commit/70e5154a32a81b7e8e2f193c07f2f52ee49caee3))
+* **deps:** update angularmaterial monorepo to v14.1.1 ([7aeaad9](https://github.com/CESNET/perun-spRegistration-app/commit/7aeaad9b0cf7b0ada61ca15b8ed79389ed680845))
+* **deps:** update nrwl monorepo to v14.5.4 ([5fc900c](https://github.com/CESNET/perun-spRegistration-app/commit/5fc900ca75afa3a3ee1fdf51cd5202cff91960d7))
+
+
+### Features
+
+* Different required inputs for test and prod ([fa3ab43](https://github.com/CESNET/perun-spRegistration-app/commit/fa3ab43e7e70b9df8910803b6d4291f8952b486a))
+
+
+### BREAKING CHANGES
+
+* different property for "required" for inputs
+
 ## [2.1.12](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.11...v2.1.12) (2022-08-08)
 
 
