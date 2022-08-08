@@ -1,3 +1,10 @@
+## [2.1.12](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.11...v2.1.12) (2022-08-08)
+
+
+### Bug Fixes
+
+* **deps:** update angular monorepo to v14.1.1 ([402d549](https://github.com/CESNET/perun-spRegistration-app/commit/402d54911cb1c06eb604c606714a8ee454d7a171))
+
 ## [2.1.11](https://github.com/CESNET/perun-spRegistration-app/compare/v2.1.10...v2.1.11) (2022-08-03)
 
 
