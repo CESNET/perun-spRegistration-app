@@ -19,7 +19,7 @@
           <mat-checkbox
             class="example-margin"
             (change)="specifyFromList = !specifyFromList"
-            checked="selectEmailsEnabled">
+            [checked]="selectEmailsEnabled">
             {{ 'FACILITIES.MOVE_TO_PRODUCTION_EMAIL' | translate }}
           </mat-checkbox>
         </div>

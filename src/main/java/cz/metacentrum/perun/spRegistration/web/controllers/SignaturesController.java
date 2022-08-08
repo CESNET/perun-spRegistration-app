@@ -50,18 +50,18 @@ public class SignaturesController {
 		this.requestSignaturesService = requestSignaturesService;
 	}
 
-	@PostMapping(path = "/api/moveToProduction/createRequest/{facilityId}")
-	public Long moveToProduction(@NonNull @SessionAttribute("user") User user,
-								 @NonNull @PathVariable("facilityId") Long facilityId,
-								 @NonNull @RequestBody List<String> authorities)
+	@PostMapping(path = "/api/moveToProduction/approveRequest/{requestId}")
+	public Long requestApprovalsForTransfer(@NonNull @SessionAttribute("user") User user,
+											@NonNull @PathVariable("requestId") Long requestId,
+											@NonNull @RequestBody List<String> authorities)
 			throws BadPaddingException, InvalidKeyException, IllegalBlockSizeException,
 			UnsupportedEncodingException, InternalErrorException, ActiveRequestExistsException,
 			UnauthorizedActionException, PerunUnknownException, PerunConnectionException
 	{
-		if (!utilsService.isAdminForFacility(facilityId, user)) {
+		if (!utilsService.isAdminForRequest(requestId, user)) {
 			throw new UnauthorizedActionException();
 		}
-		return requestsService.createMoveToProductionRequest(facilityId, user, authorities);
+		return requestsService.createTransferApprovalsRequest(requestId, user, authorities);
 	}
 
 	@GetMapping(path = "/api/moveToProduction/getFacilityDetails", params = "code")

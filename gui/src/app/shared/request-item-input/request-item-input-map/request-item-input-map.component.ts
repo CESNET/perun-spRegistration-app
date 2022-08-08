@@ -15,6 +15,7 @@ export class RequestItemInputMapComponent implements RequestItem, OnInit {
 
   @Input() newApp = false;
   @Input() applicationItem: ApplicationItem;
+  @Input() required = false;
   @ViewChild('form', { static: false }) form: NgForm;
 
   entries: Map<string, string> = new Map<string, string>();
@@ -54,7 +55,7 @@ export class RequestItemInputMapComponent implements RequestItem, OnInit {
       }
     }
 
-    if (this.applicationItem.required && this.keys.length === 0) {
+    if (this.required && this.keys.length === 0) {
       this.addValue();
     }
   }
@@ -180,7 +181,7 @@ export class RequestItemInputMapComponent implements RequestItem, OnInit {
 
   private checkValueRequired(): boolean {
     if (!RequestItemInputUtils.hasValue(this.values)) {
-      if (this.applicationItem.required) {
+      if (this.required) {
         this.missingValueError = true;
         return false;
       }

@@ -17,6 +17,7 @@ export class RequestItemInputMultiselectComponent
 
   @Input() newApp = false;
   @Input() applicationItem: ApplicationItem;
+  @Input() required = false;
   @ViewChild('form', { static: false }) form: NgForm;
 
   values: string[] = [];
@@ -72,7 +73,7 @@ export class RequestItemInputMultiselectComponent
   }
 
   private checkValueRequired(): boolean {
-    if (this.applicationItem.required) {
+    if (this.required) {
       this.form.form.setErrors({ incorrect: true });
       this.missingValueError = true;
       return false;

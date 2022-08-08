@@ -5,7 +5,7 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RequestsService } from '../../core/services/requests.service';
 import { Subscription } from 'rxjs';
 import { Request } from '../../core/models/Request';
@@ -22,6 +22,7 @@ import { AuditService } from '../../core/services/audit.service';
 import { AuditLog } from '../../core/models/AuditLog';
 import { RequestAction } from '../../core/models/enums/RequestAction';
 import { RequestStatus } from '../../core/models/enums/RequestStatus';
+import { FacilitiesService } from '../../core/services/facilities.service';
 
 export interface DialogData {
   isApprove: false;
@@ -46,7 +47,9 @@ export class RequestsDetailComponent implements OnInit, DoCheck, OnDestroy {
     private requestsService: RequestsService,
     private snackBar: MatSnackBar,
     private translate: TranslateService,
-    private auditService: AuditService
+    private auditService: AuditService,
+    private facilitiesService: FacilitiesService,
+    private router: Router
   ) {}
 
   @ViewChild('input', { static: false })
@@ -87,6 +90,8 @@ export class RequestsDetailComponent implements OnInit, DoCheck, OnDestroy {
 
   displayOldVal = false;
   includeComment = false;
+
+  successActionText: string;
 
   private static sortItems(items: DetailViewItem[]): DetailViewItem[] {
     items.sort((a, b) => a.position - b.position);
@@ -136,6 +141,9 @@ export class RequestsDetailComponent implements OnInit, DoCheck, OnDestroy {
       .get('REQUESTS.CANCELED')
       .subscribe(value => (this.successCancelMessage = value));
     this.isApplicationAdmin = AppComponent.isApplicationAdmin();
+    this.translate
+      .get('REQUESTS.SUCCESSFULLY_SUBMITTED')
+      .subscribe(value => (this.successActionText = value));
   }
 
   ngOnDestroy(): void {
@@ -161,6 +169,16 @@ export class RequestsDetailComponent implements OnInit, DoCheck, OnDestroy {
         this.displayedColumns = ['name', 'value'];
       }
     }
+  }
+
+  approveMoveToProduction(): void {
+    this.facilitiesService
+      .createTransferApprovalRequest(this.request.reqId, [])
+      .subscribe(reqId => {
+        this.loading = false;
+        this.snackBar.open(this.successActionText, null, { duration: 5000 });
+        window.location.reload();
+      });
   }
 
   openApproveDialog(): void {

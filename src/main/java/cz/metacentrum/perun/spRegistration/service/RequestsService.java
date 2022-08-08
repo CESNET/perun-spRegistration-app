@@ -22,6 +22,11 @@ public interface RequestsService {
     Long createRegistrationRequest(@NonNull User user, @NonNull List<PerunAttribute> attributes)
             throws InternalErrorException;
 
+    Long createTransferRequest(@NonNull Long facilityId, @NonNull User user,
+                                      @NonNull List<PerunAttribute> attributes)
+        throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException,
+        PerunUnknownException, PerunConnectionException;
+
      Long createFacilityChangesRequest(@NonNull Long facilityId, @NonNull User user,
                                        @NonNull List<PerunAttribute> attributes)
             throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException,
@@ -33,7 +38,7 @@ public interface RequestsService {
             PerunUnknownException, PerunConnectionException;
 
 
-    Long createMoveToProductionRequest(@NonNull Long facilityId, @NonNull User user, @NonNull List<String> authorities)
+    Long createTransferApprovalsRequest(@NonNull Long requestId, @NonNull User user, @NonNull List<String> authorities)
             throws UnauthorizedActionException, InternalErrorException, ActiveRequestExistsException,
             BadPaddingException, InvalidKeyException, IllegalBlockSizeException, UnsupportedEncodingException,
             PerunUnknownException, PerunConnectionException;

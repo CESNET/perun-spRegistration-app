@@ -25,6 +25,9 @@ export class RequestsStatusLangPipe implements PipeTransform {
       case RequestStatus.CANCELED: {
         return 'REQUESTS.STATUSPIPE.CANCELED';
       }
+      case RequestStatus.IN_APPROVAL_PROCESS: {
+        return 'REQUESTS.STATUSPIPE.IN_APPROVAL_PROCESS';
+      }
       case RequestStatus.UNKNOWN: {
         return 'REQUESTS.STATUSPIPE.UNKNOWN';
       }

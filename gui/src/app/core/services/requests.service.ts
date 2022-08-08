@@ -31,6 +31,16 @@ export class RequestsService {
     );
   }
 
+  createTransferRequest(
+    id: number,
+    perunAttributes: PerunAttribute[]
+  ): Observable<number> {
+    return this.apiService.post(
+      RequestsService.prefix + `/transfer/${id}`,
+      perunAttributes
+    );
+  }
+
   getRequest(id: number): Observable<Request> {
     return this.apiService.get(RequestsService.prefix + `/request/${id}`);
   }

@@ -15,6 +15,7 @@ export class RequestItemInputListComponent implements RequestItem, OnInit {
 
   @Input() newApp = false;
   @Input() applicationItem: ApplicationItem;
+  @Input() required = false;
   @ViewChild('form', { static: false }) form: NgForm;
 
   values: string[] = [];
@@ -31,7 +32,7 @@ export class RequestItemInputListComponent implements RequestItem, OnInit {
       }
     }
 
-    if (this.applicationItem.required && this.values.length === 0) {
+    if (this.required && this.values.length === 0) {
       this.addValue();
     }
   }
@@ -115,7 +116,7 @@ export class RequestItemInputListComponent implements RequestItem, OnInit {
   }
 
   private checkValueRequired(): boolean {
-    if (this.applicationItem.required) {
+    if (this.required) {
       this.form.form.setErrors({ incorrect: true });
       this.missingValueError = true;
       return false;

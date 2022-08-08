@@ -37,9 +37,12 @@ export class FacilitiesService {
     return this.apiService.get('/facility/signature/' + id);
   }
 
-  createRequest(id: number, emails: string[]): Observable<number> {
+  createTransferApprovalRequest(
+    id: number,
+    emails: string[]
+  ): Observable<number> {
     return this.apiService.post(
-      '/moveToProduction/createRequest/' + id,
+      '/moveToProduction/approveRequest/' + id,
       emails
     );
   }

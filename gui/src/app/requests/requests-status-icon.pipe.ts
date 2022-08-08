@@ -23,6 +23,9 @@ export class RequestsStatusIconPipe implements PipeTransform {
       case RequestStatus.WAITING_FOR_CHANGES: {
         return '<i class="material-icons blue mb-0">cached</i>';
       }
+      case RequestStatus.IN_APPROVAL_PROCESS: {
+        return '<i class="material-icons blue mb-0">gavel</i>';
+      }
       case RequestStatus.UNKNOWN: {
         return '<i class="material-icons mb-0">help_outline</i>';
       }

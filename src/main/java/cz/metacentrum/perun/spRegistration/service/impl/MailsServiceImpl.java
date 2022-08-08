@@ -59,6 +59,7 @@ public class MailsServiceImpl implements MailsService {
 
     // actions
     public static final String REQUEST_CREATED = "REQUEST_CREATED";
+    public static final String TRANSFER_APPROVAL = "TRANSFER_APPROVAL";
     public static final String REQUEST_MODIFIED = "REQUEST_MODIFIED";
     public static final String REQUEST_STATUS_UPDATED = "REQUEST_STATUS_UPDATED";
     public static final String REQUEST_SIGNED = "REQUEST_SIGNED";
@@ -77,11 +78,15 @@ public class MailsServiceImpl implements MailsService {
     public static final String REQUEST_MODIFIED_USER_KEY = "status_actualized_user";
     public static final String REQUEST_CREATED_USER_KEY = "create_user";
     public static final String REQUEST_CANCEL_USER_KEY = "cancel_user";
+
+    public static final String TRANSFER_APPROVAL_USER_KEY = "transfer_approval_user";
     public static final String REQUEST_SIGNED_ADMIN_KEY = "signed_admin";
     public static final String REQUEST_STATUS_UPDATED_ADMIN_KEY = "update_admin";
     public static final String REQUEST_MODIFIED_ADMIN_KEY = "status_actualized_admin";
     public static final String REQUEST_CREATED_ADMIN_KEY = "create_admin";
     public static final String REQUEST_CANCEL_ADMIN_KEY = "cancel_admin";
+
+    public static final String TRANSFER_APPROVAL_ADMIN_KEY = "transfer_approval_admin";
 
     // placeholders
     public static final String REQUEST_ID_FIELD = "%REQUEST_ID%";
@@ -379,19 +384,36 @@ public class MailsServiceImpl implements MailsService {
 
     private String getMailTemplateKey(String role, String action) {
         if (ROLE_ADMIN.equalsIgnoreCase(role)) {
-            return getString(action, REQUEST_CREATED_ADMIN_KEY, REQUEST_MODIFIED_ADMIN_KEY,
-                    REQUEST_STATUS_UPDATED_ADMIN_KEY, REQUEST_SIGNED_ADMIN_KEY, REQUEST_CANCEL_ADMIN_KEY);
+            return getString(action,
+                REQUEST_CREATED_ADMIN_KEY,
+                REQUEST_MODIFIED_ADMIN_KEY,
+                REQUEST_STATUS_UPDATED_ADMIN_KEY,
+                REQUEST_SIGNED_ADMIN_KEY,
+                REQUEST_CANCEL_ADMIN_KEY,
+                TRANSFER_APPROVAL_ADMIN_KEY
+            );
         } else if (ROLE_USER.equalsIgnoreCase(role)){
-            return getString(action, REQUEST_CREATED_USER_KEY, REQUEST_MODIFIED_USER_KEY,
-                    REQUEST_STATUS_UPDATED_USER_KEY, REQUEST_SIGNED_USER_KEY, REQUEST_CANCEL_USER_KEY);
+            return getString(action,
+                REQUEST_CREATED_USER_KEY,
+                REQUEST_MODIFIED_USER_KEY,
+                REQUEST_STATUS_UPDATED_USER_KEY,
+                REQUEST_SIGNED_USER_KEY,
+                REQUEST_CANCEL_USER_KEY,
+                TRANSFER_APPROVAL_USER_KEY
+            );
         }
 
         log.error("Cannot recognize role {}", role);
         throw new IllegalArgumentException("Unrecognized role");
     }
 
-    private String getString(String action, String requestCreatedKey, String requestModifiedKey,
-                             String requestStatusUpdatedKey, String requestSignedKey, String requestCanceledKey)
+    private String getString(String action,
+                             String requestCreatedKey,
+                             String requestModifiedKey,
+                             String requestStatusUpdatedKey,
+                             String requestSignedKey,
+                             String requestCanceledKey,
+                             String transferApprovalKey)
     {
         switch (action) {
             case REQUEST_CREATED:
@@ -404,6 +426,8 @@ public class MailsServiceImpl implements MailsService {
                 return requestSignedKey;
             case REQUEST_CANCELED:
                 return requestCanceledKey;
+            case TRANSFER_APPROVAL:
+                return transferApprovalKey;
             default:
                 log.error("Unrecognized action {}", action);
                 throw new IllegalArgumentException("Unrecognized action");
