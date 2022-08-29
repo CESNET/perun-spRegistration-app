@@ -23,7 +23,7 @@
         <java.version>11</java.version>
         <node.version>v16.15.1</node.version>
         <npm.version>8.12.1</npm.version>
-        <jsoup.version>1.15.2</jsoup.version>
+        <jsoup.version>1.15.3</jsoup.version>
         <bc.version>1.70</bc.version>
         <bc-prov.version>${bc.version}</bc-prov.version>
         <bc-mail.version>${bc.version}</bc-mail.version>
