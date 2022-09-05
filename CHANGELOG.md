@@ -1,3 +1,11 @@
+## [3.0.8](https://github.com/CESNET/perun-spRegistration-app/compare/v3.0.7...v3.0.8) (2022-09-05)
+
+
+### Bug Fixes
+
+* 🐛 Fix deleting managers group ([cb2d816](https://github.com/CESNET/perun-spRegistration-app/commit/cb2d8167cb898426d4f867020dfd276f9b28dff2))
+* **deps:** update font awesome to v6.2.0 ([49193b9](https://github.com/CESNET/perun-spRegistration-app/commit/49193b91abcc0abf67952a14f19016a6d8c3f8d1))
+
 ## [3.0.7](https://github.com/CESNET/perun-spRegistration-app/compare/v3.0.6...v3.0.7) (2022-08-30)
 
 
