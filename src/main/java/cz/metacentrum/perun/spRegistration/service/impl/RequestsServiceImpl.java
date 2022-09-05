@@ -690,10 +690,10 @@ public class RequestsServiceImpl implements RequestsService {
             if (!spUpdatedToNoFacId) {
                 throw new ProcessingException("Failed to to update (remove facility id) of SP object in local storage");
             }
+            deleteAdminsGroup(facilityId);
             if (!deleteFacility(sp, facilityId)) {
                 throw new ProcessingException("Failed to delete facility from perun");
             }
-            deleteAdminsGroup(facilityId);
         } catch (Exception e) {
             if (spUpdatedToNoFacId) {
                 final ProvidedService spOriginal = sp;
