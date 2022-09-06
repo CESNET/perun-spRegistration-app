@@ -32,7 +32,7 @@
     "@fortawesome/free-solid-svg-icons": "6.2.0",
     "@ngx-translate/core": "14.0.0",
     "@ngx-translate/http-loader": "7.0.0",
-    "@nrwl/angular": "14.5.10",
+    "@nrwl/angular": "14.6.4",
     "bootstrap": "4.6.2",
     "core-js": "3.25.0",
     "font-awesome": "4.7.0",
@@ -52,8 +52,8 @@
     "@angular/cli": "14.2.1",
     "@angular/compiler-cli": "14.2.0",
     "@angular/language-service": "14.2.0",
-    "@nrwl/eslint-plugin-nx": "14.5.10",
-    "@nrwl/workspace": "14.5.10",
+    "@nrwl/eslint-plugin-nx": "14.6.4",
+    "@nrwl/workspace": "14.6.4",
     "@types/node": "16.11.56",
     "@typescript-eslint/eslint-plugin": "5.36.1",
     "@typescript-eslint/parser": "5.36.1",
@@ -64,7 +64,7 @@
     "eslint-plugin-n": "15.2.5",
     "eslint-plugin-prettier": "4.2.1",
     "eslint-plugin-promise": "6.0.1",
-    "nx": "14.5.10",
+    "nx": "14.6.4",
     "prettier": "2.7.1",
     "typescript": "4.8.2"
   }
