@@ -177,7 +177,12 @@ export class RequestsDetailComponent implements OnInit, DoCheck, OnDestroy {
       .subscribe(reqId => {
         this.loading = false;
         this.snackBar.open(this.successActionText, null, { duration: 5000 });
-        window.location.reload();
+        let currentUrl = this.router.url;
+        this.router
+          .navigateByUrl('/', { skipLocationChange: true })
+          .then(() => {
+            this.router.navigate([currentUrl]);
+          });
       });
   }
 
