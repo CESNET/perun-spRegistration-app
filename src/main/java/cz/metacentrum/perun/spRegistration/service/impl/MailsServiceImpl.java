@@ -171,9 +171,18 @@ public class MailsServiceImpl implements MailsService {
         }
 
         MailTemplate template = getTemplate(PRODUCTION_AUTHORITIES_KEY);
+        if (template == null) {
+            log.warn("No template for action '{}'", PRODUCTION_AUTHORITIES_KEY);
+            return false;
+        }
+
         String message = constructMessage(template);
         String subject = constructSubject(template);
 
+        if (!StringUtils.hasText(message) || !StringUtils.hasText(subject)) {
+            log.debug("No subject ({}) or message ({}) configured for notification", subject, message);
+            return false;
+        }
         message = replaceApprovalLink(message, approvalLink);
         message = replacePlaceholders(message, req);
         subject = replacePlaceholders(subject, req);
@@ -190,8 +199,18 @@ public class MailsServiceImpl implements MailsService {
         }
 
         MailTemplate template = getTemplate(ADD_ADMIN_KEY);
+        if (template == null) {
+            log.warn("No template for action '{}'", ADD_ADMIN_KEY);
+            return false;
+        }
+
         String message = constructMessage(template);
         String subject = constructSubject(template);
+
+        if (!StringUtils.hasText(message) || !StringUtils.hasText(subject)) {
+            log.debug("No subject ({}) or message ({}) configured for notification", subject, message);
+            return false;
+        }
 
         subject = replacePlaceholders(subject, service);
 
@@ -209,9 +228,17 @@ public class MailsServiceImpl implements MailsService {
             return;
         }
         MailTemplate template = getTemplate(action, ROLE_USER);
+        if (template == null) {
+            log.warn("No template for action '{}' and role '{}'", action, ROLE_USER);
+        }
 
         String message = constructMessage(template);
         String subject = constructSubject(template);
+
+        if (!StringUtils.hasText(message) || !StringUtils.hasText(subject)) {
+            log.debug("No subject ({}) or message ({}) configured for notification", subject, message);
+            return;
+        }
 
         subject = replacePlaceholders(subject, req);
         message = replacePlaceholders(message, req);
@@ -233,8 +260,17 @@ public class MailsServiceImpl implements MailsService {
             return;
         }
         MailTemplate template = getTemplate(action, ROLE_ADMIN);
+        if (template == null) {
+            log.warn("No template for action '{}' and role '{}'", action, ROLE_ADMIN);
+            return;
+        }
         String subject = constructSubject(template);
         String message = constructMessage(template);
+
+        if (!StringUtils.hasText(message) || !StringUtils.hasText(subject)) {
+            log.debug("No subject ({}) or message ({}) configured for notification", subject, message);
+            return;
+        }
 
         subject = replacePlaceholders(subject, req);
         message = replacePlaceholders(message, req);
@@ -256,8 +292,17 @@ public class MailsServiceImpl implements MailsService {
             return;
         }
         MailTemplate template = getTemplate(CLIENT_SECRET_CHANGED_KEY);
+        if (template == null) {
+            log.warn("No template for action '{}'", CLIENT_SECRET_CHANGED_KEY);
+            return;
+        }
         String subject = constructSubject(template);
         String message = constructMessage(template);
+
+        if (!StringUtils.hasText(message) || !StringUtils.hasText(subject)) {
+            log.debug("No subject ({}) or message ({}) configured for notification", subject, message);
+            return;
+        }
 
         subject = replacePlaceholders(subject, facility);
         message = replacePlaceholders(message, facility);
@@ -365,8 +410,7 @@ public class MailsServiceImpl implements MailsService {
         String key = getMailTemplateKey(role, action);
         MailTemplate template = templates.getOrDefault(key, null);
         if (template == null) {
-            log.error("Could not fetch mail template for key {} ", key);
-            throw new IllegalArgumentException("Unrecognized property for mail");
+            log.warn("Could not fetch mail template for key {} ", key);
         }
 
         return template;
@@ -375,8 +419,7 @@ public class MailsServiceImpl implements MailsService {
     private MailTemplate getTemplate(String key) {
         MailTemplate template = templates.getOrDefault(key, null);
         if (template == null) {
-            log.error("Could not fetch mail template for key {} ", key);
-            throw new IllegalArgumentException("Unrecognized property for mail");
+            log.warn("Could not fetch mail template for key {} ", key);
         }
 
         return template;
@@ -442,8 +485,11 @@ public class MailsServiceImpl implements MailsService {
                 joiner.add(subj);
             }
         }
-
-        return mailProperties.getSubjectPrefix() + joiner;
+        if (joiner.length() > 0) {
+            return mailProperties.getSubjectPrefix() + joiner;
+        } else {
+            return null;
+        }
     }
 
     private String constructMessage(MailTemplate template) {
@@ -454,8 +500,12 @@ public class MailsServiceImpl implements MailsService {
                 joiner.add(msg);
             }
         }
-        joiner.add(mailProperties.getFooter());
-        return MSG_WRAP_START + joiner + MSG_WRAP_END;
+        if (joiner.length() > 0) {
+            joiner.add(mailProperties.getFooter());
+            return MSG_WRAP_START + joiner + MSG_WRAP_END;
+        } else {
+            return null;
+        }
     }
 
     private boolean sendMail(String to, String subject, String msg) {
