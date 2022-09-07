@@ -1,3 +1,10 @@
+## [3.0.12](https://github.com/CESNET/perun-spRegistration-app/compare/v3.0.11...v3.0.12) (2022-09-07)
+
+
+### Bug Fixes
+
+* 🐛 fix reload when approval happens ([8e9b6da](https://github.com/CESNET/perun-spRegistration-app/commit/8e9b6da37d5685c4c3de6d672d7c03db4f16d60a))
+
 ## [3.0.11](https://github.com/CESNET/perun-spRegistration-app/compare/v3.0.10...v3.0.11) (2022-09-07)
 
 
