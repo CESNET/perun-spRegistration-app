@@ -1,3 +1,10 @@
+## [3.0.11](https://github.com/CESNET/perun-spRegistration-app/compare/v3.0.10...v3.0.11) (2022-09-07)
+
+
+### Bug Fixes
+
+* 🐛 Fix mail templates ([336ece2](https://github.com/CESNET/perun-spRegistration-app/commit/336ece2f94a4e0f6f250c3134b2397bf1d66df63))
+
 ## [3.0.10](https://github.com/CESNET/perun-spRegistration-app/compare/v3.0.9...v3.0.10) (2022-09-07)
 
 
