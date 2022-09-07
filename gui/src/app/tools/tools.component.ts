@@ -34,7 +34,7 @@ export class ToolsComponent implements OnInit, OnDestroy {
     this.toolsServiceEncryptSubscription = this.toolsService
       .encrypt(toEncrypt)
       .subscribe(encrypted => {
-        this.encryptOutput = encrypted;
+        this.encryptOutput = encrypted['value'];
       });
   }
 
@@ -42,7 +42,7 @@ export class ToolsComponent implements OnInit, OnDestroy {
     this.toolsServiceDecryptSubscription = this.toolsService
       .decrypt(toDecrypt)
       .subscribe(decrypted => {
-        this.decryptOutput = decrypted;
+        this.decryptOutput = decrypted['value'];
       });
   }
 }
