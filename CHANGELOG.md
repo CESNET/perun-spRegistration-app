@@ -1,3 +1,10 @@
+## [3.0.10](https://github.com/CESNET/perun-spRegistration-app/compare/v3.0.9...v3.0.10) (2022-09-07)
+
+
+### Bug Fixes
+
+* 🐛 Fix toolbox outputs ([ee31c3b](https://github.com/CESNET/perun-spRegistration-app/commit/ee31c3bcbc6bfc7a9da61f7363d1ea6f26aac477))
+
 ## [3.0.9](https://github.com/CESNET/perun-spRegistration-app/compare/v3.0.8...v3.0.9) (2022-09-06)
 
 
