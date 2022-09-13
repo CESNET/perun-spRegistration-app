@@ -1,3 +1,11 @@
+## [3.0.13](https://github.com/CESNET/perun-spRegistration-app/compare/v3.0.12...v3.0.13) (2022-09-13)
+
+
+### Bug Fixes
+
+* **deps:** update angular monorepo to v14.2.1 ([268e617](https://github.com/CESNET/perun-spRegistration-app/commit/268e6175dae11c1b852188f9ef3ce6608da1a7f7))
+* **deps:** update dependency core-js to v3.25.1 ([28efb01](https://github.com/CESNET/perun-spRegistration-app/commit/28efb01b4e39c81f106aa7292e0bac8d229b987f))
+
 ## [3.0.12](https://github.com/CESNET/perun-spRegistration-app/compare/v3.0.11...v3.0.12) (2022-09-07)
 
 
